@@ -1,0 +1,8 @@
+[config]
+package.base=org.debox.photo
+package.actions=action
+
+[actions]
+*   /                   FileBrowser.init
+*   /photos             FileBrowser.index
+*   /photos/{name}      FileBrowser.picture
