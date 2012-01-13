@@ -41,13 +41,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     
-    <repositories>
-        <repository>
-            <id>The Buzz Media Maven Repository</id>
-            <url>http://maven.thebuzzmedia.com</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
@@ -78,12 +71,6 @@
             <groupId>org.imgscalr</groupId>
             <artifactId>imgscalr-lib</artifactId>
             <version>4.2</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.thebuzzmedia</groupId>
-            <artifactId>exiftool-lib</artifactId>
-            <version>1.1</version>
         </dependency>
         
     </dependencies>
