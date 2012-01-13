@@ -3,6 +3,8 @@ package.base=org.debox.photo
 package.actions=action
 
 [actions]
-*   /                   FileBrowser.init
-*   /photos             FileBrowser.index
+*   /init               FileBrowser.init
 *   /photos/{name}      FileBrowser.picture
+*   /photos/{album}/{name}      FileBrowser.picture
+*   /albums/            FileBrowser.index
+*   /albums/{id}/       FileBrowser.index

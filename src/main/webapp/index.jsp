@@ -1,3 +1,4 @@
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <!--
   #%L
   debox-photos
@@ -18,7 +19,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
   -->
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" import="java.io.File" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -30,8 +31,13 @@
     </head>
     <body>
         <h1>Hello World!</h1>
-        <c:forEach items="${list}" var="item" begin="2" end="2">
-            <img src="/picture/${item}" style="width:100px;" />
+        <c:forEach items="${list}" var="item">
+            <c:if test="${item.isDirectory()}">
+                <a href="<c:url value="${item.getName()}/" />">${item.getName()}</a><br />
+            </c:if>
+            <c:if test="${item.isFile()}">
+                <img src="${url}${item.getName()}" />
+            </c:if>
         </c:forEach>
     </body>
 </html>
