@@ -21,19 +21,19 @@
 package org.debox.photo.action;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffField;
 import org.apache.sanselan.formats.tiff.constants.TiffConstants;
+import org.debox.photo.FileNameComparator;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.imgscalr.Scalr;
@@ -44,15 +44,41 @@ import org.slf4j.LoggerFactory;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class FileBrowser extends WebMotionController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(FileBrowser.class);
+    protected static final String LARGE_PREFIX = "1600_";
+    protected static final String THUMBNAIL_PREFIX = "th_";
 
+    private static final Logger logger = LoggerFactory.getLogger(FileBrowser.class);
     protected static final File source = new File("/home/cguy/public");
     protected static final File dest = new File("/home/cguy/public_app");
 
     public Render init() throws IOException {
         copyDirectories(source, dest);
         return renderStatus(200);
+    }
+    
+    protected BufferedImage rotate(File fileToRead) throws IOException {
+        BufferedImage image = ImageIO.read(fileToRead);
+        return rotate(fileToRead, image);
+    }
+
+    protected BufferedImage rotate(File fileToRead, BufferedImage imageToRotate) throws IOException {
+        BufferedImage image = imageToRotate;
+        try {
+            JpegImageMetadata metadata = (JpegImageMetadata) Sanselan.getMetadata(fileToRead);
+            TiffField field = metadata.findEXIFValue(TiffConstants.TIFF_TAG_ORIENTATION);
+
+            int orientation = field.getIntValue();
+            if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_90_CW) {
+                image = Scalr.rotate(image, Scalr.Rotation.CW_90);
+            } else if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_180) {
+                image = Scalr.rotate(image, Scalr.Rotation.CW_180);
+            } else if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_270_CW) {
+                image = Scalr.rotate(image, Scalr.Rotation.CW_270);
+            }
+        } catch (ImageReadException ex) {
+            ex.printStackTrace();
+        }
+        return image;
     }
 
     protected void copyDirectories(File source, File target) throws IOException {
@@ -65,51 +91,77 @@ public class FileBrowser extends WebMotionController {
             }
         } else {
             BufferedImage image = ImageIO.read(source);
-            BufferedImage thumbnail = Scalr.resize(image, 150);
+            
+            BufferedImage thumbnail = Scalr.resize(image, 225);
+            thumbnail = rotate(source, thumbnail);
 
-            try {
-                JpegImageMetadata metadata = (JpegImageMetadata) Sanselan.getMetadata(source);
-                TiffField field = metadata.findEXIFValue(TiffConstants.TIFF_TAG_ORIENTATION);
-
-                int orientation = field.getIntValue();
-                if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_90_CW) {
-                    thumbnail = Scalr.rotate(thumbnail, Scalr.Rotation.CW_90);
-                } else if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_180) {
-                    thumbnail = Scalr.rotate(thumbnail, Scalr.Rotation.CW_180);
-                } else if (orientation == TiffConstants.ORIENTATION_VALUE_ROTATE_270_CW) {
-                    thumbnail = Scalr.rotate(thumbnail, Scalr.Rotation.CW_270);
-                }
-            } catch (ImageReadException ex) {
-                ex.printStackTrace();
+            int height = thumbnail.getHeight();
+            int width = thumbnail.getWidth();
+            int squareSize = width;
+            int x = 0;
+            int y = 0;
+            if (width > height) {
+                squareSize = height;
+                x = (width - height) / 2;
+                y = 0;
+            } else if (width < height) {
+                squareSize = width;
+                x = 0;
+                y = (height - width) / 2;
             }
 
-            File imageFile = new File(target.getParentFile(), source.getName());
+            thumbnail = Scalr.crop(thumbnail, x, y, squareSize, squareSize);
+
+            File imageFile = new File(target.getParentFile(), THUMBNAIL_PREFIX + source.getName());
             ImageIO.write(thumbnail, "jpg", imageFile);
+            
+            thumbnail = Scalr.resize(image, 1600);
+            thumbnail = rotate(source, thumbnail);
+            imageFile = new File(target.getParentFile(), LARGE_PREFIX + source.getName());
+            ImageIO.write(thumbnail, "jpg", imageFile);
+            
+            image.flush();
+            thumbnail.flush();
         }
     }
 
-    public Render index(String id) throws IOException {
-        System.out.println(id);
-        
-        File directory = source;
-        if (!StringUtils.isEmpty(id)) {
-            id = URLDecoder.decode(id, "UTF-8");
-            directory = new File(source, id);
-            if (!directory.exists()) {
-                return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-            }
+    public Render displayAlbum(String album) throws IOException {
+        album = URLDecoder.decode(album, "UTF-8");
+        File directory = new File(source, album);
+        if (!directory.exists()) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
-        String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "albums", "deploy/photos");
-        System.out.println(url);
-        
-        return renderView("index.jsp", "list", directory.listFiles(), "url", url);
+
+        File[] files = directory.listFiles();
+        Arrays.sort(files, new FileNameComparator());
+
+        String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "album", "deploy/thumbnail");
+        return renderView("album.jsp", "list", files, "url", url, "albumName", album);
     }
 
-    public Render picture(String album, String name) throws FileNotFoundException {
-        File directory = new File(dest, album + File.separatorChar + name);
-        logger.info(directory.getAbsolutePath());
-        
-        return renderStream(new FileInputStream(directory), "image/jpeg");
+    public Render displayPhoto(String album, String photo) throws IOException {
+        album = URLDecoder.decode(album, "UTF-8");
+        photo = URLDecoder.decode(photo, "UTF-8");
+        File file = new File(source, album + File.separatorChar + photo);
+        if (!file.exists()) {
+            return renderStatus(HttpURLConnection.HTTP_ACCEPTED);
+        }
+        return renderView("photo.jsp", "album", album, "photo", photo);
+    }
+
+    public Render displayAlbums() throws IOException {
+        File[] files = source.listFiles();
+        Arrays.sort(files, new FileNameComparator());
+        return renderView("index.jsp", "list", files);
+    }
+
+    public Render getThumbnail(String album, String photo) throws FileNotFoundException {
+        File file = new File(dest, album + File.separatorChar + THUMBNAIL_PREFIX +photo);
+        return renderStream(new FileInputStream(file), "image/jpeg");
+    }
+
+    public Render getPhoto(String album, String photo) throws FileNotFoundException, IOException {
+        File file = new File(dest, album + File.separatorChar + LARGE_PREFIX + photo);
+        return renderStream(new FileInputStream(file), "image/jpeg");
     }
 }

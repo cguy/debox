@@ -1,10 +1,14 @@
 [config]
 package.base=org.debox.photo
 package.actions=action
+package.views=WEB-INF/
 
 [actions]
-*   /init               FileBrowser.init
-*   /photos/{name}      FileBrowser.picture
-*   /photos/{album}/{name}      FileBrowser.picture
-*   /albums/            FileBrowser.index
-*   /albums/{id}/       FileBrowser.index
+*   /init                       FileBrowser.init
+
+*   /thumbnail/{album}/{photo}  FileBrowser.getThumbnail
+*   /photo/{album}/{photo}      FileBrowser.getPhoto
+
+*   /album/{album}/             FileBrowser.displayAlbum
+*   /album/{album}/{photo}      FileBrowser.displayPhoto
+*   /                           FileBrowser.displayAlbums
