@@ -21,17 +21,30 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:import url="includes/header.jsp" />
+<c:import url="../includes/header.jsp" />
 
 <div class="page-header">
-    <h1>${albumName}</h1>
-</div>
-<div class="media-grid">
-    <c:forEach items="${list}" var="item" varStatus="tagStatus">
-        <c:if test="${item.isFile()}">
-            <a href="<c:url value="/deploy/album/${albumName}/${item.getName()}" />" id="${item.getName()}"><img src="${url}/${item.getName()}" style="width:160px;" /></a>
-        </c:if>
-    </c:forEach>
+    <h1>Administration</h1>
 </div>
 
-<c:import url="includes/footer.jsp" />
+<ul>
+    <li><a href="#" data-controls-modal="add-album-modal" data-backdrop="true">Ajouter un album photo</a></li>
+</ul>
+
+<div id="add-album-modal" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close">&times;</a>
+        <h3>Ajouter un album photo</h3>
+    </div>
+    <form method="post" action="<c:url value="/admin/album" />">
+        <div class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+            <a href="#" id="add-album-cancel" class="btn secondary">Retour</a>
+            <input type="submit" class="btn primary" value="Valider" />
+        </div>
+    </form>
+</div>
+
+<c:import url="../includes/footer.jsp" />

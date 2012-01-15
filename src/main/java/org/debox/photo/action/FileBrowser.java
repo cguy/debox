@@ -24,9 +24,10 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
@@ -138,8 +139,42 @@ public class FileBrowser extends WebMotionController {
         String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "album", "deploy/thumbnail");
         return renderView("album.jsp", "list", files, "url", url, "albumName", album);
     }
+    
+    public Render getAlbum(String album) throws IOException {
+        album = URLDecoder.decode(album, "UTF-8");
+        File directory = new File(source, album);
+        if (!directory.exists()) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+
+        File[] files = directory.listFiles();
+        Arrays.sort(files, new FileNameComparator());
+        
+        String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "api/album", "deploy/thumbnail");
+        List<String> list = new ArrayList<String>();
+        for (File file : files) {
+            list.add(url + File.separatorChar + file.getName());
+        }
+        
+        List<String> names = new ArrayList<String>();
+        for (File file : files) {
+            names.add(file.getName());
+        }
+
+        return renderJSON("list", list, "names", names, "url", url, "albumName", album);
+    }
 
     public Render displayPhoto(String album, String photo) throws IOException {
+        album = URLDecoder.decode(album, "UTF-8");
+        photo = URLDecoder.decode(photo, "UTF-8");
+        File file = new File(source, album + File.separatorChar + photo);
+        if (!file.exists()) {
+            return renderStatus(HttpURLConnection.HTTP_ACCEPTED);
+        }
+        return  renderJSON("album", album, "photo", photo);
+    }
+    
+    public Render displayPhoto2(String album, String photo) throws IOException {
         album = URLDecoder.decode(album, "UTF-8");
         photo = URLDecoder.decode(photo, "UTF-8");
         File file = new File(source, album + File.separatorChar + photo);

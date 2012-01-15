@@ -17,21 +17,19 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
--->
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<c:import url="includes/header.jsp" />
-
-<div class="page-header">
-    <h1>${albumName}</h1>
-</div>
-<div class="media-grid">
-    <c:forEach items="${list}" var="item" varStatus="tagStatus">
-        <c:if test="${item.isFile()}">
-            <a href="<c:url value="/deploy/album/${albumName}/${item.getName()}" />" id="${item.getName()}"><img src="${url}/${item.getName()}" style="width:160px;" /></a>
-        </c:if>
-    </c:forEach>
-</div>
-
-<c:import url="includes/footer.jsp" />
+  -->
+            </div>
+        </div> <!-- /container -->
+        <div id="login-modal" class="modal hide fade">
+            <div class="modal-header">
+                <a href="#" class="close">&times;</a>
+                <h3>Connexion</h3>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="login-cancel" class="btn secondary">Retour</a>
+            </div>
+        </div>
+    </body>
+</html>

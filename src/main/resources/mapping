@@ -6,9 +6,15 @@ package.views=WEB-INF/
 [actions]
 *   /init                       FileBrowser.init
 
+*   /signin/facebook            SignIn.doFacebookSignIn
+
+*   /admin/                     Administration.index
+
 *   /thumbnail/{album}/{photo}  FileBrowser.getThumbnail
 *   /photo/{album}/{photo}      FileBrowser.getPhoto
 
-*   /album/{album}/             FileBrowser.displayAlbum
-*   /album/{album}/{photo}      FileBrowser.displayPhoto
+*   /api/album/{album}          FileBrowser.getAlbum
+*   /api/photo/{album}/{photo}  FileBrowser.displayPhoto
 *   /                           FileBrowser.displayAlbums
+
+
