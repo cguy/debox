@@ -24,7 +24,7 @@
 <c:import url="includes/header.jsp" />
 
 <div class="page-header">
-    <h1>Liste des albums</h1>
+    <h1></h1>
 </div>
 <ul id="albums">
     <c:forEach items="${list}" var="item">

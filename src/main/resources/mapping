@@ -4,17 +4,17 @@ package.actions=action
 package.views=WEB-INF/
 
 [actions]
-*   /init                       FileBrowser.init
-
-*   /signin/facebook            SignIn.doFacebookSignIn
-
-*   /admin/                     Administration.index
-
-*   /thumbnail/{album}/{photo}  FileBrowser.getThumbnail
-*   /photo/{album}/{photo}      FileBrowser.getPhoto
-
-*   /api/album/{album}          FileBrowser.getAlbum
-*   /api/photo/{album}/{photo}  FileBrowser.displayPhoto
+# Home & single one page
 *   /                           FileBrowser.displayAlbums
 
+# Generate thumbnails
+*   /init                       FileBrowser.init
+
+# Return media descriptions
+*   /api/album/{album}          FileBrowser.getAlbum
+*   /api/photo/{album}/{photo}  FileBrowser.displayPhoto
+
+# Return media streams
+*   /thumbnail/{album}/{photo}  FileBrowser.getThumbnail
+*   /photo/{album}/{photo}      FileBrowser.getPhoto
 

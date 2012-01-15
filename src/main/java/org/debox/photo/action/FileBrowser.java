@@ -126,20 +126,6 @@ public class FileBrowser extends WebMotionController {
         }
     }
 
-    public Render displayAlbum(String album) throws IOException {
-        album = URLDecoder.decode(album, "UTF-8");
-        File directory = new File(source, album);
-        if (!directory.exists()) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-
-        File[] files = directory.listFiles();
-        Arrays.sort(files, new FileNameComparator());
-
-        String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "album", "deploy/thumbnail");
-        return renderView("album.jsp", "list", files, "url", url, "albumName", album);
-    }
-    
     public Render getAlbum(String album) throws IOException {
         album = URLDecoder.decode(album, "UTF-8");
         File directory = new File(source, album);
@@ -174,16 +160,6 @@ public class FileBrowser extends WebMotionController {
         return  renderJSON("album", album, "photo", photo);
     }
     
-    public Render displayPhoto2(String album, String photo) throws IOException {
-        album = URLDecoder.decode(album, "UTF-8");
-        photo = URLDecoder.decode(photo, "UTF-8");
-        File file = new File(source, album + File.separatorChar + photo);
-        if (!file.exists()) {
-            return renderStatus(HttpURLConnection.HTTP_ACCEPTED);
-        }
-        return renderView("photo.jsp", "album", album, "photo", photo);
-    }
-
     public Render displayAlbums() throws IOException {
         File[] files = source.listFiles();
         Arrays.sort(files, new FileNameComparator());

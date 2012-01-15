@@ -57,9 +57,9 @@
                                 html += '</div>';
                                 $('h1').html(data.albumName);
                                 $('#albums').hide();
-                                $('#photos').html(html);
-                                $('#photos').show();
                                 $('#photo').hide();
+                                $('#photos').html(html);
+                                $('#photos').fadeIn();
                             }
                         });
                     }); // End route
@@ -79,17 +79,17 @@
                                 $('h1').html(data.photo + "<small>" + data.album + "</small>");
                                 $('#albums').hide();
                                 $('#photos').hide();
-                                $('#photo').show();
                                 $('#photo').html(html);
+                                $('#photo').fadeIn();
                             }
                         });
                     }); // End route
                     
                     this.get('/', function() {
-                        $('h1').html("Liste des albums");
-                        $('#albums').show();
-                        $('#photos').html("");
+                        $('h1').html("Accueil");
+                        $('#photos').hide();
                         $('#photo').hide();
+                        $('#albums').fadeIn();
                     }); // End route
                     
                 }).run();
