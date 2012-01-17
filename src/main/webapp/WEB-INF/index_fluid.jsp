@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   #%L
   debox-photos
@@ -18,16 +17,17 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
-  -->
+-->
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<web-app version="3.0"
-    xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    
-    <!-- Not any jessionid in app urls -->
-    <session-config>
-        <tracking-mode>COOKIE</tracking-mode>
-    </session-config> 
-</web-app>
+<c:import url="includes/header_fluid.jsp" />
+
+<div class="hero-unit">
+    <h1></h1>
+</div>
+
+<div id="photos"></div>
+<div id="photo"></div>
+
+<c:import url="includes/footer.jsp" />

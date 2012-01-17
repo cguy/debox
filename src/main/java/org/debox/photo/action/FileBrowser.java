@@ -21,7 +21,10 @@
 package org.debox.photo.action;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -160,10 +163,13 @@ public class FileBrowser extends WebMotionController {
         return  renderJSON("album", album, "photo", photo);
     }
     
-    public Render displayAlbums() throws IOException {
+    public Render displayAlbums(String layout) throws IOException {
         File[] files = source.listFiles();
         Arrays.sort(files, new FileNameComparator());
-        return renderView("index.jsp", "list", files);
+        if (StringUtils.isEmpty(layout)) {
+            return renderView("index.jsp", "list", files);
+        }
+        return renderView("index_fluid.jsp", "list", files);
     }
 
     public Render getThumbnail(String album, String photo) throws FileNotFoundException {

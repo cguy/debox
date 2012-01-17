@@ -45,7 +45,7 @@
                 
                 Sammy(function() {
                     
-                    this.get('/#/album/:album', function() {
+                    this.get('#/album/:album', function() {
                         $.ajax({
                             url: "<c:url value="/api/album/" />" + this.params['album'],
                             success: function(data) {
@@ -53,24 +53,21 @@
                                 var html = '<ul class="thumbnails">';
                                 for (var i = 0 ; i < list.length ; i++) {
                                     html += '<li class="span2">';
-                                    html += '\n\t<a class="thumbnail" href="#/photo/' + data.albumName + '/' + data.names[i] + '"><img  src="' + list[i] + '" style="width:160px;" /></a>';
+                                    html += '\n\t<a class="thumbnail" href="#/photo/' + data.albumName + '/' + data.names[i] + '"><img  src="' + list[i] + '" /></a>';
                                     html += '</li>';
                                 }
                                 html += '</div>';
                                 $('h1').html(data.albumName);
-//                                $('#albums').hide();
                                 $('#photo').hide();
                                 $('#photos').fadeOut(function() {
                                     $('#photos').html(html);
                                     $('#photos').fadeIn();
                                 });
-                                
-                                
                             }
                         });
                     }); // End route
                         
-                    this.get('/#/photo/:album/:photo', function() {
+                    this.get('#/photo/:album/:photo', function() {
                         var path = this.path.substr(1, this.path.lastIndexOf('/') - 1);
                         path = path.replace("photo", "album");
                         $.ajax({
@@ -83,7 +80,6 @@
                                 html += '</a>';
                                 html += '</div>';
                                 $('h1').html(data.photo + "<small>" + data.album + "</small>");
-                                $('#albums').hide();
                                 $('#photos').hide();
                                 $('#photo').html(html);
                                 $('#photo').fadeIn();
@@ -95,7 +91,6 @@
                         $('h1').html("Accueil");
                         $('#photos').hide();
                         $('#photo').hide();
-                        $('#albums').fadeIn();
                     }); // End route
                     
                 }).run();
@@ -105,56 +100,45 @@
 
         <link rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />" />
         <style type="text/css">
-            /* Override some defaults */
-            html, body {
-                background-color: #eee;
-            }
             body {
-                padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+                padding-top: 60px;
             }
-            .container > footer p {
-                text-align: center; /* center align it with the container */
+            
+            h1 {
+                margin-bottom: 10px;
             }
-
-            /* The white background content wrapper */
-            .content {
-                background-color: #fff;
-                padding: 20px;
-                margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-                -webkit-border-radius: 0 0 6px 6px;
-                -moz-border-radius: 0 0 6px 6px;
-                border-radius: 0 0 6px 6px;
-                -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            
+            .fluid-sidebar {
+                margin-top: -20px;
+                width:280px;
+                
             }
-
-            /* Page header tweaks */
-            .page-header {
-                background-color: #f5f5f5;
-                padding: 20px 20px 10px;
-                margin: -20px -20px 20px;
+            
+            .fluid-sidebar .well {
+                border-top: none;
+                border-radius: 0;
             }
-
-            .topbar .btn {
-                border: 0;
+            
+            .fluid-sidebar li {
+                width: 240px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
-
-            h1 small {
-                padding-left: 10px;
+            
+            .sidebar-right {
+                padding-right:300px;
             }
-
-            .modal form {
-                margin-bottom: 0;
+            
+            .sidebar-right .fluid-sidebar{
+                margin-right:-300px;
             }
-
         </style>
-
     </head>
     <body>
         <div class="navbar navbar-fixed">
             <div class="navbar-inner">
-                <div class="container">
+                <div class="fluid-container">
                     <a class="brand" href="#">Galerie photos</a>
                     <ul class="nav">
                         <li><a href="#">Liste des albums</a></li>
@@ -166,6 +150,19 @@
                 </div>
             </div>
         </div>
-        
-        <div class="container">
-            <div class="content">
+
+        <div class="fluid-container sidebar-right">
+            <div class="fluid-sidebar">
+                <div class="well">
+                    <h5>Albums</h5>
+                    <ul id="albums" class="unstyled">
+    <c:forEach items="${list}" var="item">
+        <c:if test="${item.isDirectory()}">
+            <li><a href="#<c:url value="/album/${item.getName()}" />">${item.getName()}</a></li>
+        </c:if>
+    </c:forEach>
+                    </ul>
+                </div>
+            </div>
+            <div class="fluid-content">
+                
