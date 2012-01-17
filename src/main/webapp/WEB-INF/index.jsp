@@ -29,7 +29,7 @@
 <ul id="albums">
     <c:forEach items="${list}" var="item">
         <c:if test="${item.isDirectory()}">
-            <li><a href="#<c:url value="/album/${item.getName()}" />">${item.getName()}</a></li>
+            <li><a href="#/album/${item.getName()}">${item.getName()}</a></li>
         </c:if>
     </c:forEach>
 </ul>

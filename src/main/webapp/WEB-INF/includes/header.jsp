@@ -24,132 +24,15 @@
 <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <title>JSP Page</title>
+        <title>Galerie photos</title>
 
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-        <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
         <script type="text/javascript" src="https://github.com/quirkey/sammy/raw/master/lib/min/sammy-latest.min.js"></script>
-
-        <script type="text/javascript">
-            var context = "<c:url value="/" />";
-            String.prototype.startsWith = function(str) {return (this.match("^"+str)==str)}
-            
-            $(document).ready(function() {
-                $("#login-cancel").click(function(){
-                    $("#login-modal").modal('hide');
-                });
-                
-                $("#add-album-cancel").click(function(){
-                    $("#add-album-modal").modal('hide');
-                });
-                
-                Sammy(function() {
-                    
-                    this.get('/#/album/:album', function() {
-                        $.ajax({
-                            url: "<c:url value="/api/album/" />" + this.params['album'],
-                            success: function(data) {
-                                var list = data.list;
-                                var html = '<ul class="thumbnails">';
-                                for (var i = 0 ; i < list.length ; i++) {
-                                    html += '<li class="span2">';
-                                    html += '\n\t<a class="thumbnail" href="#/photo/' + data.albumName + '/' + data.names[i] + '"><img  src="' + list[i] + '" style="width:160px;" /></a>';
-                                    html += '</li>';
-                                }
-                                html += '</div>';
-                                $('h1').html(data.albumName);
-//                                $('#albums').hide();
-                                $('#photo').hide();
-                                $('#photos').fadeOut(function() {
-                                    $('#photos').html(html);
-                                    $('#photos').fadeIn();
-                                });
-                                
-                                
-                            }
-                        });
-                    }); // End route
-                        
-                    this.get('/#/photo/:album/:photo', function() {
-                        var path = this.path.substr(1, this.path.lastIndexOf('/') - 1);
-                        path = path.replace("photo", "album");
-                        $.ajax({
-                            url: "<c:url value="/deploy/api/photo/" />" + this.params['album'] + "/" + this.params['photo'],
-                            success: function(data) {
-                                var html = '<ul><li><a href="' + path + '">Retour à l\'album</a></li></ul>';
-                                html += '<div class="thumbnails" style="text-align: center;">';
-                                html += '<a class="thumbnail" href="' + context + 'deploy/photo/' + data.album + '/' + data.photo + '" id="' + data.photo + '" style="display:inline-block; float:none;">';
-                                html += '<img src="' + context + 'deploy/photo/' + data.album + '/' + data.photo + '" style="max-height:700px;max-width:100%;" />';
-                                html += '</a>';
-                                html += '</div>';
-                                $('h1').html(data.photo + "<small>" + data.album + "</small>");
-                                $('#albums').hide();
-                                $('#photos').hide();
-                                $('#photo').html(html);
-                                $('#photo').fadeIn();
-                            }
-                        });
-                    }); // End route
-                    
-                    this.get('/', function() {
-                        $('h1').html("Accueil");
-                        $('#photos').hide();
-                        $('#photo').hide();
-                        $('#albums').fadeIn();
-                    }); // End route
-                    
-                }).run();
-            });
-            
-        </script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/routing.js" />"></script>
 
         <link rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />" />
-        <style type="text/css">
-            /* Override some defaults */
-            html, body {
-                background-color: #eee;
-            }
-            body {
-                padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
-            }
-            .container > footer p {
-                text-align: center; /* center align it with the container */
-            }
-
-            /* The white background content wrapper */
-            .content {
-                background-color: #fff;
-                padding: 20px;
-                margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-                -webkit-border-radius: 0 0 6px 6px;
-                -moz-border-radius: 0 0 6px 6px;
-                border-radius: 0 0 6px 6px;
-                -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                box-shadow: 0 1px 2px rgba(0,0,0,.15);
-            }
-
-            /* Page header tweaks */
-            .page-header {
-                background-color: #f5f5f5;
-                padding: 20px 20px 10px;
-                margin: -20px -20px 20px;
-            }
-
-            .topbar .btn {
-                border: 0;
-            }
-
-            h1 small {
-                padding-left: 10px;
-            }
-
-            .modal form {
-                margin-bottom: 0;
-            }
-
-        </style>
-
+        <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
     </head>
     <body>
         <div class="navbar navbar-fixed">
