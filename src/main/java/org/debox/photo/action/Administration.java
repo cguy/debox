@@ -45,7 +45,7 @@ public class Administration extends WebMotionController {
         if (!sourceDirectory.exists()) {
             return renderError(500, "Directory " + source + " doesn't exist.");
         }
-
+        
         ApplicationContext.addAlbum(album);
         copyDirectories(sourceDirectory, new File(ApplicationContext.target, album.getId()));
         return renderJSON(album);

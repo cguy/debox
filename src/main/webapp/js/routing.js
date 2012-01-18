@@ -21,7 +21,7 @@ $(document).ready(function() {
                 url: "api/album/" + this.params['album'],
                 success: function(data) {
                     var list = data.list;
-                    var html = '<ul class="thumbnails">';
+                    var html = '<ul class="media-grid">';
                     for (var i = 0 ; i < list.length ; i++) {
                         html += '<li class="span2">';
                         html += '\n\t<a class="thumbnail" href="#/photo/' + data.albumName + '/' + data.names[i] + '"><img  src="' + list[i] + '" style="width:160px;" /></a>';
@@ -52,7 +52,7 @@ $(document).ready(function() {
                 url: "deploy/api/photo/" + this.params['album'] + "/" + this.params['photo'],
                 success: function(data) {
                     var html = '<ul><li><a href="' + path + '">Retour à l\'album</a></li></ul>';
-                    html += '<div class="thumbnails" style="text-align: center;">';
+                    html += '<div class="media-grid" style="text-align: center;">';
                     html += '<a class="thumbnail" href="/deploy/photo/' + data.album + '/' + data.photo + '" id="' + data.photo + '" style="display:inline-block; float:none;">';
                     html += '<img src="/deploy/photo/' + data.album + '/' + data.photo + '" style="max-height:700px;max-width:100%;" />';
                     html += '</a>';
@@ -79,17 +79,15 @@ $(document).ready(function() {
                 success: function(data) {
                     var html = "";
                     if (data.length == 0) {
-                        html += '<p class="alert">Aucun album n\'a été créé pour le moment !</p>'
+                        html += '<p class="alert-message">Aucun album n\'a été créé pour le moment !</p>'
                     } else {
-                        console.log(data);
                         html += '<h2>Liste des albums</h2>';
-                        html += '<table>';
+                        html += '<table  class="bordered-table zebra-striped">';
                         html += '<thead>';
                         html += '<tr>';
                         html += '<th>Nom de l\'album</th>';
                         html += '<th>Répertoire source</th>';
                         html += '<th>Action</th>';
-                        html += '<th></th>';
                         html += '</tr>';
                         html += '</thead>';
                         html += '<tbody>';
@@ -104,20 +102,29 @@ $(document).ready(function() {
                         html += '</table>';
                     }
                     
-                    html += '<h2>Création d\'un nouvel album</h2>';
-                    html += '<form method="put" class="form-horizontal" action="#/administration/album">';
-                    html += '<fieldset class="control-group">';
-                    html += '<label class="control-label" for="name">Nom de l\'album</label>';
-                    html += '<div class="controls controls-group">';
-                    html += '<input type="text" required name="name" placeholder="Nom de l\'album" />';
+                    html += '<section>';
+                    html += '<h2 class="page-header">Création d\'un nouvel album</h2>';
+                    html += '<form method="put" action="#/administration/album">';
+                    html += '<fieldset>';
+                    html += '<div class="clearfix">';
+                    html += '<label for="name">Nom de l\'album</label>';
+                    html += '<div class="input">';
+                    html += '<input class="span5" type="text" required name="name" placeholder="Nom de l\'album" />';
                     html += '</div>';
-                    html += '<label class="control-label" for="source">Chemin complet vers l\'album</label>';
-                    html += '<div class="controls controls-group">';
+                    html += '</div>';
+                    html += '<div class="clearfix">';
+                    html += '<label for="source">Chemin complet vers l\'album</label>';
+                    html += '<div class="input">';
                     html += '<input class="span5" type="text" required name="source" placeholder="Chemin complet vers l\'album" />';
                     html += '</div>';
+                    html += '</div>';
                     html += '</fieldset>';
-                    html += '';
-                    html += '<input type="submit" class="btn primary pull-right" value="Créer un album" /></form>';
+                    html += '<div class="actions">'
+                    html += '<input type="submit" class="btn primary" value="Créer un album" />&nbsp;';
+                    html += '<button type="reset" class="btn">Annuler</button>';
+                    html += '</div>';
+                    html += '</form>';
+                    html += '</section>';
                     
                     $('#administration').html(html);
                     $('#administration').show();
@@ -157,7 +164,7 @@ $(document).ready(function() {
                 success: function(data) {
                     var html = "";
                     if (data.length == 0) {
-                        html += '<p class="alert">Aucun album n\'a été créé pour le moment !</p>'
+                        html += '<p class="alert-message">Aucun album n\'a été créé pour le moment !</p>'
                     } else {
                         html += '<ul>';
                         for (var i = 0 ; i < data.length ; i++) {
@@ -169,7 +176,7 @@ $(document).ready(function() {
                     }
                     
                     $('#albums').html(html);
-                    $('#albums').fadeIn();
+                    $('#albums').show();
                 }
             });
         }); // End route

@@ -23,17 +23,8 @@
 
 <c:import url="includes/header.jsp" />
 
-<div class="page-header">
-    <h1></h1>
-</div>
-<ul id="albums">
-    <c:forEach items="${list}" var="item">
-        <c:if test="${item.isDirectory()}">
-            <li><a href="#/album/${item.getName()}">${item.getName()}</a></li>
-        </c:if>
-    </c:forEach>
-</ul>
-
+<h1 class="page-header"></h1>
+<div id="albums"></div>
 <div id="photos"></div>
 <div id="photo"></div>
 <div id="administration"></div>
