@@ -38,10 +38,10 @@
         <div class="navbar navbar-fixed">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="#">Galerie photos</a>
+                    <a class="brand" href="#/">Galerie photos</a>
                     <ul class="nav">
-                        <li><a href="#">Liste des albums</a></li>
-                        <li><a href="#<c:url value="/admin/" />">Administration</a></li>
+                        <li><a href="#/">Liste des albums</a></li>
+                        <li><a href="#/administration">Administration</a></li>
                     </ul>
                     <p class="pull-right">
                         <a href="#" data-controls-modal="login-modal" data-backdrop="true">Connexion</a>

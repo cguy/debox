@@ -5,10 +5,14 @@ package.views=WEB-INF/
 
 [actions]
 # Home & single one page
-*   /                           FileBrowser.displayAlbums
+*   /                           FileBrowser.index
 
 # Generate thumbnails
 *   /init                       FileBrowser.init
+
+# Used for admin section
+GET /api/albums                 Administration.getAlbums
+PUT,POST /administration/album        Administration.createAlbum
 
 # Return media descriptions
 *   /api/album/{album}          FileBrowser.getAlbum

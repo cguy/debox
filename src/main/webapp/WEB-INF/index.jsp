@@ -36,5 +36,6 @@
 
 <div id="photos"></div>
 <div id="photo"></div>
+<div id="administration"></div>
 
 <c:import url="includes/footer.jsp" />

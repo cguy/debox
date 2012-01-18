@@ -57,3 +57,7 @@ h1 small {
 .modal form {
     margin-bottom: 0;
 }
+
+form.form-inline input {
+    margin: 0 5px;
+}
