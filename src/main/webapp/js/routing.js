@@ -75,13 +75,14 @@ $(document).ready(function() {
             $('#administration').hide();
             
             $.ajax({
-                url: "api/albums",
+                url: "administration",
                 success: function(data) {
-                    var html = "";
-                    if (data.length == 0) {
+                    
+                    var albums = data.albums;
+                    var html = '<h2 class="page-header">Liste des albums</h2>';
+                    if (albums.length == 0) {
                         html += '<p class="alert-message">Aucun album n\'a été créé pour le moment !</p>'
                     } else {
-                        html += '<h2>Liste des albums</h2>';
                         html += '<table  class="bordered-table zebra-striped">';
                         html += '<thead>';
                         html += '<tr>';
@@ -91,10 +92,10 @@ $(document).ready(function() {
                         html += '</tr>';
                         html += '</thead>';
                         html += '<tbody>';
-                        for (var i = 0 ; i < data.length ; i++) {
+                        for (var i = 0 ; i < albums.length ; i++) {
                             html += '<tr>';
-                            html += '<td>' + data[i].name + '</td>';
-                            html += '<td>' + data[i].source + '</td>';
+                            html += '<td>' + albums[i].name + '</td>';
+                            html += '<td>' + albums[i].source + '</td>';
                             html += '<td></td>';
                             html += '</tr>';
                         }
@@ -126,16 +127,37 @@ $(document).ready(function() {
                     html += '</form>';
                     html += '</section>';
                     
-                    $('#administration').html(html);
+                    $("#sourceDirectory").val(data.sourceDirectory);
+                    $("#targetDirectory").val(data.targetDirectory);
+                    
+                    $('#admin_albums').html(html);
                     $('#administration').show();
                 }
             });
             
         }); // End route
         
-        /* ******************* */
-        /* Ajour d'un album    */
-        /* ******************* */
+        /* ***************************************** */
+        /* Modification de la configuration générale */
+        /* ***************************************** */
+        this.post('#/administration/configuration', function() {
+            var data = {"sourceDirectory" : this.params["sourceDirectory"], "targetDirectory" : this.params["targetDirectory"]};
+            var context = this;
+            $.ajax({
+                url: "administration/configuration",
+                type : "post",
+                data : data,
+                success: function(data) {
+                    context.redirect("#/administration");
+                }
+            });
+            
+            return false;
+        }); // End route
+        
+        /* **************** */
+        /* Ajout d'un album */
+        /* **************** */
         this.put('#/administration/album', function() {
             var data = {"name" : this.params["name"], "source" : this.params["source"]};
             var context = this;

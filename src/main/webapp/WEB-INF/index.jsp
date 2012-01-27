@@ -27,6 +27,27 @@
 <div id="albums"></div>
 <div id="photos"></div>
 <div id="photo"></div>
-<div id="administration"></div>
+<div id="administration">
+    <h2 class="page-header">Configuration générale</h2>
+    <form class="form-stacked" method="post" action="#/administration/configuration">
+        <div class="clearfix">
+            <label for="sourceDirectory">Répertoire source (contenant les photos au format original) :</label>
+            <div class="input">
+                <input class="span5" value="${sourceDirectory}" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="Exemple : /home/user/photos/" />
+            </div>
+        </div>
+        <div class="clearfix">
+            <label for="targetDirectory">Répertoire de travail (qui contiendra notamment les vignettes des photos) :</label>
+            <div class="input">
+                <input class="span5" value="${targetDirectory}" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" />
+            </div>
+        </div>
+        <div class="actions">
+            <input type="submit" class="btn primary" value="Valider" />
+            <button type="reset" class="btn">Annuler</button>
+        </div>
+    </form>
+    <div id="admin_albums"></div>
+</div>
 
 <c:import url="includes/footer.jsp" />

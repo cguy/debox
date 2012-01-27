@@ -23,15 +23,36 @@ package org.debox.photo.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class ApplicationContext {
     
-    public static final File target = new File("/home/cguy/public_app");
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
+    
+    protected static File source;
+    protected static File target;
     
     protected static List<Album> albums = new ArrayList<Album>();
+
+    public static File getSource() {
+        return source;
+    }
+
+    public static void setSource(File source) {
+        ApplicationContext.source = source;
+    }
+
+    public static File getTarget() {
+        return target;
+    }
+
+    public static void setTarget(File target) {
+        ApplicationContext.target = target;
+    }
 
     public static List<Album> getAlbums() {
         return albums;
@@ -47,6 +68,7 @@ public class ApplicationContext {
 
     public static Album getAlbum(String album) {
         for (Album current : albums) {
+            logger.info("Compare \"{}\" to \"{}\"", current.getName(), album);
             if (current.getName().equals(album)) {
                 return current;
             }

@@ -44,16 +44,21 @@ public class FileBrowser extends WebMotionController {
     private static final Logger logger = LoggerFactory.getLogger(FileBrowser.class);
 
     public Render getAlbum(String album) throws IOException {
+        album = URLDecoder.decode(album, "UTF-8");
         
+        logger.info("Searching \"{}\" album ...", album);
         Album a = ApplicationContext.getAlbum(album);
         if (a == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
-        album = URLDecoder.decode(album, "UTF-8");
         File directory = new File(a.getSource());
 
-        File[] files = directory.listFiles();
+        File[] files = directory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String string) {
+                return string.endsWith("jpg");
+            }
+        });
         Arrays.sort(files, new FileNameComparator());
         
         String url = StringUtils.replace(getContext().getRequest().getPathInfo(), "api/album", "deploy/thumbnail");
@@ -87,10 +92,7 @@ public class FileBrowser extends WebMotionController {
     }
     
     public Render index(String layout) throws IOException {
-        if (StringUtils.isEmpty(layout)) {
-            return renderView("index.jsp");
-        }
-        return renderView("index_fluid.jsp");
+        return renderView("index.jsp");
     }
 
     public Render getThumbnail(String album, String photo) throws FileNotFoundException {
@@ -98,8 +100,7 @@ public class FileBrowser extends WebMotionController {
         if (a == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
-        File file = new File(ApplicationContext.target, a.getId() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photo);
+        File file = new File(a.getTarget() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photo);
         return renderStream(new FileInputStream(file), "image/jpeg");
     }
 
@@ -108,8 +109,14 @@ public class FileBrowser extends WebMotionController {
         if (a == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
-        File file = new File(ApplicationContext.target, a.getId() + File.separatorChar + ImageUtils.LARGE_PREFIX + photo);
+        File file = new File(a.getTarget() + File.separatorChar + ImageUtils.LARGE_PREFIX + photo);
         return renderStream(new FileInputStream(file), "image/jpeg");
     }
+    
+    public Render getAlbums() {
+        return renderJSON(
+            "albums", ApplicationContext.getAlbums()
+        );
+    }
+    
 }

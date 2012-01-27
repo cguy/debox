@@ -57,6 +57,20 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        
+        <!-- JSTL & taglibs -->
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
@@ -69,6 +83,7 @@
             <version>1.2</version>
         </dependency>
         
+        <!-- WebMotion -->
         <dependency>
             <groupId>org.debux.webmotion</groupId>
             <artifactId>webmotion</artifactId>

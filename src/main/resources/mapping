@@ -11,10 +11,12 @@ package.views=WEB-INF/
 *   /init                       FileBrowser.init
 
 # Used for admin section
-GET /api/albums                 Administration.getAlbums
-PUT,POST /administration/album        Administration.createAlbum
+GET         /administration                     Administration.getData
+PUT,POST    /administration/album               Administration.createAlbum
+POST        /administration/configuration       Administration.editConfiguration
 
 # Return media descriptions
+*   /api/albums                 FileBrowser.getAlbums
 *   /api/album/{album}          FileBrowser.getAlbum
 *   /api/photo/{album}/{photo}  FileBrowser.displayPhoto
 

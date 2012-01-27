@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import org.debox.photo.job.StructureInitializerJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.ApplicationContext;
 import org.debox.photo.util.ImageUtils;
@@ -47,59 +48,59 @@ public class Administration extends WebMotionController {
         }
         
         ApplicationContext.addAlbum(album);
-        copyDirectories(sourceDirectory, new File(ApplicationContext.target, album.getId()));
+//        copyDirectories(sourceDirectory, new File(ApplicationContext.getTarget(), album.getId()));
         return renderJSON(album);
     }
     
-    protected void copyDirectories(File source, File target) throws IOException {
-        if (!target.exists()) {
-            target.mkdir();
+    public Render editConfiguration(String sourceDirectory, String targetDirectory) {
+        File source = new File(sourceDirectory);
+        File target = new File(targetDirectory);
+        boolean error = false;
+        if (!source.isDirectory() || !source.exists()) {
+            getContext().addErrorMessage("source", "source.error");
+            error = true;
         }
-
-        for (File file : source.listFiles()) {
-            if (file.isDirectory()) {
-                continue;
-            }
-
-            BufferedImage image = ImageIO.read(file);
-            BufferedImage thumbnail = Scalr.resize(image, 225);
-            thumbnail = ImageUtils.rotate(file, thumbnail);
-
-            int height = thumbnail.getHeight();
-            int width = thumbnail.getWidth();
-            int squareSize = width;
-            int x = 0;
-            int y = 0;
-            if (width > height) {
-                squareSize = height;
-                x = (width - height) / 2;
-                y = 0;
-            } else if (width < height) {
-                squareSize = width;
-                x = 0;
-                y = (height - width) / 2;
-            }
-
-            thumbnail = Scalr.crop(thumbnail, x, y, squareSize, squareSize);
-
-            File imageFile = new File(target, ImageUtils.THUMBNAIL_PREFIX + file.getName());
-            ImageIO.write(thumbnail, "jpg", imageFile);
-
-            thumbnail = Scalr.resize(image, 1600);
-            thumbnail = ImageUtils.rotate(file, thumbnail);
-            imageFile = new File(target, ImageUtils.LARGE_PREFIX + file.getName());
-            ImageIO.write(thumbnail, "jpg", imageFile);
-
-            image.flush();
-            thumbnail.flush();
+        if (!target.isDirectory() || !target.exists()) {
+            getContext().addErrorMessage("target", "target.error");
+            error = true;
         }
+        if (source.getAbsolutePath().equals(target.getAbsolutePath())) {
+            getContext().addErrorMessage("path", "paths.equals");
+            error = true;
+        }
+        
+        if (error) {
+            return renderStatus(500);
+        }
+        
+        ApplicationContext.setSource(source);
+        ApplicationContext.setTarget(target);
+        getContext().addInfoMessage("success", "configuration.edit.success");
+        
+        Runnable runnable = new StructureInitializerJob(source, target);
+        new Thread(runnable).start();
+        
+        return renderJSON("sourceDirectory", sourceDirectory, "targetDirectory", targetDirectory);
     }
-
+    
     public Render deleteAlbum() {
         return null;
     }
 
-    public Render getAlbums() {
-        return renderJSON(ApplicationContext.getAlbums());
+    public Render getData() {
+        String sourceDirectory = null;
+        if (ApplicationContext.getSource() != null) {
+            sourceDirectory = ApplicationContext.getSource().getAbsolutePath();
+        }
+        
+        String targetDirectory = null;
+        if (ApplicationContext.getTarget() != null) {
+            targetDirectory = ApplicationContext.getTarget().getAbsolutePath();
+        }
+        return renderJSON(
+            "sourceDirectory", sourceDirectory,
+            "targetDirectory", targetDirectory,
+            "albums", ApplicationContext.getAlbums()
+        );
     }
 }

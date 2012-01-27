@@ -20,7 +20,6 @@
  */
 package org.debox.photo.model;
 
-import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
@@ -33,6 +32,7 @@ public class Album {
     protected String name;
     protected String source;
     protected Date date;
+    protected String target;
 
     public Album() {
         this.id = UUID.randomUUID().toString();
@@ -64,6 +64,14 @@ public class Album {
 
     public String getId() {
         return this.id;
+    }
+    
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
 }
