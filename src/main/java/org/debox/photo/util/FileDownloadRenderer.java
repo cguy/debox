@@ -23,6 +23,7 @@ package org.debox.photo.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.servlet.ServletException;
@@ -58,7 +59,7 @@ public class FileDownloadRenderer extends Render {
         HttpContext context = call.getContext();
         HttpServletResponse response = context.getResponse();
 
-        response.setContentType("application/force-download");
+        response.setContentType(mimeType);
         response.setContentLength((int) Files.size(file));
         response.setHeader("Content-Transfer-Encoding", mimeType);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
@@ -69,6 +70,7 @@ public class FileDownloadRenderer extends Render {
             
             byte[] bytes = IOUtils.toByteArray(inputStream, Files.size(file));
             out.write(bytes);
+            out.flush();
         }
     }
 }
