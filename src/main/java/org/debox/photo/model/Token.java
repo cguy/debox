@@ -18,36 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-body {
-    padding-top: 60px;
-}
+package org.debox.photo.model;
 
-h1 {
-    margin-bottom: 10px;
-}
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class Token {
 
-.fluid-sidebar {
-    margin-top: -20px;
-    width:280px;
-
-}
-
-.fluid-sidebar .well {
-    border-top: none;
-    border-radius: 0;
-}
-
-.fluid-sidebar li {
-    width: 240px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sidebar-right {
-    padding-right:300px;
-}
-
-.sidebar-right .fluid-sidebar{
-    margin-right:-300px;
+    protected String id;
+    protected String label;
+    
 }

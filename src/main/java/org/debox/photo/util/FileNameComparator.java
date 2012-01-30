@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo;
+package org.debox.photo.util;
 
 import java.io.File;
 import java.util.Comparator;

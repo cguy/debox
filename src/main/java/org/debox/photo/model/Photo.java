@@ -20,20 +20,16 @@
  */
 package org.debox.photo.model;
 
-import java.util.Date;
-
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Album implements Comparable<Album> {
-    
+public class Photo implements Comparable<Photo> {
+
     protected String id;
     protected String name;
-    protected Date date;
     protected String sourcePath;
     protected String targetPath;
-    protected String parentId;
-    protected Visibility visibility;
+    protected String albumId;
 
     public String getTargetPath() {
         return targetPath;
@@ -42,13 +38,13 @@ public class Album implements Comparable<Album> {
     public void setTargetPath(String targetPath) {
         this.targetPath = targetPath;
     }
-    
-    public Date getDate() {
-        return date;
+
+    public String getAlbumId() {
+        return albumId;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setAlbumId(String albumId) {
+        this.albumId = albumId;
     }
 
     public String getId() {
@@ -67,14 +63,6 @@ public class Album implements Comparable<Album> {
         this.name = name;
     }
 
-    public String getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
     public String getSourcePath() {
         return sourcePath;
     }
@@ -83,17 +71,9 @@ public class Album implements Comparable<Album> {
         this.sourcePath = sourcePath;
     }
 
-    public Visibility getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(Visibility visibility) {
-        this.visibility = visibility;
-    }
-
     @Override
-    public int compareTo(Album album) {
-        return this.getSourcePath().compareToIgnoreCase(album.getSourcePath());
+    public int compareTo(Photo photo) {
+        return this.getName().compareToIgnoreCase(photo.getName());
     }
     
 }

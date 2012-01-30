@@ -5,22 +5,21 @@ package.views=WEB-INF/
 
 [actions]
 # Home & single one page
-*   /                           FileBrowser.index
-
-# Generate thumbnails
-*   /init                       FileBrowser.init
+*   /                           MediaBrowser.index
 
 # Used for admin section
 GET         /administration                     Administration.getData
+GET         /administration/sync                Administration.getSyncProgress
 PUT,POST    /administration/album               Administration.createAlbum
 POST        /administration/configuration       Administration.editConfiguration
 
 # Return media descriptions
-*   /api/albums                 FileBrowser.getAlbums
-*   /api/album/{album}          FileBrowser.getAlbum
-*   /api/photo/{album}/{photo}  FileBrowser.displayPhoto
+*   /api/albums                     MediaBrowser.getAlbums
+*   /api/album/{albumName}          MediaBrowser.getAlbum
+*   /api/photo/{photoId}            MediaBrowser.displayPhoto
 
 # Return media streams
-*   /thumbnail/{album}/{photo}  FileBrowser.getThumbnail
-*   /photo/{album}/{photo}      FileBrowser.getPhoto
+*   /album/{albumId}/cover          MediaBrowser.getAlbumCover
+*   /thumbnail/{photoId}            MediaBrowser.getThumbnail
+*   /photo/{photoId}                MediaBrowser.getPhotoStream
 

@@ -20,87 +20,113 @@
  */
 package org.debox.photo.action;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import org.debox.photo.job.StructureInitializerJob;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import org.debox.photo.dao.ApplicationConfigurationDao;
+import org.debox.photo.dao.MediaDao;
+import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.Configuration;
 import org.debox.photo.model.ApplicationContext;
-import org.debox.photo.util.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
-import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class Administration extends WebMotionController {
 
-    public Render createAlbum(String name, String source) throws IOException {
-        Album album = new Album();
-        album.setName(name);
-        album.setSource(source);
+    private static final Logger logger = LoggerFactory.getLogger(Administration.class);
+    protected SyncJob syncJob;
+    protected MediaDao mediaDao = new MediaDao();
+    protected ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
 
-        final File sourceDirectory = new File(source);
-        if (!sourceDirectory.exists()) {
-            return renderError(500, "Directory " + source + " doesn't exist.");
+    public Render getSyncProgress() throws SQLException {
+        if (syncJob == null) {
+            return renderStatus(404);
         }
-        
-        ApplicationContext.addAlbum(album);
-//        copyDirectories(sourceDirectory, new File(ApplicationContext.getTarget(), album.getId()));
-        return renderJSON(album);
+        return renderJSON(getSyncData());
     }
-    
-    public Render editConfiguration(String sourceDirectory, String targetDirectory) {
-        File source = new File(sourceDirectory);
-        File target = new File(targetDirectory);
+
+    public Render editConfiguration(String sourceDirectory, String targetDirectory) throws IOException, SQLException {
+        Path source = Paths.get(sourceDirectory);
+        Path target = Paths.get(targetDirectory);
+
         boolean error = false;
-        if (!source.isDirectory() || !source.exists()) {
+        if (!Files.isDirectory(source) || !Files.exists(source)) {
             getContext().addErrorMessage("source", "source.error");
             error = true;
         }
-        if (!target.isDirectory() || !target.exists()) {
-            getContext().addErrorMessage("target", "target.error");
-            error = true;
-        }
-        if (source.getAbsolutePath().equals(target.getAbsolutePath())) {
+
+        if (source.equals(target)) {
             getContext().addErrorMessage("path", "paths.equals");
             error = true;
         }
-        
+
         if (error) {
             return renderStatus(500);
         }
-        
-        ApplicationContext.setSource(source);
-        ApplicationContext.setTarget(target);
+
         getContext().addInfoMessage("success", "configuration.edit.success");
-        
-        Runnable runnable = new StructureInitializerJob(source, target);
-        new Thread(runnable).start();
-        
-        return renderJSON("sourceDirectory", sourceDirectory, "targetDirectory", targetDirectory);
-    }
-    
-    public Render deleteAlbum() {
-        return null;
+
+        if (syncJob == null) {
+            syncJob = new SyncJob(source, target);
+            syncJob.process();
+
+        } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
+            logger.warn("Aborting sync between {} and {}", syncJob.getSource(), syncJob.getTarget());
+            syncJob.abort();
+            syncJob.setSource(source);
+            syncJob.setTarget(target);
+            syncJob.process();
+
+        } else if (!syncJob.isTerminated()) {
+            logger.warn("Cannot launch process, it is already running");
+        } else {
+            syncJob.process();
+        }
+
+        Configuration configuration = new Configuration();
+        configuration.set(Configuration.Key.SOURCE_PATH, sourceDirectory);
+        configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
+        configurationDao.save(configuration);
+
+        return renderJSON("configuration", configuration);
     }
 
-    public Render getData() {
-        String sourceDirectory = null;
-        if (ApplicationContext.getSource() != null) {
-            sourceDirectory = ApplicationContext.getSource().getAbsolutePath();
+    public Render getData() throws SQLException {
+        if (syncJob != null && !syncJob.isTerminated()) {
+            Map<String, Long> sync = getSyncData();
+            return renderJSON(
+                    "configuration", configurationDao.get().get(),
+                    "albums", mediaDao.getAllAlbums(),
+                    "sync", sync);
         }
-        
-        String targetDirectory = null;
-        if (ApplicationContext.getTarget() != null) {
-            targetDirectory = ApplicationContext.getTarget().getAbsolutePath();
-        }
+
         return renderJSON(
-            "sourceDirectory", sourceDirectory,
-            "targetDirectory", targetDirectory,
-            "albums", ApplicationContext.getAlbums()
-        );
+                "configuration", configurationDao.get().get(),
+                "albums", mediaDao.getAllAlbums());
+    }
+
+    protected Map<String, Long> getSyncData() throws SQLException {
+        long total = mediaDao.getPhotosCount();
+        long current = syncJob.getTerminatedProcessesCount();
+        Map<String, Long> sync = new HashMap<>();
+        sync.put("total", total);
+        sync.put("current", current);
+        if (total == 0L) {
+            sync.put("percent", 0L);
+        } else {
+            sync.put("percent", Integer.valueOf(Math.round(current * 100 / total)).longValue());
+        }
+        return sync;
     }
 }

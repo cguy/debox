@@ -31,17 +31,19 @@
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-        <script type="text/javascript" src="https://github.com/quirkey/sammy/raw/master/lib/min/sammy-latest.min.js"></script>
+        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/routing.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
 
-        <link rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />" />
+        <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
+        <script type="text/javascript" src="<c:url value="/js/less-1.2.1.min.js" />"></script>
+
         <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
     </head>
     <body>
-        <div class="topbar">
-            <div class="fill">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
                 <div class="container">
                     <a class="brand" href="#/">Galerie photos</a>
                     <ul class="nav">
@@ -56,3 +58,4 @@
         </div>
         <div class="container">
             <div class="content">
+                
