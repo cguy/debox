@@ -30,17 +30,28 @@ $(document).ready(function() {
             $.ajax({
                 url: "api/album/" + this.params['album'],
                 success: function(data) {
-                    console.log(data);
                     var j = 0;
-                    console.log(j++);
                     var albums = data['albums'];
-                    console.log(j++);
                     var photos = data['photos'];
-                    console.log(j++);
-                    var html = '';
-                    console.log(j++);
+                    var html = '<div class="btn-toolbar" style="margin-top: 18px;">';
+                    html += '<div class="btn-group">';
+                    if (data.parent) {
+                        html += '<a href="#/album/' + data.parent.name + '" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à l\'album : ' + data.parent.name + '</a>';
+                    } else {
+                        html += '<a href="#/" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à la liste des albums</a>';
+                    }
+                    html += '</div>';
+                    html += '<div class="btn-group">';
+                    html += '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon download"></i>&nbsp;Télécharger les photos de cet album&nbsp;<span class="caret"></span></a>';
+                    html += '<ul class="dropdown-menu">';
+                    html += '<li><a href="download/album/' + data.album.id + '/min">Taille réduite des photos (1600px)</a></li>';
+                    html += '<li><a href="download/album/' + data.album.id + '">Taille originale des photos</a></li>';
+                    html += '</ul>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<hr />';
+                    
                     if (albums && albums.length > 0) {
-                    console.log(j++ + " >>>>>>>>>>");
                         html += '<h2>Sous-albums</h2>';
                         html += '<ul class="thumbnails">';
                         for (var i = 0 ; i < albums.length ; i++) {
@@ -50,25 +61,19 @@ $(document).ready(function() {
                             html += '</li>';
                         }
                         html += '</ul>';
-                    console.log(j++);
                     }
-                    console.log(j++);
                     if (photos && photos.length > 0) {
-                    console.log(j++ + "dwsfsf");
                         if (albums && albums.length > 0) {
                             html += '<h2>Photos</h2>';
                         }
-                    console.log(j++);
                         html += '<ul class="thumbnails">';
-                        for (var i = 0 ; i < photos.length ; i++) {
+                        for (i = 0 ; i < photos.length ; i++) {
                             html += '<li class="span2">';
                             html += '<a class="thumbnail" href="#/photo/' + photos[i].id + '"><img class="album" src="thumbnail/' + photos[i].id + '" alt="' + photos[i].name + '" title="' + photos[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
                             html += '</li>';
                         }
-                    console.log(j++);
                         html += '</ul>';
                     }
-                    console.log(j++);
                     
                     $('#photos').fadeOut(function() {
                         $('#photos').html(html);
@@ -94,9 +99,21 @@ $(document).ready(function() {
                     var photo = data.photo;
                     var album = data.album;
                     $('h1').html(photo.name + "<small>" + album.name + "</small>");
-                    var html = '<ul><li><a href="#/album/' + album.name + '">Retour à l\'album</a></li></ul>';
-                    html += '<div class="media-grid" style="text-align: center;">';
+                    var html = '<div class="btn-toolbar" style="margin-top: 18px;">';
+                    html += '<div class="btn-group">';
+                    html += '<a href="#/album/' + album.name + '" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à l\'album</a>';
+                    html += '</div>';
+                    html += '<div class="btn-group">';
+                    html += '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon download"></i>&nbsp;Télécharger la photo&nbsp;<span class="caret"></span></a>';
+                    html += '<ul class="dropdown-menu">';
+                    html += '<li><a href="download/photo/' + photo.id + '/min">Taille réduite (1600px)</a></li>';
+                    html += '<li><a href="download/photo/' + photo.id + '">Taille originale</a></li>';
+                    html += '</ul>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '<hr />';
                     
+                    html += '<div class="media-grid" style="text-align: center;">';
                     var imageUrl = 'photo/' + photo.id + '" id="' + photo.name;
                     html += '<a class="thumbnail" href="' + imageUrl + '" style="display:inline-block; float:none;">';
                     html += '<img src="' + imageUrl + '" style="max-height:700px;max-width:100%;" />';
@@ -105,6 +122,19 @@ $(document).ready(function() {
                     
                     $('#photo').html(html);
                     $('#photo').fadeIn();
+                }
+            });
+        }); // End route
+        
+        /* ******************* */
+        /* Display a photo     */
+        /* ******************* */
+        this.get('#/download/photo/:photo', function() {
+            var context = this;
+            $.ajax({
+                url: "download/photo/" + this.params['photo'],
+                success: function(data) {
+                    context.redirect("#/photo/" + context.params['photo']);
                 }
             });
         }); // End route

@@ -34,6 +34,7 @@
         <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-dropdown.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
 
         <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >

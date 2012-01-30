@@ -23,3 +23,8 @@ POST        /administration/configuration       Administration.editConfiguration
 *   /thumbnail/{photoId}            MediaBrowser.getThumbnail
 *   /photo/{photoId}                MediaBrowser.getPhotoStream
 
+# Download media
+GET /download/album/{albumId}       MediaBrowser.downloadAlbum              thumbnails=false
+GET /download/album/{albumId}/min   MediaBrowser.downloadAlbum              thumbnails=true
+GET /download/photo/{photoId}       MediaBrowser.getOriginalPhotoStream
+GET /download/photo/{photoId}/min   MediaBrowser.getResizedPhotoStream

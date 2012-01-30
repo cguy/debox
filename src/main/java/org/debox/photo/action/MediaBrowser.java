@@ -23,12 +23,15 @@ package org.debox.photo.action;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 import org.debox.photo.dao.MediaDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.util.FileDownloadRenderer;
 import org.debox.photo.util.ImageUtils;
+import org.debox.photo.util.ZipDownloadRenderer;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -46,10 +49,9 @@ public class MediaBrowser extends WebMotionController {
         return renderJSON(
                 "albums", mediaDao.getAlbums());
     }
-    
+
     public Render getAlbum(String albumName) throws IOException, SQLException {
         albumName = URLDecoder.decode(albumName, "UTF-8");
-
         Album album = mediaDao.getAlbumByName(albumName);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -57,7 +59,7 @@ public class MediaBrowser extends WebMotionController {
 
         List<Photo> photos = mediaDao.getPhotos(album.getId());
         List<Album> albums = mediaDao.getAlbums(album.getId());
-        return renderJSON("album", album, "photos", photos, "albums", albums);
+        return renderJSON("album", album, "photos", photos, "albums", albums, "parent", mediaDao.getAlbum(album.getParentId()));
     }
 
     public Render index(String layout) throws IOException {
@@ -104,5 +106,39 @@ public class MediaBrowser extends WebMotionController {
         }
         String filename = photo.getTargetPath() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photo.getId() + ".jpg";
         return renderStream(new FileInputStream(filename), "image/jpeg");
+    }
+
+    public Render getOriginalPhotoStream(String photoId) throws SQLException, FileNotFoundException {
+        Photo photo = mediaDao.getPhoto(photoId);
+        if (photo == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        return new FileDownloadRenderer(Paths.get(photo.getSourcePath()), photo.getName(), "image/jpeg");
+    }
+    
+    public Render getResizedPhotoStream(String photoId) throws SQLException, FileNotFoundException {
+        Photo photo = mediaDao.getPhoto(photoId);
+        if (photo == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        String path = photo.getTargetPath() + File.separatorChar + ImageUtils.LARGE_PREFIX + photoId + ".jpg";
+        return new FileDownloadRenderer(Paths.get(path), ImageUtils.LARGE_PREFIX + photo.getName(), "image/jpeg");
+    }
+    
+    public Render downloadAlbum(String albumId, boolean thumbnails) throws SQLException {
+        Album album = mediaDao.getAlbum(albumId);
+        if (album == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        
+        if (thumbnails) {
+            return new ZipDownloadRenderer(album.getTargetPath(), album.getName(), new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.startsWith(ImageUtils.LARGE_PREFIX);
+                }
+            });
+        }
+        return new ZipDownloadRenderer(album.getSourcePath(), album.getName());
     }
 }
