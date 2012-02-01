@@ -32,24 +32,24 @@
         <![endif]-->
 
         <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-dropdown.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/underscore-1.3.1-min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/backbone-0.9.0-min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
 
         <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
         <script type="text/javascript" src="<c:url value="/js/less-1.2.1.min.js" />"></script>
-
         <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="#/">Galerie photos</a>
+                    <a class="brand" href="#">Galerie photos</a>
                     <ul class="nav">
-                        <li><a href="#/">Liste des albums</a></li>
-                        <li><a href="#/administration">Administration</a></li>
+                        <li><a href="#">Liste des albums</a></li>
+                        <li><a href="#administration">Administration</a></li>
                     </ul>
                     <p class="pull-right">
                         <a href="#" data-controls-modal="login-modal" data-backdrop="true">Connexion</a>
@@ -59,4 +59,3 @@
         </div>
         <div class="container">
             <div class="content">
-                

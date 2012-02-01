@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="submit" class="btn primary" value="Valider" />
+            <input type="submit" formnovalidate class="btn primary" value="Valider" />
             <input type="reset" class="btn" value="Annuler" />
         </div>
     </form>

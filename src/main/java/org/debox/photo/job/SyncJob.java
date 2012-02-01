@@ -106,6 +106,8 @@ public class SyncJob implements FileVisitor<Path> {
     }
 
     public void process() throws IOException {
+        threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+        
         // Cleaning target path
         Files.walkFileTree(target, new DirectoryCleaner(target));
 

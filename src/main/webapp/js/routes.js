@@ -1,36 +1,75 @@
-$("img").error(function(){
-    }).attr("src", "img/folder.png");
-;
-
-$('.album').error(function() {
-    alert('Handler for .error() called.')
-}).attr("src", "img/folder.png");
-
 $(document).ready(function() {
-    $("#login-cancel").click(function(){
-        $("#login-modal").modal('hide');
-    });
-                
-    $("#add-album-cancel").click(function(){
-        $("#add-album-modal").modal('hide');
+    
+    $('form').submit(function(evt) {
+        var data = $(this).serialize();
+        var method = $(this).attr("method");
+        var action = $(this).attr("action");
+        if (action.indexOf("#/") > -1) {
+            action = action.substr(2);
+        }
+        console.log(action);
+        console.log(method);
+        console.log(data);
+        $.ajax({
+            url: action,
+            type : method,
+            data : data,
+            success: function(data) {
+                app.navigate(action, {trigger: true});
+            }
+        });
+        
+        evt.preventDefault();
     });
     
+    var Workspace = Backbone.Router.extend({
+        
+        routes : {
+            'album/:album' : "getAlbum",
+            'photo/:photo' : "getPhoto",
+            'administration/configuration': "editConfiguration",
+            'administration': "administration",
+            '': "home"
+        },
+
+        home : function() {
+            $('h1').html("Accueil");
+            $('#photos').hide();
+            $('#photo').hide();
+            $('#administration').hide();
+            
+            $.ajax({
+                url: "api/albums",
+                success: function(data) {
+                    var html = "";
+                    if (data.length == 0) {
+                        html += '<p class="alert"><strong>Attention : </strong>Aucun album n\'a été créé pour le moment !</p>'
+                    } else {
+                        html += '<ul class="thumbnails">';
+                        for (var i = 0 ; i < data.length ; i++) {
+                            html += '<li class="span3">';
+                            html += '<i class="icon folder-open"></i>&nbsp;<a href="#/album/' + data[i].name + '">' + data[i].name + '</a>';
+                            html += '<a class="thumbnail" href="#/album/' + data[i].name + '"><img class="album" src="album/' + data[i].id + '/cover" alt="' + data[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
+                            html += '</li>';
+                        }
+                        html += '</ul>';
+                    }
+                    
+                    $('#albums').html(html);
+                    $('#albums').show();
+                }
+            });
+        },
     
-                
-    Sammy(function() {
-        /* ******************* */
-        /* Browse an album     */
-        /* ******************* */
-        this.get('#/album/:album', function() {
-            $('h1').html(this.params['album']);
+        getAlbum : function(album) {
+            $('h1').html(album);
             $('#albums').hide();
             $('#photo').hide();
             $('#administration').hide();
             
             $.ajax({
-                url: "api/album/" + this.params['album'],
+                url: "api/album/" + album,
                 success: function(data) {
-                    var j = 0;
                     var albums = data['albums'];
                     var photos = data['photos'];
                     var html = '<div class="btn-toolbar" style="margin-top: 18px;">';
@@ -81,20 +120,15 @@ $(document).ready(function() {
                     });
                 }
             });
-            return false;
-        }); // End route
-        
-        /* ******************* */
-        /* Display a photo     */
-        /* ******************* */
-        this.get('#/photo/:photo', function() {
-            
+        },
+    
+        getPhoto : function(photo) {
             $('#albums').hide();
             $('#photos').hide();
             $('#administration').hide();
             
             $.ajax({
-                url: "deploy/api/photo/" + this.params['photo'],
+                url: "deploy/api/photo/" + photo,
                 success: function(data) {
                     var photo = data.photo;
                     var album = data.album;
@@ -124,25 +158,9 @@ $(document).ready(function() {
                     $('#photo').fadeIn();
                 }
             });
-        }); // End route
-        
-        /* ******************* */
-        /* Display a photo     */
-        /* ******************* */
-        this.get('#/download/photo/:photo', function() {
-            var context = this;
-            $.ajax({
-                url: "download/photo/" + this.params['photo'],
-                success: function(data) {
-                    context.redirect("#/photo/" + context.params['photo']);
-                }
-            });
-        }); // End route
-        
-        /* ******************* */
-        /* Administration      */
-        /* ******************* */
-        this.get('#/administration', function() {
+        },
+
+        administration : function() {
             $('h1').html("Administration");
             $('#photos').hide();
             $('#photo').hide();
@@ -153,11 +171,9 @@ $(document).ready(function() {
             $.ajax({
                 url: "administration",
                 success: function(data) {
-                    
                     if (data.sync) {
                         $("#sync-progress").show();
                         var refreshProgressBar = function(data) {
-                            console.log(data);
                             $("#sync-progress h3 span").html(data.percent + "&nbsp;%");
                             $("#sync-progress .bar").css("width", data.percent+"%");
                             if (data.percent < 100) {
@@ -180,7 +196,6 @@ $(document).ready(function() {
                                 }
                             });
                         }
-                        
                         refreshProgressBar(data.sync);
                     }
                     
@@ -209,29 +224,6 @@ $(document).ready(function() {
                         html += '</table>';
                     }
                     
-                    //                    html += '<section>';
-                    //                    html += '<h2 class="page-header">Création d\'un nouvel album</h2>';
-                    //                    html += '<form method="put" action="#/administration/album">';
-                    //                    html += '<fieldset>';
-                    //                    html += '<div class="clearfix">';
-                    //                    html += '<label for="name">Nom de l\'album</label>';
-                    //                    html += '<div class="input">';
-                    //                    html += '<input class="span5" type="text" required name="name" placeholder="Nom de l\'album" />';
-                    //                    html += '</div>';
-                    //                    html += '</div>';
-                    //                    html += '<div class="clearfix">';
-                    //                    html += '<label for="source">Chemin complet vers l\'album</label>';
-                    //                    html += '<div class="input">';
-                    //                    html += '<input class="span5" type="text" required name="source" placeholder="Chemin complet vers l\'album" />';
-                    //                    html += '</div>';
-                    //                    html += '</div>';
-                    //                    html += '</fieldset>';
-                    //                    html += '<div class="form-actions">'
-                    //                    html += '<input type="submit" class="btn primary" value="Créer un album" />&nbsp;';
-                    //                    html += '<button type="reset" class="btn">Annuler</button>';
-                    //                    html += '</div>';
-                    //                    html += '</form>';
-                    //                    html += '</section>';
                     $("#sourceDirectory").val(data.configuration["source_path"]);
                     $("#targetDirectory").val(data.configuration["target_path"]);
                     
@@ -239,80 +231,30 @@ $(document).ready(function() {
                     $('#administration').show();
                 }
             });
-            
-        }); // End route
-        
-        /* ***************************************** */
-        /* Modification de la configuration générale */
-        /* ***************************************** */
-        this.post('#/administration/configuration', function() {
-            $("#configuration-form input").attr("disabled", "disabled");
-            var data = {
-                "sourceDirectory" : this.params["sourceDirectory"], 
-                "targetDirectory" : this.params["targetDirectory"]
-            };
-            var context = this;
-            $.ajax({
-                url: "administration/configuration",
-                type : "post",
-                data : data,
-                success: function(data) {
-                    $("#configuration-form input").removeAttr("disabled");
-                    context.redirect("#/administration");
-                }
-            });
-        }); // End route
-        
-        /* **************** */
-        /* Ajout d'un album */
-        /* **************** */
-        this.put('#/administration/album', function() {
-            var data = {
-                "name" : this.params["name"], 
-                "source" : this.params["source"]
-            };
-            var context = this;
-            $.ajax({
-                url: "administration/album?" + $.param(data, true),
-                type : "put",
-                success: function(data) {
-                    context.redirect("#/administration");
-                }
-            });
-        }); // End route
-        
-        /* ******************* */
-        /* Home page           */
-        /* ******************* */
-        this.get('#/', function() {
-            $('h1').html("Accueil");
-            $('#photos').hide();
-            $('#photo').hide();
-            $('#administration').hide();
-            
-            $.ajax({
-                url: "api/albums",
-                success: function(data) {
-                    var html = "";
-                    if (data.length == 0) {
-                        html += '<p class="alert"><strong>Attention : </strong>Aucun album n\'a été créé pour le moment !</p>'
-                    } else {
-                        html += '<ul class="thumbnails">';
-                        for (var i = 0 ; i < data.length ; i++) {
-                            html += '<li class="span3">';
-                            html += '<i class="icon folder-open"></i>&nbsp;<a href="#/album/' + data[i].name + '">' + data[i].name + '</a>';
-                            html += '<a class="thumbnail" href="#/album/' + data[i].name + '"><img class="album" src="album/' + data[i].id + '/cover" alt="' + data[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
-                            html += '</li>';
-                        }
-                        html += '</ul>';
-                    }
-                    
-                    $('#albums').html(html);
-                    $('#albums').show();
-                }
-            });
-        }); // End route
-                    
-    }).run("#/");
-});
+        },
 
+        editConfiguration : function(sourceDirectory, targetDirectory) {
+//            $("#configuration-form input").attr("disabled", "disabled");
+            var data = {
+                "sourceDirectory" : sourceDirectory, 
+                "targetDirectory" : targetDirectory
+            };
+            //            $.ajax({
+            //                url: "administration/configuration",
+            //                type : "post",
+            //                data : data,
+            //                success: function(data) {
+            //                    $("#configuration-form input").removeAttr("disabled");
+            //                    app.navigate("administration");
+            //                }
+            //            });
+            app.navigate("administration", {
+                trigger:true
+            });
+        }
+
+    });
+    
+    var app = new Workspace();
+    Backbone.history.start();    
+});

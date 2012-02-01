@@ -21,7 +21,9 @@
 package org.debox.photo.job;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ImagingOpException;
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import javax.imageio.ImageIO;
 import org.debox.photo.util.ImageUtils;
@@ -33,9 +35,8 @@ import org.slf4j.LoggerFactory;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class ImageProcessor implements Callable {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
     protected File imageFile;
     protected String imageId;
     protected String targetPath;
@@ -45,32 +46,37 @@ public class ImageProcessor implements Callable {
         this.targetPath = targetPath;
         this.imageId = imageId;
     }
-    
+
     @Override
     public Object call() throws Exception {
-        BufferedImage image = ImageIO.read(imageFile);
-        
-        // Create reduction (1600px)
-        BufferedImage reduction = Scalr.resize(image, 1600);
-        reduction = ImageUtils.rotate(imageFile, reduction);
-        File targetImageFile = new File(targetPath, ImageUtils.LARGE_PREFIX + imageId + ".jpg");
-        ImageIO.write(reduction, "jpg", targetImageFile);
-        image.flush();
+        try {
+            logger.info("{} image processing ...", imageFile.getName());
+            BufferedImage image = ImageIO.read(imageFile);
 
-        // Create cropped thumbnail from reduction
-        BufferedImage thumbnail = Scalr.resize(reduction, 225);
-        reduction.flush();
+            // Create reduction (1600px)
+            BufferedImage reduction = Scalr.resize(image, 1600);
+            reduction = ImageUtils.rotate(imageFile, reduction);
+            File targetImageFile = new File(targetPath, ImageUtils.LARGE_PREFIX + imageId + ".jpg");
+            ImageIO.write(reduction, "jpg", targetImageFile);
+            image.flush();
 
-        BufferedImage cropped = ImageUtils.cropSquare(thumbnail);
-        thumbnail.flush();
+            // Create cropped thumbnail from reduction
+            BufferedImage thumbnail = Scalr.resize(reduction, 225);
+            reduction.flush();
 
-        targetImageFile = new File(targetPath, ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
-        ImageIO.write(cropped, "jpg", targetImageFile);
-        cropped.flush();
-        
-        logger.info("{} image processed", imageFile.getName());
-        
+            BufferedImage cropped = ImageUtils.cropSquare(thumbnail);
+            thumbnail.flush();
+
+            targetImageFile = new File(targetPath, ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
+            ImageIO.write(cropped, "jpg", targetImageFile);
+            cropped.flush();
+
+            logger.info("{} image processed", imageFile.getName());
+            
+        } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
         return null;
     }
-
 }
