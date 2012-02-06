@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Album;
