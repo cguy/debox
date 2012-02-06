@@ -43,6 +43,7 @@ import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Visibility;
 import org.debox.photo.util.ImageUtils;
+import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class SyncJob implements FileVisitor<Path> {
                 Album album = mediaDao.getAlbumBySourcePath(path.toString());
                 if (album == null) {
                     album = new Album();
-                    album.setId(UUID.randomUUID().toString());
+                    album.setId(StringUtils.randomUUID());
                     album.setName(path.getFileName().toString());
                     album.setSourcePath(path.toString());
                     album.setVisibility(Visibility.PUBLIC);
@@ -198,7 +199,7 @@ public class SyncJob implements FileVisitor<Path> {
             Photo photo = mediaDao.getPhotoBySourcePath(path.toString());
             if (photo == null) {
                 photo = new Photo();
-                photo.setId(UUID.randomUUID().toString());
+                photo.setId(StringUtils.randomUUID());
                 photo.setName(path.getFileName().toString());
                 photo.setAlbumId(albumId);
                 photo.setSourcePath(path.toString());

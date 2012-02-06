@@ -52,7 +52,7 @@ public class ImageProcessor implements Callable {
         try {
             logger.info("{} image processing ...", imageFile.getName());
             BufferedImage image = ImageIO.read(imageFile);
-
+            
             // Create reduction (1600px)
             BufferedImage reduction = Scalr.resize(image, 1600);
             reduction = ImageUtils.rotate(imageFile, reduction);
@@ -72,8 +72,11 @@ public class ImageProcessor implements Callable {
             cropped.flush();
 
             logger.info("{} image processed", imageFile.getName());
-            
+
         } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
+            logger.error(ex.getMessage(), ex);
+
+        } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         }
 

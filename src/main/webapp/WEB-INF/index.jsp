@@ -17,43 +17,83 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
--->
+  -->
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>Galerie photos</title>
 
-<c:import url="includes/header.jsp" />
+        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/jquery.rs.slideshow.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-dropdown.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-button.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/bootstrap-transition.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/mustache.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
 
-<h1 class="page-header"></h1>
-<div id="albums"></div>
-<div id="photos"></div>
-<div id="photo"></div>
-<div id="administration">
-    <h2 class="page-header">Configuration générale</h2>
-    <div id="sync-progress" class="alert alert-info">
-        <h3 class="alert-heading">Synchronisation en cours&hellip;&nbsp;<span></span></h3>
-        <div class="progress progress-info progress-striped active">
-            <div class="bar"></div>
-        </div>
-    </div>
-    <form id="configuration-form" class="form-vertical" method="post" action="#/administration/configuration">
-        <div class="clearfix">
-            <label for="sourceDirectory">Répertoire source (contenant les photos au format original) :</label>
-            <div class="input">
-                <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="Exemple : /home/user/photos/" />
+        <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
+        <script type="text/javascript" src="<c:url value="/js/less-1.2.1.min.js" />"></script>
+        <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#/">Galerie photos</a>
+                    <ul class="nav">
+                        <li><a href="#/">Liste des albums</a></li>
+                    <shiro:authenticated>
+                        <li><a href="#/administration">Administration</a></li>
+                    </shiro:authenticated>
+                    </ul>
+                    <p class="navbar-text pull-right">
+                    <shiro:authenticated>
+                        <strong><shiro:principal /></strong> (<a href="#/logout">Déconnexion</a>)
+                    </shiro:authenticated>
+                    <shiro:guest>
+                        <a data-toggle="modal" href="#login">Connexion</a>
+                    </shiro:guest>
+                    </p>
+                </div>
             </div>
         </div>
-        <div class="clearfix">
-            <label for="targetDirectory">Répertoire de travail (qui contiendra notamment les vignettes des photos) :</label>
-            <div class="input">
-                <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" />
+        
+        <div class="container">
+            <div class="content">
+                
             </div>
         </div>
-        <div class="form-actions">
-            <input type="submit" formnovalidate class="btn primary" value="Valider" />
-            <input type="reset" class="btn" value="Annuler" />
-        </div>
-    </form>
-    <div id="admin_albums"></div>
-</div>
-
-<c:import url="includes/footer.jsp" />
+        
+        <form id="login" class="modal hide fade form-horizontal" action="#/authenticate" method="post">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">&times;</a>
+                <h3>Connexion</h3>
+            </div>
+            <div class="modal-body">
+                <p></p>
+                <div class="control-group">
+                    <label class="control-label" for="username">Nom d'utilisateur</label>
+                    <div class="controls">
+                        <input type="text" required class="input-large" id="username" name="username" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="password">Mot de passe</label>
+                    <div class="controls">
+                        <input type="password" required class="input-large" id="password" name="password" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn">Annuler</a>
+                <input type="submit" class="btn btn-primary" data-loading-text="Connexion en cours ..." value="Connexion" />
+            </div>
+        </form>
+    </body>
+</html>

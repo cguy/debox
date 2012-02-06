@@ -8,10 +8,12 @@ package.views=WEB-INF/
 *   /                           MediaBrowser.index
 
 # Used for admin section
-GET         /administration                     Administration.getData
-GET         /administration/sync                Administration.getSyncProgress
-PUT,POST    /administration/album               Administration.createAlbum
+POST        /authenticate                       Administration.authenticate
+DELETE      /session                            Administration.logout
 POST        /administration/configuration       Administration.editConfiguration
+PUT,POST    /administration/album               Administration.createAlbum
+GET         /administration/sync                Administration.getSyncProgress
+GET         /administration                     Administration.getData
 
 # Return media descriptions
 *   /api/albums                     MediaBrowser.getAlbums

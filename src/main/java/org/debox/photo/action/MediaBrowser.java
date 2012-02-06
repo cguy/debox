@@ -20,7 +20,10 @@
  */
 package org.debox.photo.action;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.nio.file.Paths;
@@ -29,9 +32,9 @@ import java.util.List;
 import org.debox.photo.dao.MediaDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
-import org.debox.photo.util.FileDownloadRenderer;
+import org.debox.photo.server.renderer.FileDownloadRenderer;
+import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.ImageUtils;
-import org.debox.photo.util.ZipDownloadRenderer;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -66,7 +69,7 @@ public class MediaBrowser extends WebMotionController {
         return renderView("index.jsp");
     }
 
-    public Render getThumbnail(String photoId) throws FileNotFoundException, SQLException {
+    public Render getThumbnail(String photoId) throws IOException, SQLException {
         Photo photo = mediaDao.getPhoto(photoId);
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -75,7 +78,7 @@ public class MediaBrowser extends WebMotionController {
         return renderStream(new FileInputStream(file), "image/jpeg");
     }
 
-    public Render getPhotoStream(String photoId) throws FileNotFoundException, IOException, SQLException {
+    public Render getPhotoStream(String photoId) throws IOException, SQLException {
         Photo photo = mediaDao.getPhoto(photoId);
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -98,7 +101,7 @@ public class MediaBrowser extends WebMotionController {
         return renderJSON("album", album, "photo", photo);
     }
 
-    public Render getAlbumCover(String albumId) throws SQLException, FileNotFoundException {
+    public Render getAlbumCover(String albumId) throws SQLException, IOException {
         Photo photo = mediaDao.getFirstPhotoByAlbumId(albumId);
         if (photo == null) {
             String missingImagePath = getContext().getServletContext().getRealPath("img/folder.png");
@@ -108,7 +111,7 @@ public class MediaBrowser extends WebMotionController {
         return renderStream(new FileInputStream(filename), "image/jpeg");
     }
 
-    public Render getOriginalPhotoStream(String photoId) throws SQLException, FileNotFoundException {
+    public Render getOriginalPhotoStream(String photoId) throws SQLException, IOException {
         Photo photo = mediaDao.getPhoto(photoId);
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -116,7 +119,7 @@ public class MediaBrowser extends WebMotionController {
         return new FileDownloadRenderer(Paths.get(photo.getSourcePath()), photo.getName(), "image/jpeg");
     }
     
-    public Render getResizedPhotoStream(String photoId) throws SQLException, FileNotFoundException {
+    public Render getResizedPhotoStream(String photoId) throws SQLException, IOException {
         Photo photo = mediaDao.getPhoto(photoId);
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);

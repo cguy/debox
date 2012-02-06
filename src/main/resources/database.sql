@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `configurations` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` VARCHAR(32) PRIMARY KEY,
     `username` VARCHAR(255) NOT NULL UNIQUE KEY,
     `password` VARCHAR(255) NOT NULL,
     `password_salt` varchar(255) NOT NULL
@@ -23,23 +23,23 @@ CREATE TABLE IF NOT EXISTS `visibilities` (
 INSERT INTO `visibilities` VALUES ('public'),('private'),('token_access');
 
 CREATE TABLE IF NOT EXISTS `tokens` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` VARCHAR(32) PRIMARY KEY,
     `label` VARCHAR(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `roles` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` VARCHAR(32) PRIMARY KEY,
     `label` VARCHAR(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `albums` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `date` DATE,
     `source_path` TEXT NOT NULL,
     `target_path` TEXT NOT NULL,
-    `parent_id` VARCHAR(36),
-    `visibility` VARCHAR(36) NOT NULL,
+    `parent_id` VARCHAR(32),
+    `visibility` VARCHAR(32) NOT NULL,
     FOREIGN KEY (`parent_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`visibility`) REFERENCES `visibilities`(`id`),
     INDEX USING BTREE (`source_path`(255)),
@@ -47,19 +47,19 @@ CREATE TABLE IF NOT EXISTS `albums` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `albums_tokens` (
-    `album_id` VARCHAR(36),
-    `token_id` VARCHAR(36),
+    `album_id` VARCHAR(32),
+    `token_id` VARCHAR(32),
     PRIMARY KEY (`album_id`, `token_id`),
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `photos` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `source_path` TEXT NOT NULL,
     `target_path` TEXT NOT NULL,
-    `album_id` VARCHAR(36),
+    `album_id` VARCHAR(32),
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX USING BTREE (`album_id`),
     INDEX USING BTREE (`source_path`(255)),

@@ -1,176 +1,111 @@
 $(document).ready(function() {
     
-    $('form').submit(function(evt) {
-        var data = $(this).serialize();
-        var method = $(this).attr("method");
-        var action = $(this).attr("action");
-        if (action.indexOf("#/") > -1) {
-            action = action.substr(2);
+    function loadTemplate(template, data, selector, callback) {
+        if (!selector) {
+            selector = ".container .content";
         }
-        console.log(action);
-        console.log(method);
-        console.log(data);
         $.ajax({
-            url: action,
-            type : method,
-            data : data,
-            success: function(data) {
-                app.navigate(action, {trigger: true});
+            url: "/templates/" + template + ".tpl",
+            success: function(tpl) {
+                var html = Mustache.render(tpl, {
+                    data : data
+                });
+                $(selector).html(html);
+                if (callback) {
+                    callback();
+                }
             }
         });
-        
-        evt.preventDefault();
-    });
+    }
     
-    var Workspace = Backbone.Router.extend({
+    Sammy(function() {
         
-        routes : {
-            'album/:album' : "getAlbum",
-            'photo/:photo' : "getPhoto",
-            'administration/configuration': "editConfiguration",
-            'administration': "administration",
-            '': "home"
-        },
-
-        home : function() {
-            $('h1').html("Accueil");
-            $('#photos').hide();
-            $('#photo').hide();
-            $('#administration').hide();
-            
+        this.get("#/photo/:photo", function() {
             $.ajax({
-                url: "api/albums",
+                url: "deploy/api/photo/" + this.params['photo'],
                 success: function(data) {
-                    var html = "";
-                    if (data.length == 0) {
-                        html += '<p class="alert"><strong>Attention : </strong>Aucun album n\'a été créé pour le moment !</p>'
-                    } else {
-                        html += '<ul class="thumbnails">';
-                        for (var i = 0 ; i < data.length ; i++) {
-                            html += '<li class="span3">';
-                            html += '<i class="icon folder-open"></i>&nbsp;<a href="#/album/' + data[i].name + '">' + data[i].name + '</a>';
-                            html += '<a class="thumbnail" href="#/album/' + data[i].name + '"><img class="album" src="album/' + data[i].id + '/cover" alt="' + data[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
-                            html += '</li>';
-                        }
-                        html += '</ul>';
-                    }
-                    
-                    $('#albums').html(html);
-                    $('#albums').show();
+                    loadTemplate("photo", data);
                 }
             });
-        },
-    
-        getAlbum : function(album) {
-            $('h1').html(album);
-            $('#albums').hide();
-            $('#photo').hide();
-            $('#administration').hide();
-            
+        });
+        
+        this.get('#/album/:album', function() {
             $.ajax({
-                url: "api/album/" + album,
+                url: "api/album/" + this.params['album'],
                 success: function(data) {
-                    var albums = data['albums'];
-                    var photos = data['photos'];
-                    var html = '<div class="btn-toolbar" style="margin-top: 18px;">';
-                    html += '<div class="btn-group">';
-                    if (data.parent) {
-                        html += '<a href="#/album/' + data.parent.name + '" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à l\'album : ' + data.parent.name + '</a>';
-                    } else {
-                        html += '<a href="#/" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à la liste des albums</a>';
+                    loadTemplate("album", data);
+                }
+            });
+        }),
+        
+        this.get('#/album/:album(/.*)?', function() {
+            var photoId = this.params['splat'][0];
+            var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
+            if (index == -1) {
+                $.ajax({
+                    url: "api/album/" + this.params['album'],
+                    success: function(data) {
+                        loadTemplate("album", data, null, function(){
+                            if (photoId.length > 1) {
+                                var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
+                                console.log(index);
+                                if (index != -1) {
+                                    var slideshowData = [];
+                                    for (var i = 0 ; i < data.photos.length ; i++) {
+                                        slideshowData.push({
+                                            "id" : "/album/" + data.album.name + "/" + data.photos[i].id,
+                                            "url" : "photo/"+data.photos[i].id,
+                                            "caption" : data.photos[i].name
+                                        });
+                                    }
+                                    fullscreen(index, slideshowData);
+                                }
+                            }
+                        });
                     }
-                    html += '</div>';
-                    html += '<div class="btn-group">';
-                    html += '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon download"></i>&nbsp;Télécharger les photos de cet album&nbsp;<span class="caret"></span></a>';
-                    html += '<ul class="dropdown-menu">';
-                    html += '<li><a href="download/album/' + data.album.id + '/min">Taille réduite des photos (1600px)</a></li>';
-                    html += '<li><a href="download/album/' + data.album.id + '">Taille originale des photos</a></li>';
-                    html += '</ul>';
-                    html += '</div>';
-                    html += '</div>';
-                    html += '<hr />';
-                    
-                    if (albums && albums.length > 0) {
-                        html += '<h2>Sous-albums</h2>';
-                        html += '<ul class="thumbnails">';
-                        for (var i = 0 ; i < albums.length ; i++) {
-                            html += '<li class="span3">';
-                            html += '<i class="icon folder-open"></i>&nbsp;<a href="#/album/' + albums[i].name + '">' + albums[i].name + '</a>';
-                            html += '<a class="thumbnail" href="#/album/' + albums[i].name + '"><img class="album" src="album/' + albums[i].id + '/cover" alt="' + albums[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
-                            html += '</li>';
-                        }
-                        html += '</ul>';
-                    }
-                    if (photos && photos.length > 0) {
-                        if (albums && albums.length > 0) {
-                            html += '<h2>Photos</h2>';
-                        }
-                        html += '<ul class="thumbnails">';
-                        for (i = 0 ; i < photos.length ; i++) {
-                            html += '<li class="span2">';
-                            html += '<a class="thumbnail" href="#/photo/' + photos[i].id + '"><img class="album" src="thumbnail/' + photos[i].id + '" alt="' + photos[i].name + '" title="' + photos[i].name + '" style="background-color:#ddd;width:210px;"/></a>';
-                            html += '</li>';
-                        }
-                        html += '</ul>';
-                    }
-                    
-                    $('#photos').fadeOut(function() {
-                        $('#photos').html(html);
-                        $('#photos').fadeIn();
+                });
+            } else if (document.getElementById("fullscreenContainer") == null) {
+                var slideshowData = [];
+                var photos = $(".photos a.thumbnail");
+                for (var i = 0 ; i < photos.length ; i++) {
+                    var img = $(photos[i]).find("img");
+                    slideshowData.push({
+                        "id" : "/album/" + this.params['album'] + "/" + photos[i].id,
+                        "url" : "photo/"+photos[i].id,
+                        "caption" : img.attr("title")
                     });
                 }
-            });
-        },
-    
-        getPhoto : function(photo) {
-            $('#albums').hide();
-            $('#photos').hide();
-            $('#administration').hide();
-            
+                fullscreen(index, slideshowData);
+            }
+        }),
+        
+        /* ******************** */
+        /* Aministration access */
+        /* ******************** */
+        this.post('#/administration/configuration', function() {
+            var context = this;
+            $("#configuration-form input").attr("disabled", "disabled");
+            var data = {
+                "sourceDirectory" : this.params["sourceDirectory"], 
+                "targetDirectory" : this.params["targetDirectory"]
+            };
             $.ajax({
-                url: "deploy/api/photo/" + photo,
-                success: function(data) {
-                    var photo = data.photo;
-                    var album = data.album;
-                    $('h1').html(photo.name + "<small>" + album.name + "</small>");
-                    var html = '<div class="btn-toolbar" style="margin-top: 18px;">';
-                    html += '<div class="btn-group">';
-                    html += '<a href="#/album/' + album.name + '" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à l\'album</a>';
-                    html += '</div>';
-                    html += '<div class="btn-group">';
-                    html += '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon download"></i>&nbsp;Télécharger la photo&nbsp;<span class="caret"></span></a>';
-                    html += '<ul class="dropdown-menu">';
-                    html += '<li><a href="download/photo/' + photo.id + '/min">Taille réduite (1600px)</a></li>';
-                    html += '<li><a href="download/photo/' + photo.id + '">Taille originale</a></li>';
-                    html += '</ul>';
-                    html += '</div>';
-                    html += '</div>';
-                    html += '<hr />';
-                    
-                    html += '<div class="media-grid" style="text-align: center;">';
-                    var imageUrl = 'photo/' + photo.id + '" id="' + photo.name;
-                    html += '<a class="thumbnail" href="' + imageUrl + '" style="display:inline-block; float:none;">';
-                    html += '<img src="' + imageUrl + '" style="max-height:700px;max-width:100%;" />';
-                    html += '</a>';
-                    html += '</div>';
-                    
-                    $('#photo').html(html);
-                    $('#photo').fadeIn();
+                url: "administration/configuration",
+                type : "post",
+                data : data,
+                success: function() {
+                    $("#configuration-form input").removeAttr("disabled");
+                    context.redirect("#/administration");
                 }
             });
-        },
-
-        administration : function() {
-            $('h1').html("Administration");
-            $('#photos').hide();
-            $('#photo').hide();
-            $('#albums').hide();
-            $('#administration').hide();
-            $("#sync-progress").hide();
-            
+            return false;
+        });
+        
+        this.get('#/administration', function() {
             $.ajax({
                 url: "administration",
                 success: function(data) {
+                    loadTemplate("administration", data);
                     if (data.sync) {
                         $("#sync-progress").show();
                         var refreshProgressBar = function(data) {
@@ -198,63 +133,146 @@ $(document).ready(function() {
                         }
                         refreshProgressBar(data.sync);
                     }
-                    
-                    var albums = data.albums;
-                    var html = '<h2 class="page-header">Liste des albums</h2>';
-                    if (albums.length == 0) {
-                        html += '<p class="alert">Aucun album n\'a été créé pour le moment !</p>'
-                    } else {
-                        html += '<table class="table table-striped table-bordered table-condensed">';
-                        html += '<thead>';
-                        html += '<tr>';
-                        html += '<th>Nom de l\'album</th>';
-                        html += '<th>Répertoire source</th>';
-                        html += '<th>Action</th>';
-                        html += '</tr>';
-                        html += '</thead>';
-                        html += '<tbody>';
-                        for (var i = 0 ; i < albums.length ; i++) {
-                            html += '<tr>';
-                            html += '<td>' + albums[i].name + '</td>';
-                            html += '<td>' + albums[i].sourcePath + '</td>';
-                            html += '<td></td>';
-                            html += '</tr>';
-                        }
-                        html += '</tbody>';
-                        html += '</table>';
-                    }
-                    
-                    $("#sourceDirectory").val(data.configuration["source_path"]);
-                    $("#targetDirectory").val(data.configuration["target_path"]);
-                    
-                    $('#admin_albums').html(html);
-                    $('#administration').show();
+                },
+                error: function(xhr) {
+                    loadTemplate(xhr.status);
                 }
             });
-        },
-
-        editConfiguration : function(sourceDirectory, targetDirectory) {
-//            $("#configuration-form input").attr("disabled", "disabled");
+        }),
+        
+        /* ******************* */
+        /* Authentication      */
+        /* ******************* */
+        this.post('#/authenticate', function() {
+            $("#login input[type=submit]").button('loading');
+            $("#login p").html("");
+            var context = this;
+            
             var data = {
-                "sourceDirectory" : sourceDirectory, 
-                "targetDirectory" : targetDirectory
+                "username" : this.params["username"], 
+                "password" : this.params["password"]
             };
-            //            $.ajax({
-            //                url: "administration/configuration",
-            //                type : "post",
-            //                data : data,
-            //                success: function(data) {
-            //                    $("#configuration-form input").removeAttr("disabled");
-            //                    app.navigate("administration");
-            //                }
-            //            });
-            app.navigate("administration", {
-                trigger:true
+            $.ajax({
+                url: "authenticate",
+                type : "post",
+                data : data,
+                success: function(username) {
+                    $("#login input[type=submit]").button('reset');
+                    $("#login p").removeClass("alert alert-error");
+                    if (location.hash && location.hash.length > 1) {
+                        context.redirect(location.hash);
+                    } else {
+                        context.redirect("#/");
+                    }
+                    $("#login").modal("hide");
+                    loadTemplate("header", {
+                        "username" : username
+                    }, ".navbar .container");
+                },
+                error: function(xhr) {
+                    $("#login input[type=submit]").button('reset');
+                    $("#login p").addClass("alert alert-error");
+                    if (xhr.status == 401) {
+                        $("#login p").html("Erreur de connexion: veuillez vérifier vos identifiants de connexion.");
+                    } else {
+                        $("#login p").html("Erreur pendant la connexion, veuillez réessayer ultérieurement.");
+                    }
+                }
             });
-        }
-
-    });
+            return false;
+        });
+        
+        /* ******************* */
+        /* Logout              */
+        /* ******************* */
+        this.get('#/logout', function() {
+            var context = this;
+            $.ajax({
+                url: "session",
+                type : "delete",
+                success: function(data) {
+                    loadTemplate("header", null, ".navbar .container");
+                    context.redirect("#/");
+                },
+                error: function(xhr) {
+                    context.redirect("#/");
+                }
+            });
+        });
+        
+        /* ******************* */
+        /* Home page           */
+        /* ******************* */
+        this.get('#/', function() {
+            $.ajax({
+                url: "api/albums",
+                success: function(data) {
+                    loadTemplate("home", data);
+                }
+            });
+        }); // End route
+        
+    }).run("#/");
     
-    var app = new Workspace();
-    Backbone.history.start();    
+    
+    $.getDocHeight = function(){
+        return Math.max(
+            $(document).height(),
+            $(window).height(),
+            /* For opera: */
+            document.documentElement.clientHeight
+            );
+    };
+            
+    function exitFullscreen() {
+        var elt = document.getElementById("fullscreenContainer");
+        document.body.removeChild(elt);
+        var controls = document.getElementById("rs-controls-slideshow-div");
+        if (controls) {
+            document.body.removeChild(controls);
+        }
+    }
+            
+    function createBg() {
+        var container = document.createElement("div");
+        container.id = "fullscreenContainer";
+        container.style.height = $.getDocHeight() + "px";
+                
+        var elt = document.createElement("div");
+        elt.id = "slideshow-div";
+        elt.className = "rs-slideshow";
+        elt.style.position = "fixed";
+        elt.style.top = "0px";
+        elt.style.left = "0px";
+        elt.style.height = Math.round(window.innerHeight) + "px";
+        elt.onclick = exitFullscreen;
+
+        container.appendChild(elt);
+        return container;
+    }
+            
+    function fullscreen(index, data) {
+        var elt = createBg();
+        document.body.appendChild(elt);
+        $('#slideshow-div').rsfSlideshow(
+        {
+            autostart : false,
+            transition: 500,
+            slides: data,
+            controls: {
+                previousSlide: {
+                    auto: true
+                },    //    auto-generate a "previous slide" control
+                nextSlide: {
+                    auto: true
+                }    //    auto-generate a "next slide" control
+            },
+            effect: 'fade'
+        }
+        );
+        $('#slideshow-div').rsfSlideshow(
+            'goToSlide', index
+            );
+    }
+    
 });

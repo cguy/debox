@@ -61,3 +61,107 @@ h1 small {
 form.form-inline input {
     margin: 0 5px;
 }
+
+/* ************************************************************************** */
+/* ** FULLSCREEN ************************************************************* */
+/* ************************************************************************** */
+#fullscreenContainer {
+    z-index: 9999;
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+}
+
+/* ************************************************************************** */
+/* ** SLIDESHOW ************************************************************* */
+/* ************************************************************************** */
+.rs-slideshow {
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.95);
+    background-image: url("../img/loader.gif");
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.rs-slideshow .slide-container {
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.rs-slideshow .slide-container img {
+    border: 4px solid #fefefe;
+    position: absolute;
+    max-height: 90%;
+}
+
+.rs-slideshow .slide-container .video {
+    border: 4px solid #fefefe;
+    position: absolute;
+    max-height: 90%;
+}
+
+.rs-slideshow .slide-container .photo {
+    position: absolute;
+}
+
+.rs-slideshow .slides {
+    display: none;
+}
+
+.slide-container .slide-caption {
+    background-color: rgba(0, 0, 0, 0.7);
+    bottom: 0;
+    color: #fff;
+    display: block;
+    left: 0;
+    padding: 6px 12px;
+    position: absolute;
+    text-align: center;
+    right: 0;
+    font-weight: bold;
+}
+
+.rs-prev, .rs-next {
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    width: 100px;
+    text-align: center;
+    z-index: 21;
+    line-height: 25px;
+    font-size: 13px;
+}
+
+.rs-prev {
+    left: 0px;
+}
+
+.rs-prev:after {
+   content: " Précédent";
+}
+
+.rs-next {
+    right: 0px;
+}
+
+.rs-next:before {
+   content: "Suivant ";
+}
+
+.rs-controls a {
+    color: #aaa;
+    display: block;
+    padding: 3px 5px;
+}
+.rs-controls a:hover {
+    color: #fefefe;
+}

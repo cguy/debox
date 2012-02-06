@@ -29,16 +29,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.apache.shiro.util.JdbcUtils;
+import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Visibility;
+import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class MediaDao {
+public class MediaDao extends JdbcMysqlRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(MediaDao.class);
     protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -59,7 +61,7 @@ public class MediaDao {
     public List<Album> getAllAlbums() throws SQLException {
         List<Album> result = new ArrayList<>();
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -86,7 +88,7 @@ public class MediaDao {
     public List<Album> getAlbums(String parentId) throws SQLException {
         List<Album> result = new ArrayList<>();
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -117,7 +119,7 @@ public class MediaDao {
     public Album getAlbumBySourcePath(String sourcePath) throws SQLException {
         Album result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -139,7 +141,7 @@ public class MediaDao {
     public Photo getPhotoBySourcePath(String sourcePath) throws SQLException {
         Photo result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -183,10 +185,10 @@ public class MediaDao {
     }
 
     public void save(Album album) throws SQLException {
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         String id = album.getId();
         if (id == null) {
-            id = UUID.randomUUID().toString();
+            id = StringUtils.randomUUID();
         }
 
         PreparedStatement statement = null;
@@ -212,10 +214,10 @@ public class MediaDao {
     }
 
     public void save(Photo photo) throws SQLException {
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         String id = photo.getId();
         if (id == null) {
-            id = UUID.randomUUID().toString();
+            id = StringUtils.randomUUID();
         }
 
         PreparedStatement statement = null;
@@ -237,7 +239,7 @@ public class MediaDao {
     public long getPhotosCount() throws SQLException {
         long result = -1;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -258,7 +260,7 @@ public class MediaDao {
     public Album getAlbum(String albumId) throws SQLException {
         Album result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -280,7 +282,7 @@ public class MediaDao {
     public Photo getFirstPhotoByAlbumId(String albumId) throws SQLException {
         Photo result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -302,7 +304,7 @@ public class MediaDao {
     public Album getAlbumByName(String albumName) throws SQLException {
         Album result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -324,7 +326,7 @@ public class MediaDao {
     public List<Photo> getPhotos(String albumId) throws SQLException {
         List<Photo> result = new ArrayList<>();
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -348,7 +350,7 @@ public class MediaDao {
     public Photo getPhoto(String photoId) throws SQLException {
         Photo result = null;
 
-        Connection connection = DatabaseConnectionManager.getConnection();
+        Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {

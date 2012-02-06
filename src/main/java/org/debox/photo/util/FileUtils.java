@@ -48,11 +48,7 @@ public class FileUtils {
                 if (file.isDirectory()) {
                     continue;
                 }
-                
-                try (
-                        FileInputStream fis = new FileInputStream(file);
-                        BufferedInputStream bis = new BufferedInputStream(fis)) {
-                    
+                try (FileInputStream fis = new FileInputStream(file)) {
                     zos.putNextEntry(new ZipEntry(file.getName()));
                     zos.write(IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath()))));
                     zos.closeEntry();
