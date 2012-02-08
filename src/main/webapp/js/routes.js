@@ -5,7 +5,7 @@ $(document).ready(function() {
             selector = ".container .content";
         }
         $.ajax({
-            url: "/templates/" + template + ".tpl",
+            url: "/templates/" + template + ".tpl?t="+new Date().getTime(),
             success: function(tpl) {
                 var html = Mustache.render(tpl, {
                     data : data
@@ -18,10 +18,65 @@ $(document).ready(function() {
         });
     }
     
+    function ajax(object) {
+        if (!object.error) {
+            object.error = function(xhr) {
+                if (xhr.status == 404) {
+                    loadTemplate(xhr.status);
+                }
+            }
+        }
+        $.ajax(object);
+    }
+    
+    function handleAdmin() {
+        $("#administration_albums button").click(function() {
+            var id = $(this).parent().parent().attr("id");
+            $.ajax({
+                url: "album/" + id,
+                success: function(data) {
+                    console.log(data);
+                    $("#edit_album input[type=hidden]").val(data.id);
+                    $("#edit_album #name").val(data.name);
+                    $("#edit_album #visibility option[value=" + data.visibility.toLowerCase() + "]").attr("selected", "selected");
+                    $("#edit_album").modal();
+                }
+            });
+        });
+        
+        $("#edit_album button[type=reset]").click(function() {
+            $("#edit_album").modal("hide");
+            $("#edit_album #visibility option").removeAttr("selected");
+        });
+        
+        $("#administration_tokens button").click(function() {
+            var id = $(this).parent().parent().attr("id");
+            $.ajax({
+                url: "token/" + id,
+                success: function(data) {
+                    console.log(data);
+                    $("#edit_token input[type=hidden]").val(data.token.id);
+                    $("#edit_token #label").val(data.token.label);
+                    
+                    for (var i = 0 ; i < data.token.albums.length ; i++) {
+                        $("#edit_token #albums option[value=" + data.token.albums[i] + "]").attr("selected", "selected");
+                    }
+                    
+                    $("#edit_token").modal();
+                }
+            });
+        });
+        
+        $("#edit_token button[type=reset]").click(function() {
+            $("#edit_token").modal("hide");
+            $("#edit_token #albums option").removeAttr("selected");
+        });
+    }
+    
     Sammy(function() {
         
         this.get("#/photo/:photo", function() {
-            $.ajax({
+            ajax({
                 url: "deploy/api/photo/" + this.params['photo'],
                 success: function(data) {
                     loadTemplate("photo", data);
@@ -30,7 +85,7 @@ $(document).ready(function() {
         });
         
         this.get('#/album/:album', function() {
-            $.ajax({
+            ajax({
                 url: "api/album/" + this.params['album'],
                 success: function(data) {
                     loadTemplate("album", data);
@@ -42,7 +97,7 @@ $(document).ready(function() {
             var photoId = this.params['splat'][0];
             var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
             if (index == -1) {
-                $.ajax({
+                ajax({
                     url: "api/album/" + this.params['album'],
                     success: function(data) {
                         loadTemplate("album", data, null, function(){
@@ -101,38 +156,96 @@ $(document).ready(function() {
             return false;
         });
         
-        this.get('#/administration', function() {
+        this.post('#/album', function() {
+            var context = this;
+            var data = {
+                "id" : this.params["id"],
+                "name" : this.params["name"],
+                "visibility" : this.params["visibility"]
+            };
             $.ajax({
+                url: "album",
+                type : "post",
+                data : data,
+                success: function() {
+                    $("#edit_album").modal("hide");
+                    context.redirect("#/administration");
+                }
+            });
+            return false;
+        });
+        
+        this.put('#/group', function() {
+            var context = this;
+            $.ajax({
+                url: "group?label=" + this.params["label"],
+                type : "put",
+                success: function() {
+                    context.redirect("#/administration");
+                }
+            });
+            return false;
+        });
+        
+        this.post('#/token', function() {
+            var context = this;
+            var data = {
+                "id" : this.params['id'],
+                "label" : this.params['label'],
+                "albums" : this.params['albums']
+            };
+            console.log(data);
+            $.ajax({
+                url: "token",
+                type : "post",
+                data: data,
+                success: function() {
+//                    context.redirect("#/administration");
+                }
+            });
+            return false;
+        });
+        
+        this.get('#/administration', function() {
+            ajax({
                 url: "administration",
                 success: function(data) {
-                    loadTemplate("administration", data);
-                    if (data.sync) {
-                        $("#sync-progress").show();
-                        var refreshProgressBar = function(data) {
-                            $("#sync-progress h3 span").html(data.percent + "&nbsp;%");
-                            $("#sync-progress .bar").css("width", data.percent+"%");
-                            if (data.percent < 100) {
-                                $("#configuration-form input").attr("disabled", "disabled");
-                                setTimeout(getSyncStatus, 2000);
-                            } else {
-                                $("#configuration-form input").removeAttr("disabled");
-                                $("#sync-progress").removeClass("alert-info");
-                                $("#sync-progress").addClass("alert-success");
-                                $("#sync-progress .progress").removeClass("progress-info");
-                                $("#sync-progress .progress").addClass("progress-success");
-                            }
-                        }
-                        
-                        var getSyncStatus = function() {
-                            $.ajax({
-                                url: "administration/sync",
-                                success: function(data) {
-                                    refreshProgressBar(data);
-                                }
-                            });
-                        }
-                        refreshProgressBar(data.sync);
+                    
+                    for (var i = 0 ; i < data.albums.length ; i++) {
+                        data.albums[i].visibility = data.albums[i].visibility == "PUBLIC";
                     }
+                    
+                    loadTemplate("administration", data, null, function() {
+                        handleAdmin();
+                        
+                        if (data.sync) {
+                            $("#sync-progress").show();
+                            var refreshProgressBar = function(data) {
+                                $("#sync-progress h3 span").html(data.percent + "&nbsp;%");
+                                $("#sync-progress .bar").css("width", data.percent+"%");
+                                if (data.percent < 100) {
+                                    $("#configuration-form input").attr("disabled", "disabled");
+                                    setTimeout(getSyncStatus, 2000);
+                                } else {
+                                    $("#configuration-form input").removeAttr("disabled");
+                                    $("#sync-progress").removeClass("alert-info");
+                                    $("#sync-progress").addClass("alert-success");
+                                    $("#sync-progress .progress").removeClass("progress-info");
+                                    $("#sync-progress .progress").addClass("progress-success");
+                                }
+                            }
+                        
+                            var getSyncStatus = function() {
+                                $.ajax({
+                                    url: "administration/sync",
+                                    success: function(data) {
+                                        refreshProgressBar(data);
+                                    }
+                                });
+                            }
+                            refreshProgressBar(data.sync);
+                        }
+                    });
                 },
                 error: function(xhr) {
                     loadTemplate(xhr.status);
@@ -152,7 +265,7 @@ $(document).ready(function() {
                 "username" : this.params["username"], 
                 "password" : this.params["password"]
             };
-            $.ajax({
+            ajax({
                 url: "authenticate",
                 type : "post",
                 data : data,
@@ -187,7 +300,7 @@ $(document).ready(function() {
         /* ******************* */
         this.get('#/logout', function() {
             var context = this;
-            $.ajax({
+            ajax({
                 url: "session",
                 type : "delete",
                 success: function(data) {
@@ -204,7 +317,7 @@ $(document).ready(function() {
         /* Home page           */
         /* ******************* */
         this.get('#/', function() {
-            $.ajax({
+            ajax({
                 url: "api/albums",
                 success: function(data) {
                     loadTemplate("home", data);

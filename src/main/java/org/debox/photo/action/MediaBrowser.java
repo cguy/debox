@@ -64,9 +64,27 @@ public class MediaBrowser extends WebMotionController {
         List<Album> albums = mediaDao.getAlbums(album.getId());
         return renderJSON("album", album, "photos", photos, "albums", albums, "parent", mediaDao.getAlbum(album.getParentId()));
     }
-
-    public Render index(String layout) throws IOException {
-        return renderView("index.jsp");
+    
+    public Render getAlbumById(String albumId) throws SQLException {
+        Album album = mediaDao.getAlbum(albumId);
+        if (album == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        return renderJSON(album);
+    }
+    
+    public Render editAlbum(String id, String name, String visibility) throws SQLException {
+        Album album = mediaDao.getAlbum(id);
+        if (album == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        
+        album.setName(name);
+        album.setVisibility(Album.Visibility.valueOf(visibility.toUpperCase()));
+        
+        mediaDao.save(album);
+        
+        return renderJSON(album);
     }
 
     public Render getThumbnail(String photoId) throws IOException, SQLException {

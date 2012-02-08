@@ -27,11 +27,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.Visibility;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,15 +43,16 @@ import org.slf4j.LoggerFactory;
 public class MediaDao extends JdbcMysqlRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(MediaDao.class);
-    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?)";
+    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = ?, visibility = ?";
     protected static String SQL_GET_ALBUMS = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums";
     protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums WHERE parent_id is null";
+    protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = SQL_GET_ROOT_ALBUMS + " AND visibility = 'public'";
     protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums WHERE parent_id = ?";
+    protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = SQL_GET_ALBUMS_BY_PARENT_ID + " AND visibility = 'public'";
     protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums WHERE id = ?";
     protected static String SQL_GET_ALBUM_BY_NAME = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums WHERE name = ?";
     protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, date, source_path, target_path, parent_id, visibility FROM albums WHERE source_path = ?";
     protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?)";
-    
     protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE album_id = ?";
     protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE id = ?";
     protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE source_path = ?";
@@ -91,10 +93,20 @@ public class MediaDao extends JdbcMysqlRealm {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            if (parentId == null) {
+            Subject subject = SecurityUtils.getSubject();
+
+            if (parentId == null && subject.isAuthenticated()) {
                 statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS);
-            } else {
+
+            } else if (parentId == null) {
+                statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS);
+
+            } else if (subject.isAuthenticated()) {
                 statement = connection.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID);
+                statement.setString(1, parentId);
+                
+            } else {
+                statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
                 statement.setString(1, parentId);
             }
             resultSet = statement.executeQuery();
@@ -167,7 +179,7 @@ public class MediaDao extends JdbcMysqlRealm {
         result.setSourcePath(resultSet.getString(4));
         result.setTargetPath(resultSet.getString(5));
         result.setParentId(resultSet.getString(6));
-        result.setVisibility(Visibility.valueOf(resultSet.getString(7).toUpperCase()));
+        result.setVisibility(Album.Visibility.valueOf(resultSet.getString(7).toUpperCase()));
 
         return result;
     }
@@ -204,6 +216,8 @@ public class MediaDao extends JdbcMysqlRealm {
             statement.setString(5, album.getTargetPath());
             statement.setString(6, album.getParentId());
             statement.setString(7, album.getVisibility().name().toLowerCase());
+            statement.setString(8, album.getName());
+            statement.setString(9, album.getVisibility().name().toLowerCase());
             statement.executeUpdate();
 
         } finally {

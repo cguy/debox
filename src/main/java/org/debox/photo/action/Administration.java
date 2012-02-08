@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
@@ -36,8 +37,12 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.ApplicationConfigurationDao;
 import org.debox.photo.dao.MediaDao;
+import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Token;
+import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -50,8 +55,10 @@ public class Administration extends WebMotionController {
     
     private static final Logger logger = LoggerFactory.getLogger(Administration.class);
     protected SyncJob syncJob;
-    protected MediaDao mediaDao = new MediaDao();
+    protected static MediaDao mediaDao = new MediaDao();
+    protected static TokenDao tokenDao = new TokenDao();
     protected ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
+    
     
     public Render authenticate(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -87,6 +94,21 @@ public class Administration extends WebMotionController {
             return renderStatus(404);
         }
         return renderJSON(getSyncData());
+    }
+    
+    public Render createToken(String label) throws SQLException {
+        Subject currentUser = SecurityUtils.getSubject();
+        if (!currentUser.isAuthenticated()) {
+            return renderError(HttpServletResponse.SC_FORBIDDEN, "User must be logged in.");
+        }
+        
+        Token token = new Token();
+        token.setId(StringUtils.randomUUID());
+        token.setLabel(label);
+        
+        tokenDao.save(token);
+        
+        return renderJSON(token);
     }
     
     public Render editConfiguration(String sourceDirectory, String targetDirectory) throws IOException, SQLException {
@@ -146,13 +168,58 @@ public class Administration extends WebMotionController {
             return renderJSON(
                     "configuration", configurationDao.get().get(),
                     "albums", mediaDao.getAllAlbums(),
+                    "tokens", tokenDao.getAll(),
                     "sync", sync);
         }
         
         return renderJSON(
                 "configuration", configurationDao.get().get(),
-                "albums", mediaDao.getAllAlbums());
+                "albums", mediaDao.getAllAlbums(),
+                "tokens", tokenDao.getAll());
     }
+    
+    public Render getToken(String id) throws SQLException {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
+        }
+        
+        Token token = tokenDao.getById(id);
+        if (token == null) {
+            return renderError(HttpServletResponse.SC_NOT_FOUND, "");
+        }
+
+        return renderJSON(
+                "albums", mediaDao.getAllAlbums(),
+                "token", token);
+    }
+    
+    public Render editToken(String id, String label, Object albums) throws SQLException {
+        logger.error(getContext().getRequest().getParameterMap() + "");
+        logger.error(getContext().getRequest().getParameter("albums[]") + "");
+        
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
+        }
+        
+        Token token = tokenDao.getById(id);
+        if (token == null) {
+            return renderError(HttpServletResponse.SC_NOT_FOUND, "");
+        }
+        
+        token.setLabel(label);
+//        for (Object albumId : albums) {
+//            Album album = new Album();
+//            album.setId((String)albumId);
+//            token.getAlbums().add(album);
+//        }
+        
+        tokenDao.save(token);
+
+        return renderJSON(token);
+    }
+    
     
     protected Map<String, Long> getSyncData() throws SQLException {
         long total = mediaDao.getPhotosCount();

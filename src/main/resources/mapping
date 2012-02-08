@@ -4,29 +4,34 @@ package.actions=action
 package.views=WEB-INF/
 
 [actions]
-# Home & single one page
-*   /                           MediaBrowser.index
-
 # Used for admin section
 POST        /authenticate                       Administration.authenticate
 DELETE      /session                            Administration.logout
 POST        /administration/configuration       Administration.editConfiguration
-PUT,POST    /administration/album               Administration.createAlbum
 GET         /administration/sync                Administration.getSyncProgress
 GET         /administration                     Administration.getData
+GET         /album/{albumId}                    MediaBrowser.getAlbumById
+POST        /album                              MediaBrowser.editAlbum
+PUT         /group                              Administration.createToken
+GET         /token/{id}                         Administration.getToken
+POST        /token                              Administration.editToken
 
 # Return media descriptions
-*   /api/albums                     MediaBrowser.getAlbums
-*   /api/album/{albumName}          MediaBrowser.getAlbum
-*   /api/photo/{photoId}            MediaBrowser.displayPhoto
+GET   /api/albums                     MediaBrowser.getAlbums
+GET   /api/album/{albumName}          MediaBrowser.getAlbum
+GET   /api/photo/{photoId}            MediaBrowser.displayPhoto
 
 # Return media streams
-*   /album/{albumId}/cover          MediaBrowser.getAlbumCover
-*   /thumbnail/{photoId}            MediaBrowser.getThumbnail
-*   /photo/{photoId}                MediaBrowser.getPhotoStream
+GET   /album/{albumId}/cover          MediaBrowser.getAlbumCover
+GET   /thumbnail/{photoId}            MediaBrowser.getThumbnail
+GET   /photo/{photoId}                MediaBrowser.getPhotoStream
 
 # Download media
 GET /download/album/{albumId}       MediaBrowser.downloadAlbum              thumbnails=false
 GET /download/album/{albumId}/min   MediaBrowser.downloadAlbum              thumbnails=true
 GET /download/photo/{photoId}       MediaBrowser.getOriginalPhotoStream
 GET /download/photo/{photoId}/min   MediaBrowser.getResizedPhotoStream
+
+# Home & single one page
+GET   /{token}                      view:index.jsp
+GET   /                             view:index.jsp

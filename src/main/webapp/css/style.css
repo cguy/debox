@@ -62,6 +62,14 @@ form.form-inline input {
     margin: 0 5px;
 }
 
+#administration_albums td, #administration_tokens td {
+    vertical-align: middle;
+}
+
+#administration_albums th, #administration_tokens th {
+    text-align: center;
+}
+
 /* ************************************************************************** */
 /* ** FULLSCREEN ************************************************************* */
 /* ************************************************************************** */

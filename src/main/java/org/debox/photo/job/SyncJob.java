@@ -34,14 +34,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.debox.photo.dao.MediaDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.Visibility;
 import org.debox.photo.util.ImageUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -145,7 +143,7 @@ public class SyncJob implements FileVisitor<Path> {
                     album.setId(StringUtils.randomUUID());
                     album.setName(path.getFileName().toString());
                     album.setSourcePath(path.toString());
-                    album.setVisibility(Visibility.PUBLIC);
+                    album.setVisibility(Album.Visibility.PUBLIC);
                     
                     Album parent = mediaDao.getAlbumBySourcePath(path.getParent().toString());
                     if (parent != null) {

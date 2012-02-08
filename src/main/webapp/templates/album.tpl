@@ -9,6 +9,7 @@
         <a href="#/" class="btn"><i class="icon folder-open"></i>&nbsp;Retour à la liste des albums</a>
     {{/data.parent}}
     </div>
+    {{#data.photos.length}}
     <div class="btn-group">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon download"></i>&nbsp;Télécharger les photos de cet album&nbsp;<span class="caret"></span></a>
         <ul class="dropdown-menu">
@@ -16,6 +17,7 @@
             <li><a target="_blank" href="download/album/{{data.album.id}}">Taille originale des photos</a></li>
         </ul>
     </div>
+    {{/data.photos.length}}
 </div>
 
 <hr />
@@ -45,3 +47,9 @@
         {{/data.photos}}
     </ul>
 {{/data.photos.length}}
+
+{{^data.albums}}
+{{^data.photos}}
+<p class="alert alert-danger">Il n'y a aucune photo disponible pour cet album.</p>
+{{/data.photos}}
+{{/data.albums}}

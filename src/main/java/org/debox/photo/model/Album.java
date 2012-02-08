@@ -26,6 +26,11 @@ import java.util.Date;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class Album implements Comparable<Album> {
+
+    public enum Visibility {
+        PUBLIC,
+        PRIVATE
+    }
     
     protected String id;
     protected String name;
@@ -42,7 +47,7 @@ public class Album implements Comparable<Album> {
     public void setTargetPath(String targetPath) {
         this.targetPath = targetPath;
     }
-    
+
     public Date getDate() {
         return date;
     }
@@ -95,5 +100,4 @@ public class Album implements Comparable<Album> {
     public int compareTo(Album album) {
         return this.getSourcePath().compareToIgnoreCase(album.getSourcePath());
     }
-    
 }

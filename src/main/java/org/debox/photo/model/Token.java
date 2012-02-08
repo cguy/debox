@@ -20,6 +20,9 @@
  */
 package org.debox.photo.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
@@ -27,5 +30,30 @@ public class Token {
 
     protected String id;
     protected String label;
+    protected List<Album> albums = new ArrayList<>();
+
+    public List<Album> getAlbums() {
+        return albums;
+    }
+
+    public void setAlbums(List<Album> albums) {
+        this.albums = albums;
+    }
+    
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
     
 }
