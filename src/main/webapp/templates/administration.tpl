@@ -71,6 +71,7 @@
         <tr>
             <th>Libellé</th>
             <th>Albums</th>
+            <th>Lien</th>
             <th style="width:155px;">Actions</th>
         </tr>
     </thead>
@@ -82,14 +83,11 @@
                 {{^albums}}
                     Ce groupe n'a accès à aucun album
                 {{/albums}}
-                {{#albums.length}}
-<ul>
                 {{#albums}}
-<li>{{name}}</li>                
+                    {{name}}<br />
                 {{/albums}}
-</ul>
-                {{/albums.length}}
             </td>
+            <td><a href="{{id}}/#/">Lien</a></td>
             <td>
                 <button class="btn">Modifier</button>
                 <button class="btn btn-danger">Supprimer</button>

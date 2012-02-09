@@ -35,8 +35,9 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.ApplicationConfigurationDao;
-import org.debox.photo.dao.MediaDao;
+import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Album;
@@ -55,7 +56,8 @@ public class Administration extends WebMotionController {
     
     private static final Logger logger = LoggerFactory.getLogger(Administration.class);
     protected SyncJob syncJob;
-    protected static MediaDao mediaDao = new MediaDao();
+    protected static AlbumDao albumDao = new AlbumDao();
+    protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
     protected ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
     
@@ -167,14 +169,14 @@ public class Administration extends WebMotionController {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
                     "configuration", configurationDao.get().get(),
-                    "albums", mediaDao.getAllAlbums(),
+                    "albums", albumDao.getAlbums(),
                     "tokens", tokenDao.getAll(),
                     "sync", sync);
         }
         
         return renderJSON(
                 "configuration", configurationDao.get().get(),
-                "albums", mediaDao.getAllAlbums(),
+                "albums", albumDao.getAlbums(),
                 "tokens", tokenDao.getAll());
     }
     
@@ -190,14 +192,11 @@ public class Administration extends WebMotionController {
         }
 
         return renderJSON(
-                "albums", mediaDao.getAllAlbums(),
+                "albums", albumDao.getAlbums(),
                 "token", token);
     }
     
-    public Render editToken(String id, String label, Object albums) throws SQLException {
-        logger.error(getContext().getRequest().getParameterMap() + "");
-        logger.error(getContext().getRequest().getParameter("albums[]") + "");
-        
+    public Render editToken(String id, String label, List<String> albums) throws SQLException {
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             return renderError(HttpServletResponse.SC_FORBIDDEN, "");
@@ -209,11 +208,11 @@ public class Administration extends WebMotionController {
         }
         
         token.setLabel(label);
-//        for (Object albumId : albums) {
-//            Album album = new Album();
-//            album.setId((String)albumId);
-//            token.getAlbums().add(album);
-//        }
+        for (Object albumId : albums) {
+            Album album = new Album();
+            album.setId((String)albumId);
+            token.getAlbums().add(album);
+        }
         
         tokenDao.save(token);
 
@@ -222,7 +221,7 @@ public class Administration extends WebMotionController {
     
     
     protected Map<String, Long> getSyncData() throws SQLException {
-        long total = mediaDao.getPhotosCount();
+        long total = photoDao.getPhotosCount();
         long current = syncJob.getTerminatedProcessesCount();
         Map<String, Long> sync = new HashMap<>();
         sync.put("total", total);

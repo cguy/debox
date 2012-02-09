@@ -1,5 +1,6 @@
 [config]
 package.base=org.debox.photo
+package.filters=filter
 package.actions=action
 package.views=WEB-INF/
 
@@ -10,28 +11,28 @@ DELETE      /session                            Administration.logout
 POST        /administration/configuration       Administration.editConfiguration
 GET         /administration/sync                Administration.getSyncProgress
 GET         /administration                     Administration.getData
-GET         /album/{albumId}                    MediaBrowser.getAlbumById
-POST        /album                              MediaBrowser.editAlbum
+GET         /album/{albumId}                    AlbumController.getAlbumById
+POST        /album                              AlbumController.editAlbum
 PUT         /group                              Administration.createToken
 GET         /token/{id}                         Administration.getToken
 POST        /token                              Administration.editToken
 
 # Return media descriptions
-GET   /api/albums                     MediaBrowser.getAlbums
-GET   /api/album/{albumName}          MediaBrowser.getAlbum
-GET   /api/photo/{photoId}            MediaBrowser.displayPhoto
+GET   /api/albums                     AlbumController.getAlbums
+GET   /api/album/{albumName}          AlbumController.getAlbum
+# GET   /api/photo/{photoId}            PhotoController.displayPhoto
 
 # Return media streams
-GET   /album/{albumId}/cover          MediaBrowser.getAlbumCover
-GET   /thumbnail/{photoId}            MediaBrowser.getThumbnail
-GET   /photo/{photoId}                MediaBrowser.getPhotoStream
+GET   /album/{albumId}/cover          AlbumController.getAlbumCover
+GET   /thumbnail/{photoId}            PhotoController.getThumbnail
+GET   /photo/{photoId}                PhotoController.getPhotoStream
 
 # Download media
-GET /download/album/{albumId}       MediaBrowser.downloadAlbum              thumbnails=false
-GET /download/album/{albumId}/min   MediaBrowser.downloadAlbum              thumbnails=true
-GET /download/photo/{photoId}       MediaBrowser.getOriginalPhotoStream
-GET /download/photo/{photoId}/min   MediaBrowser.getResizedPhotoStream
+GET /download/album/{albumId}/min   AlbumController.download        resized=true
+GET /download/album/{albumId}       AlbumController.download        resized=false
+GET /download/photo/{photoId}/min   PhotoController.download        resized=true
+GET /download/photo/{photoId}       PhotoController.download        resized=false
 
 # Home & single one page
-GET   /{token}                      view:index.jsp
+GET   /{token}/                     view:index.jsp
 GET   /                             view:index.jsp

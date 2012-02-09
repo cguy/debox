@@ -3,9 +3,9 @@
 <ul class="thumbnails">
 {{#data}}
     <li class="span3">
-        <i class="icon folder-open"></i>&nbsp;<a href="#/album/{{name}}">{{name}}</a>
+        <i class="icon-list-alt"></i>&nbsp;<a href="#/album/{{name}}">{{name}}</a>
         <a class="thumbnail" href="#/album/{{name}}">
-            <img class="album" src="album/{{id}}/cover" alt="{{name}}" style="background-color:#ddd;width:210px;"/>
+            <img class="album" src="{{data.baseUrl}}{{coverUrl}}" alt="{{name}}" style="background-color:#ddd;width:210px;"/>
         </a>
     </li>
 {{/data}}

@@ -37,7 +37,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.debox.photo.dao.MediaDao;
+import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.util.ImageUtils;
@@ -60,7 +61,8 @@ public class SyncJob implements FileVisitor<Path> {
     protected static Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
     protected FileAttribute<Set<PosixFilePermission>> permissionsAttributes = PosixFilePermissions.asFileAttribute(permissions);
     protected static Map<Path, Path> paths = new HashMap<>();
-    protected static MediaDao mediaDao = new MediaDao();
+    protected static PhotoDao photoDao = new PhotoDao();
+    protected static AlbumDao albumDao = new AlbumDao();
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
     protected List<Future> imageProcesses = new ArrayList<>();
 
@@ -137,7 +139,7 @@ public class SyncJob implements FileVisitor<Path> {
 
         if (!path.equals(this.source)) {
             try {
-                Album album = mediaDao.getAlbumBySourcePath(path.toString());
+                Album album = albumDao.getAlbumBySourcePath(path.toString());
                 if (album == null) {
                     album = new Album();
                     album.setId(StringUtils.randomUUID());
@@ -145,14 +147,14 @@ public class SyncJob implements FileVisitor<Path> {
                     album.setSourcePath(path.toString());
                     album.setVisibility(Album.Visibility.PUBLIC);
                     
-                    Album parent = mediaDao.getAlbumBySourcePath(path.getParent().toString());
+                    Album parent = albumDao.getAlbumBySourcePath(path.getParent().toString());
                     if (parent != null) {
                         album.setParentId(parent.getId());
                         album.setTargetPath(parent.getTargetPath() + File.separatorChar + album.getId());
                     } else {
                         album.setTargetPath(target.toString() + File.separatorChar + album.getId());
                     }
-                    mediaDao.save(album);
+                    albumDao.save(album);
                 }
 
                 Path targetPathParent;
@@ -194,7 +196,7 @@ public class SyncJob implements FileVisitor<Path> {
         String albumId = targetAlbumPath.getFileName().toString();
 
         try {
-            Photo photo = mediaDao.getPhotoBySourcePath(path.toString());
+            Photo photo = photoDao.getPhotoBySourcePath(path.toString());
             if (photo == null) {
                 photo = new Photo();
                 photo.setId(StringUtils.randomUUID());
@@ -202,7 +204,7 @@ public class SyncJob implements FileVisitor<Path> {
                 photo.setAlbumId(albumId);
                 photo.setSourcePath(path.toString());
                 photo.setTargetPath(targetAlbumPath.toString());
-                mediaDao.save(photo);
+                photoDao.save(photo);
             }
 
             Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));

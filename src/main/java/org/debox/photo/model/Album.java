@@ -39,7 +39,16 @@ public class Album implements Comparable<Album> {
     protected String targetPath;
     protected String parentId;
     protected Visibility visibility;
+    protected String coverUrl;
 
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
+    }
+    
     public String getTargetPath() {
         return targetPath;
     }
