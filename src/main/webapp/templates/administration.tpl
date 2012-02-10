@@ -1,30 +1,38 @@
 <h1 class="page-header">Administration</h1>
 
-<h2 class="page-header">Configuration générale</h2>
 <div id="sync-progress" class="alert alert-info hide">
     <h3 class="alert-heading">Synchronisation en cours&hellip;&nbsp;<span></span></h3>
     <div class="progress progress-info progress-striped active">
         <div class="bar"></div>
     </div>
 </div>
-<form class="form-vertical" action="#/administration/configuration" method="post">
-    <div class="control-group">
-        <label for="sourceDirectory">Répertoire source (contenant les photos au format original) :</label>
-        <div class="controls">
-            <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="Exemple : /home/user/photos/" value="{{data.configuration.source_path}}" />
-        </div>
-    </div>
-    <div class="control-group">
-        <label for="targetDirectory">Répertoire de travail (qui contiendra notamment les vignettes des photos) :</label>
-        <div class="controls">
-            <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" value="{{data.configuration.target_path}}" />
-        </div>
-    </div>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="Valider" />
-        <input type="reset" class="btn" value="Annuler" />
-    </div>
-</form>
+
+<ul class="thumbnails admin">
+    <li class="span6">
+        <a href="#modal-configuration" data-toggle="modal" class="thumbnail">
+            <img src="{{data.baseUrl}}img/folder-settings.png" alt="" title="" />
+            Configuration générale
+        </a>
+    </li>
+    <li class="span6">
+        <a href="#" class="thumbnail">
+            <img src="{{data.baseUrl}}img/folder-images.png" alt="" title="" />
+            Gestion des albums photos
+        </a>
+    </li>
+    <li class="span6">
+        <a href="#" class="thumbnail">
+            <img src="{{data.baseUrl}}img/folder-web.png" alt="" title="" />
+            Gestion des accès visiteurs
+        </a>
+    </li>
+    <li class="span6">
+        <a data-toggle="modal" href="#modal-account" class="thumbnail">
+            <img src="{{data.baseUrl}}img/folder-user.png" alt="" title="" />
+            Modifier mes identifiants de connexion
+        </a>
+    </li>    
+</ul>
 
 <h2 class="page-header">Liste des albums</h2>
 {{#data.albums.length}}
@@ -104,10 +112,37 @@
     <button type="submit" class="btn btn-primay">Créer le groupe</button>
 </form>
 
-<h2><a data-toggle="modal" href="#modal-account">Changer mes identifiants de connexion</a></h2>
-
 <!-- ----- -->
 <!-- Modal -->
+<form id="modal-configuration"  class="modal hide fade form-vertical" action="#/administration/configuration" method="post">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Configuration générale</h3>
+    </div>
+    <div class="modal-body">
+        <div class="control-group">
+            <label for="sourceDirectory">Répertoire source (contenant les photos au format original) :</label>
+            <div class="controls">
+                <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="Exemple : /home/user/photos/" value="{{data.configuration.source_path}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="targetDirectory">Répertoire de travail (qui contiendra notamment les vignettes des photos) :</label>
+            <div class="controls">
+                <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" value="{{data.configuration.target_path}}" />
+            </div>
+            <label class="checkbox">
+                <input type="checkbox" name="force"> Forcer la regénération des vignettes de photos existantes
+            </label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="reset" class="btn">Annuler</button>
+        <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Valider" />
+    </div>
+</form>
+
+
 <form id="edit_album" class="modal hide fade form-horizontal" action="#/album" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>

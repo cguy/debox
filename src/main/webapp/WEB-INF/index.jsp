@@ -124,6 +124,11 @@
                 $("button[type=reset]").click(function() {
                     $(this).parent().parent().modal("hide");
                 });
+                
+                $(".thumbnails.admin a").click(function() {
+                    $(".thumbnails.admin li").addClass("span3");
+                    $(".thumbnails.admin li").removeClass("span6");
+                });
             }
             
             $.getDocHeight = function(){

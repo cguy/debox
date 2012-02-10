@@ -52,12 +52,13 @@ import org.slf4j.LoggerFactory;
 public class Administration extends WebMotionController {
     
     private static final Logger logger = LoggerFactory.getLogger(Administration.class);
+    
     protected SyncJob syncJob;
+    
+    protected static ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
-    protected ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
-    
     
     public Render authenticate(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -110,7 +111,7 @@ public class Administration extends WebMotionController {
         return renderJSON(token);
     }
     
-    public Render editConfiguration(String sourceDirectory, String targetDirectory) throws IOException, SQLException {
+    public Render editConfiguration(String sourceDirectory, String targetDirectory, Boolean force) throws IOException, SQLException {
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
         

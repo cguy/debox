@@ -105,18 +105,20 @@ $(document).ready(function() {
         
         this.post('#/administration/configuration', function() {
             var context = this;
-            $("#configuration-form input").attr("disabled", "disabled");
-            var data = {
-                "sourceDirectory" : this.params["sourceDirectory"], 
-                "targetDirectory" : this.params["targetDirectory"]
-            };
+            console.log($("#modal-configuration").serializeArray());
+            $("#modal-configuration input[type=submit]").button("loading");
             $.ajax({
                 url: baseUrl + "administration/configuration",
                 type : "post",
-                data : data,
+                data : $("#modal-configuration").serializeArray(),
                 success: function() {
-                    $("#configuration-form input").removeAttr("disabled");
+                    $("#modal-configuration input[type=submit]").button("reset");
+                    $("#modal-configuration").modal("hide");
                     context.redirect("#/administration");
+                },
+                error: function() {
+                    $("#modal-configuration input[type=submit]").button("reset");
+                    alert("Error");
                 }
             });
             return false;

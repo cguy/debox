@@ -41,6 +41,11 @@ body {
     overflow:auto;
 }
 
+h2.page-header {
+    margin: 30px 0 15px;
+    padding-bottom: 0;
+}
+
 h1.page-header {
     background-color: #f5f5f5;
     padding: 20px 20px 10px;
@@ -160,6 +165,19 @@ span.container {
     color: #E06800;
     height: 190px;
     white-space: normal;
+}
+
+.thumbnails.admin a {
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    -webkit-transition: color 0.5s ease, border-color 0.5s ease;
+    -moz-transition: color 0.5s ease, border-color 0.5s ease;
+    transition: color 0.5s ease, border-color 0.5s ease;
+}
+
+.thumbnails.admin a:hover {
+    text-decoration: none;
 }
 
 /* ************************************************************************** */
