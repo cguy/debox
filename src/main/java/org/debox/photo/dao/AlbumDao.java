@@ -61,7 +61,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, date, photos_count, source_path, target_path, parent_id, visibility FROM albums WHERE parent_id = ?";
     protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = ""
             + "SELECT"
-            + "    id, name, date, source_path, target_path, parent_id, visibility "
+            + "    id, name, date,  photos_count, source_path, target_path, parent_id, visibility "
             + "FROM"
             + "    albums LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"

@@ -116,9 +116,9 @@ span.container {
     text-align: center;
     background: rgba(12,27,30,0.75);
     border-top: 1px solid #007BE0;
-    -webkit-transition: border-color 0.5s ease, margin-top 0.5s ease;
-    -moz-transition: border-color 0.5s ease, margin-top 0.5s ease;
-    transition: border-color 0.5s ease, margin-top 0.5s ease;
+    -webkit-transition: border-color 0.5s ease;
+    -moz-transition: border-color 0.5s ease;
+    transition: border-color 0.5s ease;
 }
 
 .thumbnail.cover > span.container > span.title {
@@ -141,8 +141,8 @@ span.container {
     height: 50px;
     color: #ddd;
     -webkit-transition: color 0.5s ease, height 0.5s ease;
-    -moz-transition: color 0.5s ease;
-    transition: color 0.5s ease;
+    -moz-transition: color 0.5s ease, height 0.5s ease;
+    transition: color 0.5s ease, height 0.5s ease;
     overflow: hidden;
     text-overflow: ellipsis;
 }
