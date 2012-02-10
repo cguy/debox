@@ -96,15 +96,11 @@
                             console.log(data);
                             $("#edit_album input[type=hidden]").val(data.id);
                             $("#edit_album #name").val(data.name);
+                            $("#edit_album #visibility option").removeAttr("selected");
                             $("#edit_album #visibility option[value=" + data.visibility.toLowerCase() + "]").attr("selected", "selected");
                             $("#edit_album").modal();
                         }
                     });
-                });
-        
-                $("#edit_album button[type=reset]").click(function() {
-                    $("#edit_album").modal("hide");
-                    $("#edit_album #visibility option").removeAttr("selected");
                 });
         
                 $("#administration_tokens button").click(function() {
@@ -114,7 +110,8 @@
                         success: function(data) {
                             $("#edit_token input[type=hidden]").val(data.token.id);
                             $("#edit_token #label").val(data.token.label);
-                    
+                            $("#edit_token #albums option").removeAttr("selected");
+                            
                             for (var i = 0 ; i < data.token.albums.length ; i++) {
                                 $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
                             }
@@ -124,9 +121,8 @@
                     });
                 });
         
-                $("#edit_token button[type=reset]").click(function() {
-                    $("#edit_token").modal("hide");
-                    $("#edit_token #albums option").removeAttr("selected");
+                $("button[type=reset]").click(function() {
+                    $(this).parent().parent().modal("hide");
                 });
             }
             
@@ -191,9 +187,8 @@
             }
             
             function computeUrl(url) {
-                if (location.pathname) {
+                if (location.pathname != "/") {
                     var token = location.pathname.substring(1, location.pathname.length - 1);
-                    console.log(token);
                     var separator = url.indexOf("?") == -1 ? "?" : "&";
                     return url + separator + "token=" + token;
                 }

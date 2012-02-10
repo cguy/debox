@@ -3,9 +3,11 @@
 <ul class="thumbnails">
 {{#data}}
     <li class="span3">
-        <i class="icon-list-alt"></i>&nbsp;<a href="#/album/{{name}}">{{name}}</a>
-        <a class="thumbnail" href="#/album/{{name}}">
-            <img class="album" src="{{data.baseUrl}}{{coverUrl}}" alt="{{name}}" style="background-color:#ddd;width:210px;"/>
+        <a class="thumbnail cover" href="#/album/{{name}}" style="background-image:url('{{data.baseUrl}}{{coverUrl}}')">
+            <span class="container">
+                <span class="title"><span>{{name}}</span></span>
+                <span class="count">{{photosCount}}</span>
+            </span>
         </a>
     </li>
 {{/data}}

@@ -12,13 +12,20 @@ $(document).ready(function() {
 //        });
         
         this.get('#/album/:album', function() {
-            if ($("h1").text() == this.params['album']) {
+            if ($("h1 a").text() == this.params['album']) {
                 return false;
             }
             
             ajax({
                 url: computeUrl(baseUrl + "api/album/" + this.params['album']),
                 success: function(data) {
+                    var plural = (data.album.photosCount > 1) ? "s" : ""
+                    data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
+                    for (var i = 0 ; i < data.albums.length ; i++) {
+                        var album = data.albums[i];
+                        var plural = (album.photosCount > 1) ? "s" : ""
+                        album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+                    }
                     loadTemplate("album", data);
                 }
             });
@@ -68,6 +75,34 @@ $(document).ready(function() {
         /* ******************** */
         /* Aministration access */
         /* ******************** */
+        this.post('#/administration/credentials', function() {
+            $("#modal-account input[type=submit]").button('loading');
+            $("#modal-account p").html("");
+            var context = this;
+            
+            $.ajax({
+                url: baseUrl + "administration/credentials",
+                type : "post",
+                data : $("#modal-account").serializeArray(),
+                success: function() {
+                    $("#modal-account").modal("hide");
+                    $("#modal-account input[type=submit]").button('reset');
+                    $("#modal-account p").removeClass("alert alert-error");
+                    context.redirect("#/administration");
+                },
+                error: function(xhr) {
+                    $("#modal-account input[type=submit]").button('reset');
+                    $("#modal-account p").addClass("alert alert-error");
+                    if (xhr.status == 401) {
+                        $("#modal-account p").html("Erreur durant l'opération, les identifiants rentrés ne correspondent pas.");
+                    } else {
+                        $("#modal-account p").html("Erreur pendant l'opération.");
+                    }
+                }
+            });
+            return false;
+        });
+        
         this.post('#/administration/configuration', function() {
             var context = this;
             $("#configuration-form input").attr("disabled", "disabled");
@@ -246,7 +281,11 @@ $(document).ready(function() {
             ajax({
                 url: computeUrl(baseUrl + "api/albums"),
                 success: function(data) {
-                    console.log(data);
+                    for (var i = 0 ; i < data.length ; i++) {
+                        var album = data[i];
+                        var plural = (album.photosCount > 1) ? "s" : ""
+                        album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+                    }
                     loadTemplate("home", data);
                 }
             });

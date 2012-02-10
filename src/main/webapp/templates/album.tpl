@@ -1,4 +1,4 @@
-<h1 class="page-header"><a href="#/album/{{data.album.name}}">{{data.album.name}}</a></h1>
+<h1 class="page-header"><a href="#/album/{{data.album.name}}">{{data.album.name}}</a><small>{{data.album.photosCount}}</small></h1>
 
 <div class="btn-toolbar" style="margin-top: 18px;">
     <div class="btn-group">
@@ -27,15 +27,19 @@
     <ul class="thumbnails">
     {{#data.albums}}
         <li class="span3">
-            <i class="icon-list-alt"></i>&nbsp;<a href="#/album/{{name}}">{{name}}</a>
-            <a class="thumbnail" href="#/album/{{name}}"><img class="album" src="{{data.baseUrl}}{{coverUrl}}" alt="{{name}}" style="background-color:#ddd;width:210px;"/></a>
+            <a class="thumbnail cover" href="#/album/{{name}}" style="background-image:url('{{data.baseUrl}}{{coverUrl}}')">
+                <span class="container">
+                    <span class="title"><span>{{name}}</span></span>
+                    <span class="count">{{photosCount}}</span>
+                </span>
+            </a>
         </li>
     {{/data.albums}}
     </ul>
 {{/data.albums.length}}
 
 {{#data.photos.length}}
-    {{#data.albums.length}}<h2>Photos</h2>{{/data.albums.length}}
+    {{#data.albums.length}}<h2>{{data.photos.length}} photos</h2>{{/data.albums.length}}
     <ul class="thumbnails photos">
         {{#data.photos}}
         <li class="span2">

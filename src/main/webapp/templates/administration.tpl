@@ -100,9 +100,11 @@
 
 <h3>Créer un nouveau groupe de visiteurs</h3>
 <form class="well form-search" action="#/group" method="put">
-    <input type="text" name="label" class="input" placeholder="Nom du nouveau groupe">
+    <input type="text" required name="label" class="input" placeholder="Nom du nouveau groupe">
     <button type="submit" class="btn btn-primay">Créer le groupe</button>
 </form>
+
+<h2><a data-toggle="modal" href="#modal-account">Changer mes identifiants de connexion</a></h2>
 
 <!-- ----- -->
 <!-- Modal -->
@@ -165,5 +167,43 @@
         <input type="hidden" name="id" />
         <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
+    </div>
+</form>
+
+<form id="modal-account" class="modal hide fade form-horizontal" action="#/administration/credentials" method="post">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Modifier mes identifiants de connexion</h3>
+    </div>
+    <div class="modal-body">
+        <p></p>
+        <div class="control-group">
+            <label class="control-label" for="username">Nom d'utilisateur</label>
+            <div class="controls">
+                <input type="text" required class="input-large" id="username" name="username" value="{{data.username}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="oldPassword">Ancien mot de passe</label>
+            <div class="controls">
+                <input type="text" required class="input-large" id="oldPassword" name="oldPassword" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password">Nouveau mot de passe</label>
+            <div class="controls">
+                <input type="text" required class="input-large" id="password" name="password" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="confirm">Confirmation du nouveau mot de passe</label>
+            <div class="controls">
+                <input type="text" required class="input-large" id="confirm" name="confirm" />
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="reset" class="btn">Annuler</button>
+        <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Valider" />
     </div>
 </form>

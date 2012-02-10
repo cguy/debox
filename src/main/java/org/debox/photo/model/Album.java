@@ -35,11 +35,20 @@ public class Album implements Comparable<Album> {
     protected String id;
     protected String name;
     protected Date date;
+    protected int photosCount;
     protected String sourcePath;
     protected String targetPath;
     protected String parentId;
     protected Visibility visibility;
     protected String coverUrl;
+
+    public int getPhotosCount() {
+        return photosCount;
+    }
+
+    public void setPhotosCount(int photosCount) {
+        this.photosCount = photosCount;
+    }
 
     public String getCoverUrl() {
         return coverUrl;

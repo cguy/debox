@@ -26,6 +26,8 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
+import org.debox.photo.model.User;
+import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,12 @@ public class Initializer implements ServletContextListener {
         try {
             int userCount = userDao.getUsersCount();
             if (userCount == 0) {
-                userDao.create("admin", "password");
+                User admin = new User();
+                admin.setId(StringUtils.randomUUID());
+                admin.setUsername("admin");
+                admin.setPassword("password");
+                
+                userDao.save(admin);
             }
         } catch (SQLException ex) {
             logger.error("Unable to access database", ex);

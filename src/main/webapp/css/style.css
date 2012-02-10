@@ -18,9 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-html, body {
-    background-color: #eee;
-}
 body {
     padding-top: 40px;
 }
@@ -40,11 +37,25 @@ body {
     box-shadow: 0 1px 2px rgba(0,0,0,.15);
 }
 
+.container .content {
+    overflow:auto;
+}
+
 h1.page-header {
     background-color: #f5f5f5;
     padding: 20px 20px 10px;
     margin: -20px -20px 20px;
 }
+
+h1.page-header a {
+    color: #00343F;
+}
+
+h1.page-header a:hover {
+    color: #E06800;
+    text-decoration: none;
+}
+
 
 .topbar .btn {
     border: 0;
@@ -68,6 +79,87 @@ form.form-inline input {
 
 #administration_albums th, #administration_tokens th {
     text-align: center;
+}
+
+span.container {
+    position: absolute;
+    width: 210px;
+    height: 210px;
+}
+
+.thumbnail {
+    -webkit-transition: border-color 0.5s ease;
+    -moz-transition: border-color 0.5s ease;
+    transition: border-color 0.5s ease;
+}
+
+.thumbnail.cover {
+    padding: 5px;
+    width: 210px;
+    height: 210px;
+    background-position: 5px 5px;
+    background-size: 210px 210px;
+    background-repeat: no-repeat;
+    background-color: #eee;
+    border-color: rgba(0,123,224,0.75);
+}
+
+.thumbnail.cover > span.container > span.count {
+    position: absolute;
+    bottom: 0px;
+    display: block;
+    width: 210px;
+    height: 20px;
+    font-size: 16px;
+    line-height: 20px;
+    color: #ddd;
+    text-align: center;
+    background: rgba(12,27,30,0.75);
+    border-top: 1px solid #007BE0;
+    -webkit-transition: border-color 0.5s ease, margin-top 0.5s ease;
+    -moz-transition: border-color 0.5s ease, margin-top 0.5s ease;
+    transition: border-color 0.5s ease, margin-top 0.5s ease;
+}
+
+.thumbnail.cover > span.container > span.title {
+    display: table;
+    width: 210px;
+    height: 50px;
+    max-height: 50px;
+}
+
+.thumbnail.cover > span.container > span.title > span {
+    display: table-cell;
+    background: rgba(12,27,30,0.75);
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 5px;
+    max-width: 200px;
+    font-size: 18px;
+    line-height: 25px;
+    max-height: 50px;
+    height: 50px;
+    color: #ddd;
+    -webkit-transition: color 0.5s ease, height 0.5s ease;
+    -moz-transition: color 0.5s ease;
+    transition: color 0.5s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.thumbnail.cover:hover {
+    text-decoration: none;
+}
+
+.thumbnail.cover:hover > span.container > span.count {
+    border-top-color: #E06800;
+    margin-top:0;
+}
+
+.thumbnail.cover:hover > span.container > span.title > span {
+    color: #E06800;
+    height: 190px;
+    white-space: normal;
 }
 
 /* ************************************************************************** */

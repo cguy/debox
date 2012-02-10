@@ -8,6 +8,7 @@ package.views=WEB-INF/
 # Used for admin section
 POST        /authenticate                       Administration.authenticate
 DELETE      /session                            Administration.logout
+POST        /administration/credentials         Administration.editCredentials
 POST        /administration/configuration       Administration.editConfiguration
 GET         /administration/sync                Administration.getSyncProgress
 GET         /administration                     Administration.getData

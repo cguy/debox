@@ -41,7 +41,7 @@ public class UserDao extends JdbcMysqlRealm {
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
     
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
-    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?)";
+    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE set username = ?, password = ?, password_salt = ?";
     
     public int getUsersCount() throws SQLException {
         int result = -1;
@@ -66,31 +66,27 @@ public class UserDao extends JdbcMysqlRealm {
         return result;
     }
 
-    public User create(String username, String password) throws SQLException {
-        String id = StringUtils.randomUUID();
+    public void save(User user) throws SQLException {
         ByteSource salt = GENERATOR.nextBytes();
-        String hashedPassword = new Sha256Hash(password, salt.toBase64(), 1024).toBase64();
+        String hashedPassword = new Sha256Hash(user.getPassword(), salt.toBase64(), 1024).toBase64();
 
         Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(SQL_CREATE_USER);
-            statement.setString(1, id);
-            statement.setString(2, username);
+            statement.setString(1, user.getId());
+            statement.setString(2, user.getUsername());
             statement.setString(3, hashedPassword);
             statement.setString(4, salt.toBase64());
+            statement.setString(5, user.getUsername());
+            statement.setString(6, hashedPassword);
+            statement.setString(7, salt.toBase64());
             statement.executeUpdate();
 
         } finally {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
-
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-
-        return user;
     }
 }

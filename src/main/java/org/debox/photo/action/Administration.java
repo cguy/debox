@@ -35,10 +35,7 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.debox.photo.dao.AlbumDao;
-import org.debox.photo.dao.ApplicationConfigurationDao;
-import org.debox.photo.dao.PhotoDao;
-import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.*;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
@@ -168,6 +165,7 @@ public class Administration extends WebMotionController {
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
+                    "username", subject.getPrincipal(),
                     "configuration", configurationDao.get().get(),
                     "albums", albumDao.getAlbums(),
                     "tokens", tokenDao.getAll(),
@@ -175,6 +173,7 @@ public class Administration extends WebMotionController {
         }
         
         return renderJSON(
+                "username", subject.getPrincipal(),
                 "configuration", configurationDao.get().get(),
                 "albums", albumDao.getAlbums(),
                 "tokens", tokenDao.getAll());
@@ -219,6 +218,17 @@ public class Administration extends WebMotionController {
         return renderJSON(token);
     }
     
+    public Render editCredentials(String username, String oldPassword, String password, String confirm) {
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject currentUser = SecurityUtils.getSubject();
+       
+        
+        
+        UserDao userDao = new UserDao();
+        userDao.getCredentialsMatcher().doCredentialsMatch(token, null);
+        
+        return renderStatus(HttpServletResponse.SC_OK);
+    }
     
     protected Map<String, Long> getSyncData() throws SQLException {
         long total = photoDao.getPhotosCount();

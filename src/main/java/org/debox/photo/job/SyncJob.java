@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
@@ -60,10 +61,15 @@ public class SyncJob implements FileVisitor<Path> {
      */
     protected static Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
     protected FileAttribute<Set<PosixFilePermission>> permissionsAttributes = PosixFilePermissions.asFileAttribute(permissions);
+    
     protected static Map<Path, Path> paths = new HashMap<>();
+    protected static Map<Path, Integer> photosCount = new HashMap<>();
+    
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
+    
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+    
     protected List<Future> imageProcesses = new ArrayList<>();
 
     public SyncJob(Path source, Path target) {
@@ -154,9 +160,13 @@ public class SyncJob implements FileVisitor<Path> {
                     } else {
                         album.setTargetPath(target.toString() + File.separatorChar + album.getId());
                     }
+                    
+                    
                     albumDao.save(album);
                 }
 
+                photosCount.put(path, 0);
+                
                 Path targetPathParent;
                 if (path.getParent().equals(this.source)) {
                     targetPathParent = target;
@@ -205,8 +215,13 @@ public class SyncJob implements FileVisitor<Path> {
                 photo.setSourcePath(path.toString());
                 photo.setTargetPath(targetAlbumPath.toString());
                 photoDao.save(photo);
+                
             }
-
+            for (Path directory : photosCount.keySet()) {
+                if (path.startsWith(directory)) {
+                    photosCount.put(directory, photosCount.get(directory) + 1);
+                }
+            }
             Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
             imageProcesses.add(future);
             
@@ -233,6 +248,20 @@ public class SyncJob implements FileVisitor<Path> {
         if (aborted) {
             return FileVisitResult.TERMINATE;
         }
+        try {
+            Album album = albumDao.getAlbumBySourcePath(path.toFile().getAbsolutePath());
+            Integer count = photosCount.get(path);
+            if (count == null || album == null) {
+                logger.error("Unable to set size, one of count ({}) or album ({}) is null for path " + path.toString(), count, album);
+            } else {
+                album.setPhotosCount(count);
+                albumDao.save(album);
+            }
+            
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        
         return FileVisitResult.CONTINUE;
     }
 }
