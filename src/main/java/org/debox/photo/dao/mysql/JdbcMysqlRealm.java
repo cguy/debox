@@ -48,7 +48,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
             try {
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver            
-                comboPooledDataSource.setJdbcUrl("jdbc:mysql://localhost/debox-photos");
+                comboPooledDataSource.setJdbcUrl("jdbc:mysql://localhost/debox-photos?autoReconnect=true");
                 comboPooledDataSource.setUser("root");
                 comboPooledDataSource.setPassword("");
             } catch (Exception ex) {

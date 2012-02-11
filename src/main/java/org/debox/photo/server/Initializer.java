@@ -24,8 +24,10 @@ import java.sql.SQLException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
+import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -41,8 +43,8 @@ public class Initializer implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        UserDao userDao = new UserDao();
         try {
+            UserDao userDao = new UserDao();
             int userCount = userDao.getUsersCount();
             if (userCount == 0) {
                 User admin = new User();
@@ -51,6 +53,13 @@ public class Initializer implements ServletContextListener {
                 admin.setPassword("password");
                 
                 userDao.save(admin);
+            }
+            
+            ConfigurationDao configurationDao = new ConfigurationDao();
+            Configuration configuration = configurationDao.get();
+            if (configuration.get(Configuration.Key.TITLE) == null) {
+                configuration.set(Configuration.Key.TITLE, "Galerie photo");
+                configurationDao.save(configuration);
             }
         } catch (SQLException ex) {
             logger.error("Unable to access database", ex);

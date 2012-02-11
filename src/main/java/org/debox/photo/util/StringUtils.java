@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang.StringUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(StringUtils.class);
 
@@ -49,4 +49,5 @@ public class StringUtils {
         String result = Base64.encodeBase64URLSafeString(bytes);
         return result;
     }
+    
 }

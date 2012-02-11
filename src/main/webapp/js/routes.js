@@ -105,14 +105,14 @@ $(document).ready(function() {
         
         this.post('#/administration/configuration', function() {
             var context = this;
-            console.log($("#modal-configuration").serializeArray());
             $("#modal-configuration input[type=submit]").button("loading");
             $.ajax({
                 url: baseUrl + "administration/configuration",
                 type : "post",
                 data : $("#modal-configuration").serializeArray(),
-                success: function() {
+                success: function(data) {
                     $("#modal-configuration input[type=submit]").button("reset");
+                    loadTemplate("header", {"username" : $(".navbar-text.pull-right strong").html(), "title" : data.title}, ".navbar .container");
                     $("#modal-configuration").modal("hide");
                     context.redirect("#/administration");
                 },
@@ -242,7 +242,8 @@ $(document).ready(function() {
                     }
                     $("#login").modal("hide");
                     loadTemplate("header", {
-                        "username" : username
+                        "username" : username,
+                        "title" : $("a.brand").html()
                     }, ".navbar .container");
                 },
                 error: function(xhr) {

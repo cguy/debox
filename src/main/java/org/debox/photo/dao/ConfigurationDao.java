@@ -32,7 +32,7 @@ import org.debox.photo.model.Configuration;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ApplicationConfigurationDao extends JdbcMysqlRealm {
+public class ConfigurationDao extends JdbcMysqlRealm {
 
     protected static final String SQL_GET_CONFIGURATION = "SELECT `key`, `value` FROM configurations";
     protected static final String SQL_SET_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?";

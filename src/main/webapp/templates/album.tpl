@@ -23,7 +23,7 @@
 <hr />
 
 {{#data.albums.length}}
-    <h2>Sous-albums</h2>
+    {{#data.photos.length}}<h2>Sous-albums</h2>{{/data.photos.length}}
     <ul class="thumbnails">
     {{#data.albums}}
         <li class="span3">

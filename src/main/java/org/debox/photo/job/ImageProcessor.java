@@ -20,14 +20,12 @@
  */
 package org.debox.photo.job;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.ImagingOpException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import javax.imageio.ImageIO;
 import org.debox.photo.util.ImageUtils;
-import org.imgscalr.Scalr;
+import org.im4java.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,25 +49,43 @@ public class ImageProcessor implements Callable {
     public Object call() throws Exception {
         try {
             logger.info("{} image processing ...", imageFile.getName());
-            BufferedImage image = ImageIO.read(imageFile);
+            ImageCommand cmd = new ConvertCmd(true);
+
+            IMOperation operation = new IMOperation();
+            operation.addImage(imageFile.getAbsolutePath());
+            operation.thumbnail(1600, 1000);
+            operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
+            cmd.run(operation);
+
+            String thumbnailPath = targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg";
+            int squareSize = 200;
+
+            operation = new IMOperation();
+            operation.addImage(imageFile.getAbsolutePath());
+            operation.thumbnail(squareSize, squareSize, '^');
+            operation.addImage(thumbnailPath);
+            cmd.run(operation);
+
+            Info info = new Info(thumbnailPath, true);
+            int width = info.getImageWidth();
+            int height = info.getImageHeight();
+            int x = 0;
+            int y = 0;
+            if (width > height) {
+                x = (width - height) / 2;
+                y = 0;
+            } else if (width < height) {
+                x = 0;
+                y = (height - width) / 2;
+            }
+
+            operation = new IMOperation();
+            operation.addImage(targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
+            operation.crop(squareSize, squareSize, x, y);
+            operation.addImage(targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
             
-            // Create reduction (1600px)
-            BufferedImage reduction = Scalr.resize(image, 1600);
-            reduction = ImageUtils.rotate(imageFile, reduction);
-            File targetImageFile = new File(targetPath, ImageUtils.LARGE_PREFIX + imageId + ".jpg");
-            ImageIO.write(reduction, "jpg", targetImageFile);
-            image.flush();
-
-            // Create cropped thumbnail from reduction
-            BufferedImage thumbnail = Scalr.resize(reduction, 225);
-            reduction.flush();
-
-            BufferedImage cropped = ImageUtils.cropSquare(thumbnail);
-            thumbnail.flush();
-
-            targetImageFile = new File(targetPath, ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
-            ImageIO.write(cropped, "jpg", targetImageFile);
-            cropped.flush();
+            cmd = new MogrifyCmd(true);
+            cmd.run(operation);
 
             logger.info("{} image processed", imageFile.getName());
 

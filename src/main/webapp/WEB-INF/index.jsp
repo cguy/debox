@@ -43,6 +43,7 @@
 
         <script type="text/javascript">
             var baseUrl = "<c:url value="/" />";
+            var title = "Galerie photo";
             var templates = {};
             
             function loadTemplate(tplId, data, selector, callback) {
@@ -93,7 +94,6 @@
                     $.ajax({
                         url: baseUrl + "album/" + id,
                         success: function(data) {
-                            console.log(data);
                             $("#edit_album input[type=hidden]").val(data.id);
                             $("#edit_album #name").val(data.name);
                             $("#edit_album #visibility option").removeAttr("selected");
@@ -201,8 +201,15 @@
             }
             
             $(document).ready(function() {
-                <shiro:guest>loadTemplate("header", null, ".navbar .container");</shiro:guest>
-                <shiro:authenticated>loadTemplate("header", {username:"<shiro:principal />"}, ".navbar .container");</shiro:authenticated>
+                ajax({
+                        url: baseUrl + "configuration",
+                        success: function(data) {
+                            loadTemplate("header", data, ".navbar .container");
+                        },
+                        error: function() {
+                            loadTemplate("header", null, ".navbar .container");
+                        }
+                });
             });
             
         </script>
@@ -220,6 +227,10 @@
             <div class="content">
                 <!-- Fill in with loadTemplate(); call -->
             </div>
+            <p class="footer">
+                &COPY;&nbsp;
+                Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur.
+            </p>
         </div>
 
         <form id="login" class="modal hide fade form-horizontal" action="#/authenticate" method="post">

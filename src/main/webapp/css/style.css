@@ -20,6 +20,7 @@
  */
 body {
     padding-top: 40px;
+    background-color: #071218;
 }
 .container > footer p {
     text-align: center;
@@ -29,9 +30,10 @@ body {
     background-color: #fff;
     padding: 20px;
     margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-    -webkit-border-radius: 0 0 6px 6px;
-    -moz-border-radius: 0 0 6px 6px;
     border-radius: 0 0 6px 6px;
+    
+    min-height: 750px;
+    
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
     box-shadow: 0 1px 2px rgba(0,0,0,.15);
@@ -84,6 +86,13 @@ form.form-inline input {
 
 #administration_albums th, #administration_tokens th {
     text-align: center;
+}
+
+p.footer {
+    margin-top: 3px;
+    text-align: center;
+    color: #ccc;
+    font-size: 11px;
 }
 
 span.container {

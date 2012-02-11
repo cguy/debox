@@ -30,7 +30,8 @@ public class Configuration {
     
     public static enum Key {
         SOURCE_PATH,
-        TARGET_PATH
+        TARGET_PATH,
+        TITLE
     }
 
     protected Map<String, String> data = new HashMap<>();

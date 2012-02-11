@@ -55,6 +55,7 @@ public class SyncJob implements FileVisitor<Path> {
     private static final Logger logger = LoggerFactory.getLogger(SyncJob.class);
     protected Path source;
     protected Path target;
+    protected boolean forceThumbnailsRegeneration;
     protected boolean aborted = false;
     /**
      * Default permissions for created directories and files, corresponding with 755 digit value.
@@ -72,9 +73,14 @@ public class SyncJob implements FileVisitor<Path> {
     
     protected List<Future> imageProcesses = new ArrayList<>();
 
-    public SyncJob(Path source, Path target) {
+    public SyncJob(Path source, Path target, Boolean forceThumbnailsRegeneration) {
         this.source = source;
         this.target = target;
+        if (forceThumbnailsRegeneration != null) {
+            this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
+        } else {
+            this.forceThumbnailsRegeneration = false;
+        }
     }
 
     public Path getSource() {
@@ -91,6 +97,18 @@ public class SyncJob implements FileVisitor<Path> {
 
     public void setTarget(Path target) {
         this.target = target;
+    }
+
+    public boolean isForceThumbnailsRegeneration() {
+        return forceThumbnailsRegeneration;
+    }
+
+    public void setForceThumbnailsRegeneration(Boolean forceThumbnailsRegeneration) {
+        if (forceThumbnailsRegeneration != null) {
+            this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
+        } else {
+            this.forceThumbnailsRegeneration = false;
+        }
     }
     
     public boolean isTerminated() {
@@ -116,7 +134,9 @@ public class SyncJob implements FileVisitor<Path> {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
         
         // Cleaning target path
-        Files.walkFileTree(target, new DirectoryCleaner(target));
+        if (forceThumbnailsRegeneration) {
+            Files.walkFileTree(target, new DirectoryCleaner(target));
+        }
 
         // Create target if not exists
         if (!Files.exists(target)) {
@@ -177,7 +197,9 @@ public class SyncJob implements FileVisitor<Path> {
                 Path targetPath = Paths.get(targetPathParent.toString(), album.getId());
                 paths.put(path, targetPath);
 
-                Files.createDirectory(targetPath, permissionsAttributes);
+                if (!Files.exists(targetPath)) {
+                    Files.createDirectory(targetPath, permissionsAttributes);
+                }
 
             } catch (SQLException ex) {
                 logger.error("Unable to access database", ex);
@@ -216,14 +238,19 @@ public class SyncJob implements FileVisitor<Path> {
                 photo.setTargetPath(targetAlbumPath.toString());
                 photoDao.save(photo);
                 
+                Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
+                imageProcesses.add(future);
+            
+            } else if (forceThumbnailsRegeneration) {
+                Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
+                imageProcesses.add(future);
             }
+            
             for (Path directory : photosCount.keySet()) {
                 if (path.startsWith(directory)) {
                     photosCount.put(directory, photosCount.get(directory) + 1);
                 }
             }
-            Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
-            imageProcesses.add(future);
             
         } catch (SQLException ex) {
             logger.error("Unable to save photo in database", ex);

@@ -1,4 +1,4 @@
-<a class="brand" href="#/">Galerie photos</a>
+{{#data.title}}<a class="brand" href="#/">{{data.title}}</a>{{/data.title}}
 <ul class="nav">
     <li><a href="#/"><i class="icon-home icon-white"></i>&nbsp;&nbsp;Liste des albums</a></li>
 {{#data.username}}

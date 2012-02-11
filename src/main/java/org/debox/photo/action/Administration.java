@@ -55,7 +55,7 @@ public class Administration extends WebMotionController {
     
     protected SyncJob syncJob;
     
-    protected static ApplicationConfigurationDao configurationDao = new ApplicationConfigurationDao();
+    protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
@@ -111,7 +111,7 @@ public class Administration extends WebMotionController {
         return renderJSON(token);
     }
     
-    public Render editConfiguration(String sourceDirectory, String targetDirectory, Boolean force) throws IOException, SQLException {
+    public Render editConfiguration(String title, String sourceDirectory, String targetDirectory, Boolean force) throws IOException, SQLException {
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
         
@@ -126,6 +126,11 @@ public class Administration extends WebMotionController {
             error = true;
         }
         
+        if (StringUtils.isEmpty(title)) {
+            getContext().addErrorMessage("name", "isEmpty");
+            error = true;
+        }
+        
         if (error) {
             return renderStatus(500);
         }
@@ -133,7 +138,7 @@ public class Administration extends WebMotionController {
         getContext().addInfoMessage("success", "configuration.edit.success");
         
         if (syncJob == null) {
-            syncJob = new SyncJob(source, target);
+            syncJob = new SyncJob(source, target, force);
             syncJob.process();
             
         } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
@@ -141,20 +146,23 @@ public class Administration extends WebMotionController {
             syncJob.abort();
             syncJob.setSource(source);
             syncJob.setTarget(target);
+            syncJob.setForceThumbnailsRegeneration(force);
             syncJob.process();
             
         } else if (!syncJob.isTerminated()) {
             logger.warn("Cannot launch process, it is already running");
         } else {
+            syncJob.setForceThumbnailsRegeneration(force);
             syncJob.process();
         }
         
         Configuration configuration = new Configuration();
         configuration.set(Configuration.Key.SOURCE_PATH, sourceDirectory);
         configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
+        configuration.set(Configuration.Key.TITLE, title);
         configurationDao.save(configuration);
         
-        return renderJSON("configuration", configuration);
+        return renderJSON("configuration", configuration.get());
     }
     
     public Render getData() throws SQLException {

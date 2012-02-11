@@ -121,6 +121,12 @@
     </div>
     <div class="modal-body">
         <div class="control-group">
+            <label for="title">Titre de la galerie photos</label>
+            <div class="controls">
+                <input class="span5" type="text" required id="title" name="title" placeholder="Exemple : Galerie photos personnelle" value="{{data.configuration.title}}" />
+            </div>
+        </div>
+        <div class="control-group">
             <label for="sourceDirectory">Répertoire source (contenant les photos au format original) :</label>
             <div class="controls">
                 <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="Exemple : /home/user/photos/" value="{{data.configuration.source_path}}" />
