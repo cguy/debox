@@ -41,7 +41,16 @@ public class Album implements Comparable<Album> {
     protected String parentId;
     protected Visibility visibility;
     protected String coverUrl;
+    protected boolean downloadable;
 
+    public boolean isDownloadable() {
+        return downloadable;
+    }
+
+    public void setDownloadable(boolean downloadable) {
+        this.downloadable = downloadable;
+    }
+    
     public int getPhotosCount() {
         return photosCount;
     }

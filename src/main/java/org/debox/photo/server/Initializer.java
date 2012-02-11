@@ -57,7 +57,7 @@ public class Initializer implements ServletContextListener {
             
             ConfigurationDao configurationDao = new ConfigurationDao();
             Configuration configuration = configurationDao.get();
-            if (configuration.get(Configuration.Key.TITLE) == null) {
+            if (StringUtils.isEmpty(configuration.get(Configuration.Key.TITLE))) {
                 configuration.set(Configuration.Key.TITLE, "Galerie photo");
                 configurationDao.save(configuration);
             }
@@ -68,6 +68,7 @@ public class Initializer implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        logger.info("Destroying web context");
         JdbcMysqlRealm.getDataSource().close();
     }
 

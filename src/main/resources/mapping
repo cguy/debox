@@ -6,17 +6,18 @@ package.views=WEB-INF/
 
 [actions]
 # Used for admin section
-POST        /authenticate                       Administration.authenticate
-DELETE      /session                            Administration.logout
-POST        /administration/credentials         Administration.editCredentials
-POST        /administration/configuration       Administration.editConfiguration
-GET         /administration/sync                Administration.getSyncProgress
-GET         /administration                     Administration.getData
+POST        /authenticate                       AdministrationController.authenticate
+DELETE      /session                            AdministrationController.logout
+POST        /administration/credentials         AdministrationController.editCredentials
+POST        /administration/configuration       AdministrationController.editConfiguration
+GET         /administration/sync                AdministrationController.getSyncProgress
+POST        /administration/sync                AdministrationController.synchronize
+GET         /administration                     AdministrationController.getData
 GET         /album/{albumId}                    AlbumController.getAlbumById
 POST        /album                              AlbumController.editAlbum
-PUT         /group                              Administration.createToken
-GET         /token/{id}                         Administration.getToken
-POST        /token                              Administration.editToken
+PUT         /group                              AdministrationController.createToken
+GET         /token/{id}                         AdministrationController.getToken
+POST        /token                              AdministrationController.editToken
 
 # Return media descriptions
 GET   /api/albums                     AlbumController.getAlbums

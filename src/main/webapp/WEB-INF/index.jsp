@@ -90,7 +90,7 @@
     
             function handleAdmin() {
                 $("#administration_albums button").click(function() {
-                    var id = $(this).parent().parent().attr("id");
+                    var id = $(this).parents("tr").attr("id");
                     $.ajax({
                         url: baseUrl + "album/" + id,
                         success: function(data) {
@@ -98,13 +98,18 @@
                             $("#edit_album #name").val(data.name);
                             $("#edit_album #visibility option").removeAttr("selected");
                             $("#edit_album #visibility option[value=" + data.visibility.toLowerCase() + "]").attr("selected", "selected");
+                            if (data.downloadable) {
+                                $("#edit_album #downloadable").attr("checked", "checked");
+                            } else {
+                                $("#edit_album #downloadable").removeAttr("checked");
+                            }
                             $("#edit_album").modal();
                         }
                     });
                 });
         
                 $("#administration_tokens button").click(function() {
-                    var id = $(this).parent().parent().attr("id");
+                    var id = $(this).parents("tr").attr("id");
                     $.ajax({
                         url: baseUrl + "token/" + id,
                         success: function(data) {
@@ -122,12 +127,27 @@
                 });
         
                 $("button[type=reset]").click(function() {
-                    $(this).parent().parent().modal("hide");
+                    $(this).parents(".modal").find("p.alert-error").text("");
+                    $(this).parents(".modal").find("p.alert-error").removeClass("alert alert-error");
+                    $(this).parents(".modal").modal("hide");
                 });
                 
-                $(".thumbnails.admin a").click(function() {
-                    $(".thumbnails.admin li").addClass("span3");
-                    $(".thumbnails.admin li").removeClass("span6");
+                $(".thumbnails.admin a").click(function(event) {
+                    $(".admin_part").hide();
+                });
+                
+                $("a[href=#albums]").click(function(event) {
+                    $("#albums").show();
+                    
+                    // DO NOT REMOVE, avoid hash part change
+                    event.preventDefault();
+                });
+                
+                $("a[href=#tokens]").click(function(event) {
+                    $("#tokens").show();
+                    
+                    // DO NOT REMOVE, avoid hash part change
+                    event.preventDefault();
                 });
             }
             
@@ -202,13 +222,13 @@
             
             $(document).ready(function() {
                 ajax({
-                        url: baseUrl + "configuration",
-                        success: function(data) {
-                            loadTemplate("header", data, ".navbar .container");
-                        },
-                        error: function() {
-                            loadTemplate("header", null, ".navbar .container");
-                        }
+                    url: baseUrl + "configuration",
+                    success: function(data) {
+                        loadTemplate("header", data, ".navbar .container");
+                    },
+                    error: function() {
+                        loadTemplate("header", null, ".navbar .container");
+                    }
                 });
             });
             

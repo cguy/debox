@@ -8,25 +8,31 @@
 </div>
 
 <ul class="thumbnails admin">
-    <li class="span6">
+    <li class="span4">
         <a href="#modal-configuration" data-toggle="modal" class="thumbnail">
             <img src="{{data.baseUrl}}img/folder-settings.png" alt="" title="" />
             Configuration générale
         </a>
     </li>
-    <li class="span6">
-        <a href="#" class="thumbnail">
+    <li class="span4">
+        <a href="#modal-sync" data-toggle="modal" class="thumbnail">
+            <img src="{{data.baseUrl}}img/folder-script.png" alt="" title="" />
+            Synchroniser les répertoires
+        </a>
+    </li>
+    <li class="span4">
+        <a href="#albums" class="thumbnail">
             <img src="{{data.baseUrl}}img/folder-images.png" alt="" title="" />
             Gestion des albums photos
         </a>
     </li>
-    <li class="span6">
-        <a href="#" class="thumbnail">
+    <li class="span4">
+        <a href="#tokens" class="thumbnail">
             <img src="{{data.baseUrl}}img/folder-web.png" alt="" title="" />
             Gestion des accès visiteurs
         </a>
     </li>
-    <li class="span6">
+    <li class="span4">
         <a data-toggle="modal" href="#modal-account" class="thumbnail">
             <img src="{{data.baseUrl}}img/folder-user.png" alt="" title="" />
             Modifier mes identifiants de connexion
@@ -34,86 +40,103 @@
     </li>    
 </ul>
 
-<h2 class="page-header">Liste des albums</h2>
-{{#data.albums.length}}
-<table id="administration_albums" class="table table-striped table-bordered table-condensed">
-    <thead>
-        <tr>
-            <th>Nom de l'album</th>
-            <th>Répertoire source</th>
-            <th style="width:65px;text-align:center;">Visibilité</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {{#data.albums}}
-        <tr id="{{id}}">
-            <td>{{name}}</td>
-            <td>{{sourcePath}}</td>
-            <td>
-                {{#visibility}}
-                    <i class="icon-ok"></i>&nbsp;Public
-                {{/visibility}}
-                {{^visibility}}
-                    <i class="icon-ban-circle"></i>&nbsp;Privé
-                {{/visibility}}
-            </td>
-            <td>
-                <button class="btn">Modifier</button>
-            </td>
-        </tr>
+<div id="albums" class="hide admin_part">
+    <h2 class="page-header">Liste des albums</h2>
+    {{#data.albums.length}}
+    <table id="administration_albums" class="table table-striped table-bordered table-condensed">
+        <thead>
+            <tr>
+                <th>Nom de l'album</th>
+                <th>Répertoire source</th>
+                <th style="width:65px;text-align:center;">Téléchargable</th>
+                <th style="width:65px;text-align:center;">Visibilité</th>
+                <th style="width:195px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{#data.albums}}
+            <tr id="{{id}}">
+                <td class="name">{{name}}</td>
+                <td class="sourcePath">{{sourcePath}}</td>
+                <td class="downloadable" style="text-align: center;">
+                    {{#downloadable}}
+                        <i class="icon-ok"></i>&nbsp;Oui
+                    {{/downloadable}}
+                    {{^downloadable}}
+                        <i class="icon-ban-circle"></i>&nbsp;Non
+                    {{/downloadable}}
+                </td>
+                <td class="visibility">
+                    {{#visibility}}
+                        <i class="icon-ok"></i>&nbsp;Public
+                    {{/visibility}}
+                    {{^visibility}}
+                        <i class="icon-ban-circle"></i>&nbsp;Privé
+                    {{/visibility}}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-info"><i class="icon-pencil"></i>&nbsp;Modifier</button>
+                        <a class="btn" target="_blank" href="download/album/{{data.album.id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
+                    </div>
+                </td>
+            </tr>
+        {{/data.albums}}
+        </tbody>
+    </table>
+    {{/data.albums.length}}
+
+    {{^data.albums}}
+    <p class="alert">Aucun album n'a été créé pour le moment !</p>
     {{/data.albums}}
-    </tbody>
-</table>
-{{/data.albums.length}}
+</div>
 
-{{^data.albums}}
-<p class="alert">Aucun album n'a été créé pour le moment !</p>
-{{/data.albums}}
+<div id="tokens" class="hide admin_part">
+    <h2 class="page-header">Gestion des groupes de visiteurs</h2>
+    {{#data.tokens.length}}
+    <h3>Liste des groupes</h3>
+    <table id="administration_tokens" class="table table-striped table-bordered table-condensed">
+        <thead>
+            <tr>
+                <th>Libellé</th>
+                <th>Albums</th>
+                <th>Lien</th>
+                <th style="width:155px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{#data.tokens}}
+            <tr id="{{id}}">
+                <td>{{label}}</td>
+                <td>
+                    {{^albums}}
+                        Ce groupe n'a accès à aucun album
+                    {{/albums}}
+                    {{#albums}}
+                        {{name}}<br />
+                    {{/albums}}
+                </td>
+                <td><a href="{{id}}/#/">Lien</a></td>
+                <td>
+                    <button class="btn">Modifier</button>
+                    <button class="btn btn-danger">Supprimer</button>
+                </td>
+            </tr>
+        {{/data.tokens}}
+        </tbody>
+    </table>
+    {{/data.tokens.length}}
 
-<h2 class="page-header">Gestion des groupes de visiteurs</h2>
-{{#data.tokens.length}}
-<h3>Liste des groupes</h3>
-<table id="administration_tokens" class="table table-striped table-bordered table-condensed">
-    <thead>
-        <tr>
-            <th>Libellé</th>
-            <th>Albums</th>
-            <th>Lien</th>
-            <th style="width:155px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {{#data.tokens}}
-        <tr id="{{id}}">
-            <td>{{label}}</td>
-            <td>
-                {{^albums}}
-                    Ce groupe n'a accès à aucun album
-                {{/albums}}
-                {{#albums}}
-                    {{name}}<br />
-                {{/albums}}
-            </td>
-            <td><a href="{{id}}/#/">Lien</a></td>
-            <td>
-                <button class="btn">Modifier</button>
-                <button class="btn btn-danger">Supprimer</button>
-            </td>
-        </tr>
-    {{/data.tokens}}
-    </tbody>
-</table>
-{{/data.tokens.length}}
+    <h3>Créer un nouveau groupe de visiteurs</h3>
+    <form class="well form-search" action="#/group" method="put">
+        <input type="text" required name="label" class="input" placeholder="Nom du nouveau groupe">
+        <button type="submit" class="btn btn-primay">Créer le groupe</button>
+    </form>
+</div>
 
-<h3>Créer un nouveau groupe de visiteurs</h3>
-<form class="well form-search" action="#/group" method="put">
-    <input type="text" required name="label" class="input" placeholder="Nom du nouveau groupe">
-    <button type="submit" class="btn btn-primay">Créer le groupe</button>
-</form>
-
-<!-- ----- -->
-<!-- Modal -->
+{{! ========================================================== }}
+{{! POPUP MODAL - EDIT OVERALL CONFIGURATION }}
+{{! ========================================================== }}
 <form id="modal-configuration"  class="modal hide fade form-vertical" action="#/administration/configuration" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
@@ -137,9 +160,6 @@
             <div class="controls">
                 <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" value="{{data.configuration.target_path}}" />
             </div>
-            <label class="checkbox">
-                <input type="checkbox" name="force"> Forcer la regénération des vignettes de photos existantes
-            </label>
         </div>
     </div>
     <div class="modal-footer">
@@ -148,7 +168,34 @@
     </div>
 </form>
 
+{{! ========================================================== }}
+{{! POPUP MODAL - LAUNCH SYNC }}
+{{! ========================================================== }}
+<form id="modal-sync"  class="modal hide fade form-vertical" action="#/administration/sync" method="post">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Synchroniser les répertoires</h3>
+    </div>
+    <div class="modal-body">
+        <div class="control-group">
+            <p class="error"></p>
+            <p>Veuillez confirmer la demande de synchronisation des répertoires</p>
+            <p class="alert alert-warning">
+                <label class="checkbox">
+                    <input type="checkbox" name="force"> Forcer la regénération des vignettes de photos existantes
+                </label>
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="reset" class="btn">Annuler</button>
+        <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Lancer la synchronisation" />
+    </div>
+</form>
 
+{{! ========================================================== }}
+{{! POPUP MODAL - EDIT AN ALBUM }}
+{{! ========================================================== }}
 <form id="edit_album" class="modal hide fade form-horizontal" action="#/album" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
@@ -171,6 +218,15 @@
                 </select>
             </div>
         </div>
+        <div class="control-group">
+            <label class="control-label" for="downloadable">Téléchargement</label>
+            <div class="controls">
+                <label class="checkbox">
+                    <input id="downloadable" type="checkbox" name="downloadable"> Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.
+                </label>
+            </div>
+        </div>
+        
     </div>
     <div class="modal-footer">
         <input type="hidden" name="id" />
@@ -179,6 +235,9 @@
     </div>
 </form>
 
+{{! ========================================================== }}
+{{! POPUP MODAL - EDIT A TOKEN (VISITORS ACCESS) }}
+{{! ========================================================== }}
 <form id="edit_token" class="modal hide fade form-horizontal" action="#/token" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
@@ -211,6 +270,9 @@
     </div>
 </form>
 
+{{! ========================================================== }}
+{{! POPUP MODAL - EDIT ACCOUNT INFORMATION }}
+{{! ========================================================== }}
 <form id="modal-account" class="modal hide fade form-horizontal" action="#/administration/credentials" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
@@ -219,7 +281,7 @@
     <div class="modal-body">
         <p></p>
         <div class="control-group">
-            <label class="control-label" for="username">Nom d'utilisateur</label>
+            <label class="control-label" for="username">Nouveau nom d'utilisateur</label>
             <div class="controls">
                 <input type="text" required class="input-large" id="username" name="username" value="{{data.username}}" />
             </div>

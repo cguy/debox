@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `albums` (
     `name` VARCHAR(255) NOT NULL,
     `date` DATE,
     `photos_count` INTEGER NOT NULL,
+    `downloadable` TINYINT(1) NOT NULL,
     `source_path` TEXT NOT NULL,
     `target_path` TEXT NOT NULL,
     `parent_id` VARCHAR(32),

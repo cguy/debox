@@ -26,18 +26,15 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
@@ -60,27 +57,18 @@ public class SyncJob implements FileVisitor<Path> {
     /**
      * Default permissions for created directories and files, corresponding with 755 digit value.
      */
-    protected static Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
-    protected FileAttribute<Set<PosixFilePermission>> permissionsAttributes = PosixFilePermissions.asFileAttribute(permissions);
-    
+    protected FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"));
     protected static Map<Path, Path> paths = new HashMap<>();
     protected static Map<Path, Integer> photosCount = new HashMap<>();
-    
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
-    
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
-    
     protected List<Future> imageProcesses = new ArrayList<>();
 
-    public SyncJob(Path source, Path target, Boolean forceThumbnailsRegeneration) {
+    public SyncJob(Path source, Path target, boolean forceThumbnailsRegeneration) {
         this.source = source;
         this.target = target;
-        if (forceThumbnailsRegeneration != null) {
-            this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
-        } else {
-            this.forceThumbnailsRegeneration = false;
-        }
+        this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
     }
 
     public Path getSource() {
@@ -103,14 +91,10 @@ public class SyncJob implements FileVisitor<Path> {
         return forceThumbnailsRegeneration;
     }
 
-    public void setForceThumbnailsRegeneration(Boolean forceThumbnailsRegeneration) {
-        if (forceThumbnailsRegeneration != null) {
-            this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
-        } else {
-            this.forceThumbnailsRegeneration = false;
-        }
+    public void setForceThumbnailsRegeneration(boolean forceThumbnailsRegeneration) {
+        this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
     }
-    
+
     public boolean isTerminated() {
         for (Future future : imageProcesses) {
             if (!future.isDone()) {
@@ -132,7 +116,7 @@ public class SyncJob implements FileVisitor<Path> {
 
     public void process() throws IOException {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
-        
+
         // Cleaning target path
         if (forceThumbnailsRegeneration) {
             Files.walkFileTree(target, new DirectoryCleaner(target));
@@ -171,8 +155,9 @@ public class SyncJob implements FileVisitor<Path> {
                     album.setId(StringUtils.randomUUID());
                     album.setName(path.getFileName().toString());
                     album.setSourcePath(path.toString());
-                    album.setVisibility(Album.Visibility.PUBLIC);
-                    
+                    album.setVisibility(Album.Visibility.PRIVATE);
+                    album.setDownloadable(false);
+
                     Album parent = albumDao.getAlbumBySourcePath(path.getParent().toString());
                     if (parent != null) {
                         album.setParentId(parent.getId());
@@ -180,13 +165,12 @@ public class SyncJob implements FileVisitor<Path> {
                     } else {
                         album.setTargetPath(target.toString() + File.separatorChar + album.getId());
                     }
-                    
-                    
+
                     albumDao.save(album);
                 }
 
                 photosCount.put(path, 0);
-                
+
                 Path targetPathParent;
                 if (path.getParent().equals(this.source)) {
                     targetPathParent = target;
@@ -237,21 +221,21 @@ public class SyncJob implements FileVisitor<Path> {
                 photo.setSourcePath(path.toString());
                 photo.setTargetPath(targetAlbumPath.toString());
                 photoDao.save(photo);
-                
+
                 Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
                 imageProcesses.add(future);
-            
+
             } else if (forceThumbnailsRegeneration) {
                 Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
                 imageProcesses.add(future);
             }
-            
+
             for (Path directory : photosCount.keySet()) {
                 if (path.startsWith(directory)) {
                     photosCount.put(directory, photosCount.get(directory) + 1);
                 }
             }
-            
+
         } catch (SQLException ex) {
             logger.error("Unable to save photo in database", ex);
             return FileVisitResult.TERMINATE;
@@ -284,11 +268,11 @@ public class SyncJob implements FileVisitor<Path> {
                 album.setPhotosCount(count);
                 albumDao.save(album);
             }
-            
+
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
         }
-        
+
         return FileVisitResult.CONTINUE;
     }
 }

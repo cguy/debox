@@ -9,7 +9,7 @@
         <a href="#/" class="btn"><i class="icon-list-alt"></i>&nbsp;Retour à la liste des albums</a>
     {{/data.parent}}
     </div>
-    {{#data.photos.length}}
+    {{#data.photos.length}}{{#data.album.downloadable}}
     <div class="btn-group">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-download"></i>&nbsp;Télécharger les photos de cet album&nbsp;<span class="caret"></span></a>
         <ul class="dropdown-menu">
@@ -17,7 +17,7 @@
             <li><a target="_blank" href="download/album/{{data.album.id}}">Taille originale des photos</a></li>
         </ul>
     </div>
-    {{/data.photos.length}}
+    {{/data.album.downloadable}}{{/data.photos.length}}
 </div>
 
 <hr />

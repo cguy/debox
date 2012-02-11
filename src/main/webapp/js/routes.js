@@ -13,7 +13,7 @@ $(document).ready(function() {
         
         this.get('#/album/:album', function() {
             if ($("h1 a").text() == this.params['album']) {
-                return false;
+                return;
             }
             
             ajax({
@@ -23,7 +23,7 @@ $(document).ready(function() {
                     data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
                     for (var i = 0 ; i < data.albums.length ; i++) {
                         var album = data.albums[i];
-                        var plural = (album.photosCount > 1) ? "s" : ""
+                        plural = (album.photosCount > 1) ? "s" : "";
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
                     loadTemplate("album", data);
@@ -124,20 +124,52 @@ $(document).ready(function() {
             return false;
         });
         
-        this.post('#/album', function() {
+        this.post('#/administration/sync', function() {
             var context = this;
-            var data = {
-                "id" : this.params["id"],
-                "name" : this.params["name"],
-                "visibility" : this.params["visibility"]
-            };
+            $("#modal-sync input[type=submit]").button("loading");
+            $.ajax({
+                url: baseUrl + "administration/sync",
+                type : "post",
+                data : $("#modal-configuration").serializeArray(),
+                success: function(data) {
+                    $("#modal-sync input[type=submit]").button("reset");
+                    
+                    
+                    $("#modal-sync").modal("hide");
+                    context.redirect("#/administration");
+                },
+                error: function(xhr) {
+                    $("#modal-sync input[type=submit]").button("reset");
+                    $("#modal-sync p.error").addClass("alert alert-error");
+                    
+                    if (xhr.status == 409) {
+                        $("#modal-sync p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
+                    } else {
+                        $("#modal-sync p.error").text("Erreur de communication avec le serveur.");
+                    }
+                }
+            });
+            return false;
+        });
+        
+        this.post('#/album', function() {
             $.ajax({
                 url: baseUrl + "album",
                 type : "post",
-                data : data,
-                success: function() {
+                data : $("#edit_album").serializeArray(),
+                success: function(data) {
                     $("#edit_album").modal("hide");
-                    context.redirect("#/administration");
+                    $("#"+data.id + " .name").text(data.name);
+                    if (data.visibility == "PUBLIC") {
+                        $("#"+data.id + " .visibility").html("<i class=\"icon-ok\"></i>&nbsp;Public");
+                    } else {
+                        $("#"+data.id + " .visibility").html("<i class=\"icon-ban-circle\"></i>&nbsp;Privé");
+                    }
+                    if (data.downloadable) {
+                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ok\"></i>&nbsp;Oui");
+                    } else {
+                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ban-circle\"></i>&nbsp;Privé");
+                    }
                 }
             });
             return false;

@@ -29,7 +29,6 @@ import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.User;
-import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class UserDao extends JdbcMysqlRealm {
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
     
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
-    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE set username = ?, password = ?, password_salt = ?";
+    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
     
     public int getUsersCount() throws SQLException {
         int result = -1;

@@ -54,18 +54,24 @@ public class AlbumController extends WebMotionController {
     }
 
     public Render getAlbum(String token, String albumName) throws IOException, SQLException {
+        boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
+        
+        Album album = null;
         albumName = URLDecoder.decode(albumName, "UTF-8");
-        Album album = albumDao.getAlbumByName(token, albumName);
+        if (isAuthenticated) {
+            album = albumDao.getAlbumByName(albumName);
+        } else {
+            album = albumDao.getAlbumByName(token, albumName);
+        }
+        
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
-        boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
-
         List<Photo> photos;
         List<Album> albums;
-
         Album parent;
+        
         if (isAuthenticated) {
             photos = photoDao.getPhotos(album.getId());
             parent = albumDao.getAlbum(album.getParentId());
@@ -86,7 +92,7 @@ public class AlbumController extends WebMotionController {
         return renderJSON(album);
     }
 
-    public Render editAlbum(String id, String name, String visibility) throws SQLException {
+    public Render editAlbum(String id, String name, String visibility, Boolean downloadable) throws SQLException {
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -94,6 +100,11 @@ public class AlbumController extends WebMotionController {
 
         album.setName(name);
         album.setVisibility(Album.Visibility.valueOf(visibility.toUpperCase()));
+
+        if (downloadable == null) {
+            downloadable = false;
+        }
+        album.setDownloadable(downloadable);
 
         albumDao.save(album);
 
@@ -112,6 +123,7 @@ public class AlbumController extends WebMotionController {
 //        logger.info(photo.getAlbumId());
 //        return renderJSON("album", album, "photo", photo);
 //    }
+    
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {
@@ -132,6 +144,9 @@ public class AlbumController extends WebMotionController {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+
+        } else if (!album.isDownloadable() && !SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
         if (resized) {
