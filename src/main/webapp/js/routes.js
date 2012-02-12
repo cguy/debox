@@ -2,14 +2,14 @@ $(document).ready(function() {
     
     Sammy(function() {
         
-//        this.get("#/photo/:photo", function() {
-//            ajax({
-//                url: baseUrl + "deploy/api/photo/" + this.params['photo'],
-//                success: function(data) {
-//                    loadTemplate("photo", data);
-//                }
-//            });
-//        });
+        //        this.get("#/photo/:photo", function() {
+        //            ajax({
+        //                url: baseUrl + "deploy/api/photo/" + this.params['photo'],
+        //                success: function(data) {
+        //                    loadTemplate("photo", data);
+        //                }
+        //            });
+        //        });
         
         this.get('#/album/:album', function() {
             if ($("h1 a").text() == this.params['album']) {
@@ -26,7 +26,9 @@ $(document).ready(function() {
                         plural = (album.photosCount > 1) ? "s" : "";
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
-                    loadTemplate("album", data);
+                    loadTemplate("album", data, null, function(){
+                        editTitle($("a.brand").text() + " - " + data.album.name);
+                    });
                 }
             });
         }),
@@ -117,7 +119,10 @@ $(document).ready(function() {
                 data : $("#modal-configuration").serializeArray(),
                 success: function(data) {
                     $("#modal-configuration input[type=submit]").button("reset");
-                    loadTemplate("header", {"username" : $(".navbar-text.pull-right strong").html(), "title" : data.title}, ".navbar .container");
+                    loadTemplate("header", {
+                        "username" : $(".navbar-text.pull-right strong").html(), 
+                        "title" : data.title
+                        }, ".navbar .container");
                     $("#modal-configuration").modal("hide");
                     context.redirect("#/administration");
                 },
@@ -164,7 +169,7 @@ $(document).ready(function() {
                 data : $("#edit_album").serializeArray(),
                 success: function(data) {
                     $("#edit_album").modal("hide");
-                    $("#"+data.id + " .name").text(data.name);
+                    $("#"+data.id + " .name strong").text(data.name);
                     if (data.visibility == "PUBLIC") {
                         $("#"+data.id + " .visibility").html("<i class=\"icon-ok\"></i>&nbsp;Public");
                     } else {
@@ -173,7 +178,7 @@ $(document).ready(function() {
                     if (data.downloadable) {
                         $("#"+data.id + " .downloadable").html("<i class=\"icon-ok\"></i>&nbsp;Oui");
                     } else {
-                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ban-circle\"></i>&nbsp;Privé");
+                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ban-circle\"></i>&nbsp;Non");
                     }
                 }
             });
@@ -207,6 +212,7 @@ $(document).ready(function() {
         });
         
         this.get('#/administration', function() {
+            editTitle($("a.brand").text() + " - Administration");
             ajax({
                 url: baseUrl + "administration",
                 success: function(data) {
@@ -321,6 +327,7 @@ $(document).ready(function() {
         /* Home page           */
         /* ******************* */
         this.get('#/', function() {
+            editTitle($("a.brand").text() + " - Accueil");
             ajax({
                 url: computeUrl(baseUrl + "api/albums"),
                 success: function(data) {
@@ -335,5 +342,68 @@ $(document).ready(function() {
         }); // End route
         
     }).run("#/");
+    
+    function handleAdmin() {
+        $("#administration_albums button").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            $.ajax({
+                url: baseUrl + "album/" + id,
+                success: function(data) {
+                    $("#edit_album input[type=hidden]").val(data.id);
+                    $("#edit_album #name").val(data.name);
+                    $("#edit_album #visibility option").removeAttr("selected");
+                    $("#edit_album #visibility option[value=" + data.visibility.toLowerCase() + "]").attr("selected", "selected");
+                    if (data.downloadable) {
+                        $("#edit_album #downloadable").attr("checked", "checked");
+                    } else {
+                        $("#edit_album #downloadable").removeAttr("checked");
+                    }
+                    $("#edit_album").modal();
+                }
+            });
+        });
+        
+        $("#administration_tokens button").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            $.ajax({
+                url: baseUrl + "token/" + id,
+                success: function(data) {
+                    $("#edit_token input[type=hidden]").val(data.token.id);
+                    $("#edit_token #label").val(data.token.label);
+                    $("#edit_token #albums option").removeAttr("selected");
+                            
+                    for (var i = 0 ; i < data.token.albums.length ; i++) {
+                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+                    }
+                    
+                    $("#edit_token").modal();
+                }
+            });
+        });
+        
+        $("button[type=reset]").click(function() {
+            $(this).parents(".modal").find("p.alert-error").text("");
+            $(this).parents(".modal").find("p.alert-error").removeClass("alert alert-error");
+            $(this).parents(".modal").modal("hide");
+        });
+                
+        $(".thumbnails.admin a").click(function(event) {
+            $(".admin_part").hide();
+        });
+                
+        $("a[href=#albums]").click(function(event) {
+            $("#albums").show();
+                    
+            // DO NOT REMOVE, avoid hash part change
+            event.preventDefault();
+        });
+                
+        $("a[href=#tokens]").click(function(event) {
+            $("#tokens").show();
+                    
+            // DO NOT REMOVE, avoid hash part change
+            event.preventDefault();
+        });
+    }
     
 });

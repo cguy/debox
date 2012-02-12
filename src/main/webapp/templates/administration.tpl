@@ -56,7 +56,7 @@
         <tbody>
         {{#data.albums}}
             <tr id="{{id}}">
-                <td class="name">{{name}}</td>
+                <td class="name"><strong>{{name}}</strong></td>
                 <td class="sourcePath">{{sourcePath}}</td>
                 <td class="downloadable" style="text-align: center;">
                     {{#downloadable}}

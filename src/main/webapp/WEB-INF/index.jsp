@@ -25,7 +25,8 @@
 <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <title>Galerie photos</title>
+        
+        <title></title>
 
         <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.rs.slideshow.js" />"></script>
@@ -36,6 +37,8 @@
         <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/mustache.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/slideshow.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
 
         <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
         <script type="text/javascript" src="<c:url value="/js/less-1.2.1.min.js" />"></script>
@@ -43,195 +46,9 @@
 
         <script type="text/javascript">
             var baseUrl = "<c:url value="/" />";
-            var title = "Galerie photo";
-            var templates = {};
-            
-            function loadTemplate(tplId, data, selector, callback) {
-                function render(strTemplate, data, selector, callback) {
-                    if (data) {
-                        data.baseUrl = baseUrl;
-                    }
-                    var html = Mustache.render(strTemplate, {
-                        data : data
-                    });
-                    $(selector).html(html);
-                    if (callback) {
-                        callback();
-                    }
-                }
-                
-                if (!selector) {
-                    selector = ".container .content";
-                }
-                
-                if (!templates[tplId]) {
-                    $.ajax({
-                        url: "/templates/" + tplId + ".tpl?t="+new Date().getTime(),
-                        success: function(tpl) {
-                            templates[tplId] = tpl;
-                            render(templates[tplId], data, selector, callback);
-                        }
-                    });
-                } else {
-                    render(templates[tplId], data, selector, callback);
-                }
-            }
-    
-            function ajax(object) {
-                if (!object.error) {
-                    object.error = function(xhr) {
-                        if (xhr.status == 404) {
-                            loadTemplate(xhr.status);
-                        }
-                    }
-                }
-                $.ajax(object);
-            }
-    
-            function handleAdmin() {
-                $("#administration_albums button").click(function() {
-                    var id = $(this).parents("tr").attr("id");
-                    $.ajax({
-                        url: baseUrl + "album/" + id,
-                        success: function(data) {
-                            $("#edit_album input[type=hidden]").val(data.id);
-                            $("#edit_album #name").val(data.name);
-                            $("#edit_album #visibility option").removeAttr("selected");
-                            $("#edit_album #visibility option[value=" + data.visibility.toLowerCase() + "]").attr("selected", "selected");
-                            if (data.downloadable) {
-                                $("#edit_album #downloadable").attr("checked", "checked");
-                            } else {
-                                $("#edit_album #downloadable").removeAttr("checked");
-                            }
-                            $("#edit_album").modal();
-                        }
-                    });
-                });
-        
-                $("#administration_tokens button").click(function() {
-                    var id = $(this).parents("tr").attr("id");
-                    $.ajax({
-                        url: baseUrl + "token/" + id,
-                        success: function(data) {
-                            $("#edit_token input[type=hidden]").val(data.token.id);
-                            $("#edit_token #label").val(data.token.label);
-                            $("#edit_token #albums option").removeAttr("selected");
-                            
-                            for (var i = 0 ; i < data.token.albums.length ; i++) {
-                                $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
-                            }
-                    
-                            $("#edit_token").modal();
-                        }
-                    });
-                });
-        
-                $("button[type=reset]").click(function() {
-                    $(this).parents(".modal").find("p.alert-error").text("");
-                    $(this).parents(".modal").find("p.alert-error").removeClass("alert alert-error");
-                    $(this).parents(".modal").modal("hide");
-                });
-                
-                $(".thumbnails.admin a").click(function(event) {
-                    $(".admin_part").hide();
-                });
-                
-                $("a[href=#albums]").click(function(event) {
-                    $("#albums").show();
-                    
-                    // DO NOT REMOVE, avoid hash part change
-                    event.preventDefault();
-                });
-                
-                $("a[href=#tokens]").click(function(event) {
-                    $("#tokens").show();
-                    
-                    // DO NOT REMOVE, avoid hash part change
-                    event.preventDefault();
-                });
-            }
-            
-            $.getDocHeight = function(){
-                return Math.max(
-                    $(document).height(),
-                    $(window).height(),
-                    /* For opera: */
-                    document.documentElement.clientHeight
-                );
-            };
-            
-            function exitFullscreen() {
-                var elt = document.getElementById("fullscreenContainer");
-                document.body.removeChild(elt);
-                var controls = document.getElementById("rs-controls-slideshow-div");
-                if (controls) {
-                    document.body.removeChild(controls);
-                }
-                console.log(location.hash.substring(0, location.hash.lastIndexOf("/")));
-                location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
-            }
-            
-            function createBg() {
-                var container = document.createElement("div");
-                container.id = "fullscreenContainer";
-                container.style.height = $.getDocHeight() + "px";
-                
-                var elt = document.createElement("div");
-                elt.id = "slideshow-div";
-                elt.className = "rs-slideshow";
-                elt.style.position = "fixed";
-                elt.style.top = "0px";
-                elt.style.left = "0px";
-                elt.style.height = Math.round(window.innerHeight) + "px";
-                elt.onclick = exitFullscreen;
-
-                container.appendChild(elt);
-                return container;
-            }
-            
-            function fullscreen(index, data) {
-                var elt = createBg();
-                document.body.appendChild(elt);
-                $('#slideshow-div').rsfSlideshow({
-                    autostart : false,
-                    transition: 500,
-                    slides: data,
-                    controls: {
-                        previousSlide: {
-                            auto: true
-                        },    //    auto-generate a "previous slide" control
-                        nextSlide: {
-                            auto: true
-                        }    //    auto-generate a "next slide" control
-                    },
-                    effect: 'fade'
-                });
-                $('#slideshow-div').rsfSlideshow(
-                    'goToSlide', index
-                );
-            }
-            
-            function computeUrl(url) {
-                if (location.pathname != "/") {
-                    var token = location.pathname.substring(1, location.pathname.length - 1);
-                    var separator = url.indexOf("?") == -1 ? "?" : "&";
-                    return url + separator + "token=" + token;
-                }
-                return url;
-            }
-            
             $(document).ready(function() {
-                ajax({
-                    url: baseUrl + "configuration",
-                    success: function(data) {
-                        loadTemplate("header", data, ".navbar .container");
-                    },
-                    error: function() {
-                        loadTemplate("header", null, ".navbar .container");
-                    }
-                });
+                initHeader(${title}, ${username});
             });
-            
         </script>
     </head>
     <body>

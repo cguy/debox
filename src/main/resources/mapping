@@ -35,9 +35,6 @@ GET /download/album/{albumId}       AlbumController.download        resized=fals
 GET /download/photo/{photoId}/min   PhotoController.download        resized=true
 GET /download/photo/{photoId}       PhotoController.download        resized=false
 
-# Call to display header area
-GET   /configuration                ConfigurationController.getMinimalConfiguration 
-
 # Home & single one page
-GET   /{token}/                     view:index.jsp
-GET   /                             view:index.jsp
+GET   /{token}/                     HomeController.index
+GET   /                             HomeController.index

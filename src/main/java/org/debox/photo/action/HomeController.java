@@ -22,6 +22,7 @@ package org.debox.photo.action;
 
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
@@ -34,26 +35,28 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ConfigurationController extends WebMotionController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
+public class HomeController extends WebMotionController {
 
+    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
     protected static ConfigurationDao configurationDao = new ConfigurationDao();
-    
-    public Render getMinimalConfiguration() {
+
+    public Render index() {
         try {
             Configuration configuration = configurationDao.get();
             User user = (User) SecurityUtils.getSubject().getPrincipal();
-            String username = null;
+            String username = "null";
             if (user != null) {
-                username = user.getUsername();
+                username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
             }
-            return renderJSON("title", configuration.get(Configuration.Key.TITLE), "username", username);
             
+            String title = configuration.get(Configuration.Key.TITLE);
+            title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
+            
+            return renderView("index.jsp", "title", title, "username", username);
+
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
             return renderError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to access database");
         }
     }
-    
 }
