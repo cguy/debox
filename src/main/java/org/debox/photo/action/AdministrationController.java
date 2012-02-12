@@ -254,7 +254,7 @@ public class AdministrationController extends WebMotionController {
         if (total == 0L) {
             sync.put("percent", 0L);
         } else {
-            sync.put("percent", Integer.valueOf(Math.round(current * 100 / total)).longValue());
+            sync.put("percent", Double.valueOf(Math.floor(current * 100 / total)).longValue());
         }
         return sync;
     }
