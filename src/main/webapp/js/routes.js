@@ -84,10 +84,15 @@ $(document).ready(function() {
                 url: baseUrl + "administration/credentials",
                 type : "post",
                 data : $("#modal-account").serializeArray(),
-                success: function() {
+                success: function(data) {
                     $("#modal-account").modal("hide");
                     $("#modal-account input[type=submit]").button('reset');
                     $("#modal-account p").removeClass("alert alert-error");
+                    
+                    loadTemplate("header", {
+                        "username" : data.username,
+                        "title" : $("a.brand").html()
+                    }, ".navbar .container");
                     context.redirect("#/administration");
                 },
                 error: function(xhr) {
@@ -300,7 +305,10 @@ $(document).ready(function() {
                 url: baseUrl + "session",
                 type : "delete",
                 success: function(data) {
-                    loadTemplate("header", null, ".navbar .container");
+                    loadTemplate("header", {
+                        "username" : null,
+                        "title" : $("a.brand").html()
+                    }, ".navbar .container");
                     context.redirect("#/");
                 },
                 error: function(xhr) {

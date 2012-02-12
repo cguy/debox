@@ -289,19 +289,19 @@
         <div class="control-group">
             <label class="control-label" for="oldPassword">Ancien mot de passe</label>
             <div class="controls">
-                <input type="text" required class="input-large" id="oldPassword" name="oldPassword" />
+                <input type="password" required class="input-large" id="oldPassword" name="oldPassword" />
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="password">Nouveau mot de passe</label>
             <div class="controls">
-                <input type="text" required class="input-large" id="password" name="password" />
+                <input type="password" required class="input-large" id="password" name="password" />
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="confirm">Confirmation du nouveau mot de passe</label>
             <div class="controls">
-                <input type="text" required class="input-large" id="confirm" name="confirm" />
+                <input type="password" required class="input-large" id="confirm" name="confirm" />
             </div>
         </div>
     </div>

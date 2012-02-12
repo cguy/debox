@@ -21,11 +21,11 @@
 package org.debox.photo.action;
 
 import java.sql.SQLException;
-import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.User;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -43,7 +43,12 @@ public class ConfigurationController extends WebMotionController {
     public Render getMinimalConfiguration() {
         try {
             Configuration configuration = configurationDao.get();
-            return renderJSON("title", configuration.get(Configuration.Key.TITLE), "username", SecurityUtils.getSubject().getPrincipal());
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            String username = null;
+            if (user != null) {
+                username = user.getUsername();
+            }
+            return renderJSON("title", configuration.get(Configuration.Key.TITLE), "username", username);
             
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);

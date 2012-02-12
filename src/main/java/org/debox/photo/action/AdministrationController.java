@@ -21,6 +21,7 @@
 package org.debox.photo.action;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +41,7 @@ import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Token;
+import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
@@ -57,6 +59,7 @@ public class AdministrationController extends WebMotionController {
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
+    protected static UserDao userDao = new UserDao();
 
     public Render authenticate(String username, String password) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -72,8 +75,9 @@ public class AdministrationController extends WebMotionController {
             logger.error(e.getMessage(), e);
             return renderError(HttpServletResponse.SC_UNAUTHORIZED, "");
         }
-
-        return renderJSON(currentUser.getPrincipal());
+        
+        User user = (User) currentUser.getPrincipal();
+        return renderJSON(user.getUsername());
     }
 
     public Render logout() {
@@ -195,10 +199,12 @@ public class AdministrationController extends WebMotionController {
             return renderError(HttpServletResponse.SC_FORBIDDEN, "");
         }
 
+        String username = ((User) subject.getPrincipal()).getUsername();
+        
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
-                    "username", subject.getPrincipal(),
+                    "username", username,
                     "configuration", configurationDao.get().get(),
                     "albums", albumDao.getAlbums(),
                     "tokens", tokenDao.getAll(),
@@ -206,7 +212,7 @@ public class AdministrationController extends WebMotionController {
         }
 
         return renderJSON(
-                "username", subject.getPrincipal(),
+                "username", username,
                 "configuration", configurationDao.get().get(),
                 "albums", albumDao.getAlbums(),
                 "tokens", tokenDao.getAll());
@@ -251,16 +257,31 @@ public class AdministrationController extends WebMotionController {
         return renderJSON(token);
     }
 
-    public Render editCredentials(String username, String oldPassword, String password, String confirm) {
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-        Subject currentUser = SecurityUtils.getSubject();
+    public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
+        }
+        
+        try {
+            User user = (User) subject.getPrincipal();
+            
+            boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
+            if (!oldCredentialsChecked) {
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+            }
 
-        // TODO
-
-        UserDao userDao = new UserDao();
-        userDao.getCredentialsMatcher().doCredentialsMatch(token, null);
-
-        return renderStatus(HttpServletResponse.SC_OK);
+            user.setUsername(username);
+            user.setPassword(password);
+            
+            userDao.save(user);
+            
+            return renderJSON("username", username);
+            
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+        }
     }
 
     protected Map<String, Long> getSyncData() throws SQLException {
