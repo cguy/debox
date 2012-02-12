@@ -59,8 +59,14 @@ public class AdministrationController extends WebMotionController {
     protected static UserDao userDao = new UserDao();
 
     public Render authenticate(String username, String password) {
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject currentUser = SecurityUtils.getSubject();
+        
+        // Authenticating user must be a guest
+        if (currentUser.isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             currentUser.login(token);
 
@@ -105,8 +111,12 @@ public class AdministrationController extends WebMotionController {
     }
 
     public Render logout() {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         try {
-            Subject subject = SecurityUtils.getSubject();
             subject.logout();
 
         } catch (Exception e) {
@@ -116,6 +126,10 @@ public class AdministrationController extends WebMotionController {
     }
 
     public Render getSyncProgress() throws SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         if (syncJob == null) {
             return renderStatus(404);
         }
@@ -123,6 +137,10 @@ public class AdministrationController extends WebMotionController {
     }
 
     public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
 
@@ -158,6 +176,10 @@ public class AdministrationController extends WebMotionController {
     }
 
     public Render synchronize(boolean force) {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         try {
             Configuration configuration = configurationDao.get();
             

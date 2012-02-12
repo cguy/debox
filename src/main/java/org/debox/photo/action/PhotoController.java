@@ -56,6 +56,7 @@ public class PhotoController extends WebMotionController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
+        
         File file = new File(photo.getTargetPath() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photoId + ".jpg");
         return renderStream(new FileInputStream(file), "image/jpeg");
     }
@@ -67,6 +68,7 @@ public class PhotoController extends WebMotionController {
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
         }
+        
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
@@ -75,6 +77,9 @@ public class PhotoController extends WebMotionController {
         return renderStream(new FileInputStream(file), "image/jpeg");
     }
     
+    /*
+     * TODO [cguy:2012-02-12|15:41] Handle security access for next version.
+     */
     public Render download(String photoId, boolean resized) throws SQLException, IOException {
         Photo photo = photoDao.getPhoto(photoId);
         if (photo == null) {

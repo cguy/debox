@@ -46,11 +46,15 @@ import org.slf4j.LoggerFactory;
 public class AlbumController extends WebMotionController {
 
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
+    
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
 
     public Render getAlbums(String token) throws SQLException {
-        return renderJSON("albums", albumDao.getVisibleAlbums(token, null, SecurityUtils.getSubject().isAuthenticated()));
+        boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
+        List<Album> albums = albumDao.getVisibleAlbums(token, null, isAuthenticated);
+        
+        return renderJSON("albums", albums);
     }
 
     public Render getAlbum(String token, String albumName) throws IOException, SQLException {
@@ -85,6 +89,10 @@ public class AlbumController extends WebMotionController {
     }
 
     public Render getAlbumById(String albumId) throws SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -93,6 +101,10 @@ public class AlbumController extends WebMotionController {
     }
 
     public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -132,6 +144,7 @@ public class AlbumController extends WebMotionController {
             String missingImagePath = getContext().getServletContext().getRealPath("img/folder.png");
             return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
+        
         String filename = photo.getTargetPath() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photo.getId() + ".jpg";
         return renderStream(new FileInputStream(filename), "image/jpeg");
     }
@@ -156,4 +169,5 @@ public class AlbumController extends WebMotionController {
         }
         return new ZipDownloadRenderer(album.getSourcePath(), album.getName());
     }
+    
 }

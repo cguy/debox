@@ -53,8 +53,10 @@ GET   /photo/{photoId}                PhotoController.getPhotoStream
 # -----------------------------------------------------------------------------------------------
 GET /download/album/{albumId}/min   AlbumController.download        resized=true
 GET /download/album/{albumId}       AlbumController.download        resized=false
-GET /download/photo/{photoId}/min   PhotoController.download        resized=true
-GET /download/photo/{photoId}       PhotoController.download        resized=false
+
+# Download photo feature is not ready yet
+# GET /download/photo/{photoId}/min   PhotoController.download        resized=true
+# GET /download/photo/{photoId}       PhotoController.download        resized=false
 
 # -----------------------------------------------------------------------------------------------
 # HOME

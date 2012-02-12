@@ -107,6 +107,7 @@ public class TokenController extends WebMotionController {
         if (!subject.isAuthenticated()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
         }
+        
         tokenDao.delete(id);
         return renderStatus(HttpURLConnection.HTTP_OK);
     }

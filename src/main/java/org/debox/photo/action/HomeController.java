@@ -59,4 +59,5 @@ public class HomeController extends WebMotionController {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to access database");
         }
     }
+    
 }
