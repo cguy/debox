@@ -113,7 +113,7 @@ public class AdministrationController extends WebMotionController {
         return renderJSON(token);
     }
 
-    public Render editConfiguration(String title, String sourceDirectory, String targetDirectory, Boolean force) throws IOException, SQLException {
+    public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
 
@@ -148,7 +148,7 @@ public class AdministrationController extends WebMotionController {
         return renderJSON("configuration", configuration.get());
     }
 
-    public Render synchronize(Boolean force) {
+    public Render synchronize(boolean force) {
         try {
             Configuration configuration = configurationDao.get();
             
@@ -162,10 +162,6 @@ public class AdministrationController extends WebMotionController {
             Path source = Paths.get(strSource);
             Path target = Paths.get(strTarget);
 
-            if (force == null) {
-                force = false;
-            }
-            
             if (syncJob == null) {
                 syncJob = new SyncJob(source, target, force);
                 syncJob.process();

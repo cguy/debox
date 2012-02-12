@@ -92,7 +92,7 @@ public class AlbumController extends WebMotionController {
         return renderJSON(album);
     }
 
-    public Render editAlbum(String id, String name, String visibility, Boolean downloadable) throws SQLException {
+    public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException {
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -100,10 +100,6 @@ public class AlbumController extends WebMotionController {
 
         album.setName(name);
         album.setVisibility(Album.Visibility.valueOf(visibility.toUpperCase()));
-
-        if (downloadable == null) {
-            downloadable = false;
-        }
         album.setDownloadable(downloadable);
 
         albumDao.save(album);

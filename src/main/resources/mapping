@@ -11,10 +11,10 @@ DELETE      /session                            AdministrationController.logout
 POST        /administration/credentials         AdministrationController.editCredentials
 POST        /administration/configuration       AdministrationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
-POST        /administration/sync                AdministrationController.synchronize
+POST        /administration/sync                AdministrationController.synchronize            force=false
 GET         /administration                     AdministrationController.getData
 GET         /album/{albumId}                    AlbumController.getAlbumById
-POST        /album                              AlbumController.editAlbum
+POST        /album                              AlbumController.editAlbum                       downloadable=false
 PUT         /group                              AdministrationController.createToken
 GET         /token/{id}                         AdministrationController.getToken
 POST        /token                              AdministrationController.editToken
