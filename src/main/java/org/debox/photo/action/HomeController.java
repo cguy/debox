@@ -20,8 +20,8 @@
  */
 package org.debox.photo.action;
 
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
@@ -56,7 +56,7 @@ public class HomeController extends WebMotionController {
 
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
-            return renderError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to access database");
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to access database");
         }
     }
 }

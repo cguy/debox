@@ -27,9 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -38,9 +36,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.*;
 import org.debox.photo.job.SyncJob;
-import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
-import org.debox.photo.model.Token;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionController;
@@ -59,6 +55,7 @@ public class AdministrationController extends WebMotionController {
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
+    
     protected static UserDao userDao = new UserDao();
 
     public Render authenticate(String username, String password) {
@@ -69,15 +66,42 @@ public class AdministrationController extends WebMotionController {
 
         } catch (UnknownAccountException | IncorrectCredentialsException e) {
             logger.error(e.getMessage(), e);
-            return renderError(HttpServletResponse.SC_UNAUTHORIZED, "");
+            return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
 
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
-            return renderError(HttpServletResponse.SC_UNAUTHORIZED, "");
+            return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
         }
         
         User user = (User) currentUser.getPrincipal();
         return renderJSON(user.getUsername());
+    }
+    
+    public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
+        }
+        
+        try {
+            User user = (User) subject.getPrincipal();
+            
+            boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
+            if (!oldCredentialsChecked) {
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+            }
+
+            user.setUsername(username);
+            user.setPassword(password);
+            
+            userDao.save(user);
+            
+            return renderJSON("username", username);
+            
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+        }
     }
 
     public Render logout() {
@@ -96,21 +120,6 @@ public class AdministrationController extends WebMotionController {
             return renderStatus(404);
         }
         return renderJSON(getSyncData());
-    }
-
-    public Render createToken(String label) throws SQLException {
-        Subject currentUser = SecurityUtils.getSubject();
-        if (!currentUser.isAuthenticated()) {
-            return renderError(HttpServletResponse.SC_FORBIDDEN, "User must be logged in.");
-        }
-
-        Token token = new Token();
-        token.setId(StringUtils.randomUUID());
-        token.setLabel(label);
-
-        tokenDao.save(token);
-
-        return renderJSON(token);
     }
 
     public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
@@ -156,7 +165,7 @@ public class AdministrationController extends WebMotionController {
             String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
             
             if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
-                return renderError(HttpServletResponse.SC_CONFLICT, "Work paths are not defined.");
+                return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
             }
             
             Path source = Paths.get(strSource);
@@ -181,18 +190,18 @@ public class AdministrationController extends WebMotionController {
                 syncJob.process();
             }
 
-            return renderStatus(HttpServletResponse.SC_OK);
+            return renderStatus(HttpURLConnection.HTTP_OK);
 
         } catch (SQLException | IOException ex) {
             logger.error(ex.getMessage(), ex);
-            return renderError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to synchronize directories");
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to synchronize directories");
         }
     }
 
     public Render getData() throws SQLException {
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
-            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
         }
 
         String username = ((User) subject.getPrincipal()).getUsername();
@@ -214,72 +223,6 @@ public class AdministrationController extends WebMotionController {
                 "tokens", tokenDao.getAll());
     }
 
-    public Render getToken(String id) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
-        }
-
-        Token token = tokenDao.getById(id);
-        if (token == null) {
-            return renderError(HttpServletResponse.SC_NOT_FOUND, "");
-        }
-
-        return renderJSON(
-                "albums", albumDao.getAlbums(),
-                "token", token);
-    }
-
-    public Render editToken(String id, String label, List<String> albums) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
-        }
-
-        Token token = tokenDao.getById(id);
-        if (token == null) {
-            return renderError(HttpServletResponse.SC_NOT_FOUND, "");
-        }
-
-        token.setLabel(label);
-        for (Object albumId : albums) {
-            Album album = new Album();
-            album.setId((String) albumId);
-            token.getAlbums().add(album);
-        }
-
-        tokenDao.save(token);
-
-        return renderJSON(token);
-    }
-
-    public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpServletResponse.SC_FORBIDDEN, "");
-        }
-        
-        try {
-            User user = (User) subject.getPrincipal();
-            
-            boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
-            if (!oldCredentialsChecked) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
-            }
-
-            user.setUsername(username);
-            user.setPassword(password);
-            
-            userDao.save(user);
-            
-            return renderJSON("username", username);
-            
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
-        }
-    }
-
     protected Map<String, Long> getSyncData() throws SQLException {
         long total = photoDao.getPhotosCount();
         long current = syncJob.getTerminatedProcessesCount();
@@ -293,4 +236,5 @@ public class AdministrationController extends WebMotionController {
         }
         return sync;
     }
+    
 }

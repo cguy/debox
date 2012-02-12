@@ -185,27 +185,68 @@ $(document).ready(function() {
             return false;
         });
         
-        this.put('#/group', function() {
-            var context = this;
+        this.put('#/token', function() {
             $.ajax({
-                url: baseUrl + "group?label=" + this.params["label"],
+                url: baseUrl + "token?label=" + encodeURIComponent(this.params["label"]),
                 type : "put",
-                success: function() {
-                    context.redirect("#/administration");
+                success: function(data) {
+                    $("#administration_tokens").removeClass("hide");
+                    $("#tokens p.alert-warning").addClass("hide");
+                    var html = '<tr id="' + data.id + '">';
+                    html += '<td class="label">' + data.label + '</td>';
+                    html += '<td class="albums">Aucun album n\'est visible pour cet accès</td>';
+                    html += '<td><a href="' + baseUrl + data.id + '/#/">Lien</a></td>';
+                    html += '<td><div class="btn-group">';
+                    html += '<button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>';
+                    html += '<button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>';
+                    html += '</div></td></tr>';
+                    $("#administration_tokens tbody").append(html);
+                    $("#form-token-create input[type=text]").val("");
+                    handleAdmin();
                 }
             });
             return false;
         });
         
         this.post('#/token', function() {
-            var context = this;
             $.ajax({
                 url: baseUrl + "token",
                 type : "post",
                 data: $("#edit_token").serializeArray(),
-                success: function() {
+                success: function(data) {
+                    $("#" + data.id + " .label").text(data.label);
+                    var albums = "";
+                    if (data.albums.length) {
+                        for (var i = 0 ; i < data.albums.length ; i++) {
+                            albums += '<a href="#/album/' + data.albums[i].name + '">' + data.albums[i].name + '</a><br />';
+                        }
+                        $("#" + data.id + " .albums").html(albums);
+                    } else {
+                         $("#" + data.id + " .albums").text("Aucun album n'est visible pour cet accès");
+                    }
                     $("#edit_token").modal("hide");
-                    context.redirect("#/administration");
+                }
+            });
+            return false;
+        });
+        
+        this.del('#/token', function() {
+            var id = $("#modal-token-delete input[type=hidden]").val();
+            $.ajax({
+                url: baseUrl + "token/" + id,
+                type: "delete",
+                success: function() {
+                    $("#" + id).remove();
+                    if ($("#administration_tokens").find("tbody tr").length == 0) {
+                        $("#administration_tokens").addClass("hide");
+                        $("#tokens p.alert-warning").removeClass("hide");
+                    }
+                    $("#modal-token-delete").modal("hide");
+                },
+                error : function(xhr) {
+                    $("#modal-token-delete input[type=submit]").button('reset');
+                    $("#modal-token-delete p:first-of-type").addClass("alert alert-error");
+                    $("#modal-token-delete p:first-of-type").html("Erreur pendant la suppression de l'accès, veuillez réessayer ultérieurement.");
                 }
             });
             return false;
@@ -252,9 +293,6 @@ $(document).ready(function() {
                             refreshProgressBar(data.sync);
                         }
                     });
-                },
-                error: function(xhr) {
-                    loadTemplate(xhr.status);
                 }
             });
         }),
@@ -363,7 +401,7 @@ $(document).ready(function() {
             });
         });
         
-        $("#administration_tokens button").click(function() {
+        $("#administration_tokens button.btn-info").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({
                 url: baseUrl + "token/" + id,
@@ -371,14 +409,21 @@ $(document).ready(function() {
                     $("#edit_token input[type=hidden]").val(data.token.id);
                     $("#edit_token #label").val(data.token.label);
                     $("#edit_token #albums option").removeAttr("selected");
-                            
+            
                     for (var i = 0 ; i < data.token.albums.length ; i++) {
                         $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
                     }
-                    
+        
                     $("#edit_token").modal();
                 }
             });
+        });
+        
+        $("#administration_tokens button.btn-danger").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            var name = $(this).parents("tr").find(".label").text();
+            $("#modal-token-delete input[type=hidden]").val(id);
+            $("#modal-token-delete p strong").text(name);
         });
         
         $("button[type=reset]").click(function() {

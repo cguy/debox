@@ -38,18 +38,20 @@ public class TokenDao extends JdbcMysqlRealm {
 
     protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?) ON DUPLICATE KEY UPDATE label = ?";
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
+    protected static String SQL_DELETE_TOKEN_ALBUM = "DELETE FROM albums_tokens WHERE token_id = ?";
+    protected static String SQL_DELETE = "DELETE FROM tokens WHERE id = ?";
     
     protected static String SQL_GET_ALL = ""
             + "SELECT tokens.id id, label, album_id, name FROM tokens "
             + "LEFT JOIN albums_tokens ON id = token_id "
             + "LEFT JOIN albums on album_id = albums.id "
-            + "ORDER BY tokens.id";
+            + "ORDER BY label, tokens.id";
     
     protected static String SQL_GET_BY_ID = ""
             + "SELECT tokens.id id, label, album_id, name FROM tokens "
             + "LEFT JOIN albums_tokens ON id = token_id "
             + "LEFT JOIN albums on album_id = albums.id "
-            + "WHERE tokens.id = ? ORDER BY tokens.id";
+            + "WHERE tokens.id = ? ORDER BY label, tokens.id";
 
     public void save(Token token) throws SQLException {
         Connection connection = getDataSource().getConnection();
@@ -59,6 +61,10 @@ public class TokenDao extends JdbcMysqlRealm {
             statement.setString(1, token.getId());
             statement.setString(2, token.getLabel());
             statement.setString(3, token.getLabel());
+            statement.executeUpdate();
+            
+            statement = connection.prepareStatement(SQL_DELETE_TOKEN_ALBUM);
+            statement.setString(1, token.getId());
             statement.executeUpdate();
             
             statement = connection.prepareStatement(SQL_CREATE_TOKEN_ALBUM);
@@ -85,7 +91,6 @@ public class TokenDao extends JdbcMysqlRealm {
             statement.setString(1, id);
             resultSet = statement.executeQuery();
 
-            Token tokeen = null;
             while (resultSet.next()) {
                 String label = resultSet.getString("label");
                 String albumId = resultSet.getString("album_id");
@@ -148,4 +153,19 @@ public class TokenDao extends JdbcMysqlRealm {
         }
         return result;
     }
+    
+    public void delete(String id) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_DELETE);
+            statement.setString(1, id);
+            statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
 }

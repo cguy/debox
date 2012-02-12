@@ -14,7 +14,6 @@ function exitFullscreen() {
     if (controls) {
         document.body.removeChild(controls);
     }
-    console.log(location.hash.substring(0, location.hash.lastIndexOf("/")));
     location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
 }
             

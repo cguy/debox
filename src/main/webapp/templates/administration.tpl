@@ -76,7 +76,7 @@
                 </td>
                 <td>
                     <div class="btn-group">
-                        <button class="btn btn-info"><i class="icon-pencil"></i>&nbsp;Modifier</button>
+                        <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
                         <a class="btn" target="_blank" href="download/album/{{data.album.id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
                     </div>
                 </td>
@@ -92,45 +92,46 @@
 </div>
 
 <div id="tokens" class="hide admin_part">
-    <h2 class="page-header">Gestion des groupes de visiteurs</h2>
-    {{#data.tokens.length}}
+    <h2 class="page-header">Gestion des accès visiteurs</h2>
     <h3>Liste des groupes</h3>
-    <table id="administration_tokens" class="table table-striped table-bordered table-condensed">
+    <table id="administration_tokens" class="table table-striped table-bordered table-condensed{{^data.tokens}} hide{{/data.tokens}}">
         <thead>
             <tr>
                 <th>Libellé</th>
                 <th>Albums</th>
-                <th>Lien</th>
-                <th style="width:155px;">Actions</th>
+                <th style="width:120px;">Lien à partager</th>
+                <th style="width:185px;">Actions</th>
             </tr>
         </thead>
         <tbody>
         {{#data.tokens}}
             <tr id="{{id}}">
-                <td>{{label}}</td>
-                <td>
+                <td class="label">{{label}}</td>
+                <td class="albums">
                     {{^albums}}
-                        Ce groupe n'a accès à aucun album
+                        Aucun album n'est visible pour cet accès
                     {{/albums}}
                     {{#albums}}
-                        {{name}}<br />
+                        <a href="#/album/{{name}}">{{name}}</a><br />
                     {{/albums}}
                 </td>
                 <td><a href="{{id}}/#/">Lien</a></td>
                 <td>
-                    <button class="btn">Modifier</button>
-                    <button class="btn btn-danger">Supprimer</button>
+                    <div class="btn-group">
+                        <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
+                        <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>
+                    </div>
                 </td>
             </tr>
         {{/data.tokens}}
         </tbody>
     </table>
-    {{/data.tokens.length}}
+    <p class="alert alert-warning{{#data.tokens.length}} hide{{/data.tokens.length}}">Aucun accès visiteur n'a été créé !</p>
 
-    <h3>Créer un nouveau groupe de visiteurs</h3>
-    <form class="well form-search" action="#/group" method="put">
-        <input type="text" required name="label" class="input" placeholder="Nom du nouveau groupe">
-        <button type="submit" class="btn btn-primay">Créer le groupe</button>
+    <h3>Créer un nouveau accès visiteur</h3>
+    <form id="form-token-create" class="well form-search" action="#/token" method="put">
+        <input type="text" required name="label" class="input" placeholder="Nom du nouveau accès">
+        <button type="submit" class="btn btn-primay">Créer l'accès</button>
     </form>
 </div>
 
@@ -267,6 +268,25 @@
         <input type="hidden" name="id" />
         <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
+    </div>
+</form>
+
+{{! ========================================================== }}
+{{! POPUP MODAL - DELETE A TOKEN (VISITORS ACCESS) }}
+{{! ========================================================== }}
+<form id="modal-token-delete" class="modal hide fade form-horizontal" action="#/token" method="delete">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Supprimer un accès visiteur</h3>
+    </div>
+    <div class="modal-body">
+        <p></p>
+        <p>Êtes-vous sûr de vouloir supprimer l'accès visiteur <strong></strong>&nbsp;?</p>
+    </div>
+    <div class="modal-footer">
+        <input type="hidden" name="id" />
+        <button type="reset" class="btn">Annuler</button>
+        <input type="submit" class="btn btn-danger" data-loading-text="Suppression en cours ..." value="Supprimer" />
     </div>
 </form>
 

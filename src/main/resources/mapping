@@ -5,36 +5,59 @@ package.actions=action
 package.views=WEB-INF/
 
 [actions]
-# Used for admin section
-POST        /authenticate                       AdministrationController.authenticate
-DELETE      /session                            AdministrationController.logout
-POST        /administration/credentials         AdministrationController.editCredentials
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION
+# -----------------------------------------------------------------------------------------------
 POST        /administration/configuration       AdministrationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
 POST        /administration/sync                AdministrationController.synchronize            force=false
 GET         /administration                     AdministrationController.getData
+
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION - USER
+# -----------------------------------------------------------------------------------------------
+POST        /authenticate                       AdministrationController.authenticate
+POST        /administration/credentials         AdministrationController.editCredentials
+DELETE      /session                            AdministrationController.logout
+
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION - ALBUMS
+# -----------------------------------------------------------------------------------------------
 GET         /album/{albumId}                    AlbumController.getAlbumById
 POST        /album                              AlbumController.editAlbum                       downloadable=false
-PUT         /group                              AdministrationController.createToken
-GET         /token/{id}                         AdministrationController.getToken
-POST        /token                              AdministrationController.editToken
 
-# Return media descriptions
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION - TOKENS
+# -----------------------------------------------------------------------------------------------
+PUT         /token                              TokenController.createToken
+GET         /token/{id}                         TokenController.getToken
+POST        /token                              TokenController.editToken
+DELETE      /token/{id}                         TokenController.deleteToken
+
+# -----------------------------------------------------------------------------------------------
+# MEDIA - DESCRIPTIONS
+# -----------------------------------------------------------------------------------------------
+# GET   /api/photo/{photoId}            PhotoController.displayPhoto
 GET   /api/albums                     AlbumController.getAlbums
 GET   /api/album/{albumName}          AlbumController.getAlbum
-# GET   /api/photo/{photoId}            PhotoController.displayPhoto
 
-# Return media streams
+# -----------------------------------------------------------------------------------------------
+# MEDIA - STREAMS
+# -----------------------------------------------------------------------------------------------
 GET   /album/{albumId}/cover          AlbumController.getAlbumCover
 GET   /thumbnail/{photoId}            PhotoController.getThumbnail
 GET   /photo/{photoId}                PhotoController.getPhotoStream
 
-# Download media
+# -----------------------------------------------------------------------------------------------
+# MEDIA - DOWNLOADS
+# -----------------------------------------------------------------------------------------------
 GET /download/album/{albumId}/min   AlbumController.download        resized=true
 GET /download/album/{albumId}       AlbumController.download        resized=false
 GET /download/photo/{photoId}/min   PhotoController.download        resized=true
 GET /download/photo/{photoId}       PhotoController.download        resized=false
 
-# Home & single one page
+# -----------------------------------------------------------------------------------------------
+# HOME
+# -----------------------------------------------------------------------------------------------
 GET   /{token}/                     HomeController.index
 GET   /                             HomeController.index

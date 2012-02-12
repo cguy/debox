@@ -37,6 +37,9 @@ public class Token {
     }
 
     public void setAlbums(List<Album> albums) {
+        if (albums == null) {
+            albums = new ArrayList<>();
+        }
         this.albums = albums;
     }
     

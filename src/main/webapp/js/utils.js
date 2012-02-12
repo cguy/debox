@@ -34,8 +34,9 @@ function loadTemplate(tplId, data, selector, callback) {
 function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
-            if (xhr.status == 404) {
-                loadTemplate(xhr.status);
+            var status = xhr.status;
+            if (status == 404 || status == 403) {
+                loadTemplate(status);
             }
         }
     }
