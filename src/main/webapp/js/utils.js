@@ -35,7 +35,10 @@ function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
             var status = xhr.status;
-            if (status == 404 || status == 403) {
+            if (status == 404) {
+                loadTemplate(status);
+            } else if (status == 403) {
+                initHeader($(".brand").text(), null);
                 loadTemplate(status);
             }
         }

@@ -20,10 +20,12 @@
  */
 package org.debox.photo.model;
 
+import java.io.Serializable;
+
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class User {
+public class User implements Serializable {
 
     protected String id;
     protected String username;

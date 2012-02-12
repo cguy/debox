@@ -24,6 +24,8 @@ import java.awt.image.ImagingOpException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import org.apache.commons.lang3.StringUtils;
+import org.debox.photo.im4java.StringOutputConsumer;
 import org.debox.photo.util.ImageUtils;
 import org.im4java.core.*;
 import org.slf4j.Logger;
@@ -49,26 +51,26 @@ public class ImageProcessor implements Callable {
     public Object call() throws Exception {
         try {
             logger.info("{} image processing ...", imageFile.getName());
-            ImageCommand cmd = new ConvertCmd(true);
-
-            IMOperation operation = new IMOperation();
-            operation.addImage(imageFile.getAbsolutePath());
-            operation.resize(1920, 1080);
-            operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
-            cmd.run(operation);
 
             String thumbnailPath = targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg";
             int squareSize = 200;
 
-            operation = new IMOperation();
+            String orientation = getOrientation(imageFile.getAbsolutePath());
+
+            // Generate thumbnail
+            IMOperation operation = new IMOperation();
             operation.addImage(imageFile.getAbsolutePath());
             operation.thumbnail(squareSize, squareSize, '^');
+            rotate(operation, orientation);
             operation.addImage(thumbnailPath);
+            
+            ImageCommand cmd = new ConvertCmd(true);
             cmd.run(operation);
-
-            Info info = new Info(thumbnailPath, true);
-            int width = info.getImageWidth();
-            int height = info.getImageHeight();
+            
+            // Crop thumbnail
+            int[] size = getSize(thumbnailPath);
+            int width = size[0];
+            int height = size[1];
             int x = 0;
             int y = 0;
             if (width > height) {
@@ -78,13 +80,22 @@ public class ImageProcessor implements Callable {
                 x = 0;
                 y = (height - width) / 2;
             }
-
-            operation = new IMOperation();
-            operation.addImage(targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
-            operation.crop(squareSize, squareSize, x, y);
-            operation.addImage(targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg");
             
+            operation = new IMOperation();
+            operation.addImage(thumbnailPath);
+            operation.crop(squareSize, squareSize, x, y);
+            operation.addImage(thumbnailPath);
+
             cmd = new MogrifyCmd(true);
+            cmd.run(operation);
+
+            // Generate large thumbnail
+            cmd = new ConvertCmd(true);
+            operation = new IMOperation();
+            operation.addImage(imageFile.getAbsolutePath());
+            operation.thumbnail(1920, 1080);
+            operation = rotate(operation, orientation);
+            operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
             cmd.run(operation);
 
             logger.info("{} image processed", imageFile.getName());
@@ -97,5 +108,74 @@ public class ImageProcessor implements Callable {
         }
 
         return null;
+    }
+
+    protected String getOrientation(String path) throws IOException, IM4JavaException, InterruptedException {
+        IMOperation op = new IMOperation();
+        op.format("%[exif:Orientation]");
+        op.addImage(path);
+
+        ImageCommand cmd = new IdentifyCmd();
+        StringOutputConsumer output = new StringOutputConsumer();
+        cmd.setOutputConsumer(output);
+        cmd.run(op);
+
+        String result = output.getOutput();
+        return result;
+    }
+    
+    protected int[] getSize(String path) throws IOException, InterruptedException, IM4JavaException {
+        IMOperation op = new IMOperation();
+        op.format("%W %H");
+        op.addImage(path);
+
+        ImageCommand cmd = new IdentifyCmd();
+        StringOutputConsumer output = new StringOutputConsumer();
+        cmd.setOutputConsumer(output);
+        cmd.run(op);
+
+        String strResult = output.getOutput();
+        String strWidth = StringUtils.substringBefore(strResult, " ");
+        String strheight = StringUtils.substringAfter(strResult, " ");
+        
+        int[] result = new int[2];
+        result[0] = Integer.valueOf(strWidth);
+        result[1] = Integer.valueOf(strheight);
+        return result;
+    }
+
+    protected IMOperation rotate(IMOperation operation, String orientation) {
+        if (operation == null) {
+            return null;
+        }
+
+        switch (orientation) {
+            case "1":
+                break;
+            case "2":
+                operation.flop();
+                break;
+            case "3":
+                operation.rotate(180.0);
+                break;
+            case "4":
+                operation.flip();
+                break;
+            case "5":
+                operation.transpose();
+                break;
+            case "6":
+                operation.rotate(90.0);
+                break;
+            case "7":
+                operation.transverse();
+                break;
+            case "8":
+                operation.rotate(270.0);
+                break;
+            default:
+                break;
+        }
+        return operation;
     }
 }

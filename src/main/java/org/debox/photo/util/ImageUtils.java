@@ -26,7 +26,7 @@ package org.debox.photo.util;
 public class ImageUtils {
     
     public static final String JPEG_MIME_TYPE = "image/jpeg";
-    public static final String LARGE_PREFIX = "1600_";
-    public static final String THUMBNAIL_PREFIX = "th_";
+    public static final String LARGE_PREFIX = "l_";
+    public static final String THUMBNAIL_PREFIX = "s_";
     
 }
