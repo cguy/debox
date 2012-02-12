@@ -38,6 +38,14 @@
         <!-- Default encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        
+        <!-- Database default access configuration -->
+        <database.host>localhost</database.host>
+        <database.port>3306</database.port>
+        <database.name>debox-photos</database.name>
+        <database.username>root</database.username>
+        <database.password></database.password>
+        <database.options>?autoReconnect=true</database.options>
     </properties>
     
     <!-- Définition du repository contenant WebMotion -->
@@ -113,19 +121,6 @@
             <version>1.2.0</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-            <version>4.2</version>
-        </dependency>
-        
-        <!-- Exif reading -->
-        <dependency>
-            <groupId>org.apache.sanselan</groupId>
-            <artifactId>sanselan</artifactId>
-            <version>0.97-incubator</version>
-        </dependency>
-        
         <!-- Security framework -->
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -155,6 +150,14 @@
     </dependencies>
 
     <build>
+        
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -204,6 +207,7 @@
             </plugin>
             
         </plugins>
+        
     </build>
 
 </project>
