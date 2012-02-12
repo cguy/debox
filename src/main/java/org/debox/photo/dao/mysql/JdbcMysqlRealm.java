@@ -50,7 +50,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
     protected static final String PROPERTY_DATABASE_HOST = "database.host";
     protected static final String PROPERTY_DATABASE_PORT = "database.port";
     protected static final String PROPERTY_DATABASE_NAME = "database.name";
-    protected static final String PROPERTY_DATABASE_USER = "database.user";
+    protected static final String PROPERTY_DATABASE_USERNAME = "database.username";
     protected static final String PROPERTY_DATABASE_PASSWORD = "database.password";
     protected static final String PROPERTY_DATABASE_OPTIONS = "database.options";
     
@@ -66,7 +66,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
         if (comboPooledDataSource == null) {
             try {
                 Properties properties = new Properties();
-                properties.load(JdbcMysqlRealm.class.getResourceAsStream("application.properties"));
+                properties.load(JdbcMysqlRealm.class.getClassLoader().getResourceAsStream("application.properties"));
                 
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
@@ -74,7 +74,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
                 String host = properties.getProperty(PROPERTY_DATABASE_HOST);
                 String port = properties.getProperty(PROPERTY_DATABASE_PORT);
                 String name = properties.getProperty(PROPERTY_DATABASE_NAME);
-                String user = properties.getProperty(PROPERTY_DATABASE_USER);
+                String user = properties.getProperty(PROPERTY_DATABASE_USERNAME);
                 String password = properties.getProperty(PROPERTY_DATABASE_PASSWORD);
                 String options = properties.getProperty(PROPERTY_DATABASE_OPTIONS);
                 

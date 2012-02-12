@@ -20,6 +20,7 @@
  */
 package org.debox.photo.server;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.SQLException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -69,7 +70,10 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
-        JdbcMysqlRealm.getDataSource().close();
+        ComboPooledDataSource dataSource = JdbcMysqlRealm.getDataSource();
+        if (dataSource != null) {
+            dataSource.close();
+        }
     }
 
 }

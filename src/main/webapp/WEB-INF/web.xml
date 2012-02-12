@@ -43,5 +43,6 @@
     <!-- Not any jessionid in app urls -->
     <session-config>
         <tracking-mode>COOKIE</tracking-mode>
-    </session-config> 
+    </session-config>
+    
 </web-app>
