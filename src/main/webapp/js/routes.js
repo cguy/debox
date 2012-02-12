@@ -140,7 +140,7 @@ $(document).ready(function() {
             $.ajax({
                 url: baseUrl + "administration/sync",
                 type : "post",
-                data : $("#modal-configuration").serializeArray(),
+                data : $("#modal-sync").serializeArray(),
                 success: function(data) {
                     $("#modal-sync input[type=submit]").button("reset");
                     

@@ -30,6 +30,7 @@
 
         <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.rs.slideshow.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/jwerty.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-dropdown.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap-button.js" />"></script>

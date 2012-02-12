@@ -40,7 +40,7 @@ function fullscreen(index, data) {
     document.body.appendChild(elt);
     $('#slideshow-div').rsfSlideshow({
         autostart : false,
-        transition: 500,
+        transition: 350,
         slides: data,
         controls: {
             previousSlide: {
@@ -54,5 +54,24 @@ function fullscreen(index, data) {
     });
     $('#slideshow-div').rsfSlideshow(
         'goToSlide', index
-        );
+    );
+    
+    jwerty.key('←', function () {
+        if (document.getElementById("slideshow-div") != null) {
+            $('#slideshow-div').rsfSlideshow('previousSlide');
+        }
+    });
+    
+    jwerty.key('→', function () {
+        if (document.getElementById("slideshow-div") != null) {
+            $('#slideshow-div').rsfSlideshow('nextSlide');
+        }
+    });
+    
+    jwerty.key('esc', function () {
+        if (document.getElementById("slideshow-div") != null) {
+            exitFullscreen();
+        }
+    });
+        
 }

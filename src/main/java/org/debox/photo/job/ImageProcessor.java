@@ -53,7 +53,7 @@ public class ImageProcessor implements Callable {
 
             IMOperation operation = new IMOperation();
             operation.addImage(imageFile.getAbsolutePath());
-            operation.thumbnail(1600, 1000);
+            operation.resize(1920, 1080);
             operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
             cmd.run(operation);
 

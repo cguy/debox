@@ -26,14 +26,17 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class DirectoryCleaner implements FileVisitor<Path> {
 
+    private static final Logger logger = LoggerFactory.getLogger(DirectoryCleaner.class);
     protected Path directoryToEmpty;
-    
+
     public DirectoryCleaner(Path directoryToEmpty) {
         this.directoryToEmpty = directoryToEmpty;
     }
@@ -46,8 +49,13 @@ public class DirectoryCleaner implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        // Delete each visited file
-        Files.delete(file);
+        try {
+            // Delete each visited file
+            Files.delete(file);
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
         return FileVisitResult.CONTINUE;
     }
 
@@ -59,12 +67,15 @@ public class DirectoryCleaner implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        // Delete each visited directory after deleted all contained files
-        // We just want to empty directory, not delete it
-        if (!directoryToEmpty.equals(dir)) {
-            Files.delete(dir);
+        try {
+            // Delete each visited directory after deleted all contained files
+            // We just want to empty directory, not delete it
+            if (!directoryToEmpty.equals(dir)) {
+                Files.delete(dir);
+            }
+        } catch (IOException ex) {
+            logger.error(ex.getMessage(), ex);
         }
         return FileVisitResult.CONTINUE;
     }
-
 }
