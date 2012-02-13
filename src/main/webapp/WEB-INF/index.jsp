@@ -25,7 +25,7 @@
 <html lang="fr">
     <head>
         <meta charset="utf-8">
-        
+
         <title></title>
 
         <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
@@ -92,7 +92,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#" class="btn">Annuler</a>
+                <button type="reset" class="btn">Annuler</button>
                 <input type="submit" class="btn btn-primary" data-loading-text="Connexion en cours ..." value="Connexion" />
             </div>
         </form>

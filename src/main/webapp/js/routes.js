@@ -451,4 +451,8 @@ $(document).ready(function() {
         });
     }
     
+    $("#login button[type=reset]").click(function() {
+        $(this).parents(".modal").modal("hide");
+    });
+    
 });
