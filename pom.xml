@@ -46,6 +46,12 @@
         <database.username>root</database.username>
         <database.password></database.password>
         <database.options>?autoReconnect=true</database.options>
+        
+        <!-- Logback configuration, you should override this property 
+        specifying file appender, error level and your favourite log path.  -->
+        <log.appender>stdout</log.appender>
+        <log.level>debug</log.level>
+        <log.path>/tmp</log.path>
     </properties>
     
     <!-- Définition du repository contenant WebMotion -->
@@ -75,9 +81,10 @@
         </dependency>
         
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.0</version>
+            <scope>runtime</scope>
         </dependency>
         
         <!-- JSTL & taglibs -->
