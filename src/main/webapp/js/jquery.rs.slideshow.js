@@ -1053,7 +1053,7 @@
 				previousSlide: {
 					generate: function($slideshow) {
 						return $('<a href="#" class="rs-prev" data-control-for="' + 
-								 $slideshow.attr('id') + '">&lt;</a>');
+								 $slideshow.attr('id') + '"></a>');
 					},
 					place: function($slideshow, $control) {
 						var $container = 
@@ -1069,7 +1069,7 @@
 				nextSlide: {
 					generate: function($slideshow) {
 						return $('<a href="#" class="rs-next" data-control-for="' + 
-								 $slideshow.attr('id') + '">&gt;</a>');
+								 $slideshow.attr('id') + '"></a>');
 					},
 					place: function($slideshow, $control) {
 						var $container = 

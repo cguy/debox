@@ -20,7 +20,7 @@
  */
 body {
     padding-top: 40px;
-    background-color: #071218;
+    background-color: #eee;
 }
 .container > footer p {
     text-align: center;
@@ -230,12 +230,6 @@ span.container {
     max-height: 90%;
 }
 
-.rs-slideshow .slide-container .video {
-    border: 4px solid #fefefe;
-    position: absolute;
-    max-height: 90%;
-}
-
 .rs-slideshow .slide-container .photo {
     position: absolute;
 }
@@ -268,27 +262,33 @@ span.container {
     font-size: 13px;
 }
 
-.rs-prev {
-    left: 0px;
+.rs-controls {
+    position: fixed;
+    background-color: #fff;
+    width: 100%;
+    height: 100%;
 }
 
-.rs-prev:after {
-   content: " Précédent";
+.rs-prev, .rs-next {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    height: 100%;
 }
 
 .rs-next {
+    background: url("../img/arrow_right.png") center center no-repeat;
+    background-size: 32px 32px;
     right: 0px;
 }
 
-.rs-next:before {
-   content: "Suivant ";
+.rs-prev {
+    background: url("../img/arrow_left.png") center center no-repeat;
+    background-size: 32px 32px;
+    left: 0px;
 }
 
-.rs-controls a {
-    color: #aaa;
-    display: block;
-    padding: 3px 5px;
-}
 .rs-controls a:hover {
-    color: #fefefe;
+    background-color: rgba(255, 255, 255, 0.05);
 }
