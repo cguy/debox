@@ -63,3 +63,15 @@ function initHeader(title, username) {
     editTitle(title + " - Accueil");
     loadTemplate("header", {"title": title, "username" : username}, ".navbar .container");
 }
+
+function hideModal() {
+    $(this).parents(".modal").modal("hide");
+}
+
+function resetModalForm() {
+    $(this).find("p.alert-error").text("");
+    $(this).find("p.alert-error").removeClass("alert alert-error");
+    $(this).each(function(){
+        this.reset();
+    });
+}
