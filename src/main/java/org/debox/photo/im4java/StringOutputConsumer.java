@@ -30,7 +30,7 @@ import org.im4java.process.OutputConsumer;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class StringOutputConsumer implements OutputConsumer {
-
+    
     protected String output = null;
 
     public String getOutput() {
@@ -51,4 +51,5 @@ public class StringOutputConsumer implements OutputConsumer {
             }
         }
     }
+    
 }

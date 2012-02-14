@@ -21,6 +21,7 @@
 package org.debox.photo.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -121,6 +122,23 @@ public class Album implements Comparable<Album> {
 
     public void setVisibility(Visibility visibility) {
         this.visibility = visibility;
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        } 
+        if (object instanceof Album) {
+            Album album = (Album) object; 
+            return Objects.equals(this.sourcePath, album.getSourcePath());
+        } 
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.sourcePath);
     }
 
     @Override

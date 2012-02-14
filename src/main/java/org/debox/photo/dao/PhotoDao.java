@@ -41,8 +41,10 @@ public class PhotoDao extends JdbcMysqlRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
-    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?)";
+    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, source_path = ?, target_path = ?";
     
+    protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
+    protected static String SQL_GET_ALL = "SELECT id, name, source_path, target_path, album_id FROM photos";
     protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE album_id = ?";
     protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.source_path, p.target_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public')";
     
@@ -56,6 +58,13 @@ public class PhotoDao extends JdbcMysqlRealm {
     protected static String SQL_GET_PHOTOS_COUNT = "SELECT count(id) FROM photos";
 
     
+    public List<Photo> getAll() throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALL);
+        List<Photo> result = executeListQueryStatement(statement, null);
+        Collections.sort(result);
+        return result;
+    }
 
     public Photo getPhotoBySourcePath(String sourcePath) throws SQLException {
         Photo result = null;
@@ -116,6 +125,9 @@ public class PhotoDao extends JdbcMysqlRealm {
             statement.setString(3, photo.getSourcePath());
             statement.setString(4, photo.getTargetPath());
             statement.setString(5, photo.getAlbumId());
+            statement.setString(6, photo.getAlbumId());
+            statement.setString(7, photo.getSourcePath());
+            statement.setString(8, photo.getTargetPath());
             statement.executeUpdate();
 
         } finally {
@@ -123,6 +135,21 @@ public class PhotoDao extends JdbcMysqlRealm {
             JdbcUtils.closeConnection(connection);
         }
     }
+    
+    public void delete(Photo photo) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_DELETE_PHOTO);
+            statement.setString(1, photo.getId());
+            statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+
 
     public long getPhotosCount() throws SQLException {
         long result = -1;
@@ -230,5 +257,5 @@ public class PhotoDao extends JdbcMysqlRealm {
         }
         return result;
     }
-    
+
 }

@@ -37,12 +37,12 @@ import org.slf4j.LoggerFactory;
 public class ImageProcessor implements Callable {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
-    protected File imageFile;
+    protected String imagePath;
     protected String imageId;
     protected String targetPath;
 
-    public ImageProcessor(File image, String targetPath, String imageId) {
-        this.imageFile = image;
+    public ImageProcessor(String imagePath, String targetPath, String imageId) {
+        this.imagePath = imagePath;
         this.targetPath = targetPath;
         this.imageId = imageId;
     }
@@ -50,16 +50,17 @@ public class ImageProcessor implements Callable {
     @Override
     public Object call() throws Exception {
         try {
-            logger.info("{} image processing ...", imageFile.getName());
+            logger.debug("{} image processing ...", imagePath);
 
+            // Read orientation from source
+            String orientation = getOrientation(imagePath);
+            
             String thumbnailPath = targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg";
             int squareSize = 200;
 
-            String orientation = getOrientation(imageFile.getAbsolutePath());
-
             // Generate thumbnail
             IMOperation operation = new IMOperation();
-            operation.addImage(imageFile.getAbsolutePath());
+            operation.addImage(imagePath);
             operation.thumbnail(squareSize, squareSize, '^');
             rotate(operation, orientation);
             operation.addImage(thumbnailPath);
@@ -92,13 +93,13 @@ public class ImageProcessor implements Callable {
             // Generate large thumbnail
             cmd = new ConvertCmd(true);
             operation = new IMOperation();
-            operation.addImage(imageFile.getAbsolutePath());
+            operation.addImage(imagePath);
             operation.thumbnail(1920, 1080);
             operation = rotate(operation, orientation);
             operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
             cmd.run(operation);
 
-            logger.info("{} image processed", imageFile.getName());
+            logger.debug("{} image processed", imagePath);
 
         } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
             logger.error(ex.getMessage(), ex);

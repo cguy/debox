@@ -20,7 +20,6 @@
  */
 package org.debox.photo.job;
 
-import org.debox.photo.util.DirectoryCleaner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -28,13 +27,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.commons.io.FileUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
@@ -50,18 +48,22 @@ import org.slf4j.LoggerFactory;
 public class SyncJob implements FileVisitor<Path> {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncJob.class);
-    protected Path source;
-    protected Path target;
-    protected boolean forceThumbnailsRegeneration;
-    protected boolean aborted = false;
     /**
      * Default permissions for created directories and files, corresponding with 755 digit value.
      */
-    protected FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"));
-    protected static Map<Path, Path> paths = new HashMap<>();
-    protected static Map<Path, Integer> photosCount = new HashMap<>();
+    protected static FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"));
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
+    
+    protected Path source;
+    protected Path target;
+    
+    protected Map<Album, Boolean> albums = new HashMap<>();
+    protected Map<Photo, Boolean> photos = new HashMap<>();
+    
+    protected boolean forceThumbnailsRegeneration;
+    protected boolean aborted = false;
+    
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
     protected List<Future> imageProcesses = new ArrayList<>();
 
@@ -87,10 +89,6 @@ public class SyncJob implements FileVisitor<Path> {
         this.target = target;
     }
 
-    public boolean isForceThumbnailsRegeneration() {
-        return forceThumbnailsRegeneration;
-    }
-
     public void setForceThumbnailsRegeneration(boolean forceThumbnailsRegeneration) {
         this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
     }
@@ -113,21 +111,37 @@ public class SyncJob implements FileVisitor<Path> {
         }
         return result;
     }
-
-    public void process() throws IOException {
+    
+    public long getPhotosToProcess() {
+        return imageProcesses.size();
+    }
+    
+    public void process() throws IOException, SQLException {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
 
         // Cleaning target path
         if (forceThumbnailsRegeneration) {
-            Files.walkFileTree(target, new DirectoryCleaner(target));
+            FileUtils.deleteDirectory(target.toFile());
         }
 
         // Create target if not exists
         if (!Files.exists(target)) {
-            Files.createDirectory(target, permissionsAttributes);
+            Files.createDirectories(target, permissionsAttributes);
         }
 
         // Launch sync
+        albums.clear();
+        List<Album> existingAlbums = albumDao.getAlbums();
+        for (Album existing : existingAlbums) {
+            albums.put(existing, Boolean.FALSE);
+        }
+        
+        photos.clear();
+        List<Photo> existingPhotos = photoDao.getAll();
+        for (Photo existing : existingPhotos) {
+            photos.put(existing, Boolean.FALSE);
+        }
+        
         Files.walkFileTree(source, this);
     }
 
@@ -135,60 +149,62 @@ public class SyncJob implements FileVisitor<Path> {
         aborted = true;
         threadPool.shutdownNow();
         imageProcesses = new ArrayList<>();
-        Files.walkFileTree(target, new DirectoryCleaner(target));
+        FileUtils.deleteDirectory(target.toFile());
         aborted = false;
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attributes) throws IOException {
-        logger.info("Begin directory visit: {}", path);
+    public FileVisitResult preVisitDirectory(Path currentPath, BasicFileAttributes attributes) throws IOException {
+        logger.info("Begin directory visit: {}", currentPath);
 
         if (aborted) {
             return FileVisitResult.TERMINATE;
+
+        } else if (currentPath.equals(this.source)) {
+            return FileVisitResult.CONTINUE;
         }
 
-        if (!path.equals(this.source)) {
-            try {
-                Album album = albumDao.getAlbumBySourcePath(path.toString());
-                if (album == null) {
-                    album = new Album();
-                    album.setId(StringUtils.randomUUID());
-                    album.setName(path.getFileName().toString());
-                    album.setSourcePath(path.toString());
-                    album.setVisibility(Album.Visibility.PRIVATE);
-                    album.setDownloadable(false);
+        // Create album
+        Album album = new Album();
+        album.setId(StringUtils.randomUUID());
+        album.setName(currentPath.getFileName().toString());
+        album.setSourcePath(currentPath.toString());
+        album.setVisibility(Album.Visibility.PRIVATE);
+        album.setDownloadable(false);
+        album.setPhotosCount(0);
 
-                    Album parent = albumDao.getAlbumBySourcePath(path.getParent().toString());
-                    if (parent != null) {
-                        album.setParentId(parent.getId());
-                        album.setTargetPath(parent.getTargetPath() + File.separatorChar + album.getId());
-                    } else {
-                        album.setTargetPath(target.toString() + File.separatorChar + album.getId());
-                    }
-
-                    albumDao.save(album);
-                }
-
-                photosCount.put(path, 0);
-
-                Path targetPathParent;
-                if (path.getParent().equals(this.source)) {
-                    targetPathParent = target;
-                } else {
-                    targetPathParent = paths.get(path.getParent());
-                }
-
-                Path targetPath = Paths.get(targetPathParent.toString(), album.getId());
-                paths.put(path, targetPath);
-
-                if (!Files.exists(targetPath)) {
-                    Files.createDirectory(targetPath, permissionsAttributes);
-                }
-
-            } catch (SQLException ex) {
-                logger.error("Unable to access database", ex);
-                return FileVisitResult.TERMINATE;
+        // Search for parent & for any already existing
+        Album parent = null;
+        boolean existing = false;
+        for (Album current : albums.keySet()) {
+            
+            if (current.getSourcePath().equals(currentPath.toString())) {
+                album = current;
+                existing = true;
+            } else if (current.getSourcePath().equals(currentPath.getParent().toString())) {
+                parent = current;
+                break;
             }
+        }
+        
+        if (existing) {
+            album.setPhotosCount(0);
+        } else {
+            if (parent == null) {
+                album.setTargetPath(target.toString() + File.separatorChar + album.getId());
+            } else {
+                album.setParentId(parent.getId());
+                album.setTargetPath(parent.getTargetPath() + File.separatorChar + album.getId());
+            }
+        }
+
+        albums.put(album, Boolean.TRUE);
+
+
+        // Create target path if not exists
+        Path targetPath = Paths.get(album.getTargetPath());
+        if (!Files.exists(targetPath)) {
+            Files.createDirectories(targetPath, permissionsAttributes);
         }
 
         return FileVisitResult.CONTINUE;
@@ -198,48 +214,42 @@ public class SyncJob implements FileVisitor<Path> {
     public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
         logger.info("File visited: {}", path);
 
-        if (aborted) {
-            return FileVisitResult.TERMINATE;
-        }
-
-        final String mimeType = Files.probeContentType(path);
+        String mimeType = Files.probeContentType(path);
         if (!ImageUtils.JPEG_MIME_TYPE.equals(mimeType)) {
             logger.warn("Tried to process a non-jpeg image, mime-type was: {}", mimeType);
             return FileVisitResult.CONTINUE;
-        }
 
-        Path targetAlbumPath = paths.get(path.getParent());
-        String albumId = targetAlbumPath.getFileName().toString();
-
-        try {
-            Photo photo = photoDao.getPhotoBySourcePath(path.toString());
-            if (photo == null) {
-                photo = new Photo();
-                photo.setId(StringUtils.randomUUID());
-                photo.setName(path.getFileName().toString());
-                photo.setAlbumId(albumId);
-                photo.setSourcePath(path.toString());
-                photo.setTargetPath(targetAlbumPath.toString());
-                photoDao.save(photo);
-
-                Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
-                imageProcesses.add(future);
-
-            } else if (forceThumbnailsRegeneration) {
-                Future future = threadPool.submit(new ImageProcessor(path.toFile(), targetAlbumPath.toString(), photo.getId()));
-                imageProcesses.add(future);
-            }
-
-            for (Path directory : photosCount.keySet()) {
-                if (path.startsWith(directory)) {
-                    photosCount.put(directory, photosCount.get(directory) + 1);
-                }
-            }
-
-        } catch (SQLException ex) {
-            logger.error("Unable to save photo in database", ex);
+        } else if (aborted) {
             return FileVisitResult.TERMINATE;
         }
+
+        // Increment photos count for parents, and search first parent
+        Album album = null;
+        for (Album current : albums.keySet()) {
+            if (path.startsWith(current.getSourcePath())) {
+                current.setPhotosCount(current.getPhotosCount() + 1);
+
+                if (path.getParent().toString().equals(current.getSourcePath())) {
+                    album = current;
+                }
+            }
+        }
+        
+        Photo photo = new Photo();
+        photo.setId(StringUtils.randomUUID());
+        photo.setName(path.getFileName().toString());
+        photo.setAlbumId(album.getId());
+        photo.setSourcePath(path.toString());
+        photo.setTargetPath(album.getTargetPath());
+   
+        for (Photo existing : photos.keySet()) {
+            if (existing.equals(photo)) {
+                logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><");
+                photo.setId(existing.getId());
+            }
+        }
+
+        photos.put(photo, Boolean.TRUE);
 
         return FileVisitResult.CONTINUE;
     }
@@ -258,21 +268,52 @@ public class SyncJob implements FileVisitor<Path> {
         logger.info("End directory visit: {}", path);
         if (aborted) {
             return FileVisitResult.TERMINATE;
+
+        } else if (!path.equals(source)) {
+            return FileVisitResult.CONTINUE;
         }
+
+        // End of synchronise, persist data
         try {
-            Album album = albumDao.getAlbumBySourcePath(path.toFile().getAbsolutePath());
-            Integer count = photosCount.get(path);
-            if (count == null || album == null) {
-                logger.error("Unable to set size, one of count ({}) or album ({}) is null for path " + path.toString(), count, album);
-            } else {
-                album.setPhotosCount(count);
-                albumDao.save(album);
+            List<Album> albumsToSave = new ArrayList<>();
+            for (Entry<Album, Boolean> entry : albums.entrySet()) {
+                Album album = entry.getKey();
+                if (entry.getValue()) {
+                    albumsToSave.add(album);
+                } else {
+                    FileUtils.deleteDirectory(new File(album.getTargetPath()));
+                    albumDao.delete(album);
+                }
+            }
+            albumDao.save(albumsToSave);
+            
+            List<Photo> existingPhotos = photoDao.getAll();
+            for (Entry<Photo, Boolean> entry : photos.entrySet()) {
+                Photo photo = entry.getKey();
+                if (entry.getValue()) {
+                    
+                    if (!existingPhotos.contains(photo) || forceThumbnailsRegeneration) {
+                        ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
+                        Future future = threadPool.submit(processor);
+                        imageProcesses.add(future);
+                    }
+                    
+                    photoDao.save(photo);
+                } else {
+                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ImageUtils.LARGE_PREFIX + photo.getId() + ".jpg"));
+                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ImageUtils.THUMBNAIL_PREFIX + photo.getId() + ".jpg"));
+                    photoDao.delete(photo);
+                }
             }
 
+            // Ensure clear
+            albums.clear();
+            photos.clear();
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
+            return FileVisitResult.TERMINATE;
         }
 
-        return FileVisitResult.CONTINUE;
+        return FileVisitResult.TERMINATE;
     }
 }

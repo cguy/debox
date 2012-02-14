@@ -20,6 +20,8 @@
  */
 package org.debox.photo.model;
 
+import java.util.Objects;
+
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
@@ -87,6 +89,23 @@ public class Photo implements Comparable<Photo> {
 
     public void setSourcePath(String sourcePath) {
         this.sourcePath = sourcePath;
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        } 
+        if (object instanceof Photo) {
+            Photo photo = (Photo) object; 
+            return Objects.equals(this.sourcePath, photo.getSourcePath());
+        } 
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.sourcePath);
     }
 
     @Override

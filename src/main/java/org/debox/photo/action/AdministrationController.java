@@ -246,7 +246,7 @@ public class AdministrationController extends WebMotionController {
     }
 
     protected Map<String, Long> getSyncData() throws SQLException {
-        long total = photoDao.getPhotosCount();
+        long total = syncJob.getPhotosToProcess();
         long current = syncJob.getTerminatedProcessesCount();
         Map<String, Long> sync = new HashMap<>();
         sync.put("total", total);

@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Album;
+import org.debox.photo.util.SourcePathComparator;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = ?, visibility = ?, photos_count = ?, downloadable = ?";
     
+    protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
     protected static String SQL_GET_ALBUMS = "SELECT id, name, date, photos_count, downloadable, source_path, target_path, parent_id, visibility FROM albums";
     
     protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, date, photos_count, downloadable, source_path, target_path, parent_id, visibility FROM albums WHERE parent_id is null";
@@ -100,6 +102,47 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, date, photos_count, downloadable, source_path, target_path, parent_id, visibility FROM albums WHERE source_path = ?";
 
+    public void save(List<Album> albums) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        connection.setAutoCommit(false);
+        PreparedStatement statement = null;
+        
+        Collections.sort(albums, new SourcePathComparator());
+        
+        try {
+            statement = connection.prepareStatement(SQL_CREATE_ALBUM);
+            for (Album album : albums) {
+                statement.setString(1, album.getId());
+                statement.setString(2, album.getName());
+                if (album.getDate() != null) {
+                    statement.setDate(3, new java.sql.Date(album.getDate().getTime()));
+                } else {
+                    statement.setDate(3, null);
+                }
+                statement.setInt(4, album.getPhotosCount());
+                statement.setBoolean(5, album.isDownloadable());
+                statement.setString(6, album.getSourcePath());
+                statement.setString(7, album.getTargetPath());
+                statement.setString(8, album.getParentId());
+                statement.setString(9, album.getVisibility().name().toLowerCase());
+                statement.setString(10, album.getName());
+                statement.setString(11, album.getVisibility().name().toLowerCase());
+                statement.setInt(12, album.getPhotosCount());
+                statement.setBoolean(13, album.isDownloadable());
+                statement.addBatch();
+            }
+
+            statement.executeBatch();
+            connection.commit();
+        } finally {
+            if (connection != null) {
+                connection.rollback();
+            }
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
     public void save(Album album) throws SQLException {
         Connection connection = getDataSource().getConnection();
         String id = album.getId();
@@ -127,6 +170,20 @@ public class AlbumDao extends JdbcMysqlRealm {
             statement.setString(11, album.getVisibility().name().toLowerCase());
             statement.setInt(12, album.getPhotosCount());
             statement.setBoolean(13, album.isDownloadable());
+            statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
+    public void delete(Album album) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_DELETE_ALBUM);
+            statement.setString(1, album.getId());
             statement.executeUpdate();
 
         } finally {
@@ -262,5 +319,5 @@ public class AlbumDao extends JdbcMysqlRealm {
         }
         return result;
     }
-    
+
 }
