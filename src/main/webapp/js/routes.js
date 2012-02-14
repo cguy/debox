@@ -113,10 +113,19 @@ $(document).ready(function() {
         this.post('#/administration/configuration', function() {
             var context = this;
             $("#modal-configuration input[type=submit]").button("loading");
+            
+            var data = $("#modal-configuration").serializeArray();
+            var force = false;
+            for (var i = 0 ; i < data.length ; i++) {
+                if (data[i].name == "force" && data[i].value == "true") {
+                    force = true;
+                    delete data[i];
+                }
+            }
             $.ajax({
                 url: baseUrl + "administration/configuration",
                 type : "post",
-                data : $("#modal-configuration").serializeArray(),
+                data : data,
                 success: function(data) {
                     $("#modal-configuration input[type=submit]").button("reset");
                     loadTemplate("header", {
@@ -124,7 +133,13 @@ $(document).ready(function() {
                         "title" : data.title
                     }, ".navbar .container");
                     $("#modal-configuration").modal("hide");
-                    context.redirect("#/administration");
+                    
+                    if (force) {
+                        $("#modal-sync input[type=checkbox]").attr("checked", "checked");
+                        $("#modal-sync").submit();
+                    } else {
+                        context.redirect("#/administration");
+                    }
                 },
                 error: function() {
                     $("#modal-configuration input[type=submit]").button("reset");
@@ -382,6 +397,10 @@ $(document).ready(function() {
     }).run("#/");
     
     function handleAdmin() {
+        $("#modal-configuration input[type=submit].btn-danger").click(function(){
+            $(this).parents(".modal").find("input[type=hidden]").val(true);
+        });
+        
         $("#administration_albums button").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({

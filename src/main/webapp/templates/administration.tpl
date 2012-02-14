@@ -164,8 +164,10 @@
         </div>
     </div>
     <div class="modal-footer">
+        <input type="hidden" name="force" />
+        <input type="submit" class="btn btn-danger" style="float:left;" data-loading-text="Traitement en cours ..." value="Enregistrer et synchroniser" />
         <button type="reset" class="btn">Annuler</button>
-        <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Valider" />
+        <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Enregistrer et fermer" />
     </div>
 </form>
 
