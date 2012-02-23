@@ -33,6 +33,7 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.server.renderer.RenderJson;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
@@ -54,7 +55,7 @@ public class AlbumController extends WebMotionController {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
         List<Album> albums = albumDao.getVisibleAlbums(token, null, isAuthenticated);
         
-        return renderJSON("albums", albums);
+        return new RenderJson(toMap("albums", albums));
     }
 
     public Render getAlbum(String token, String albumName) throws IOException, SQLException {

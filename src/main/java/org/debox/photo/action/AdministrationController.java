@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -218,6 +219,14 @@ public class AdministrationController extends WebMotionController {
             logger.error(ex.getMessage(), ex);
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to synchronize directories");
         }
+    }
+    
+    public Render cancelSynchronization() {
+        if (syncJob != null) {
+            syncJob.abort();
+            return renderStatus(HttpURLConnection.HTTP_OK);
+        }
+        return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Error during cancel.");
     }
 
     public Render getData() throws SQLException {

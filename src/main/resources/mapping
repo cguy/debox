@@ -11,6 +11,7 @@ package.views=WEB-INF/
 POST        /administration/configuration       AdministrationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
 POST        /administration/sync                AdministrationController.synchronize            force=false
+DELETE      /administration/sync                AdministrationController.cancelSynchronization
 GET         /administration                     AdministrationController.getData
 
 # -----------------------------------------------------------------------------------------------
@@ -57,6 +58,11 @@ GET /download/album/{albumId}       AlbumController.download        resized=fals
 # Download photo feature is not ready yet
 # GET /download/photo/{photoId}/min   PhotoController.download        resized=true
 # GET /download/photo/{photoId}       PhotoController.download        resized=false
+
+# -----------------------------------------------------------------------------------------------
+# FRONTEND TEMPLATES
+# -----------------------------------------------------------------------------------------------
+GET   /tpl                          HomeController.getTemplates
 
 # -----------------------------------------------------------------------------------------------
 # HOME

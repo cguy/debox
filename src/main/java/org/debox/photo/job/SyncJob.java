@@ -145,11 +145,12 @@ public class SyncJob implements FileVisitor<Path> {
         Files.walkFileTree(source, this);
     }
 
-    public void abort() throws IOException {
+    public void abort() {
         aborted = true;
         threadPool.shutdownNow();
-        imageProcesses = new ArrayList<>();
-        FileUtils.deleteDirectory(target.toFile());
+        imageProcesses.clear();
+        albums.clear();
+        photos.clear();
         aborted = false;
     }
 

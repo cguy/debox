@@ -154,6 +154,26 @@
             <version>0.9.1.2</version>
         </dependency>
         
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>1.34.0</version>
+        </dependency>
+        
+        <!-- JSON serialization -->
+         <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-lgpl</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-lgpl</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        
     </dependencies>
 
     <build>

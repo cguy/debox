@@ -20,13 +20,24 @@
  */
 package org.debox.photo.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
+import org.debox.photo.server.renderer.RenderJson;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -48,10 +59,10 @@ public class HomeController extends WebMotionController {
             if (user != null) {
                 username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
             }
-            
+
             String title = configuration.get(Configuration.Key.TITLE);
             title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
-            
+
             return renderView("index.jsp", "title", title, "username", username);
 
         } catch (SQLException ex) {
@@ -59,5 +70,35 @@ public class HomeController extends WebMotionController {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to access database");
         }
     }
-    
+
+    public Render getTemplates() {
+        Map<String, Object> templates = new HashMap<>();
+
+        try {
+            URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("templates");
+            URI templatesURI = templatesDirectoryUrl.toURI();
+
+
+            File templatesDirectory = new File(templatesURI);
+            if (templatesDirectory != null && templatesDirectory.isDirectory()) {
+                for (File child : templatesDirectory.listFiles()) {
+                    try (FileInputStream fis = new FileInputStream(child)) {
+                        
+                        String filename = StringUtils.substringBeforeLast(child.getName(), ".");
+                        String content = IOUtils.toString(fis);
+
+                        templates.put(filename, content);
+
+                    } catch (IOException ex) {
+                        logger.error("Unable to load template " + child.getAbsolutePath(), ex);
+                    }
+                }
+            }
+
+        } catch (URISyntaxException ex) {
+            logger.error("Unable to load templates", ex);
+        }
+
+        return new RenderJson(templates);
+    }
 }

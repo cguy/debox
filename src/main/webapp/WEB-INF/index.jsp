@@ -37,6 +37,7 @@
         <script type="text/javascript" src="<c:url value="/js/bootstrap-transition.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/mustache.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/ICanHaz-no-mustache.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/slideshow.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
@@ -48,6 +49,7 @@
         <script type="text/javascript">
             var baseUrl = "<c:url value="/" />";
             $(document).ready(function() {
+                loadTemplates();
                 initHeader(${title}, ${username});
             });
         </script>
