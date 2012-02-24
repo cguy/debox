@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
@@ -120,19 +122,6 @@ public class AlbumController extends WebMotionController {
         return renderJSON(album);
     }
 
-//    public Render displayPhoto(String photoId) throws IOException, SQLException {
-//        photoId = URLDecoder.decode(photoId, "UTF-8");
-//
-//        Photo photo = photoDao.getPhoto(photoId);
-//        if (photo == null) {
-//            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-//        }
-//
-//        Album album = albumDao.getAlbum(photo.getAlbumId());
-//        logger.info(photo.getAlbumId());
-//        return renderJSON("album", album, "photo", photo);
-//    }
-    
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {
@@ -160,13 +149,13 @@ public class AlbumController extends WebMotionController {
         }
 
         if (resized) {
-            return new ZipDownloadRenderer(album.getTargetPath(), album.getName(), new FilenameFilter() {
-
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.startsWith(ImageUtils.LARGE_PREFIX);
-                }
-            });
+            List<Photo> photos = photoDao.getPhotos(album.getId());
+            Map<String, String> names = new HashMap<>(photos.size());
+            for (Photo photo : photos) {
+                names.put(ImageUtils.LARGE_PREFIX + photo.getId() + ".jpg", ImageUtils.LARGE_PREFIX + photo.getName());
+            }
+            
+            return new ZipDownloadRenderer(album.getTargetPath(), album.getName(), names);
         }
         return new ZipDownloadRenderer(album.getSourcePath(), album.getName());
     }

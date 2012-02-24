@@ -20,10 +20,10 @@
  */
 package org.debox.photo.server.renderer;
 
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -43,17 +43,17 @@ public class ZipDownloadRenderer extends Render {
     private static final Logger logger = LoggerFactory.getLogger(FileDownloadRenderer.class);
     protected Path directory;
     protected String filename;
-    protected FilenameFilter filenameFilter;
+    protected Map<String, String> names;
 
     public ZipDownloadRenderer(String directory, String filename) {
         this.directory = Paths.get(directory);
         this.filename = filename;
     }
 
-    public ZipDownloadRenderer(String directory, String filename, FilenameFilter filenameFilter) {
+    public ZipDownloadRenderer(String directory, String filename, Map<String, String> names) {
         this.directory = Paths.get(directory);
         this.filename = filename;
-        this.filenameFilter = filenameFilter;
+        this.names = names;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ZipDownloadRenderer extends Render {
         HttpContext context = call.getContext();
         HttpServletResponse response = context.getResponse();
 
-        byte[] bytes = FileUtils.zipDirectoryContent(directory, filenameFilter);
+        byte[] bytes = FileUtils.zipDirectoryContent(directory, names);
 
         response.setContentType("application/zip");
         response.setContentLength((int) bytes.length);

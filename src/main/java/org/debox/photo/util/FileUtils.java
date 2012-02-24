@@ -24,6 +24,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -33,14 +34,9 @@ import org.apache.commons.io.IOUtils;
  */
 public class FileUtils {
 
-    public static byte[] zipDirectoryContent(Path directoryPath, FilenameFilter filenameFilter) throws IOException {
+    public static byte[] zipDirectoryContent(Path directoryPath, Map<String, String> names) throws IOException {
         File directoryFile = directoryPath.toFile();
-        File[] files;
-        if (filenameFilter == null) {
-            files = directoryFile.listFiles();
-        } else {
-            files = directoryFile.listFiles(filenameFilter);
-        }
+        File[] files = directoryFile.listFiles();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
@@ -48,10 +44,18 @@ public class FileUtils {
                 if (file.isDirectory()) {
                     continue;
                 }
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    zos.putNextEntry(new ZipEntry(file.getName()));
-                    zos.write(IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath()))));
-                    zos.closeEntry();
+                String fileName = file.getName();
+                if (names != null) {
+                    fileName = names.get(file.getName());
+                }
+                
+                // If current file isn't in names collection, skip it
+                if (fileName != null) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        zos.putNextEntry(new ZipEntry(fileName));
+                        zos.write(IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath()))));
+                        zos.closeEntry();
+                    }
                 }
             }
             zos.flush();
@@ -60,5 +64,4 @@ public class FileUtils {
         baos.close();
         return baos.toByteArray();
     }
-    
 }
