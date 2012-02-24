@@ -51,7 +51,7 @@
             <tr>
                 <th>Nom de l'album</th>
                 <th>Répertoire source</th>
-                <th style="width:65px;text-align:center;">Téléchargable</th>
+                <th style="width:65px;text-align:center;">Téléchargeable</th>
                 <th style="width:65px;text-align:center;">Visibilité</th>
                 <th style="width:195px;">Actions</th>
             </tr>
