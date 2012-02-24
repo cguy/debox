@@ -80,7 +80,7 @@
                 <td>
                     <div class="btn-group">
                         <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
-                        <a class="btn" target="_blank" href="download/album/{{data.album.id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
+                        <a class="btn" target="_blank" href="download/album/{{id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
                     </div>
                 </td>
             </tr>
