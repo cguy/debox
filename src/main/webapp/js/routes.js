@@ -287,13 +287,16 @@ $(document).ready(function() {
                                 $("#sync-progress .bar").css("width", data.percent+"%");
                                 if (data.percent < 100) {
                                     $("#configuration-form input").attr("disabled", "disabled");
-                                    setTimeout(getSyncStatus, 2000);
+                                    syncTimeout = setTimeout(getSyncStatus, 2000);
+                                    $("#synx-progress .btn-warning").show();
                                 } else {
+                                    syncTimeout = null;
                                     $("#configuration-form input").removeAttr("disabled");
                                     $("#sync-progress").removeClass("alert-info");
                                     $("#sync-progress").addClass("alert-success");
                                     $("#sync-progress .progress").removeClass("progress-info active");
                                     $("#sync-progress .progress").addClass("progress-success");
+                                    $("#sync-progress .btn-warning").hide();
                                 }
                             }
                         
@@ -384,8 +387,8 @@ $(document).ready(function() {
             ajax({
                 url: computeUrl(baseUrl + "api/albums"),
                 success: function(data) {
-                    for (var i = 0 ; i < data.length ; i++) {
-                        var album = data[i];
+                    for (var i = 0 ; i < data.albums.length ; i++) {
+                        var album = data.albums[i];
                         var plural = (album.photosCount > 1) ? "s" : ""
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
@@ -397,6 +400,27 @@ $(document).ready(function() {
     }).run("#/");
     
     function handleAdmin() {
+        $("#sync-progress .btn-warning").click(function(){
+            $.ajax({
+                url: baseUrl + "administration/sync",
+                type: "delete",
+                success: function(data) {
+                    if (syncTimeout != null) {
+                        clearTimeout(syncTimeout);
+                        syncTimeout = null;
+                    }
+                    $("#sync-progress .btn-warning").hide();
+                    $("#sync-progress").removeClass("alert-info");
+                    $("#sync-progress").addClass("alert-danger");
+                    $("#sync-progress .progress").removeClass("progress-info active");
+                    $("#sync-progress .progress").addClass("progress-danger");
+                },
+                error: function(xhr) {
+                    alert("Errur pendant l'annulation de la synchronisation");
+                }
+            });
+        });
+        
         $("#modal-configuration input[type=submit].btn-danger").click(function(){
             $(this).parents(".modal").find("input[type=hidden]").val(true);
         });
@@ -473,3 +497,5 @@ $(document).ready(function() {
     $('form.modal').on('hidden', resetModalForm);
     
 });
+
+var syncTimeout = null;

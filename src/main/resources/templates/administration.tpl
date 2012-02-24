@@ -1,6 +1,6 @@
 <h1 class="page-header">Administration</h1>
 
-<div id="sync-progress" class="alert alert-info">
+<div id="sync-progress" class="alert alert-info hide">
     <h3 class="alert-heading" style="line-height:50px;">
         Synchronisation en cours&hellip;&nbsp;<span></span>
         <button class="btn btn-warning pull-right" style="margin: 5px -20px 0 20px;">Annuler la synchronisation</button>
