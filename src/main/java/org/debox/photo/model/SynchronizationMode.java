@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.util;
+package org.debox.photo.model;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ImageUtils {
+public enum SynchronizationMode {
     
-    public static final String JPEG_MIME_TYPE = "image/jpeg";
+    FAST, NORMAL, SLOW
     
 }

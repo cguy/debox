@@ -185,12 +185,14 @@
     <div class="modal-body">
         <div class="control-group">
             <p class="error"></p>
-            <p>Veuillez confirmer la demande de synchronisation des répertoires</p>
-            <p class="alert alert-warning">
-                <label class="checkbox">
-                    <input type="checkbox" name="force"> Forcer la regénération des vignettes de photos existantes
-                </label>
-            </p>
+            <div class="control-group">
+                <label class="control-label">Veuillez choisir le mode de synchronisation et confirmer la demande :</label>
+                <div class="controls">
+                    <label class="radio"><input type="radio" name="mode" value="fast" /><strong>Le plus rapide :</strong> Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.</label>
+                    <label class="radio"><input type="radio" name="mode" value="normal" checked /><strong>Normal :</strong> Pré-génération des vignettes pour les nouvelles photos.</label>
+                    <label class="radio"><input type="radio" name="mode" value="slow" /><strong>Le plus long :</strong> Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.</label>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">

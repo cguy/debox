@@ -37,6 +37,7 @@ import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.*;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.SynchronizationMode;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionController;
@@ -175,9 +176,14 @@ public class AdministrationController extends WebMotionController {
         return renderJSON("configuration", configuration.get());
     }
 
-    public Render synchronize(boolean force) {
+    public Render synchronize(String mode) {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
+        SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
+        if (syncMode == null) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
         
         try {
@@ -194,7 +200,7 @@ public class AdministrationController extends WebMotionController {
             Path target = Paths.get(strTarget);
 
             if (syncJob == null) {
-                syncJob = new SyncJob(source, target, force);
+                syncJob = new SyncJob(source, target, syncMode);
                 syncJob.process();
 
             } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
@@ -202,13 +208,13 @@ public class AdministrationController extends WebMotionController {
                 syncJob.abort();
                 syncJob.setSource(source);
                 syncJob.setTarget(target);
-                syncJob.setForceThumbnailsRegeneration(force);
+                syncJob.setMode(syncMode);
                 syncJob.process();
 
             } else if (!syncJob.isTerminated()) {
                 logger.warn("Cannot launch process, it is already running");
             } else {
-                syncJob.setForceThumbnailsRegeneration(force);
+                syncJob.setMode(syncMode);
                 syncJob.process();
             }
 

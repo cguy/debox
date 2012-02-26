@@ -22,7 +22,6 @@ package org.debox.photo.action;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
@@ -33,13 +32,15 @@ import java.util.Map;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.renderer.RenderJson;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
-import org.debox.photo.util.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
+import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class AlbumController extends WebMotionController {
     public Render getAlbum(String token, String albumName) throws IOException, SQLException {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
         
-        Album album = null;
+        Album album;
         albumName = URLDecoder.decode(albumName, "UTF-8");
         if (isAuthenticated) {
             album = albumDao.getAlbumByName(albumName);
@@ -135,8 +136,20 @@ public class AlbumController extends WebMotionController {
             return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
         
-        String filename = photo.getTargetPath() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photo.getId() + ".jpg";
-        return renderStream(new FileInputStream(filename), "image/jpeg");
+        String filename = photo.getTargetPath() + File.separatorChar + ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg";
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(filename);
+        } catch (IOException e) {
+            logger.warn(filename + " image doesn't exist, generation in progress.");
+            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
+            try {
+                fis = processor.generateThumbnail(ThumbnailSize.SQUARE);
+            } catch (IOException | IM4JavaException | InterruptedException ex) {
+                logger.error("Unable to generate thumbnail", ex);
+            }
+        }
+        return renderStream(fis, "image/jpeg");
     }
 
     public Render download(String albumId, boolean resized) throws SQLException {
@@ -152,7 +165,7 @@ public class AlbumController extends WebMotionController {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());
             for (Photo photo : photos) {
-                names.put(ImageUtils.LARGE_PREFIX + photo.getId() + ".jpg", ImageUtils.LARGE_PREFIX + photo.getName());
+                names.put(ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg", ThumbnailSize.LARGE.getPrefix() + photo.getName());
             }
             
             return new ZipDownloadRenderer(album.getTargetPath(), album.getName(), names);

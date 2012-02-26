@@ -27,7 +27,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +40,8 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.SynchronizationMode;
+import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.util.ImageUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -61,16 +66,16 @@ public class SyncJob implements FileVisitor<Path> {
     protected Map<Album, Boolean> albums = new HashMap<>();
     protected Map<Photo, Boolean> photos = new HashMap<>();
     
-    protected boolean forceThumbnailsRegeneration;
+    protected SynchronizationMode mode;
     protected boolean aborted = false;
     
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
     protected List<Future> imageProcesses = new ArrayList<>();
 
-    public SyncJob(Path source, Path target, boolean forceThumbnailsRegeneration) {
+    public SyncJob(Path source, Path target, SynchronizationMode mode) {
         this.source = source;
         this.target = target;
-        this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
+        this.mode = mode;
     }
 
     public Path getSource() {
@@ -88,9 +93,9 @@ public class SyncJob implements FileVisitor<Path> {
     public void setTarget(Path target) {
         this.target = target;
     }
-
-    public void setForceThumbnailsRegeneration(boolean forceThumbnailsRegeneration) {
-        this.forceThumbnailsRegeneration = forceThumbnailsRegeneration;
+    
+    public void setMode(SynchronizationMode mode) {
+        this.mode = mode;
     }
 
     public boolean isTerminated() {
@@ -120,7 +125,7 @@ public class SyncJob implements FileVisitor<Path> {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
 
         // Cleaning target path
-        if (forceThumbnailsRegeneration) {
+        if (SynchronizationMode.SLOW.equals(this.mode)) {
             FileUtils.deleteDirectory(target.toFile());
         }
 
@@ -245,13 +250,11 @@ public class SyncJob implements FileVisitor<Path> {
    
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
-                logger.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><");
                 photo.setId(existing.getId());
             }
         }
 
         photos.put(photo, Boolean.TRUE);
-
         return FileVisitResult.CONTINUE;
     }
 
@@ -293,7 +296,7 @@ public class SyncJob implements FileVisitor<Path> {
                 Photo photo = entry.getKey();
                 if (entry.getValue()) {
                     
-                    if (!existingPhotos.contains(photo) || forceThumbnailsRegeneration) {
+                    if (!existingPhotos.contains(photo) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
                         ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
                         Future future = threadPool.submit(processor);
                         imageProcesses.add(future);
@@ -301,8 +304,8 @@ public class SyncJob implements FileVisitor<Path> {
                     
                     photoDao.save(photo);
                 } else {
-                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ImageUtils.LARGE_PREFIX + photo.getId() + ".jpg"));
-                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ImageUtils.THUMBNAIL_PREFIX + photo.getId() + ".jpg"));
+                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg"));
+                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg"));
                     photoDao.delete(photo);
                 }
             }

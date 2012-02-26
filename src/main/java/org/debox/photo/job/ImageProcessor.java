@@ -22,11 +22,12 @@ package org.debox.photo.job;
 
 import java.awt.image.ImagingOpException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
 import org.debox.photo.im4java.StringOutputConsumer;
-import org.debox.photo.util.ImageUtils;
+import org.debox.photo.model.ThumbnailSize;
 import org.im4java.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,23 +56,50 @@ public class ImageProcessor implements Callable {
             // Read orientation from source
             String orientation = getOrientation(imagePath);
             
-            String thumbnailPath = targetPath + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + imageId + ".jpg";
-            int squareSize = 200;
+            FileInputStream fis = generateThumbnail(ThumbnailSize.SQUARE, orientation);
+            fis.close();
+            
+            fis = generateThumbnail(ThumbnailSize.LARGE, orientation);
+            fis.close();
+            
+            logger.debug("{} image processed", imagePath);
 
-            // Generate thumbnail
-            IMOperation operation = new IMOperation();
-            operation.addImage(imagePath);
-            operation.thumbnail(squareSize, squareSize, '^');
-            rotate(operation, orientation);
-            operation.addImage(thumbnailPath);
-            
-            ImageCommand cmd = new ConvertCmd(true);
-            cmd.run(operation);
-            
-            // Crop thumbnail
-            int[] size = getSize(thumbnailPath);
-            int width = size[0];
-            int height = size[1];
+        } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
+            logger.error(ex.getMessage(), ex);
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
+        return null;
+    }
+    
+    public FileInputStream generateThumbnail(ThumbnailSize size) throws IOException, IM4JavaException, InterruptedException {
+        String orientation = getOrientation(imagePath);
+        return generateThumbnail(size, orientation);
+    }
+    
+    protected FileInputStream generateThumbnail(ThumbnailSize size, String orientation) throws IOException, InterruptedException, IM4JavaException {
+        String thumbnailPath = targetPath + File.separatorChar + size.getPrefix() + imageId + ".jpg";
+        
+        ImageCommand cmd = new ConvertCmd(true);
+        IMOperation operation = new IMOperation();
+        operation.addImage(imagePath);
+
+        if (size.isCropped()) {
+            operation.thumbnail(size.getWidth(), size.getHeight(), "^");
+        } else {
+            operation.thumbnail(size.getWidth(), size.getHeight());
+        }
+        
+        operation = rotate(operation, orientation);
+        operation.addImage(thumbnailPath);
+        cmd.run(operation);
+        
+        if (size.isCropped()) {
+            int[] thumbnailSize = getSize(thumbnailPath);
+            int width = thumbnailSize[0];
+            int height = thumbnailSize[1];
             int x = 0;
             int y = 0;
             if (width > height) {
@@ -84,31 +112,14 @@ public class ImageProcessor implements Callable {
             
             operation = new IMOperation();
             operation.addImage(thumbnailPath);
-            operation.crop(squareSize, squareSize, x, y);
+            operation.crop(size.getWidth(), size.getHeight(), x, y);
             operation.addImage(thumbnailPath);
 
             cmd = new MogrifyCmd(true);
             cmd.run(operation);
-
-            // Generate large thumbnail
-            cmd = new ConvertCmd(true);
-            operation = new IMOperation();
-            operation.addImage(imagePath);
-            operation.thumbnail(1920, 1080);
-            operation = rotate(operation, orientation);
-            operation.addImage(targetPath + File.separatorChar + ImageUtils.LARGE_PREFIX + imageId + ".jpg");
-            cmd.run(operation);
-
-            logger.debug("{} image processed", imagePath);
-
-        } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
-            logger.error(ex.getMessage(), ex);
-
-        } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
         }
-
-        return null;
+        
+        return new FileInputStream(thumbnailPath);
     }
 
     protected String getOrientation(String path) throws IOException, IM4JavaException, InterruptedException {

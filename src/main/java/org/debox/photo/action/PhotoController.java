@@ -28,11 +28,13 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
-import org.debox.photo.util.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
+import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +58,20 @@ public class PhotoController extends WebMotionController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
-        File file = new File(photo.getTargetPath() + File.separatorChar + ImageUtils.THUMBNAIL_PREFIX + photoId + ".jpg");
-        return renderStream(new FileInputStream(file), "image/jpeg");
+        String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.SQUARE.getPrefix() + photoId + ".jpg";
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(path);
+        } catch (IOException e) {
+            logger.warn(path + " image doesn't exist, generation in progress.");
+            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
+            try {
+                fis = processor.generateThumbnail(ThumbnailSize.SQUARE);
+            } catch (IOException | IM4JavaException | InterruptedException ex) {
+                logger.error("Unable to generate thumbnail", ex);
+            }
+        }
+        return renderStream(fis, "image/jpeg");
     }
 
     public Render getPhotoStream(String token, String photoId) throws IOException, SQLException {
@@ -72,9 +85,20 @@ public class PhotoController extends WebMotionController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-
-        File file = new File(photo.getTargetPath() + File.separatorChar + ImageUtils.LARGE_PREFIX + photoId + ".jpg");
-        return renderStream(new FileInputStream(file), "image/jpeg");
+        String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(path);
+        } catch (IOException e) {
+            logger.warn(path + " image doesn't exist, generation in progress.");
+            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
+            try {
+                fis = processor.generateThumbnail(ThumbnailSize.LARGE);
+            } catch (IOException | IM4JavaException | InterruptedException ex) {
+                logger.error("Unable to generate thumbnail", ex);
+            }
+        }
+        return renderStream(fis, "image/jpeg");
     }
     
     /*
@@ -87,8 +111,8 @@ public class PhotoController extends WebMotionController {
         }
         
         if (resized) {
-            String path = photo.getTargetPath() + File.separatorChar + ImageUtils.LARGE_PREFIX + photoId + ".jpg";
-            return new FileDownloadRenderer(Paths.get(path), ImageUtils.LARGE_PREFIX + photo.getName(), "image/jpeg");
+            String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
+            return new FileDownloadRenderer(Paths.get(path), ThumbnailSize.LARGE.getPrefix() + photo.getName(), "image/jpeg");
             
         } else {
             return new FileDownloadRenderer(Paths.get(photo.getSourcePath()), photo.getName(), "image/jpeg");

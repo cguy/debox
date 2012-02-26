@@ -10,7 +10,7 @@ package.views=WEB-INF/
 # -----------------------------------------------------------------------------------------------
 POST        /administration/configuration       AdministrationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
-POST        /administration/sync                AdministrationController.synchronize            force=false
+POST        /administration/sync                AdministrationController.synchronize
 DELETE      /administration/sync                AdministrationController.cancelSynchronization
 GET         /administration                     AdministrationController.getData
 
@@ -38,34 +38,34 @@ DELETE      /token/{id}                         TokenController.deleteToken
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
-# GET   /api/photo/{photoId}            PhotoController.displayPhoto
-GET   /api/albums                     AlbumController.getAlbums
-GET   /api/album/{albumName}          AlbumController.getAlbum
+# GET   /api/photo/{photoId}                    PhotoController.displayPhoto
+GET   /api/albums                               AlbumController.getAlbums
+GET   /api/album/{albumName}                    AlbumController.getAlbum
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS
 # -----------------------------------------------------------------------------------------------
-GET   /album/{albumId}/cover          AlbumController.getAlbumCover
-GET   /thumbnail/{photoId}            PhotoController.getThumbnail
-GET   /photo/{photoId}                PhotoController.getPhotoStream
+GET   /album/{albumId}/cover                    AlbumController.getAlbumCover
+GET   /thumbnail/{photoId}                      PhotoController.getThumbnail
+GET   /photo/{photoId}                          PhotoController.getPhotoStream
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DOWNLOADS
 # -----------------------------------------------------------------------------------------------
-GET /download/album/{albumId}/min   AlbumController.download        resized=true
-GET /download/album/{albumId}       AlbumController.download        resized=false
+GET /download/album/{albumId}/min               AlbumController.download        resized=true
+GET /download/album/{albumId}                   AlbumController.download        resized=false
 
 # Download photo feature is not ready yet
-# GET /download/photo/{photoId}/min   PhotoController.download        resized=true
-# GET /download/photo/{photoId}       PhotoController.download        resized=false
+# GET /download/photo/{photoId}/min             PhotoController.download        resized=true
+# GET /download/photo/{photoId}                 PhotoController.download        resized=false
 
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES
 # -----------------------------------------------------------------------------------------------
-GET   /tpl                          HomeController.getTemplates
+GET   /tpl                                      HomeController.getTemplates
 
 # -----------------------------------------------------------------------------------------------
 # HOME
 # -----------------------------------------------------------------------------------------------
-GET   /{token}/                     HomeController.index
-GET   /                             HomeController.index
+GET   /{token}/                                 HomeController.index
+GET   /                                         HomeController.index
