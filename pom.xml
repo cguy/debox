@@ -1,11 +1,10 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.debox</groupId>
     <artifactId>photo</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>war</packaging>
 
     <name>debox-photos</name>
@@ -31,9 +30,9 @@
     </developers>
     
     <scm>
-        <url>scm:svn:http://svn.debux.org/debox/debox-photos/trunk/</url>
-        <connection>scm:svn:http://svn.debux.org/debox/debox-photos/trunk/</connection>
-        <developerConnection>scm:svn:https://svn.debux.org/debox/debox-photos/trunk/</developerConnection>
+        <url>scm:svn:http://svn.debux.org/debox/photo/tags/0.1</url>
+        <connection>scm:svn:http://svn.debux.org/debox/photo/tags/0.1</connection>
+        <developerConnection>scm:svn:https://svn.debux.org/debox/photo/tags/0.1</developerConnection>
     </scm>
     
     <issueManagement>
@@ -95,7 +94,7 @@
         <database.port>3306</database.port>
         <database.name>debox-photos</database.name>
         <database.username>root</database.username>
-        <database.password></database.password>
+        <database.password />
         <database.options>?autoReconnect=true</database.options>
         
         <!-- Logback configuration, you should override this property 
