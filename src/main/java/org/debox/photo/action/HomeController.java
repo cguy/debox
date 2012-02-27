@@ -37,8 +37,6 @@ import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
-import org.debox.photo.server.renderer.RenderJson;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class HomeController extends WebMotionController {
+public class HomeController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
     protected static ConfigurationDao configurationDao = new ConfigurationDao();
@@ -99,6 +97,6 @@ public class HomeController extends WebMotionController {
             logger.error("Unable to load templates", ex);
         }
 
-        return new RenderJson(templates);
+        return renderJSON(templates);
     }
 }

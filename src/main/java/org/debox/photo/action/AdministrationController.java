@@ -40,7 +40,6 @@ import org.debox.photo.model.Configuration;
 import org.debox.photo.model.SynchronizationMode;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AdministrationController extends WebMotionController {
+public class AdministrationController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdministrationController.class);
     protected SyncJob syncJob;
@@ -146,8 +145,13 @@ public class AdministrationController extends WebMotionController {
         Path target = Paths.get(targetDirectory);
 
         boolean error = false;
-        if (!Files.isDirectory(source) || !Files.exists(source)) {
-            getContext().addErrorMessage("source", "source.error");
+        if (!Files.isDirectory(source)) {
+            getContext().addErrorMessage("source", "source.notdirectory");
+            error = true;
+        }
+        
+        if (!Files.exists(source)) {
+            getContext().addErrorMessage("source", "source.notexist");
             error = true;
         }
 

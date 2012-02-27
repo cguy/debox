@@ -56,7 +56,7 @@ public class SyncJob implements FileVisitor<Path> {
     /**
      * Default permissions for created directories and files, corresponding with 755 digit value.
      */
-    protected static FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x"));
+    protected static FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
     

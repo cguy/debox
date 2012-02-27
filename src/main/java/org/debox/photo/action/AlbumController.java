@@ -36,9 +36,7 @@ import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
-import org.debox.photo.server.renderer.RenderJson;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
@@ -47,7 +45,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AlbumController extends WebMotionController {
+public class AlbumController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
@@ -57,8 +55,7 @@ public class AlbumController extends WebMotionController {
     public Render getAlbums(String token) throws SQLException {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
         List<Album> albums = albumDao.getVisibleAlbums(token, null, isAuthenticated);
-        
-        return new RenderJson(toMap("albums", albums));
+        return renderJSON("albums", albums);
     }
 
     public Render getAlbum(String token, String albumName) throws IOException, SQLException {

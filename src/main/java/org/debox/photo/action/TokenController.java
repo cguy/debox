@@ -32,7 +32,6 @@ import org.debox.photo.dao.TokenDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Token;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class TokenController extends WebMotionController {
+public class TokenController extends DeboxController {
     
     private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
     

@@ -32,12 +32,12 @@ import org.debux.webmotion.server.call.HttpContext;
 import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
 
-public class RenderJson extends Render {
+public class JacksonRenderJsonImpl extends Render {
     protected Map<String, Object> model;
 
     protected static ObjectMapper objectMapper = new ObjectMapper();
     
-    public RenderJson(Map<String, Object> model) {
+    public JacksonRenderJsonImpl(Map<String, Object> model) {
         this.model = model;
     }
 

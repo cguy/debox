@@ -32,7 +32,6 @@ import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class PhotoController extends WebMotionController {
+public class PhotoController extends DeboxController {
     
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
     
