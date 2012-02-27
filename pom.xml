@@ -95,7 +95,8 @@
         <database.name>debox-photos</database.name>
         <database.username>root</database.username>
         <database.password />
-        <database.options>?autoReconnect=true</database.options>
+        <database.idle.connection.test.period>300</database.idle.connection.test.period>
+        <database.prefered.test.query>SELECT 1</database.prefered.test.query>
         
         <!-- Logback configuration, you should override this property 
         specifying file appender, error level and your favourite log path.  -->

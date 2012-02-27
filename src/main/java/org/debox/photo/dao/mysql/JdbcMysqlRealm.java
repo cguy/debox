@@ -52,7 +52,8 @@ public class JdbcMysqlRealm extends JdbcRealm {
     protected static final String PROPERTY_DATABASE_NAME = "database.name";
     protected static final String PROPERTY_DATABASE_USERNAME = "database.username";
     protected static final String PROPERTY_DATABASE_PASSWORD = "database.password";
-    protected static final String PROPERTY_DATABASE_OPTIONS = "database.options";
+    protected static final String PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD = "database.idle.connection.test.period";
+    protected static final String PROPERTY_DATABASE_PREFERED_TEST_QUERY = "database.prefered.test.query";
     
     protected static ComboPooledDataSource comboPooledDataSource;
 
@@ -76,12 +77,15 @@ public class JdbcMysqlRealm extends JdbcRealm {
                 String name = properties.getProperty(PROPERTY_DATABASE_NAME);
                 String user = properties.getProperty(PROPERTY_DATABASE_USERNAME);
                 String password = properties.getProperty(PROPERTY_DATABASE_PASSWORD);
-                String options = properties.getProperty(PROPERTY_DATABASE_OPTIONS);
+                Integer period = Integer.valueOf(properties.getProperty(PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD));
+                String testQuery = properties.getProperty(PROPERTY_DATABASE_PREFERED_TEST_QUERY);
                 
-                String url = "jdbc:mysql://" + host + ':' + port + '/' + name + options;
+                String url = "jdbc:mysql://" + host + ':' + port + '/' + name;
                 comboPooledDataSource.setJdbcUrl(url);
                 comboPooledDataSource.setUser(user);
                 comboPooledDataSource.setPassword(password);
+                comboPooledDataSource.setIdleConnectionTestPeriod(period);
+                comboPooledDataSource.setPreferredTestQuery(testQuery);
                 
             } catch (IOException | PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);

@@ -20,7 +20,6 @@
  */
 package org.debox.photo.server.renderer;
 
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
@@ -52,7 +51,13 @@ public class JacksonRenderJsonImpl extends Render {
         HttpServletResponse response = context.getResponse();
         response.setContentType("application/json");
         
-        String json = objectMapper.writeValueAsString(model);
+        String json;
+        if (model.size() == 1 && model.containsKey(null)) {
+            json = objectMapper.writeValueAsString(model.get(null));
+        } else {
+            json = objectMapper.writeValueAsString(model);
+        }
+        
         PrintWriter out = context.getOut();
         out.print(json);
     }
