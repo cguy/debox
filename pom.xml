@@ -4,7 +4,7 @@
 
     <groupId>org.debox</groupId>
     <artifactId>photo</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <packaging>war</packaging>
 
     <name>debox-photos</name>
@@ -30,9 +30,9 @@
     </developers>
     
     <scm>
-        <url>scm:svn:http://svn.debux.org/debox/debox-photos/trunk/</url>
-        <connection>scm:svn:http://svn.debux.org/debox/debox-photos/trunk/</connection>
-        <developerConnection>scm:svn:https://svn.debux.org/debox/debox-photos/trunk/</developerConnection>
+        <url>scm:svn:http://svn.debux.org/debox/debox-photos/tags/0.1.1</url>
+        <connection>scm:svn:http://svn.debux.org/debox/debox-photos/tags/0.1.1</connection>
+        <developerConnection>scm:svn:https://svn.debux.org/debox/debox-photos/tags/0.1.1</developerConnection>
     </scm>
     
     <issueManagement>
