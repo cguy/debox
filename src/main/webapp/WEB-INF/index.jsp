@@ -43,7 +43,7 @@
         <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
 
         <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
-        <script type="text/javascript" src="<c:url value="/js/less-1.2.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/less-1.2.1.min.js" />"></script>
         <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
 
         <script type="text/javascript">
