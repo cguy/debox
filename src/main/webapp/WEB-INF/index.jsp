@@ -28,16 +28,16 @@
 
         <title></title>
 
-        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/jquery.rs.slideshow.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/jwerty.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/bootstrap-modal.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/bootstrap-dropdown.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/bootstrap-button.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/bootstrap-transition.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/sammy-0.7.1.min.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/mustache.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/ICanHaz-no-mustache.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/jquery-1.7.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/jquery.rs.slideshow.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/jwerty.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-modal.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-dropdown.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-button.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-transition.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/sammy-0.7.1.min.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/mustache.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/ICanHaz-no-mustache.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/routes.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/slideshow.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
