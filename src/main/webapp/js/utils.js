@@ -23,7 +23,7 @@ var templatesLoaded = false;
 
 function loadTemplates() {
     $.ajax({
-        url: "tpl",
+        url: baseUrl + "tpl",
         success: function(templates) {
             $.each(templates, function (name, template) {
                 ich.addTemplate(name, template);
