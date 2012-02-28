@@ -26,7 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
-import org.debox.photo.im4java.StringOutputConsumer;
+import org.debox.photo.job.im4java.StringOutputConsumer;
 import org.debox.photo.model.ThumbnailSize;
 import org.im4java.core.*;
 import org.slf4j.Logger;

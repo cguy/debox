@@ -31,7 +31,6 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
-import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

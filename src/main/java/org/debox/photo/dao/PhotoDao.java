@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
-import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Photo;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;

@@ -26,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map.Entry;
 import org.apache.shiro.util.JdbcUtils;
-import org.debox.photo.dao.mysql.JdbcMysqlRealm;
 import org.debox.photo.model.Configuration;
 
 /**

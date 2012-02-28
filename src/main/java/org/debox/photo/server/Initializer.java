@@ -27,7 +27,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.UserDao;
-import org.debox.photo.dao.mysql.JdbcMysqlRealm;
+import org.debox.photo.dao.JdbcMysqlRealm;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
