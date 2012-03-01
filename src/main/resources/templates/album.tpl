@@ -13,8 +13,8 @@
     <div class="btn-group">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-download"></i>&nbsp;Télécharger les photos de cet album&nbsp;<span class="caret"></span></a>
         <ul class="dropdown-menu">
-            <li><a target="_blank" href="download/album/{{data.album.id}}/min">Taille réduite des photos (1600px)</a></li>
-            <li><a target="_blank" href="download/album/{{data.album.id}}">Taille originale des photos</a></li>
+            <li><a target="_blank" href="{{data.minDownloadUrl}}">Taille réduite des photos (1600px)</a></li>
+            <li><a target="_blank" href="{{data.downloadUrl}}">Taille originale des photos</a></li>
         </ul>
     </div>
     {{/data.album.downloadable}}{{/data.photos.length}}

@@ -46,6 +46,8 @@ $(document).ready(function() {
                         plural = (album.photosCount > 1) ? "s" : "";
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
+                    data.minDownloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id + "/min");
+                    data.downloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id);
                     loadTemplate("album", data, null, function(){
                         editTitle($("a.brand").text() + " - " + data.album.name);
                     });
@@ -60,7 +62,16 @@ $(document).ready(function() {
                 ajax({
                     url: computeUrl(baseUrl + "api/album/" + this.params['album']),
                     success: function(data) {
-                        loadTemplate("album", data, null, function(){
+                        var plural = (data.album.photosCount > 1) ? "s" : ""
+                        data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
+                        for (var i = 0 ; i < data.albums.length ; i++) {
+                            var album = data.albums[i];
+                            plural = (album.photosCount > 1) ? "s" : "";
+                            album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+                        }
+                        data.downloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id);
+                        loadTemplate("album", data, null, function() {
+                            editTitle($("a.brand").text() + " - " + data.album.name);
                             if (photoId.length > 1) {
                                 var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
                                 if (index != -1) {

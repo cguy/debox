@@ -155,8 +155,8 @@ public class AlbumController extends DeboxController {
         return renderStream(fis, "image/jpeg");
     }
 
-    public Render download(String albumId, boolean resized) throws SQLException {
-        Album album = albumDao.getAlbum(albumId);
+    public Render download(String token, String albumId, boolean resized) throws SQLException {
+        Album album = albumDao.getVisibleAlbum(token, albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
 
