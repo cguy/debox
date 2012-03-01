@@ -75,23 +75,22 @@ function fullscreen(index, data) {
     $('#slideshow-div').rsfSlideshow(
         'goToSlide', index
     );
-    
-    jwerty.key('←', function () {
-        if (document.getElementById("slideshow-div") != null) {
-            $('#slideshow-div').rsfSlideshow('previousSlide');
-        }
-    });
-    
-    jwerty.key('→', function () {
-        if (document.getElementById("slideshow-div") != null) {
-            $('#slideshow-div').rsfSlideshow('nextSlide');
-        }
-    });
-    
-    jwerty.key('esc', function () {
-        if (document.getElementById("slideshow-div") != null) {
-            exitFullscreen();
-        }
-    });
-        
 }
+
+jwerty.key('←', function () {
+    if (document.getElementById("slideshow-div") != null) {
+        $('#slideshow-div').rsfSlideshow('previousSlide');
+    }
+});
+
+jwerty.key('→', function () {
+    if (document.getElementById("slideshow-div") != null) {
+        $('#slideshow-div').rsfSlideshow('nextSlide');
+    }
+});
+
+jwerty.key('esc', function () {
+    if (document.getElementById("slideshow-div") != null) {
+        exitFullscreen();
+    }
+});
