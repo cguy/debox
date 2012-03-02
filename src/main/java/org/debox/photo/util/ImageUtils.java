@@ -20,11 +20,21 @@
  */
 package org.debox.photo.util;
 
+import java.io.File;
+import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Photo;
+import org.debox.photo.model.ThumbnailSize;
+
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class ImageUtils {
     
     public static final String JPEG_MIME_TYPE = "image/jpeg";
+    public static final String JPEG_EXT = ".jpg";
+    
+    public static String getTargetPath(Configuration configuration, Photo photo, ThumbnailSize size) {
+        return configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName() + JPEG_EXT;
+    }
     
 }

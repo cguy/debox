@@ -20,6 +20,7 @@
  */
 package org.debox.photo.model;
 
+import java.io.File;
 import java.util.Objects;
 
 /**
@@ -29,8 +30,7 @@ public class Photo implements Comparable<Photo> {
 
     protected String id;
     protected String name;
-    protected String sourcePath;
-    protected String targetPath;
+    protected String relativePath;
     protected String albumId;
     protected String thumbnailUrl;
     protected String url;
@@ -51,14 +51,6 @@ public class Photo implements Comparable<Photo> {
         this.url = url;
     }
     
-    public String getTargetPath() {
-        return targetPath;
-    }
-
-    public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
-    }
-
     public String getAlbumId() {
         return albumId;
     }
@@ -83,12 +75,12 @@ public class Photo implements Comparable<Photo> {
         this.name = name;
     }
 
-    public String getSourcePath() {
-        return sourcePath;
+    public String getRelativePath() {
+        return relativePath;
     }
 
-    public void setSourcePath(String sourcePath) {
-        this.sourcePath = sourcePath;
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
     }
     
     @Override
@@ -98,14 +90,14 @@ public class Photo implements Comparable<Photo> {
         } 
         if (object instanceof Photo) {
             Photo photo = (Photo) object; 
-            return Objects.equals(this.sourcePath, photo.getSourcePath());
+            return Objects.equals(this.relativePath + File.separatorChar + this.getId(), photo.getRelativePath() + File.separatorChar + photo.getId());
         } 
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.sourcePath);
+        return Objects.hashCode(this.relativePath);
     }
 
     @Override

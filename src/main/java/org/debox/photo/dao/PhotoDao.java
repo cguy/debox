@@ -40,16 +40,16 @@ public class PhotoDao extends JdbcMysqlRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
-    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, source_path = ?, target_path = ?";
+    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?";
     
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
-    protected static String SQL_GET_ALL = "SELECT id, name, source_path, target_path, album_id FROM photos";
-    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE album_id = ?";
-    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.source_path, p.target_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public')";
+    protected static String SQL_GET_ALL = "SELECT id, name, relative_path, album_id FROM photos";
+    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, relative_path, album_id FROM photos WHERE album_id = ?";
+    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public')";
     
-    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE id = ?";
-    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.source_path, p.target_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public')";
-    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, source_path, target_path, album_id FROM photos WHERE source_path = ?";
+    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, relative_path, album_id FROM photos WHERE id = ?";
+    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public')";
+    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, relative_path, album_id FROM photos WHERE source_path = ?";
     
     protected static String SQL_GET_ALBUM_COVER = SQL_GET_PHOTOS_BY_ALBUM_ID + " LIMIT 1";
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID + " LIMIT 1";
@@ -91,9 +91,8 @@ public class PhotoDao extends JdbcMysqlRealm {
         Photo result = new Photo();
         result.setId(resultSet.getString(1));
         result.setName(resultSet.getString(2));
-        result.setSourcePath(resultSet.getString(3));
-        result.setTargetPath(resultSet.getString(4));
-        result.setAlbumId(resultSet.getString(5));
+        result.setRelativePath(resultSet.getString(3));
+        result.setAlbumId(resultSet.getString(4));
         
         String thumbnail = "thumbnail/" + result.getId();
         String url = "photo/" + result.getId();
@@ -109,25 +108,28 @@ public class PhotoDao extends JdbcMysqlRealm {
         return result;
     }
 
-    public void save(Photo photo) throws SQLException {
+    public void save(List<Photo> photos) throws SQLException {
         Connection connection = getDataSource().getConnection();
-        String id = photo.getId();
-        if (id == null) {
-            id = StringUtils.randomUUID();
-        }
-
+        connection.setAutoCommit(false);
         PreparedStatement statement = null;
+        logger.debug("photos : " + photos.size());
         try {
             statement = connection.prepareStatement(SQL_CREATE_PHOTO);
-            statement.setString(1, id);
-            statement.setString(2, photo.getName());
-            statement.setString(3, photo.getSourcePath());
-            statement.setString(4, photo.getTargetPath());
-            statement.setString(5, photo.getAlbumId());
-            statement.setString(6, photo.getAlbumId());
-            statement.setString(7, photo.getSourcePath());
-            statement.setString(8, photo.getTargetPath());
-            statement.executeUpdate();
+            for (Photo photo : photos) {
+                String id = photo.getId();
+                if (id == null) {
+                    id = StringUtils.randomUUID();
+                }
+                statement.setString(1, id);
+                statement.setString(2, photo.getName());
+                statement.setString(3, photo.getRelativePath());
+                statement.setString(4, photo.getAlbumId());
+                statement.setString(5, photo.getAlbumId());
+                statement.setString(6, photo.getRelativePath());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            connection.commit();
 
         } finally {
             JdbcUtils.closeStatement(statement);
@@ -135,14 +137,18 @@ public class PhotoDao extends JdbcMysqlRealm {
         }
     }
     
-    public void delete(Photo photo) throws SQLException {
+    public void delete(List<Photo> photos) throws SQLException {
         Connection connection = getDataSource().getConnection();
+        connection.setAutoCommit(false);
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_DELETE_PHOTO);
-            statement.setString(1, photo.getId());
-            statement.executeUpdate();
-
+            for (Photo photo : photos) {
+                statement.setString(1, photo.getId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            connection.commit();
         } finally {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);

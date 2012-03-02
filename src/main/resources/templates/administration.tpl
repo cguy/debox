@@ -60,7 +60,7 @@
         {{#data.albums}}
             <tr id="{{id}}">
                 <td class="name"><strong>{{name}}</strong></td>
-                <td class="sourcePath">{{sourcePath}}</td>
+                <td class="relativePath">{{relativePath}}</td>
                 <td class="downloadable" style="text-align: center;">
                     {{#downloadable}}
                         <i class="icon-ok"></i>&nbsp;Oui

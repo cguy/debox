@@ -37,8 +37,7 @@ public class Album implements Comparable<Album> {
     protected String name;
     protected Date date;
     protected int photosCount;
-    protected String sourcePath;
-    protected String targetPath;
+    protected String relativePath;
     protected String parentId;
     protected Visibility visibility;
     protected String coverUrl;
@@ -68,14 +67,6 @@ public class Album implements Comparable<Album> {
         this.coverUrl = coverUrl;
     }
     
-    public String getTargetPath() {
-        return targetPath;
-    }
-
-    public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -108,12 +99,12 @@ public class Album implements Comparable<Album> {
         this.parentId = parentId;
     }
 
-    public String getSourcePath() {
-        return sourcePath;
+    public String getRelativePath() {
+        return relativePath;
     }
 
-    public void setSourcePath(String sourcePath) {
-        this.sourcePath = sourcePath;
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
     }
 
     public Visibility getVisibility() {
@@ -131,18 +122,18 @@ public class Album implements Comparable<Album> {
         } 
         if (object instanceof Album) {
             Album album = (Album) object; 
-            return Objects.equals(this.sourcePath, album.getSourcePath());
+            return Objects.equals(this.relativePath, album.getRelativePath());
         } 
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.sourcePath);
+        return Objects.hashCode(this.relativePath);
     }
 
     @Override
     public int compareTo(Album album) {
-        return this.getSourcePath().compareToIgnoreCase(album.getSourcePath());
+        return this.getRelativePath().compareToIgnoreCase(album.getRelativePath());
     }
 }

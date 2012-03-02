@@ -20,7 +20,6 @@
  */
 package org.debox.photo.action;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -31,14 +30,15 @@ import java.util.List;
 import java.util.Map;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.PhotoDao;
-import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
+import org.debox.photo.util.ImageHandler;
 import org.debux.webmotion.server.render.Render;
-import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +49,7 @@ public class AlbumController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
+    protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static AlbumDao albumDao = new AlbumDao();
     protected static PhotoDao photoDao = new PhotoDao();
 
@@ -139,24 +140,24 @@ public class AlbumController extends DeboxController {
             return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
         
-        String filename = photo.getTargetPath() + File.separatorChar + ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg";
+        Configuration configuration = configurationDao.get();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream(filename);
-        } catch (IOException e) {
-            logger.warn(filename + " image doesn't exist, generation in progress.");
-            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
-            try {
-                fis = processor.generateThumbnail(ThumbnailSize.SQUARE);
-            } catch (IOException | IM4JavaException | InterruptedException ex) {
-                logger.error("Unable to generate thumbnail", ex);
-            }
+            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+        } catch (Exception ex) {
+            logger.error("Unable to get stream", ex);
         }
         return renderStream(fis, "image/jpeg");
     }
 
     public Render download(String token, String albumId, boolean resized) throws SQLException {
-        Album album = albumDao.getVisibleAlbum(token, albumId);
+        Album album;
+        if (SecurityUtils.getSubject().isAuthenticated()) {
+            album = albumDao.getAlbum(albumId);
+        } else {
+            album = albumDao.getVisibleAlbum(token, albumId);
+        }
+        
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
 
@@ -164,16 +165,16 @@ public class AlbumController extends DeboxController {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
+        Configuration configuration = configurationDao.get();
         if (resized) {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());
             for (Photo photo : photos) {
-                names.put(ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg", ThumbnailSize.LARGE.getPrefix() + photo.getName());
+                names.put(ThumbnailSize.LARGE.getPrefix() + photo.getName() + ".jpg", ThumbnailSize.LARGE.getPrefix() + photo.getName());
             }
-            
-            return new ZipDownloadRenderer(album.getTargetPath(), album.getName(), names);
+            return new ZipDownloadRenderer(configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath(), album.getName(), names);
         }
-        return new ZipDownloadRenderer(album.getSourcePath(), album.getName());
+        return new ZipDownloadRenderer(configuration.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath(), album.getName());
     }
     
 }

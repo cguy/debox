@@ -37,11 +37,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.io.FileUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.PhotoDao;
-import org.debox.photo.model.Album;
-import org.debox.photo.model.Photo;
-import org.debox.photo.model.SynchronizationMode;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.*;
 import org.debox.photo.util.ImageUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -174,7 +172,7 @@ public class SyncJob implements FileVisitor<Path> {
         Album album = new Album();
         album.setId(StringUtils.randomUUID());
         album.setName(currentPath.getFileName().toString());
-        album.setSourcePath(currentPath.toString());
+        album.setRelativePath(StringUtils.substringAfter(currentPath.toString(), this.source.toString()));
         album.setVisibility(Album.Visibility.PRIVATE);
         album.setDownloadable(false);
         album.setPhotosCount(0);
@@ -184,10 +182,10 @@ public class SyncJob implements FileVisitor<Path> {
         boolean existing = false;
         for (Album current : albums.keySet()) {
             
-            if (current.getSourcePath().equals(currentPath.toString())) {
+            if (current.getRelativePath().equals(currentPath.toString())) {
                 album = current;
                 existing = true;
-            } else if (current.getSourcePath().equals(currentPath.getParent().toString())) {
+            } else if (current.getRelativePath().equals(currentPath.getParent().toString())) {
                 parent = current;
                 break;
             }
@@ -195,20 +193,14 @@ public class SyncJob implements FileVisitor<Path> {
         
         if (existing) {
             album.setPhotosCount(0);
-        } else {
-            if (parent == null) {
-                album.setTargetPath(target.toString() + File.separatorChar + album.getId());
-            } else {
-                album.setParentId(parent.getId());
-                album.setTargetPath(parent.getTargetPath() + File.separatorChar + album.getId());
-            }
+        } else if (parent != null) {
+            album.setParentId(parent.getId());
         }
 
         albums.put(album, Boolean.TRUE);
-
-
+        
         // Create target path if not exists
-        Path targetPath = Paths.get(album.getTargetPath());
+        Path targetPath = Paths.get(this.target + album.getRelativePath());
         if (!Files.exists(targetPath)) {
             Files.createDirectories(targetPath, permissionsAttributes);
         }
@@ -232,10 +224,11 @@ public class SyncJob implements FileVisitor<Path> {
         // Increment photos count for parents, and search first parent
         Album album = null;
         for (Album current : albums.keySet()) {
-            if (path.startsWith(current.getSourcePath())) {
+            String currentPath = StringUtils.substringAfter(path.toString(), this.source.toString());
+            if (currentPath.startsWith(current.getRelativePath())) {
                 current.setPhotosCount(current.getPhotosCount() + 1);
-
-                if (path.getParent().toString().equals(current.getSourcePath())) {
+                String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
+                if (currentPathParent.equals(current.getRelativePath())) {
                     album = current;
                 }
             }
@@ -245,8 +238,7 @@ public class SyncJob implements FileVisitor<Path> {
         photo.setId(StringUtils.randomUUID());
         photo.setName(path.getFileName().toString());
         photo.setAlbumId(album.getId());
-        photo.setSourcePath(path.toString());
-        photo.setTargetPath(album.getTargetPath());
+        photo.setRelativePath(album.getRelativePath());
    
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
@@ -285,30 +277,38 @@ public class SyncJob implements FileVisitor<Path> {
                 if (entry.getValue()) {
                     albumsToSave.add(album);
                 } else {
-                    FileUtils.deleteDirectory(new File(album.getTargetPath()));
+                    FileUtils.deleteDirectory(new File(this.target.toString() + album.getRelativePath()));
                     albumDao.delete(album);
                 }
             }
             albumDao.save(albumsToSave);
             
+            Configuration configuration = new ConfigurationDao().get();
+            
             List<Photo> existingPhotos = photoDao.getAll();
+            List<Photo> photosToSave = new ArrayList<>();
+            List<Photo> photosToDelete = new ArrayList<>();
+            
             for (Entry<Photo, Boolean> entry : photos.entrySet()) {
                 Photo photo = entry.getKey();
                 if (entry.getValue()) {
                     
                     if (!existingPhotos.contains(photo) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
-                        ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
+                        ImageProcessor processor = new ImageProcessor(configuration, photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
                         Future future = threadPool.submit(processor);
                         imageProcesses.add(future);
                     }
                     
-                    photoDao.save(photo);
+                    photosToSave.add(photo);
                 } else {
-                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg"));
-                    Files.deleteIfExists(Paths.get(photo.getTargetPath(), ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg"));
-                    photoDao.delete(photo);
+                    Files.deleteIfExists(Paths.get(this.target.toString() + photo.getRelativePath(), ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg"));
+                    Files.deleteIfExists(Paths.get(this.target.toString() + photo.getRelativePath(), ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg"));
+                    photosToDelete.add(photo);
                 }
             }
+            
+            photoDao.delete(photosToDelete);
+            photoDao.save(photosToSave);
 
             // Ensure clear
             albums.clear();

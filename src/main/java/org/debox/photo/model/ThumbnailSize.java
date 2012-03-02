@@ -61,4 +61,21 @@ public enum ThumbnailSize {
         return prefix;
     }
     
+    public static class Comparator implements java.util.Comparator<ThumbnailSize> {
+
+        @Override
+        public int compare(ThumbnailSize o1, ThumbnailSize o2) {
+            long size1 = o1.getWidth() * o1.getHeight();
+            long size2 = o2.getWidth() * o2.getHeight();
+            
+            if (size1 == size2) {
+                return 0;
+            } else if (size1 > size2) {
+                return 1;
+            }
+            return -1;
+        }
+        
+    }
+    
 }

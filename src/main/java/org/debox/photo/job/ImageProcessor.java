@@ -24,9 +24,13 @@ import java.awt.image.ImagingOpException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.job.im4java.StringOutputConsumer;
+import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.im4java.core.*;
 import org.slf4j.Logger;
@@ -35,35 +39,47 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ImageProcessor implements Callable {
+public class ImageProcessor implements Callable<Pair<String, FileInputStream>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
-    protected String imagePath;
-    protected String imageId;
-    protected String targetPath;
+    
+    protected Configuration configuration;
+    protected Photo photo;
+    protected ThumbnailSize[] sizes;
 
-    public ImageProcessor(String imagePath, String targetPath, String imageId) {
-        this.imagePath = imagePath;
-        this.targetPath = targetPath;
-        this.imageId = imageId;
+    public ImageProcessor(Configuration configuration, Photo photo, ThumbnailSize ... sizes) {
+        this.configuration = configuration;
+        this.photo = photo;
+        this.sizes = sizes;
     }
 
     @Override
-    public Object call() throws Exception {
+    public Pair<String, FileInputStream> call() throws Exception {
+        Pair<String, FileInputStream> result = null;
+        
         try {
+            String imagePath = configuration.get(Configuration.Key.SOURCE_PATH) + photo.getRelativePath() + File.separatorChar + photo.getName();
             logger.debug("{} image processing ...", imagePath);
 
             // Read orientation from source
             String orientation = getOrientation(imagePath);
             
-            FileInputStream fis = generateThumbnail(ThumbnailSize.SQUARE, orientation);
-            fis.close();
+            // Sort thumbnails size (desc) to optimize image processing (use bigger image to create thumbnail, but not the huge original)
+            Arrays.sort(sizes, new ThumbnailSize.Comparator());
+            for (ThumbnailSize size : sizes) {
+                String targetPath = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName() + ".jpg";
+                
+                generateThumbnail(imagePath, targetPath, size, orientation);
+                
+                imagePath = targetPath;
+                orientation = null;
+            }
             
-            fis = generateThumbnail(ThumbnailSize.LARGE, orientation);
-            fis.close();
+            // If only one size was requested, we return the corresponding stream
+            if (sizes.length == 1) {
+                result = Pair.of(imagePath, new FileInputStream(imagePath));
+            }
             
-            logger.debug("{} image processed", imagePath);
-
         } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
             logger.error(ex.getMessage(), ex);
 
@@ -71,20 +87,13 @@ public class ImageProcessor implements Callable {
             logger.error(ex.getMessage(), ex);
         }
 
-        return null;
+        return result;
     }
     
-    public FileInputStream generateThumbnail(ThumbnailSize size) throws IOException, IM4JavaException, InterruptedException {
-        String orientation = getOrientation(imagePath);
-        return generateThumbnail(size, orientation);
-    }
-    
-    protected FileInputStream generateThumbnail(ThumbnailSize size, String orientation) throws IOException, InterruptedException, IM4JavaException {
-        String thumbnailPath = targetPath + File.separatorChar + size.getPrefix() + imageId + ".jpg";
-        
+    protected void generateThumbnail(String sourcePath, String targetPath, ThumbnailSize size, String orientation) throws IOException, InterruptedException, IM4JavaException {
         ImageCommand cmd = new ConvertCmd(true);
         IMOperation operation = new IMOperation();
-        operation.addImage(imagePath);
+        operation.addImage(sourcePath);
 
         if (size.isCropped()) {
             operation.thumbnail(size.getWidth(), size.getHeight(), "^");
@@ -93,11 +102,13 @@ public class ImageProcessor implements Callable {
         }
         
         operation = rotate(operation, orientation);
-        operation.addImage(thumbnailPath);
+        operation.addImage(targetPath);
         cmd.run(operation);
         
+        logger.debug("Generate from {} to {}", sourcePath, targetPath);
+        
         if (size.isCropped()) {
-            int[] thumbnailSize = getSize(thumbnailPath);
+            int[] thumbnailSize = getSize(targetPath);
             int width = thumbnailSize[0];
             int height = thumbnailSize[1];
             int x = 0;
@@ -111,15 +122,13 @@ public class ImageProcessor implements Callable {
             }
             
             operation = new IMOperation();
-            operation.addImage(thumbnailPath);
+            operation.addImage(targetPath);
             operation.crop(size.getWidth(), size.getHeight(), x, y);
-            operation.addImage(thumbnailPath);
+            operation.addImage(targetPath);
 
             cmd = new MogrifyCmd(true);
             cmd.run(operation);
         }
-        
-        return new FileInputStream(thumbnailPath);
     }
 
     protected String getOrientation(String path) throws IOException, IM4JavaException, InterruptedException {
@@ -158,7 +167,7 @@ public class ImageProcessor implements Callable {
 
     protected IMOperation rotate(IMOperation operation, String orientation) {
         if (operation == null) {
-            return null;
+            return operation;
         }
 
         switch (orientation) {
@@ -190,4 +199,5 @@ public class ImageProcessor implements Callable {
         }
         return operation;
     }
+    
 }

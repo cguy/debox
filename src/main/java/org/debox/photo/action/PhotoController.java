@@ -27,13 +27,14 @@ import java.net.HttpURLConnection;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.shiro.SecurityUtils;
+import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.PhotoDao;
-import org.debox.photo.job.ImageProcessor;
+import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
+import org.debox.photo.util.ImageHandler;
 import org.debux.webmotion.server.render.Render;
-import org.im4java.core.IM4JavaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +42,11 @@ import org.slf4j.LoggerFactory;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class PhotoController extends DeboxController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
-    
+    protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static PhotoDao photoDao = new PhotoDao();
-    
+
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {
@@ -53,22 +54,16 @@ public class PhotoController extends DeboxController {
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
         }
-        
+
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.SQUARE.getPrefix() + photoId + ".jpg";
+        Configuration configuration = configurationDao.get();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream(path);
-        } catch (IOException e) {
-            logger.warn(path + " image doesn't exist, generation in progress.");
-            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
-            try {
-                fis = processor.generateThumbnail(ThumbnailSize.SQUARE);
-            } catch (IOException | IM4JavaException | InterruptedException ex) {
-                logger.error("Unable to generate thumbnail", ex);
-            }
+            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+        } catch (Exception ex) {
+            logger.error("Unable to get stream", ex);
         }
         return renderStream(fis, "image/jpeg");
     }
@@ -80,26 +75,20 @@ public class PhotoController extends DeboxController {
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
         }
-        
+
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
+        Configuration configuration = configurationDao.get();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream(path);
-        } catch (IOException e) {
-            logger.warn(path + " image doesn't exist, generation in progress.");
-            ImageProcessor processor = new ImageProcessor(photo.getSourcePath(), photo.getTargetPath(), photo.getId());
-            try {
-                fis = processor.generateThumbnail(ThumbnailSize.LARGE);
-            } catch (IOException | IM4JavaException | InterruptedException ex) {
-                logger.error("Unable to generate thumbnail", ex);
-            }
+            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.LARGE);
+        } catch (Exception ex) {
+            logger.error("Unable to get stream", ex);
         }
         return renderStream(fis, "image/jpeg");
     }
-    
+
     /*
      * TODO [cguy:2012-02-12|15:41] Handle security access for next version.
      */
@@ -108,14 +97,14 @@ public class PhotoController extends DeboxController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        
+
+        Configuration configuration = configurationDao.get();
         if (resized) {
-            String path = photo.getTargetPath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
+            String path = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
             return new FileDownloadRenderer(Paths.get(path), ThumbnailSize.LARGE.getPrefix() + photo.getName(), "image/jpeg");
-            
+
         } else {
-            return new FileDownloadRenderer(Paths.get(photo.getSourcePath()), photo.getName(), "image/jpeg");
+            return new FileDownloadRenderer(Paths.get(configuration.get(Configuration.Key.SOURCE_PATH) + photo.getRelativePath()), photo.getName(), "image/jpeg");
         }
     }
-
 }

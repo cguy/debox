@@ -30,7 +30,7 @@ public class SourcePathComparator implements Comparator<Album> {
 
     @Override
     public int compare(Album album, Album anotherAlbum) {
-        return album.getSourcePath().compareTo(anotherAlbum.getSourcePath());
+        return album.getRelativePath().compareTo(anotherAlbum.getRelativePath());
     }
     
 }
