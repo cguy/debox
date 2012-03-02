@@ -26,8 +26,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.JdbcMysqlRealm;
+import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
 import org.debox.photo.util.StringUtils;
@@ -62,6 +62,7 @@ public class Initializer implements ServletContextListener {
                 configuration.set(Configuration.Key.TITLE, "Galerie photo");
                 configurationDao.save(configuration);
             }
+            sce.getServletContext().setAttribute("configuration", configuration);
         } catch (SQLException ex) {
             logger.error("Unable to access database", ex);
         }

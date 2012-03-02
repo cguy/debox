@@ -34,11 +34,14 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.debox.photo.dao.*;
+import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.SynchronizationMode;
 import org.debox.photo.model.User;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -51,9 +54,7 @@ public class AdministrationController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdministrationController.class);
     protected SyncJob syncJob;
-    protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static AlbumDao albumDao = new AlbumDao();
-    protected static PhotoDao photoDao = new PhotoDao();
     protected static TokenDao tokenDao = new TokenDao();
     
     protected static UserDao userDao = new UserDao();
@@ -175,8 +176,8 @@ public class AdministrationController extends DeboxController {
         configuration.set(Configuration.Key.SOURCE_PATH, sourceDirectory);
         configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
         configuration.set(Configuration.Key.TITLE, title);
-        configurationDao.save(configuration);
-
+        ApplicationContext.getInstance().saveConfiguration(configuration);
+        
         return renderJSON("configuration", configuration.get());
     }
 
@@ -191,7 +192,7 @@ public class AdministrationController extends DeboxController {
         }
         
         try {
-            Configuration configuration = configurationDao.get();
+            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
             
             String strSource = configuration.get(Configuration.Key.SOURCE_PATH);
             String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
@@ -250,7 +251,7 @@ public class AdministrationController extends DeboxController {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
                     "username", username,
-                    "configuration", configurationDao.get().get(),
+                    "configuration", ApplicationContext.getInstance().getConfiguration(),
                     "albums", albumDao.getAlbums(),
                     "tokens", tokenDao.getAll(),
                     "sync", sync);
@@ -258,7 +259,7 @@ public class AdministrationController extends DeboxController {
 
         return renderJSON(
                 "username", username,
-                "configuration", configurationDao.get().get(),
+                "configuration", ApplicationContext.getInstance().getConfiguration(),
                 "albums", albumDao.getAlbums(),
                 "tokens", tokenDao.getAll());
     }

@@ -30,12 +30,11 @@ import java.util.List;
 import java.util.Map;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
-import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.ImageHandler;
 import org.debux.webmotion.server.render.Render;
@@ -49,9 +48,7 @@ public class AlbumController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
-    protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static AlbumDao albumDao = new AlbumDao();
-    protected static PhotoDao photoDao = new PhotoDao();
 
     public Render getAlbums(String token) throws SQLException {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
@@ -140,7 +137,7 @@ public class AlbumController extends DeboxController {
             return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
         
-        Configuration configuration = configurationDao.get();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
@@ -167,7 +164,7 @@ public class AlbumController extends DeboxController {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
-        Configuration configuration = configurationDao.get();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         if (resized) {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());

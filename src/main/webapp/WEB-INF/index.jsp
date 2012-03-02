@@ -31,10 +31,7 @@
         <script type="text/javascript" src="<c:url value="/js/lib/jquery-1.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/lib/jquery.rs.slideshow.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/lib/jwerty.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-modal.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-dropdown.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-button.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap-transition.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/js/lib/bootstrap.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/lib/sammy-0.7.1.min.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/lib/mustache.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/lib/ICanHaz-no-mustache.min.js" />"></script>
@@ -42,8 +39,7 @@
         <script type="text/javascript" src="<c:url value="/js/slideshow.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
 
-        <link rel="stylesheet/less" href="<c:url value="/less/bootstrap.less" />" >
-        <script type="text/javascript" src="<c:url value="/js/lib/less-1.2.1.min.js" />"></script>
+        <link rel="stylesheet" href="<c:url value="/css/bootstrap.css" />" />
         <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
 
         <script type="text/javascript">

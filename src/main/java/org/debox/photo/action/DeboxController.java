@@ -20,14 +20,23 @@
  */
 package org.debox.photo.action;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
+import org.debox.photo.util.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -39,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class DeboxController extends WebMotionController {
 
     private static final Logger logger = LoggerFactory.getLogger(DeboxController.class);
-    protected PhotoDao photoDao = new PhotoDao();
+    protected static PhotoDao photoDao = new PhotoDao();
 
     @Override
     public Render renderJSON(Object... model) {
@@ -61,6 +70,26 @@ public class DeboxController extends WebMotionController {
         try {
             long lastModified = photoDao.getGenerationTime(photo, size);
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
+
+            if (lastModified == -1) {
+                Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+                String strPath = ImageUtils.getTargetPath(configuration, photo, size);
+                Path path = Paths.get(strPath);
+
+                try {
+                    BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+                    FileTime lastModifiedTimeAttribute = attributes.lastModifiedTime();
+
+                    lastModified = lastModifiedTimeAttribute.toMillis();
+                    photoDao.savePhotoGenerationTime(photo, size, lastModified);
+
+                } catch (IOException ioe) {
+                    logger.error("Unable to access last modified property from file: " + strPath, ioe);
+                }
+
+                logger.warn("Get -1 value for photo " + photo.getName() + " and size " + size.name());
+            }
+
             if (lastModified != -1) {
                 if (lastModified <= ifModifiedSince) {
                     getContext().getResponse().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED);

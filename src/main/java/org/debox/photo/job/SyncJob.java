@@ -37,9 +37,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.io.FileUtils;
 import org.debox.photo.dao.AlbumDao;
-import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.ImageUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -283,7 +283,7 @@ public class SyncJob implements FileVisitor<Path> {
             }
             albumDao.save(albumsToSave);
             
-            Configuration configuration = new ConfigurationDao().get();
+            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
             
             List<Photo> existingPhotos = photoDao.getAll();
             List<Photo> photosToSave = new ArrayList<>();

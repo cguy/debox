@@ -27,11 +27,10 @@ import java.net.HttpURLConnection;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.shiro.SecurityUtils;
-import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
 import org.debox.photo.util.ImageHandler;
 import org.debux.webmotion.server.render.Render;
@@ -44,8 +43,6 @@ import org.slf4j.LoggerFactory;
 public class PhotoController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
-    protected static ConfigurationDao configurationDao = new ConfigurationDao();
-    protected static PhotoDao photoDao = new PhotoDao();
 
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
         Photo photo;
@@ -58,7 +55,7 @@ public class PhotoController extends DeboxController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        Configuration configuration = configurationDao.get();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
@@ -81,7 +78,7 @@ public class PhotoController extends DeboxController {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        Configuration configuration = configurationDao.get();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.LARGE);
@@ -102,7 +99,7 @@ public class PhotoController extends DeboxController {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
-        Configuration configuration = configurationDao.get();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         if (resized) {
             String path = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
             return new FileDownloadRenderer(Paths.get(path), ThumbnailSize.LARGE.getPrefix() + photo.getName(), "image/jpeg");

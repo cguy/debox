@@ -23,20 +23,18 @@ package org.debox.photo.action;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
+import org.debox.photo.server.ApplicationContext;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,26 +45,19 @@ import org.slf4j.LoggerFactory;
 public class HomeController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-    protected static ConfigurationDao configurationDao = new ConfigurationDao();
 
     public Render index() {
-        try {
-            Configuration configuration = configurationDao.get();
-            User user = (User) SecurityUtils.getSubject().getPrincipal();
-            String username = "null";
-            if (user != null) {
-                username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
-            }
-
-            String title = configuration.get(Configuration.Key.TITLE);
-            title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
-
-            return renderView("index.jsp", "title", title, "username", username);
-
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to access database");
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        String username = "null";
+        if (user != null) {
+            username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
         }
+
+        String title = configuration.get(Configuration.Key.TITLE);
+        title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
+
+        return renderView("index.jsp", "title", title, "username", username);
     }
 
     public Render getTemplates() {
