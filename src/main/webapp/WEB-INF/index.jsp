@@ -54,7 +54,7 @@
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <!-- Fill in with loadTemplate("header", user, ".navbar .container"); call -->
+                    <!-- Fill in with loadTemplate("header", ...); call -->
                 </div>
             </div>
         </div>

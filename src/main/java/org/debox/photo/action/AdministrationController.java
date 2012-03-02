@@ -251,7 +251,7 @@ public class AdministrationController extends DeboxController {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
                     "username", username,
-                    "configuration", ApplicationContext.getInstance().getConfiguration(),
+                    "configuration", ApplicationContext.getInstance().getConfiguration().get(),
                     "albums", albumDao.getAlbums(),
                     "tokens", tokenDao.getAll(),
                     "sync", sync);
@@ -259,7 +259,7 @@ public class AdministrationController extends DeboxController {
 
         return renderJSON(
                 "username", username,
-                "configuration", ApplicationContext.getInstance().getConfiguration(),
+                "configuration", ApplicationContext.getInstance().getConfiguration().get(),
                 "albums", albumDao.getAlbums(),
                 "tokens", tokenDao.getAll());
     }
