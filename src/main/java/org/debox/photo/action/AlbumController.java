@@ -144,6 +144,8 @@ public class AlbumController extends DeboxController {
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+            handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
+            
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }

@@ -24,8 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.Pair;
+import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
@@ -41,6 +45,7 @@ public class ImageHandler {
     private static final Logger logger = LoggerFactory.getLogger(ImageHandler.class);
     protected static ImageHandler instance = new ImageHandler();
     
+    protected PhotoDao photoDao = new PhotoDao();
     protected ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     protected ExecutorService threadPool = getExecutorService();
     protected ConcurrentHashMap<String, Future> inProgressPaths = new ConcurrentHashMap<>();
@@ -82,6 +87,11 @@ public class ImageHandler {
         ImageProcessor processor = new ImageProcessor(configuration, photo, size);
         Future<Pair<String, FileInputStream>> future = threadPool.submit(processor);
         inProgressPaths.put(path, future);
+        try {
+            photoDao.savePhotoGenerationTime(photo, size, new Date().getTime());
+        } catch (SQLException ex) {
+            logger.error("Unable to save time generation for photo: " + path, ex);
+        }
     }
 
     public FileInputStream getStream(Configuration configuration, Photo photo, ThumbnailSize size) throws Exception {
@@ -92,7 +102,7 @@ public class ImageHandler {
             fis = new FileInputStream(path);
 
         } catch (IOException ex) {
-            logger.warn("Unable to load stream for path " + path, ex);
+            logger.warn("Unable to load stream for path " + path);
 
             Future<Pair<String, FileInputStream>> future = inProgressPaths.get(path);
             if (future == null) {
@@ -101,6 +111,11 @@ public class ImageHandler {
                 inProgressPaths.put(path, future);
             }
             fis = future.get().getValue();
+            try {
+                photoDao.savePhotoGenerationTime(photo, size, new Date().getTime());
+            } catch (SQLException sqle) {
+                logger.error("Unable to save time generation for photo: " + path, sqle);
+            }
             inProgressPaths.remove(path);
         }
         return fis;

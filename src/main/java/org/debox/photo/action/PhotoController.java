@@ -62,6 +62,8 @@ public class PhotoController extends DeboxController {
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+            handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
+            
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }
@@ -83,6 +85,8 @@ public class PhotoController extends DeboxController {
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.LARGE);
+            handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
+            
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }

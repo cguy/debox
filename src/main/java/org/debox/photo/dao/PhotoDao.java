@@ -20,15 +20,13 @@
  */
 package org.debox.photo.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +54,52 @@ public class PhotoDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_PHOTOS_COUNT = "SELECT count(id) FROM photos";
 
+    protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
+    protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
+    
+    public void savePhotoGenerationTime(Photo photo, ThumbnailSize size, long time) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_INSERT_PHOTO_GENERATION);
+                String id = photo.getId();
+                if (id == null) {
+                    id = StringUtils.randomUUID();
+                }
+                statement.setString(1, id);
+                statement.setString(2, size.name());
+                statement.setTimestamp(3, new Timestamp(time));
+                statement.setTimestamp(4, new Timestamp(time));
+                statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
+    public long getGenerationTime(Photo photo, ThumbnailSize size) throws SQLException {
+        long result = -1;
+
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.prepareStatement(SQL_GET_PHOTO_GENERATION);
+            statement.setString(1, photo.getId());
+            statement.setString(2, size.name());
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                result = resultSet.getTimestamp(1).getTime();
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+
+        return result;
+    }
     
     public List<Photo> getAll() throws SQLException {
         Connection connection = getDataSource().getConnection();
