@@ -125,7 +125,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : data.username,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container");
+                    }, ".navbar .container-fluid");
                     context.redirect("#/administration");
                 },
                 error: function(xhr) {
@@ -162,7 +162,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : $(".navbar-text.pull-right strong").html(), 
                         "title" : data.title
-                    }, ".navbar .container");
+                    }, ".navbar .container-fluid");
                     $("#modal-configuration").modal("hide");
                     
                     if (force) {
@@ -189,8 +189,6 @@ $(document).ready(function() {
                 data : $("#modal-sync").serializeArray(),
                 success: function(data) {
                     $("#modal-sync input[type=submit]").button("reset");
-                    
-                    
                     $("#modal-sync").modal("hide");
                     context.redirect("#/administration");
                 },
@@ -239,7 +237,7 @@ $(document).ready(function() {
                     $("#administration_tokens").removeClass("hide");
                     $("#tokens p.alert-warning").addClass("hide");
                     var html = '<tr id="' + data.id + '">';
-                    html += '<td class="label">' + data.label + '</td>';
+                    html += '<td class="access_label">' + data.label + '</td>';
                     html += '<td class="albums">Aucun album n\'est visible pour cet accès</td>';
                     html += '<td><a href="' + baseUrl + data.id + '/#/">Lien</a></td>';
                     html += '<td><div class="btn-group">';
@@ -260,7 +258,7 @@ $(document).ready(function() {
                 type : "post",
                 data: $("#edit_token").serializeArray(),
                 success: function(data) {
-                    $("#" + data.id + " .label").text(data.label);
+                    $("#" + data.id + " .access_label").text(data.label);
                     var albums = "";
                     if (data.albums.length) {
                         for (var i = 0 ; i < data.albums.length ; i++) {
@@ -374,7 +372,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : username,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container");
+                    }, ".navbar .container-fluid");
                 },
                 error: function(xhr) {
                     $("#login input[type=submit]").button('reset');
@@ -401,7 +399,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : null,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container");
+                    }, ".navbar .container-fluid");
                     context.redirect("#/");
                 },
                 error: function(xhr) {
@@ -423,7 +421,9 @@ $(document).ready(function() {
                         var plural = (album.photosCount > 1) ? "s" : ""
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
-                    loadTemplate("home", data);
+                    loadTemplate("home", data, null, function() {
+//                        $("a").hover(test);
+                    });
                 }
             });
         }); // End route
@@ -456,7 +456,13 @@ $(document).ready(function() {
             $(this).parents(".modal").find("input[type=hidden]").val(true);
         });
         
-        $("#administration_albums button").click(function() {
+        $("#administration_albums button.actions").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            $("#actions_album input[type=hidden]").val(id);
+            $("#actions_album").modal();
+        });
+        
+        $("#administration_albums button.edit").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({
                 url: baseUrl + "album/" + id,
@@ -495,7 +501,7 @@ $(document).ready(function() {
         
         $("#administration_tokens button.btn-danger").click(function() {
             var id = $(this).parents("tr").attr("id");
-            var name = $(this).parents("tr").find(".label").text();
+            var name = $(this).parents("tr").find(".access_label").text();
             $("#modal-token-delete input[type=hidden]").val(id);
             $("#modal-token-delete p strong").text(name);
         });

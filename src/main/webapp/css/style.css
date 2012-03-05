@@ -20,26 +20,16 @@
  */
 body {
     padding-top: 40px;
-    background-color: #eee;
+    background-color: #fff;
 }
+
+
 .container > footer p {
     text-align: center;
 }
 
-.content {
-    background-color: #fff;
-    padding: 20px;
-    margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-    border-radius: 0 0 6px 6px;
-    
-    min-height: 650px;
-    
-    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-    box-shadow: 0 1px 2px rgba(0,0,0,.15);
-}
-
-.container .content {
+body > .container-fluid {
+    min-height: 700px;
     overflow:auto;
 }
 
@@ -50,19 +40,18 @@ h2.page-header {
 
 h1.page-header {
     background-color: #f5f5f5;
-    padding: 20px 20px 10px;
-    margin: -20px -20px 20px;
+    padding: 20px 20px 5px;
+    margin: -10px -20px 20px;
 }
 
 h1.page-header a {
-    color: #00343F;
+    color: #333;
 }
 
 h1.page-header a:hover {
     color: #E06800;
     text-decoration: none;
 }
-
 
 .topbar .btn {
     border: 0;
@@ -123,13 +112,15 @@ span.container {
     bottom: 0px;
     display: block;
     width: 210px;
+    padding-right: 5px;
+    width: 205px;
     height: 20px;
-    font-size: 16px;
+    font-size: 12px;
     line-height: 20px;
     color: #ddd;
-    text-align: center;
+    text-align: right;
     background: rgba(12,27,30,0.75);
-    border-top: 1px solid #007BE0;
+    border-top: 1px solid #aaa;
     -webkit-transition: border-color 0.5s ease;
     -moz-transition: border-color 0.5s ease;
     transition: border-color 0.5s ease;
@@ -140,13 +131,15 @@ span.container {
     width: 210px;
     height: 50px;
     max-height: 50px;
+    font-weight: bold;
+    color: #ddd;
 }
 
 .thumbnail.cover > span.container > span.title > span {
     display: table-cell;
     background: rgba(12,27,30,0.75);
     text-align: center;
-    vertical-align: middle;
+    vertical-align: top;
     padding: 0 5px;
     max-width: 200px;
     font-size: 18px;
@@ -154,7 +147,7 @@ span.container {
     max-height: 50px;
     height: 50px;
     color: #ddd;
-    -webkit-transition: color 0.5s ease, height 0.5s ease;
+    -webkit-transition: color 0.5s ease, height 0.5s ease, padding-top 0.5s ease;
     -moz-transition: color 0.5s ease, height 0.5s ease;
     transition: color 0.5s ease, height 0.5s ease;
     overflow: hidden;
@@ -163,6 +156,7 @@ span.container {
 
 .thumbnail.cover:hover {
     text-decoration: none;
+    border-color: #E06800;
 }
 
 .thumbnail.cover:hover > span.container > span.count {
@@ -171,8 +165,9 @@ span.container {
 }
 
 .thumbnail.cover:hover > span.container > span.title > span {
+    padding-top: 20px;
     color: #E06800;
-    height: 190px;
+    height: 170px;
     white-space: normal;
 }
 
@@ -180,6 +175,7 @@ span.container {
     text-align: center;
     font-weight: bold;
     font-size: 16px;
+    color: #666;
     -webkit-transition: color 0.5s ease, border-color 0.5s ease;
     -moz-transition: color 0.5s ease, border-color 0.5s ease;
     transition: color 0.5s ease, border-color 0.5s ease;
@@ -187,6 +183,7 @@ span.container {
 
 .thumbnails.admin a:hover {
     text-decoration: none;
+    color: #E06800;
 }
 
 /* ************************************************************************** */

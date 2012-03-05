@@ -101,7 +101,7 @@ public class PhotoController extends DeboxController {
 
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         if (resized) {
-            String path = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photoId + ".jpg";
+            String path = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photo.getName();
             return new FileDownloadRenderer(Paths.get(path), ThumbnailSize.LARGE.getPrefix() + photo.getName(), "image/jpeg");
 
         } else {

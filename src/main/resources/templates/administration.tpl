@@ -53,7 +53,7 @@
                 <th>Répertoire source</th>
                 <th style="width:65px;text-align:center;">Téléchargeable</th>
                 <th style="width:65px;text-align:center;">Visibilité</th>
-                <th style="width:195px;">Actions</th>
+                <th style="width:275px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -79,7 +79,8 @@
                 </td>
                 <td>
                     <div class="btn-group">
-                        <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
+                        <button class="btn actions"><i class="icon-cog"></i>&nbsp;Actions</button>
+                        <button class="btn edit"><i class="icon-pencil"></i>&nbsp;Modifier</button>
                         <a class="btn" target="_blank" href="download/album/{{id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
                     </div>
                 </td>
@@ -109,7 +110,7 @@
         <tbody>
         {{#data.tokens}}
             <tr id="{{id}}">
-                <td class="label">{{label}}</td>
+                <td class="access_label">{{label}}</td>
                 <td class="albums">
                     {{^albums}}
                         Aucun album n'est visible pour cet accès
@@ -242,6 +243,44 @@
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
     </div>
 </form>
+
+{{! ========================================================== }}
+{{! POPUP MODAL - PROCESS AN ACTION ON AN ALBUM }}
+{{! ========================================================== }}
+<div id="actions_album" class="modal fade">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Actions sur un album</h3>
+    </div>
+    <div class="modal-body">
+        <!--<h2 class="page-header">Régénération des vignettes par le serveur</h2>
+        <button class="btn">Rénégérer toutes les vignettes de l'album</button>-->
+
+        <h2 class="page-header">Chargement d'une archive de vignettes</h2>
+
+        <iframe id="uploadFrame" name="uploadFrame" height="0" width="0" frameborder="0" scrolling="yes"></iframe>
+        <form class="form-horizontal" method="post" action="{{data.baseUrl}}uploadThumbnails" target="uploadFrame" enctype="multipart/form-data" onsubmit="handleArchiveUpload()">
+            <input type="hidden" name="albumId" />
+            <div>
+                    <input type="submit" class="btn btn-info pull-right" style="display:inline-block;" value="Charger"/>
+                    <label for="file" style="font-weight: bold;">Archive (*.zip) : 
+                    <input id="file" name="file" type="file" required style="width:300px;display:inline-block;" />&nbsp;
+                    </label>
+            </div>
+        </form>
+
+        <div id="upload-progress" class="alert alert-info hide">
+            <h3>Chargement en cours&hellip;&nbsp;<span>0 %</span></h3>
+            <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="reset" class="btn">Retour</button>
+    </div>
+    </form>
+</div>
 
 {{! ========================================================== }}
 {{! POPUP MODAL - EDIT A TOKEN (VISITORS ACCESS) }}

@@ -51,11 +51,11 @@ function loadTemplate(tplId, data, selector, callback) {
         data = {};
     }
     data.baseUrl = baseUrl;
-    
     var html = ich[tplId]({"data": data});
     
     if (!selector) {
         selector = ".container .content";
+        selector = "body > .container-fluid";
     }
     $(selector).html(html);
     
@@ -68,10 +68,7 @@ function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
             var status = xhr.status;
-            if (status == 404) {
-                loadTemplate(status);
-            } else if (status == 403) {
-                initHeader($(".brand").text(), null);
+            if (status == 404 || status == 403) {
                 loadTemplate(status);
             }
         }
@@ -97,7 +94,7 @@ function initHeader(title, username) {
     loadTemplate("header", {
         "title": title, 
         "username" : username
-    }, ".navbar .container");
+    }, ".navbar .container-fluid");
 }
 
 function hideModal() {
@@ -109,5 +106,33 @@ function resetModalForm() {
     $(this).find("p.alert-error").removeClass("alert alert-error");
     $(this).each(function(){
         this.reset();
+    });
+}
+
+function handleArchiveUpload() {
+    $.ajax({
+        type : "GET",
+        url: baseUrl + "uploadProgress",
+        success: function(progression){
+            if (!progression) {
+                setTimeout(handleArchiveUpload, 250);
+                return;
+            }
+            var bytesRead = progression.bytesRead;
+            var contentLength = progression.contentLength;
+            var percent = Math.floor(bytesRead * 100 / contentLength);
+            $("#upload-progress h3 span").html(percent + "&nbsp;%");
+            $("#upload-progress .bar").css("width", percent+"%");
+            if (!bytesRead || !contentLength || bytesRead != contentLength) {
+                $("#upload-progress").show();
+                setTimeout(handleArchiveUpload, 250);
+            } else {
+                $("#upload-progress").removeClass("alert-info");
+                $("#upload-progress").addClass("alert-success");
+                $("#upload-progress .progress").removeClass("progress-info active");
+                $("#upload-progress .progress").addClass("progress-success");
+            }
+                        
+        }
     });
 }

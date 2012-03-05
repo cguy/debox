@@ -31,10 +31,9 @@ import org.debox.photo.model.ThumbnailSize;
 public class ImageUtils {
     
     public static final String JPEG_MIME_TYPE = "image/jpeg";
-    public static final String JPEG_EXT = ".jpg";
     
     public static String getTargetPath(Configuration configuration, Photo photo, ThumbnailSize size) {
-        return configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName() + JPEG_EXT;
+        return configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
     }
     
 }

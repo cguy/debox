@@ -34,7 +34,7 @@
         <li class="span2">
             <!--<a class="thumbnail" href="#/photo/{{id}}">-->
             <a  id="{{id}}" class="thumbnail" href="#/album/{{data.album.name}}/{{id}}">
-                <img class="photo" src="{{data.baseUrl}}{{thumbnailUrl}}" alt="{{name}}" title="{{name}}" style="background-color:#ddd;width:210px;"/>
+                <img class="photo" src="{{data.baseUrl}}{{thumbnailUrl}}" alt="{{name}}" title="{{name}}" style="background-color:#ddd;"/>
                 <span style="display:none;">{{data.baseUrl}}{{url}}</span>
             </a>
         </li>

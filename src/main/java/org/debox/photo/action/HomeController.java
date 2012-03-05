@@ -47,13 +47,13 @@ public class HomeController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     public Render index() {
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         String username = "null";
         if (user != null) {
             username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
         }
 
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
 

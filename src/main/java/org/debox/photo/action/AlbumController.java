@@ -169,7 +169,7 @@ public class AlbumController extends DeboxController {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());
             for (Photo photo : photos) {
-                names.put(ThumbnailSize.LARGE.getPrefix() + photo.getName() + ".jpg", ThumbnailSize.LARGE.getPrefix() + photo.getName());
+                names.put(ThumbnailSize.LARGE.getPrefix() + photo.getName(), ThumbnailSize.LARGE.getPrefix() + photo.getName());
             }
             return new ZipDownloadRenderer(configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath(), album.getName(), names);
         }

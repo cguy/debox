@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,11 +33,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.commons.io.FileUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.ImageUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -51,10 +49,7 @@ import org.slf4j.LoggerFactory;
 public class SyncJob implements FileVisitor<Path> {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncJob.class);
-    /**
-     * Default permissions for created directories and files, corresponding with 755 digit value.
-     */
-    protected static FileAttribute permissionsAttributes = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
+    
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
     
@@ -129,7 +124,7 @@ public class SyncJob implements FileVisitor<Path> {
 
         // Create target if not exists
         if (!Files.exists(target)) {
-            Files.createDirectories(target, permissionsAttributes);
+            Files.createDirectories(target, FileUtils.PERMISSIONS);
         }
 
         // Launch sync
@@ -202,7 +197,7 @@ public class SyncJob implements FileVisitor<Path> {
         // Create target path if not exists
         Path targetPath = Paths.get(this.target + album.getRelativePath());
         if (!Files.exists(targetPath)) {
-            Files.createDirectories(targetPath, permissionsAttributes);
+            Files.createDirectories(targetPath, FileUtils.PERMISSIONS);
         }
 
         return FileVisitResult.CONTINUE;
@@ -301,8 +296,8 @@ public class SyncJob implements FileVisitor<Path> {
                     
                     photosToSave.add(photo);
                 } else {
-                    Files.deleteIfExists(Paths.get(this.target.toString() + photo.getRelativePath(), ThumbnailSize.LARGE.getPrefix() + photo.getId() + ".jpg"));
-                    Files.deleteIfExists(Paths.get(this.target.toString() + photo.getRelativePath(), ThumbnailSize.SQUARE.getPrefix() + photo.getId() + ".jpg"));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(configuration, photo, ThumbnailSize.LARGE)));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(configuration, photo, ThumbnailSize.SQUARE)));
                     photosToDelete.add(photo);
                 }
             }

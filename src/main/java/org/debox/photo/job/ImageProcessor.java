@@ -67,7 +67,7 @@ public class ImageProcessor implements Callable<Pair<String, FileInputStream>> {
             // Sort thumbnails size (desc) to optimize image processing (use bigger image to create thumbnail, but not the huge original)
             Arrays.sort(sizes, new ThumbnailSize.Comparator());
             for (ThumbnailSize size : sizes) {
-                String targetPath = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName() + ".jpg";
+                String targetPath = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
                 
                 generateThumbnail(imagePath, targetPath, size, orientation);
                 
@@ -166,7 +166,7 @@ public class ImageProcessor implements Callable<Pair<String, FileInputStream>> {
     }
 
     protected IMOperation rotate(IMOperation operation, String orientation) {
-        if (operation == null) {
+        if (orientation == null) {
             return operation;
         }
 

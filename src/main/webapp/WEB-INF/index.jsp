@@ -47,27 +47,26 @@
             $(document).ready(function() {
                 loadTemplates();
                 initHeader(${title}, ${username});
+                $("#actions_album").modal();
             });
         </script>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
-                <div class="container">
+                <div class="container-fluid">
                     <!-- Fill in with loadTemplate("header", ...); call -->
                 </div>
             </div>
         </div>
 
-        <div class="container">
-            <div class="content">
-                <!-- Fill in with loadTemplate(); call -->
-            </div>
-            <p class="footer">
-                &COPY;&nbsp;
-                Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur.
-            </p>
+        <div class="container-fluid">
+            <!-- Fill in with loadTemplate(...); call -->
         </div>
+        <p class="footer">
+            &COPY;&nbsp;
+            Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur.
+        </p>
 
         <form id="login" class="modal hide fade form-horizontal" action="#/authenticate" method="post">
             <div class="modal-header">

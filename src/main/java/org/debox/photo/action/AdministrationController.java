@@ -20,14 +20,14 @@
  */
 package org.debox.photo.action;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -38,11 +38,12 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.SyncJob;
-import org.debox.photo.model.Configuration;
-import org.debox.photo.model.SynchronizationMode;
-import org.debox.photo.model.User;
+import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
+import org.debux.webmotion.server.call.FileProgressListener;
+import org.debux.webmotion.server.call.UploadFile;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,17 +57,16 @@ public class AdministrationController extends DeboxController {
     protected SyncJob syncJob;
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
-    
     protected static UserDao userDao = new UserDao();
 
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
-        
+
         // Authenticating user must be a guest
         if (currentUser.isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        
+
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             currentUser.login(token);
@@ -79,20 +79,20 @@ public class AdministrationController extends DeboxController {
             logger.error(e.getMessage(), e);
             return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
         }
-        
+
         User user = (User) currentUser.getPrincipal();
         return renderJSON(user.getUsername());
     }
-    
+
     public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
         }
-        
+
         try {
             User user = (User) subject.getPrincipal();
-            
+
             boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
             if (!oldCredentialsChecked) {
                 return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
@@ -100,11 +100,11 @@ public class AdministrationController extends DeboxController {
 
             user.setUsername(username);
             user.setPassword(password);
-            
+
             userDao.save(user);
-            
+
             return renderJSON("username", username);
-            
+
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
@@ -116,7 +116,7 @@ public class AdministrationController extends DeboxController {
         if (!subject.isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        
+
         try {
             subject.logout();
 
@@ -130,7 +130,7 @@ public class AdministrationController extends DeboxController {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        
+
         if (syncJob == null) {
             return renderStatus(404);
         }
@@ -141,7 +141,7 @@ public class AdministrationController extends DeboxController {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        
+
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
 
@@ -150,7 +150,7 @@ public class AdministrationController extends DeboxController {
             getContext().addErrorMessage("source", "source.notdirectory");
             error = true;
         }
-        
+
         if (!Files.exists(source)) {
             getContext().addErrorMessage("source", "source.notexist");
             error = true;
@@ -177,7 +177,7 @@ public class AdministrationController extends DeboxController {
         configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
         configuration.set(Configuration.Key.TITLE, title);
         ApplicationContext.getInstance().saveConfiguration(configuration);
-        
+
         return renderJSON("configuration", configuration.get());
     }
 
@@ -185,22 +185,22 @@ public class AdministrationController extends DeboxController {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        
+
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
-        
+
         try {
             Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-            
+
             String strSource = configuration.get(Configuration.Key.SOURCE_PATH);
             String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
-            
+
             if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
                 return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
             }
-            
+
             Path source = Paths.get(strSource);
             Path target = Paths.get(strTarget);
 
@@ -230,8 +230,13 @@ public class AdministrationController extends DeboxController {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to synchronize directories");
         }
     }
-    
+
     public Render cancelSynchronization() {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
+        }
+
         if (syncJob != null) {
             syncJob.abort();
             return renderStatus(HttpURLConnection.HTTP_OK);
@@ -246,7 +251,7 @@ public class AdministrationController extends DeboxController {
         }
 
         String username = ((User) subject.getPrincipal()).getUsername();
-        
+
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
@@ -277,5 +282,66 @@ public class AdministrationController extends DeboxController {
         }
         return sync;
     }
-    
+
+    public Render getUploadProgress(FileProgressListener listener) {
+        return renderJSON(listener);
+    }
+
+    public Render handleThumbnailsArchive(String albumId, UploadFile file) {
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
+        }
+
+        Album album = null;
+        try {
+            album = albumDao.getAlbum(albumId);
+        } catch (SQLException ex) {
+            logger.error("Unable to get album from database", ex);
+        }
+        if (album == null) {
+            renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album not found");
+        }
+        
+        if (file == null) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "File must not be null.");
+        }
+
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        String targetPath = configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath();
+
+        try {
+            FileUtils.unzipArchiveToDirectory(file.getFile().getAbsolutePath(), targetPath);
+        } catch (IOException ex) {
+            logger.error("Unable to extract archive", ex);
+        }
+
+        try {
+            List<Photo> photos = photoDao.getPhotos(albumId);
+            File target = new File(targetPath);
+            for (File current : target.listFiles()) {
+                if (current.isDirectory()) {
+                    continue;
+                }
+                boolean ok = false;
+                for (Photo photo : photos) {
+                    for (ThumbnailSize size : ThumbnailSize.values()) {
+                        String thumbnailName = size.getPrefix() + photo.getName();
+                        if (thumbnailName.equals(current.getName())) {
+                            ok = true;
+                        }
+                    }
+                }
+                if (!ok) {
+                    current.delete();
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error("Unable to clean target directory", ex);
+        }
+
+        // Force reload uploadFrame
+        return renderContent(null, null);
+    }
+
 }
