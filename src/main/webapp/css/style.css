@@ -84,16 +84,23 @@ p.footer {
     font-size: 11px;
 }
 
-span.container {
+.thumbnail.cover > span.container {
     position: absolute;
     width: 210px;
     height: 210px;
+    -webkit-transition: background-color 0.25s ease;
+    -moz-transition: background-color 0.25s ease;
+    transition: background-color 0.25s ease;
+}
+
+.thumbnail.cover > span.container:hover {
+    background-color: rgba(255,255,255,0.20);
 }
 
 .thumbnail {
-    -webkit-transition: border-color 0.5s ease;
-    -moz-transition: border-color 0.5s ease;
-    transition: border-color 0.5s ease;
+    -webkit-transition: border-color 0.25s ease;
+    -moz-transition: border-color 0.25s ease;
+    transition: border-color 0.25s ease;
 }
 
 .thumbnail.cover {
@@ -121,37 +128,26 @@ span.container {
     text-align: right;
     background: rgba(12,27,30,0.75);
     border-top: 1px solid #aaa;
-    -webkit-transition: border-color 0.5s ease;
-    -moz-transition: border-color 0.5s ease;
-    transition: border-color 0.5s ease;
+    opacity: 1;
+    -webkit-transition: opacity 0.25s ease;
+    -moz-transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease;
 }
 
 .thumbnail.cover > span.container > span.title {
-    display: table;
-    width: 210px;
-    height: 50px;
-    max-height: 50px;
-    font-weight: bold;
-    color: #ddd;
-}
-
-.thumbnail.cover > span.container > span.title > span {
-    display: table-cell;
+    display: inline-block;
     background: rgba(12,27,30,0.75);
     text-align: center;
-    vertical-align: top;
-    padding: 0 5px;
-    max-width: 200px;
-    font-size: 18px;
+    padding: 5px;
+    width: 200px;
+    font-size: 16px;
     line-height: 25px;
-    max-height: 50px;
-    height: 50px;
     color: #ddd;
-    -webkit-transition: color 0.5s ease, height 0.5s ease, padding-top 0.5s ease;
-    -moz-transition: color 0.5s ease, height 0.5s ease;
-    transition: color 0.5s ease, height 0.5s ease;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: bold;
+    opacity: 1;
+    -webkit-transition: opacity 0.25s ease;
+    -moz-transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease;
 }
 
 .thumbnail.cover:hover {
@@ -160,15 +156,11 @@ span.container {
 }
 
 .thumbnail.cover:hover > span.container > span.count {
-    border-top-color: #E06800;
-    margin-top:0;
+    opacity: 0;
 }
 
-.thumbnail.cover:hover > span.container > span.title > span {
-    padding-top: 20px;
-    color: #E06800;
-    height: 170px;
-    white-space: normal;
+.thumbnail.cover:hover > span.container > span.title {
+    opacity: 0;
 }
 
 .thumbnails.admin a {
@@ -184,6 +176,27 @@ span.container {
 .thumbnails.admin a:hover {
     text-decoration: none;
     color: #E06800;
+}
+
+.thumbnails.photos .thumbnail {
+    width: 130px;
+    height: 130px;
+    background-size: contain;
+}
+
+.thumbnails.photos .thumbnail .container {
+    display: block;
+    width: 140px;
+    height: 140px;
+    margin-top: -5px;
+    margin-left: -5px;
+    -webkit-transition: background-color 0.25s ease;
+    -moz-transition: background-color 0.25s ease;
+    transition: background-color 0.25s ease;
+}
+
+.thumbnails.photos .thumbnail:hover .container {
+    background-color: rgba(255,255,255,0.25);
 }
 
 /* ************************************************************************** */

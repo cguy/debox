@@ -47,6 +47,7 @@ public class ApplicationContext {
 
     public Configuration saveConfiguration(Configuration configuration) throws SQLException {
         configurationDao.save(configuration);
+        ApplicationContext.configuration = configuration;
         return configuration;
     }
 

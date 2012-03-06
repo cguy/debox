@@ -32,9 +32,8 @@
     <ul class="thumbnails photos">
         {{#data.photos}}
         <li class="span2">
-            <!--<a class="thumbnail" href="#/photo/{{id}}">-->
-            <a  id="{{id}}" class="thumbnail" href="#/album/{{data.album.name}}/{{id}}">
-                <img class="photo" src="{{data.baseUrl}}{{thumbnailUrl}}" alt="{{name}}" title="{{name}}" style="background-color:#ddd;"/>
+            <a  id="{{id}}" class="thumbnail" href="#/album/{{data.album.name}}/{{id}}" title="{{name}}" style="background-color:#ddd;background-image:url('{{data.baseUrl}}{{thumbnailUrl}}')">
+                <span class="container"></span>
                 <span style="display:none;">{{data.baseUrl}}{{url}}</span>
             </a>
         </li>

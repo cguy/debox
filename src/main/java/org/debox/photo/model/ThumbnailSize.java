@@ -70,7 +70,7 @@ public enum ThumbnailSize {
             
             if (size1 == size2) {
                 return 0;
-            } else if (size1 > size2) {
+            } else if (size1 < size2) {
                 return 1;
             }
             return -1;

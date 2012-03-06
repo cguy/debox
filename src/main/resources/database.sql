@@ -24,6 +24,16 @@ CREATE DATABASE IF NOT EXISTS `debox-photos` DEFAULT CHARACTER SET utf8 COLLATE 
 
 USE `debox-photos`;
 
+DROP TABLE IF EXISTS `photos_generation`;
+DROP TABLE IF EXISTS `photos`;
+DROP TABLE IF EXISTS `albums_tokens`;
+DROP TABLE IF EXISTS `tokens`;
+DROP TABLE IF EXISTS `albums`;
+DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `visibilities`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `configurations`;
+
 CREATE TABLE IF NOT EXISTS `configurations` (
     `key` VARCHAR(255) PRIMARY KEY,
     `value` VARCHAR(255) NOT NULL
