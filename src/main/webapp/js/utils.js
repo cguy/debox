@@ -78,7 +78,7 @@ function ajax(object) {
     
 function computeUrl(url) {
     if (location.pathname != "/") {
-        var token = location.pathname.substring(1, location.pathname.length - 1);
+        var token = location.pathname.substring(baseUrl.length, location.pathname.length - 1);
         var separator = url.indexOf("?") == -1 ? "?" : "&";
         return url + separator + "token=" + token;
     }
