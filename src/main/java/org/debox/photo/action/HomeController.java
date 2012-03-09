@@ -74,7 +74,7 @@ public class HomeController extends DeboxController {
                     try (FileInputStream fis = new FileInputStream(child)) {
                         
                         String filename = StringUtils.substringBeforeLast(child.getName(), ".");
-                        String content = IOUtils.toString(fis);
+                        String content = IOUtils.toString(fis, "UTF-8");
 
                         templates.put(filename, content);
 
