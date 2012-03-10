@@ -170,25 +170,23 @@ public class SyncJob implements FileVisitor<Path> {
         album.setRelativePath(StringUtils.substringAfter(currentPath.toString(), this.source.toString()));
         album.setVisibility(Album.Visibility.PRIVATE);
         album.setDownloadable(false);
-        album.setPhotosCount(0);
 
         // Search for parent & for any already existing
         Album parent = null;
         boolean existing = false;
         for (Album current : albums.keySet()) {
-            
-            if (current.getRelativePath().equals(currentPath.toString())) {
+            String currentRelativePath = this.source + current.getRelativePath();
+            if (currentRelativePath.equals(currentPath.toString())) {
                 album = current;
                 existing = true;
-            } else if (current.getRelativePath().equals(currentPath.getParent().toString())) {
+            } else if (currentRelativePath.equals(currentPath.getParent().toString())) {
                 parent = current;
                 break;
             }
         }
-        
-        if (existing) {
-            album.setPhotosCount(0);
-        } else if (parent != null) {
+        //in any case, set the photo count to 0
+        album.setPhotosCount(0);
+        if (!existing && parent != null) {
             album.setParentId(parent.getId());
         }
 
