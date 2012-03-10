@@ -312,7 +312,7 @@ $(document).ready(function() {
                         if (data.sync) {
                             $("#sync-progress").show();
                             var refreshProgressBar = function(data) {
-                                $("#sync-progress h3 span").html(data.percent + "&nbsp;%");
+                                $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
                                 $("#sync-progress .bar").css("width", data.percent+"%");
                                 if (data.percent < 100) {
                                     $("#configuration-form input").attr("disabled", "disabled");
@@ -323,6 +323,7 @@ $(document).ready(function() {
                                     $("#configuration-form input").removeAttr("disabled");
                                     $("#sync-progress").removeClass("alert-info");
                                     $("#sync-progress").addClass("alert-success");
+                                    $("#test").text("Synchronisation terminée");
                                     $("#sync-progress .progress").removeClass("progress-info active");
                                     $("#sync-progress .progress").addClass("progress-success");
                                     $("#sync-progress .btn-warning").hide();

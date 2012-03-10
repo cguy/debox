@@ -2,7 +2,7 @@
 
 <div id="sync-progress" class="alert alert-info hide">
     <h3 class="alert-heading" style="line-height:50px;">
-        Synchronisation en cours&hellip;&nbsp;<span></span>
+        <span id="test">Synchronisation en cours</span>&hellip;&nbsp;<span id="progress-percentage"></span>
         <button class="btn btn-warning pull-right" style="margin: 5px -20px 0 20px;">Annuler la synchronisation</button>
     </h3>
     <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
