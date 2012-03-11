@@ -323,7 +323,7 @@ $(document).ready(function() {
                                     $("#configuration-form input").removeAttr("disabled");
                                     $("#sync-progress").removeClass("alert-info");
                                     $("#sync-progress").addClass("alert-success");
-                                    $("#test").text("Synchronisation terminée");
+                                    $("#sync-progress h3 #progress-label").text("Synchronisation terminée");
                                     $("#sync-progress .progress").removeClass("progress-info active");
                                     $("#sync-progress .progress").addClass("progress-success");
                                     $("#sync-progress .btn-warning").hide();
