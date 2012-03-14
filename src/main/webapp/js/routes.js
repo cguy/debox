@@ -459,6 +459,9 @@ $(document).ready(function() {
         
         $("#administration_albums button.actions").click(function() {
             var id = $(this).parents("tr").attr("id");
+            //add date the query just to avoid the cache
+            var d = new Date();
+            $("#actions_album_thumbnail").css("background-image", "url('" + baseUrl + "album/" + id  + "/cover?" + d.getTime() + "')");
             $("#actions_album input[type=hidden]").val(id);
             $("#actions_album").modal();
         });
@@ -527,6 +530,20 @@ $(document).ready(function() {
                     
             // DO NOT REMOVE, avoid hash part change
             event.preventDefault();
+        });
+
+        $("#actions_album_random_cover").click(function(event) {
+            var id = $("#actions_album input[type=hidden]").val();
+            $.ajax({
+                url: baseUrl + "album/" + id + "/cover",
+                type : "post",
+                success: function() {
+                    //add date the query just to avoid the cache
+                    var d = new Date();
+                    $("#actions_album_thumbnail").css("background-image", "url('" + baseUrl + "album/" + id  + "/cover?" + d.getTime() + "')");
+                }
+            });
+            return false;
         });
         
     }

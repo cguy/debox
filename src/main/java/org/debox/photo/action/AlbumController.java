@@ -124,6 +124,15 @@ public class AlbumController extends DeboxController {
         return renderJSON(album);
     }
 
+    public Render setAlbumCover(String albumId, String photoId) throws SQLException, IOException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        photoDao.setAlbumCover(albumId, photoId);
+        
+        return null;
+    }
+
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {

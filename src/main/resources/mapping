@@ -50,6 +50,7 @@ GET   /api/album/{albumName}                    AlbumController.getAlbum
 # MEDIA - STREAMS
 # -----------------------------------------------------------------------------------------------
 GET   /album/{albumId}/cover                    AlbumController.getAlbumCover
+POST  /album/{albumId}/cover                    AlbumController.setAlbumCover
 GET   /thumbnail/{photoId}                      PhotoController.getThumbnail
 GET   /photo/{photoId}                          PhotoController.getPhotoStream
 

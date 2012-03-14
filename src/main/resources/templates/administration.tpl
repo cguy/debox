@@ -256,6 +256,12 @@
         <!--<h2 class="page-header">Régénération des vignettes par le serveur</h2>
         <button class="btn">Rénégérer toutes les vignettes de l'album</button>-->
 
+        <h2 class="page-header">Choix de la couverture de l'album</h2>
+        <button id="actions_album_random_cover" class="btn btn-info pull-right">Random</button>
+        <div style="width: 430px">
+            <div style="margin: auto" id="actions_album_thumbnail" class="thumbnail cover"></div>
+        </div>
+
         <h2 class="page-header">Chargement d'une archive de vignettes</h2>
 
         <iframe id="uploadFrame" name="uploadFrame" height="0" width="0" frameborder="0" scrolling="yes"></iframe>
