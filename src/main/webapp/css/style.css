@@ -34,7 +34,7 @@ body > .container-fluid {
 }
 
 h2.page-header {
-    margin: 30px 0 15px;
+    margin: 0 0 15px 0;
     padding-bottom: 0;
 }
 
@@ -112,6 +112,12 @@ p.footer {
     background-repeat: no-repeat;
     background-color: #eee;
     border-color: rgba(0,123,224,0.75);
+}
+
+#actions_album_thumbnail.thumbnail.cover {
+    width: 150px;
+    height: 150px;
+    background-size: 150px 150px;
 }
 
 .thumbnail.cover > span.container > span.count {

@@ -258,7 +258,7 @@
 
         <h2 class="page-header">Choix de la couverture de l'album</h2>
         <button id="actions_album_random_cover" class="btn btn-info pull-right">Random</button>
-        <div style="width: 430px">
+        <div style="width: 430px; margin-bottom: 20px">
             <div style="margin: auto" id="actions_album_thumbnail" class="thumbnail cover"></div>
         </div>
 
