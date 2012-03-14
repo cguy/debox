@@ -25,6 +25,7 @@ CREATE DATABASE IF NOT EXISTS `debox-photos` DEFAULT CHARACTER SET utf8 COLLATE 
 USE `debox-photos`;
 
 DROP TABLE IF EXISTS `photos_generation`;
+DROP TABLE IF EXISTS `album_covers`;
 DROP TABLE IF EXISTS `photos`;
 DROP TABLE IF EXISTS `albums_tokens`;
 DROP TABLE IF EXISTS `tokens`;
@@ -92,6 +93,14 @@ CREATE TABLE IF NOT EXISTS `photos` (
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX USING BTREE (`album_id`),
     INDEX USING BTREE (`relative_path`(255))
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `album_covers` (
+    `album_id` VARCHAR(32),
+    `photo_id` VARCHAR(32),
+    PRIMARY KEY (`album_id`),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `photos_generation` (
