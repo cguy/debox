@@ -65,7 +65,7 @@
         </div>
         <p class="footer">
             &COPY;&nbsp;
-            Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur.
+            Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur - Ce site Internet utilise le projet libre <a href="http://projects.debux.org/projects/debox-photos">debox-photos</a>.
         </p>
 
         <form id="login" class="modal hide fade form-horizontal" action="#/authenticate" method="post">
