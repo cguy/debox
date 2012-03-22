@@ -1,7 +1,7 @@
 {{#data.albums.length}}
 <ul class="thumbnails">
     {{#data.albums}}
-    <li class="span3">
+    <li>
         <a class="thumbnail cover" href="#/album/{{name}}" style="background-image:url('{{data.baseUrl}}{{coverUrl}}')">
             <span class="container">
                 <span class="title"><span>{{name}}</span></span>

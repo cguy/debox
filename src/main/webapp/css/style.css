@@ -86,8 +86,8 @@ p.footer {
 
 .thumbnail.cover > span.container {
     position: absolute;
-    width: 210px;
-    height: 210px;
+    width: 180px;
+    height: 180px;
     -webkit-transition: background-color 0.25s ease;
     -moz-transition: background-color 0.25s ease;
     transition: background-color 0.25s ease;
@@ -97,6 +97,14 @@ p.footer {
     background-color: rgba(255,255,255,0.20);
 }
 
+.thumbnails {
+    padding: 0 10px;
+}
+
+.thumbnails li {
+    margin: 8px;
+}
+
 .thumbnail {
     -webkit-transition: border-color 0.25s ease;
     -moz-transition: border-color 0.25s ease;
@@ -104,14 +112,24 @@ p.footer {
 }
 
 .thumbnail.cover {
-    padding: 5px;
-    width: 210px;
-    height: 210px;
-    background-position: 5px 5px;
-    background-size: 210px 210px;
+    width: 180px;
+    height: 180px;
+    padding: 2px;
+    background-position: 2px 2px;
+    background-size: 180px 180px;
     background-repeat: no-repeat;
     background-color: #eee;
     border-color: rgba(0,123,224,0.75);
+    border-color: #999;
+    border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -moz-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -ms-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -o-transition: border linear 0.2s, box-shadow 0.15s ease;
+    transition: border linear 0.2s, box-shadow 0.15s ease;
 }
 
 #actions_album_thumbnail.thumbnail.cover {
@@ -124,9 +142,8 @@ p.footer {
     position: absolute;
     bottom: 0px;
     display: block;
-    width: 210px;
     padding-right: 5px;
-    width: 205px;
+    width: 175px;
     height: 20px;
     font-size: 12px;
     line-height: 20px;
@@ -145,9 +162,9 @@ p.footer {
     background: rgba(12,27,30,0.75);
     text-align: center;
     padding: 5px;
-    width: 200px;
-    font-size: 16px;
-    line-height: 25px;
+    width: 170px;
+    font-size: 15px;
+    line-height: 20px;
     color: #ddd;
     font-weight: bold;
     opacity: 1;
@@ -158,7 +175,11 @@ p.footer {
 
 .thumbnail.cover:hover {
     text-decoration: none;
-    border-color: #E06800;
+    border-color: #007be0;
+    border-color: #ccc;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(236, 236, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 82, 82, 0.6);
 }
 
 .thumbnail.cover:hover > span.container > span.count {
@@ -188,6 +209,15 @@ p.footer {
     width: 130px;
     height: 130px;
     background-size: contain;
+    border: none;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -moz-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -ms-transition: border linear 0.2s, box-shadow 0.15s ease;
+    -o-transition: border linear 0.2s, box-shadow 0.15s ease;
+    transition: border linear 0.2s, box-shadow 0.15s ease;
 }
 
 .thumbnails.photos .thumbnail .container {
@@ -203,6 +233,12 @@ p.footer {
 
 .thumbnails.photos .thumbnail:hover .container {
     background-color: rgba(255,255,255,0.25);
+}
+
+.thumbnails.photos .thumbnail:hover {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(236, 236, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 82, 82, 0.6);
 }
 
 /* ************************************************************************** */
