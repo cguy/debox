@@ -99,8 +99,7 @@ public class AlbumController extends DeboxController {
         return renderJSON(album);
     }
 
-    /* Use boolean type with 2.1 WebMotion version */
-    public Render editAlbum(String id, String name, String visibility, Boolean downloadable) throws SQLException {
+    public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
@@ -112,11 +111,6 @@ public class AlbumController extends DeboxController {
 
         album.setName(name);
         album.setVisibility(Album.Visibility.valueOf(visibility.toUpperCase()));
-        
-        if (downloadable == null) {
-            downloadable = false;
-        }
-        
         album.setDownloadable(downloadable);
 
         albumDao.save(album);

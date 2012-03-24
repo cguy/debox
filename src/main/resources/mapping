@@ -25,9 +25,7 @@ DELETE      /session                            AdministrationController.logout
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
 GET         /album/{albumId}                    AlbumController.getAlbumById
-# POST        /album                              AlbumController.editAlbum                       downloadable=false
-# Uncomment previous line and delete following while WebMotion 2.1 will be released.
-POST        /album                              AlbumController.editAlbum
+POST        /album                              AlbumController.editAlbum                           downloadable=false
 POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                     AdministrationController.getUploadProgress
 
