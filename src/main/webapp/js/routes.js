@@ -22,15 +22,6 @@ $(document).ready(function() {
     
     Sammy(function() {
         
-        //        this.get("#/photo/:photo", function() {
-        //            ajax({
-        //                url: baseUrl + "deploy/api/photo/" + this.params['photo'],
-        //                success: function(data) {
-        //                    loadTemplate("photo", data);
-        //                }
-        //            });
-        //        });
-        
         this.get('#/album/:album', function() {
             if ($("h1 a").text() == this.params['album']) {
                 return;
@@ -513,24 +504,6 @@ $(document).ready(function() {
         // Need to refresh binding because of DOM operations
         $("button[type=reset]").click(hideModal);
         $('form.modal').on('hidden', resetModalForm);
-                
-        $(".thumbnails.admin a").click(function(event) {
-            $(".admin_part").hide();
-        });
-                
-        $("a[href=#albums]").click(function(event) {
-            $("#albums").show();
-                    
-            // DO NOT REMOVE, avoid hash part change
-            event.preventDefault();
-        });
-                
-        $("a[href=#tokens]").click(function(event) {
-            $("#tokens").show();
-                    
-            // DO NOT REMOVE, avoid hash part change
-            event.preventDefault();
-        });
 
         $("#actions_album_random_cover").click(function(event) {
             var id = $("#actions_album input[type=hidden]").val();

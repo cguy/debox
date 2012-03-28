@@ -68,8 +68,14 @@ function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
             var status = xhr.status;
-            if (status == 404 || status == 403) {
+            if (status == 404) {
                 loadTemplate(status);
+            } else if (status == 403) {
+                loadTemplate(status);
+                loadTemplate("header", {
+                        "username" : null,
+                        "title" : $("a.brand").html()
+                    }, ".navbar .container-fluid");
             }
         }
     }

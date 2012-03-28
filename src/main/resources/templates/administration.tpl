@@ -10,133 +10,129 @@
     </div>
 </div>
 
-<ul class="thumbnails admin">
-    <li class="span4">
-        <a href="#modal-configuration" data-toggle="modal" class="thumbnail">
-            <img src="{{data.baseUrl}}img/folder-settings.png" alt="" title="" />
-            Configuration générale
-        </a>
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#modal-configuration" data-toggle="modal"><i class="icon-cog"></i>&nbsp;Configuration générale</a>
     </li>
-    <li class="span4">
-        <a href="#modal-sync" data-toggle="modal" class="thumbnail">
-            <img src="{{data.baseUrl}}img/folder-script.png" alt="" title="" />
-            Synchroniser les répertoires
-        </a>
+    <li>
+        <a href="#modal-sync" data-toggle="modal"><i class="icon-refresh"></i>&nbsp;Synchroniser les répertoires</a>
     </li>
-    <li class="span4">
-        <a href="#albums" class="thumbnail">
-            <img src="{{data.baseUrl}}img/folder-images.png" alt="" title="" />
+    <li class="active">
+        <a href="#albums" data-toggle="tab">
+            <i class="icon-camera"></i>&nbsp;
             Gestion des albums photos
         </a>
     </li>
-    <li class="span4">
-        <a href="#tokens" class="thumbnail">
-            <img src="{{data.baseUrl}}img/folder-web.png" alt="" title="" />
+    <li>
+        <a href="#tokens" data-toggle="tab">
+            <i class="icon-user"></i>&nbsp;
             Gestion des accès visiteurs
         </a>
     </li>
-    <li class="span4">
-        <a data-toggle="modal" href="#modal-account" class="thumbnail">
-            <img src="{{data.baseUrl}}img/folder-user.png" alt="" title="" />
+    <li>
+        <a href="#modal-account" data-toggle="modal">
+            <i class="icon-pencil"></i>&nbsp;
             Modifier mes identifiants de connexion
         </a>
-    </li>    
+    </li>   
 </ul>
 
-<div id="albums" class="hide admin_part">
-    <h2 class="page-header">Liste des albums</h2>
-    {{#data.albums.length}}
-    <table id="administration_albums" class="table table-striped table-bordered table-condensed">
-        <thead>
-            <tr>
-                <th>Nom de l'album</th>
-                <th>Répertoire source</th>
-                <th style="width:65px;text-align:center;">Téléchargeable</th>
-                <th style="width:65px;text-align:center;">Visibilité</th>
-                <th style="width:275px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#data.albums}}
-            <tr id="{{id}}">
-                <td class="name"><strong>{{name}}</strong></td>
-                <td class="relativePath">{{relativePath}}</td>
-                <td class="downloadable" style="text-align: center;">
-                    {{#downloadable}}
-                        <i class="icon-ok"></i>&nbsp;Oui
-                    {{/downloadable}}
-                    {{^downloadable}}
-                        <i class="icon-ban-circle"></i>&nbsp;Non
-                    {{/downloadable}}
-                </td>
-                <td class="visibility">
-                    {{#visibility}}
-                        <i class="icon-ok"></i>&nbsp;Public
-                    {{/visibility}}
-                    {{^visibility}}
-                        <i class="icon-ban-circle"></i>&nbsp;Privé
-                    {{/visibility}}
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn actions"><i class="icon-cog"></i>&nbsp;Actions</button>
-                        <button class="btn edit"><i class="icon-pencil"></i>&nbsp;Modifier</button>
-                        <a class="btn" target="_blank" href="download/album/{{id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
-                    </div>
-                </td>
-            </tr>
+<div class="tab-content">
+    <div id="albums" class="tab-pane active admin_part">
+        <h2>Liste des albums</h2>
+        {{#data.albums.length}}
+        <table id="administration_albums" class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>Nom de l'album</th>
+                    <th>Répertoire source</th>
+                    <th style="width:65px;text-align:center;">Téléchargeable</th>
+                    <th style="width:65px;text-align:center;">Visibilité</th>
+                    <th style="width:275px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#data.albums}}
+                <tr id="{{id}}">
+                    <td class="name"><strong>{{name}}</strong></td>
+                    <td class="relativePath">{{relativePath}}</td>
+                    <td class="downloadable" style="text-align: center;">
+                        {{#downloadable}}
+                            <i class="icon-ok"></i>&nbsp;Oui
+                        {{/downloadable}}
+                        {{^downloadable}}
+                            <i class="icon-ban-circle"></i>&nbsp;Non
+                        {{/downloadable}}
+                    </td>
+                    <td class="visibility">
+                        {{#visibility}}
+                            <i class="icon-ok"></i>&nbsp;Public
+                        {{/visibility}}
+                        {{^visibility}}
+                            <i class="icon-ban-circle"></i>&nbsp;Privé
+                        {{/visibility}}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn actions"><i class="icon-cog"></i>&nbsp;Actions</button>
+                            <button class="btn edit"><i class="icon-pencil"></i>&nbsp;Modifier</button>
+                            <a class="btn" target="_blank" href="download/album/{{id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
+                        </div>
+                    </td>
+                </tr>
+            {{/data.albums}}
+            </tbody>
+        </table>
+        {{/data.albums.length}}
+
+        {{^data.albums}}
+        <p class="alert">Aucun album n'a été créé pour le moment !</p>
         {{/data.albums}}
-        </tbody>
-    </table>
-    {{/data.albums.length}}
+    </div>
 
-    {{^data.albums}}
-    <p class="alert">Aucun album n'a été créé pour le moment !</p>
-    {{/data.albums}}
-</div>
+    <div id="tokens" class="tab-pane admin_part">
+        <h2>Gestion des accès visiteurs</h2>
+        <h3>Liste des groupes</h3>
+        <table id="administration_tokens" class="table table-striped table-bordered table-condensed{{^data.tokens}} hide{{/data.tokens}}">
+            <thead>
+                <tr>
+                    <th>Libellé</th>
+                    <th>Albums</th>
+                    <th style="width:120px;">Lien à partager</th>
+                    <th style="width:185px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#data.tokens}}
+                <tr id="{{id}}">
+                    <td class="access_label">{{label}}</td>
+                    <td class="albums">
+                        {{^albums}}
+                            Aucun album n'est visible pour cet accès
+                        {{/albums}}
+                        {{#albums}}
+                            <a href="#/album/{{name}}">{{name}}</a><br />
+                        {{/albums}}
+                    </td>
+                    <td><a href="{{id}}/#/">Lien</a></td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
+                            <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>
+                        </div>
+                    </td>
+                </tr>
+            {{/data.tokens}}
+            </tbody>
+        </table>
+        <p class="alert alert-warning{{#data.tokens.length}} hide{{/data.tokens.length}}">Aucun accès visiteur n'a été créé !</p>
 
-<div id="tokens" class="hide admin_part">
-    <h2 class="page-header">Gestion des accès visiteurs</h2>
-    <h3>Liste des groupes</h3>
-    <table id="administration_tokens" class="table table-striped table-bordered table-condensed{{^data.tokens}} hide{{/data.tokens}}">
-        <thead>
-            <tr>
-                <th>Libellé</th>
-                <th>Albums</th>
-                <th style="width:120px;">Lien à partager</th>
-                <th style="width:185px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#data.tokens}}
-            <tr id="{{id}}">
-                <td class="access_label">{{label}}</td>
-                <td class="albums">
-                    {{^albums}}
-                        Aucun album n'est visible pour cet accès
-                    {{/albums}}
-                    {{#albums}}
-                        <a href="#/album/{{name}}">{{name}}</a><br />
-                    {{/albums}}
-                </td>
-                <td><a href="{{id}}/#/">Lien</a></td>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
-                        <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>
-                    </div>
-                </td>
-            </tr>
-        {{/data.tokens}}
-        </tbody>
-    </table>
-    <p class="alert alert-warning{{#data.tokens.length}} hide{{/data.tokens.length}}">Aucun accès visiteur n'a été créé !</p>
-
-    <h3>Créer un nouveau accès visiteur</h3>
-    <form id="form-token-create" class="well form-search" action="#/token" method="put">
-        <input type="text" required name="label" class="input" placeholder="Nom du nouveau accès">
-        <button type="submit" class="btn btn-primay">Créer l'accès</button>
-    </form>
+        <h3>Créer un nouveau accès visiteur</h3>
+        <form id="form-token-create" class="well form-search" action="#/token" method="put">
+            <input type="text" required name="label" class="input" placeholder="Nom du nouvel accès">
+            <button type="submit" class="btn btn-primay">Créer l'accès</button>
+        </form>
+    </div>
 </div>
 
 {{! ========================================================== }}
@@ -170,8 +166,8 @@
     <div class="modal-footer">
         <input type="hidden" name="force" />
         <input type="submit" class="btn btn-danger" style="float:left;" data-loading-text="Traitement en cours ..." value="Enregistrer et synchroniser" />
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Enregistrer et fermer" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>
 
@@ -197,8 +193,8 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Lancer la synchronisation" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>
 
@@ -239,8 +235,8 @@
     </div>
     <div class="modal-footer">
         <input type="hidden" name="id" />
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>
 
@@ -318,8 +314,8 @@
     </div>
     <div class="modal-footer">
         <input type="hidden" name="id" />
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>
 
@@ -337,8 +333,8 @@
     </div>
     <div class="modal-footer">
         <input type="hidden" name="id" />
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-danger" data-loading-text="Suppression en cours ..." value="Supprimer" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>
 
@@ -378,7 +374,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="reset" class="btn">Annuler</button>
         <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Valider" />
+        <button type="reset" class="btn">Annuler</button>
     </div>
 </form>

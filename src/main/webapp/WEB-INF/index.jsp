@@ -39,7 +39,7 @@
         <script type="text/javascript" src="<c:url value="/js/slideshow.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/utils.js" />"></script>
 
-        <link rel="stylesheet" href="<c:url value="/css/bootstrap.css" />" />
+        <link rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />" />
         <link rel="stylesheet" href="<c:url value="/css/style.css" />" />
 
         <script type="text/javascript">
@@ -89,8 +89,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="reset" class="btn">Annuler</button>
                 <input type="submit" class="btn btn-primary" data-loading-text="Connexion en cours ..." value="Connexion" />
+                <button type="reset" class="btn">Annuler</button>
             </div>
         </form>
     </body>
