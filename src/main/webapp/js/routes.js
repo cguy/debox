@@ -100,18 +100,18 @@ $(document).ready(function() {
         /* Aministration access */
         /* ******************** */
         this.post('#/administration/credentials', function() {
-            $("#modal-account input[type=submit]").button('loading');
-            $("#modal-account p").html("");
+            $("#account input[type=submit]").button('loading');
+            $("#account p").html("");
             var context = this;
             
             $.ajax({
                 url: baseUrl + "administration/credentials",
                 type : "post",
-                data : $("#modal-account").serializeArray(),
+                data : $("#account").serializeArray(),
                 success: function(data) {
-                    $("#modal-account").modal("hide");
-                    $("#modal-account input[type=submit]").button('reset');
-                    $("#modal-account p").removeClass("alert alert-error");
+                    $("#account").modal("hide");
+                    $("#account input[type=submit]").button('reset');
+                    $("#account p").removeClass("alert alert-error");
                     
                     loadTemplate("header", {
                         "username" : data.username,
@@ -120,12 +120,12 @@ $(document).ready(function() {
                     context.redirect("#/administration");
                 },
                 error: function(xhr) {
-                    $("#modal-account input[type=submit]").button('reset');
-                    $("#modal-account p").addClass("alert alert-error");
+                    $("#account input[type=submit]").button('reset');
+                    $("#account p").addClass("alert alert-error");
                     if (xhr.status == 401) {
-                        $("#modal-account p").html("Erreur durant l'opération, les identifiants rentrés ne correspondent pas.");
+                        $("#account p").html("Erreur durant l'opération, les identifiants rentrés ne correspondent pas.");
                     } else {
-                        $("#modal-account p").html("Erreur pendant l'opération.");
+                        $("#account p").html("Erreur pendant l'opération.");
                     }
                 }
             });
@@ -134,9 +134,7 @@ $(document).ready(function() {
         
         this.post('#/administration/configuration', function() {
             var context = this;
-            $("#modal-configuration input[type=submit]").button("loading");
-            
-            var data = $("#modal-configuration").serializeArray();
+            var data = $("#configuration form").serializeArray();
             var force = false;
             for (var i = 0 ; i < data.length ; i++) {
                 if (data[i].name == "force" && data[i].value == "true") {
@@ -144,27 +142,35 @@ $(document).ready(function() {
                     delete data[i];
                 }
             }
+            
+            var targetBtn;
+            if (force) {
+                targetBtn = $("#configuration button");
+            } else {
+                targetBtn = $("#configuration input[type=submit]");
+            }
+            targetBtn.button("loading");
+            
             $.ajax({
                 url: baseUrl + "administration/configuration",
                 type : "post",
                 data : data,
                 success: function(data) {
-                    $("#modal-configuration input[type=submit]").button("reset");
+                    targetBtn.button("reset");
                     loadTemplate("header", {
                         "username" : $(".navbar-text.pull-right strong").html(), 
-                        "title" : data.title
+                        "title" : data.configuration.title
                     }, ".navbar .container-fluid");
-                    $("#modal-configuration").modal("hide");
                     
                     if (force) {
-                        $("#modal-sync input[type=checkbox]").attr("checked", "checked");
-                        $("#modal-sync").submit();
+                        $("#sync form input[type=checkbox]").attr("checked", "checked");
+                        $("#sync form").submit();
                     } else {
                         context.redirect("#/administration");
                     }
                 },
                 error: function() {
-                    $("#modal-configuration input[type=submit]").button("reset");
+                    targetBtn.button("reset");
                     alert("Error");
                 }
             });
@@ -173,24 +179,24 @@ $(document).ready(function() {
         
         this.post('#/administration/sync', function() {
             var context = this;
-            $("#modal-sync input[type=submit]").button("loading");
+            $("#sync form input[type=submit]").button("loading");
             $.ajax({
                 url: baseUrl + "administration/sync",
                 type : "post",
-                data : $("#modal-sync").serializeArray(),
+                data : $("#sync form").serializeArray(),
                 success: function(data) {
-                    $("#modal-sync input[type=submit]").button("reset");
-                    $("#modal-sync").modal("hide");
+                    $("#sync form input[type=submit]").button("reset");
+                    $("#sync form").modal("hide");
                     context.redirect("#/administration");
                 },
                 error: function(xhr) {
-                    $("#modal-sync input[type=submit]").button("reset");
-                    $("#modal-sync p.error").addClass("alert alert-error");
+                    $("#sync form input[type=submit]").button("reset");
+                    $("#sync form p.error").addClass("alert alert-error");
                     
                     if (xhr.status == 409) {
-                        $("#modal-sync p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
+                        $("#sync form p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
                     } else {
-                        $("#modal-sync p.error").text("Erreur de communication avec le serveur.");
+                        $("#sync form p.error").text("Erreur de communication avec le serveur.");
                     }
                 }
             });
@@ -287,7 +293,13 @@ $(document).ready(function() {
             return false;
         });
         
-        this.get('#/administration', function() {
+        this.get('#/administration(/:tab)?', function() {
+            var tabId = this.params['tab'];
+            if ($("#administration").length > 0) {
+                $(".nav-tabs a[data-target|=\"#" + tabId.substr(1) + "\"]").tab("show");
+                return;
+            }
+            
             editTitle($("a.brand").text() + " - Administration");
             ajax({
                 url: baseUrl + "administration",
@@ -330,6 +342,14 @@ $(document).ready(function() {
                                 });
                             }
                             refreshProgressBar(data.sync);
+                        }
+                        
+                        if (tabId) {
+                            console.log(tabId);
+                            $(".nav-tabs a[data-target|=\"#" + tabId.substr(1) + "\"]").tab("show");
+                        } else {
+                            console.log(tabId);
+                            $(".nav-tabs a[data-target|=\"#configuration\"]").tab("show");
                         }
                     });
                 }
@@ -413,9 +433,7 @@ $(document).ready(function() {
                         var plural = (album.photosCount > 1) ? "s" : ""
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
-                    loadTemplate("home", data, null, function() {
-//                        $("a").hover(test);
-                    });
+                    loadTemplate("home", data);
                 }
             });
         }); // End route
@@ -444,8 +462,9 @@ $(document).ready(function() {
             });
         });
         
-        $("#modal-configuration input[type=submit].btn-danger").click(function(){
-            $(this).parents(".modal").find("input[type=hidden]").val(true);
+        $("#configuration .btn-danger").click(function(){
+            $(this).parents("form").find("input[type=hidden]").val(true);
+            $(this).parents("form").submit();
         });
         
         $("#administration_albums button.actions").click(function() {

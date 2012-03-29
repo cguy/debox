@@ -23,7 +23,6 @@ body {
     background-color: #fff;
 }
 
-
 .container > footer p {
     text-align: center;
 }
@@ -61,14 +60,6 @@ h1 small {
     padding-left: 10px;
 }
 
-.modal form {
-    margin-bottom: 0;
-}
-
-form.form-inline input {
-    margin: 0 5px;
-}
-
 #administration_albums td, #administration_tokens td {
     vertical-align: middle;
 }
@@ -77,11 +68,64 @@ form.form-inline input {
     text-align: center;
 }
 
+#account form, #configuration form,  #sync form {
+    width: 500px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#configuration form {
+    width: 450px;
+}
+
+#sync form {
+    width: 560px;
+}
+
+#account form .form-actions, #configuration form .form-actions,  #sync form .form-actions {
+    margin-bottom: 0;
+    text-align: right;
+}
+
+#account form label {
+    width: 250px;
+    margin-right: 10px;
+}
+
+.tab-content .form-vertical, .tab-content .form-horizontal {
+    max-width: 978px;
+    margin: 0 auto;
+}
+
 p.footer {
     margin-top: 3px;
     text-align: center;
     color: #888;
     font-size: 11px;
+}
+
+.album.admin.thumbnail {
+    width: 450px;
+    height: 150px;
+    background-size: 150px 150px;
+    background-repeat: no-repeat;
+    background-position: 5px 5px;
+    color: #333;
+}
+
+.album.admin.thumbnail:hover {
+    text-decoration: none;
+}
+
+.album.admin.thumbnail ul {
+    margin-left: 160px;
+}
+
+.album.admin.thumbnail ul li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .thumbnail.cover > span.container {
@@ -103,6 +147,10 @@ p.footer {
 
 .thumbnails li {
     margin: 8px;
+}
+
+#albums .thumbnails li {
+    margin: 5px 3px;
 }
 
 .thumbnail {

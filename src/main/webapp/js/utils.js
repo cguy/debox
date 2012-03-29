@@ -72,10 +72,12 @@ function ajax(object) {
                 loadTemplate(status);
             } else if (status == 403) {
                 loadTemplate(status);
-                loadTemplate("header", {
-                        "username" : null,
-                        "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
+                if ($(".brand").length > 0) {
+                    loadTemplate("header", {
+                            "username" : null,
+                            "title" : $("a.brand").html()
+                        }, ".navbar .container-fluid");
+                }
             }
         }
     }
