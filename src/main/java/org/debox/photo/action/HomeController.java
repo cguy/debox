@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.model.Configuration;
@@ -45,22 +44,29 @@ import org.slf4j.LoggerFactory;
 public class HomeController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-
-    public Render index() {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        String username = "null";
-        if (user != null) {
-            username = "\"" + StringEscapeUtils.escapeHtml4(user.getUsername()) + "\"";
-        }
-
+    
+    public Render renderTemplates() {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
-        title = "\"" + StringEscapeUtils.escapeHtml4(title) + "\"";
-
-        return renderView("index.jsp", "title", title, "username", username);
+        
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        String username = null;
+        if (user != null) {
+            username = user.getUsername();
+        }
+        
+        Map<String, String> headerData = new HashMap<>(2);
+        headerData.put("title", title);
+        headerData.put("username", username);
+        
+        Map<String, Object> result = new HashMap<>(2);
+        result.put("config", headerData);
+        result.put("templates", getTemplates());
+        
+        return renderJSON(result);
     }
 
-    public Render getTemplates() {
+    protected Map<String, Object> getTemplates() {
         Map<String, Object> templates = new HashMap<>();
 
         try {
@@ -88,6 +94,6 @@ public class HomeController extends DeboxController {
             logger.error("Unable to load templates", ex);
         }
 
-        return renderJSON(templates);
+        return templates;
     }
 }

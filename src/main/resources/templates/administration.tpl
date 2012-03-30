@@ -165,7 +165,7 @@
                                 <a href="#/album/{{name}}">{{name}}</a><br />
                             {{/albums}}
                         </td>
-                        <td><a href="{{id}}/#/">Lien</a></td>
+                        <td><a href="{{id}}#/">Lien</a></td>
                         <td>
                             <div class="btn-group">
                                 <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
@@ -290,7 +290,7 @@
         <h2 class="page-header">Chargement d'une archive de vignettes</h2>
 
         <iframe id="uploadFrame" name="uploadFrame" height="0" width="0" frameborder="0" scrolling="yes"></iframe>
-        <form class="form-horizontal" method="post" action="{{data.baseUrl}}uploadThumbnails" target="uploadFrame" enctype="multipart/form-data" onsubmit="handleArchiveUpload()">
+        <form class="form-horizontal" method="post" action="uploadThumbnails" target="uploadFrame" enctype="multipart/form-data" onsubmit="handleArchiveUpload()">
             <input type="hidden" name="albumId" />
             <div>
                     <input type="submit" class="btn btn-info pull-right" style="display:inline-block;" value="Charger"/>

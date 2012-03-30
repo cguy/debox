@@ -28,7 +28,7 @@ $(document).ready(function() {
             }
             
             ajax({
-                url: computeUrl(baseUrl + "api/album/" + this.params['album']),
+                url: computeUrl("api/album/" + this.params['album']),
                 success: function(data) {
                     var plural = (data.album.photosCount > 1) ? "s" : ""
                     data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
@@ -37,8 +37,8 @@ $(document).ready(function() {
                         plural = (album.photosCount > 1) ? "s" : "";
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
-                    data.minDownloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id + "/min");
-                    data.downloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id);
+                    data.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
+                    data.downloadUrl = computeUrl("download/album/" + data.album.id);
                     loadTemplate("album", data, null, function(){
                         editTitle($("a.brand").text() + " - " + data.album.name);
                     });
@@ -51,7 +51,7 @@ $(document).ready(function() {
             var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
             if (index == -1) {
                 ajax({
-                    url: computeUrl(baseUrl + "api/album/" + this.params['album']),
+                    url: computeUrl("api/album/" + this.params['album']),
                     success: function(data) {
                         var plural = (data.album.photosCount > 1) ? "s" : ""
                         data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
@@ -60,7 +60,7 @@ $(document).ready(function() {
                             plural = (album.photosCount > 1) ? "s" : "";
                             album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                         }
-                        data.downloadUrl = computeUrl(baseUrl + "download/album/" + data.album.id);
+                        data.downloadUrl = computeUrl("download/album/" + data.album.id);
                         loadTemplate("album", data, null, function() {
                             editTitle($("a.brand").text() + " - " + data.album.name);
                             if (photoId.length > 1) {
@@ -70,7 +70,7 @@ $(document).ready(function() {
                                     for (var i = 0 ; i < data.photos.length ; i++) {
                                         slideshowData.push({
                                             "id" : "/album/" + data.album.name + "/" + data.photos[i].id,
-                                            "url" : baseUrl + data.photos[i].url,
+                                            "url" : data.photos[i].url,
                                             "caption" : data.photos[i].name
                                         });
                                     }
@@ -105,7 +105,7 @@ $(document).ready(function() {
             var context = this;
             
             $.ajax({
-                url: baseUrl + "administration/credentials",
+                url: "administration/credentials",
                 type : "post",
                 data : $("#account").serializeArray(),
                 success: function(data) {
@@ -152,7 +152,7 @@ $(document).ready(function() {
             targetBtn.button("loading");
             
             $.ajax({
-                url: baseUrl + "administration/configuration",
+                url: "administration/configuration",
                 type : "post",
                 data : data,
                 success: function(data) {
@@ -181,7 +181,7 @@ $(document).ready(function() {
             var context = this;
             $("#sync form input[type=submit]").button("loading");
             $.ajax({
-                url: baseUrl + "administration/sync",
+                url: "administration/sync",
                 type : "post",
                 data : $("#sync form").serializeArray(),
                 success: function(data) {
@@ -205,7 +205,7 @@ $(document).ready(function() {
         
         this.post('#/album', function() {
             $.ajax({
-                url: baseUrl + "album",
+                url: "album",
                 type : "post",
                 data : $("#edit_album").serializeArray(),
                 success: function(data) {
@@ -228,7 +228,7 @@ $(document).ready(function() {
         
         this.put('#/token', function() {
             $.ajax({
-                url: baseUrl + "token?label=" + encodeURIComponent(this.params["label"]),
+                url: "token?label=" + encodeURIComponent(this.params["label"]),
                 type : "put",
                 success: function(data) {
                     $("#administration_tokens").removeClass("hide");
@@ -236,7 +236,7 @@ $(document).ready(function() {
                     var html = '<tr id="' + data.id + '">';
                     html += '<td class="access_label">' + data.label + '</td>';
                     html += '<td class="albums">Aucun album n\'est visible pour cet accès</td>';
-                    html += '<td><a href="' + baseUrl + data.id + '/#/">Lien</a></td>';
+                    html += '<td><a href="' + data.id + '/#/">Lien</a></td>';
                     html += '<td><div class="btn-group">';
                     html += '<button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>';
                     html += '<button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>';
@@ -251,7 +251,7 @@ $(document).ready(function() {
         
         this.post('#/token', function() {
             $.ajax({
-                url: baseUrl + "token",
+                url: "token",
                 type : "post",
                 data: $("#edit_token").serializeArray(),
                 success: function(data) {
@@ -274,7 +274,7 @@ $(document).ready(function() {
         this.del('#/token', function() {
             var id = $("#modal-token-delete input[type=hidden]").val();
             $.ajax({
-                url: baseUrl + "token/" + id,
+                url: "token/" + id,
                 type: "delete",
                 success: function() {
                     $("#" + id).remove();
@@ -302,7 +302,7 @@ $(document).ready(function() {
             
             editTitle($("a.brand").text() + " - Administration");
             ajax({
-                url: baseUrl + "administration",
+                url: "administration",
                 success: function(data) {
                     
                     for (var i = 0 ; i < data.albums.length ; i++) {
@@ -369,7 +369,7 @@ $(document).ready(function() {
                 "password" : this.params["password"]
             };
             ajax({
-                url: baseUrl + "authenticate",
+                url: "authenticate",
                 type : "post",
                 data : data,
                 success: function(username) {
@@ -405,7 +405,7 @@ $(document).ready(function() {
         this.get('#/logout', function() {
             var context = this;
             ajax({
-                url: baseUrl + "session",
+                url: "session",
                 type : "delete",
                 success: function(data) {
                     loadTemplate("header", {
@@ -426,7 +426,7 @@ $(document).ready(function() {
         this.get('#/', function() {
             editTitle($("a.brand").text() + " - Accueil");
             ajax({
-                url: computeUrl(baseUrl + "api/albums"),
+                url: computeUrl("api/albums"),
                 success: function(data) {
                     for (var i = 0 ; i < data.albums.length ; i++) {
                         var album = data.albums[i];
@@ -443,7 +443,7 @@ $(document).ready(function() {
     function handleAdmin() {
         $("#sync-progress .btn-warning").click(function(){
             $.ajax({
-                url: baseUrl + "administration/sync",
+                url: "administration/sync",
                 type: "delete",
                 success: function(data) {
                     if (syncTimeout != null) {
@@ -471,7 +471,7 @@ $(document).ready(function() {
             var id = $(this).parents("tr").attr("id");
             //add date the query just to avoid the cache
             var d = new Date();
-            $("#actions_album_thumbnail").css("background-image", "url('" + baseUrl + "album/" + id  + "/cover?" + d.getTime() + "')");
+            $("#actions_album_thumbnail").css("background-image", "url('" + "album/" + id  + "/cover?" + d.getTime() + "')");
             $("#actions_album input[type=hidden]").val(id);
             $("#actions_album").modal();
         });
@@ -479,7 +479,7 @@ $(document).ready(function() {
         $("#administration_albums button.edit").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({
-                url: baseUrl + "album/" + id,
+                url: "album/" + id,
                 success: function(data) {
                     $("#edit_album input[type=hidden]").val(data.id);
                     $("#edit_album #name").val(data.name);
@@ -498,7 +498,7 @@ $(document).ready(function() {
         $("#administration_tokens button.btn-info").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({
-                url: baseUrl + "token/" + id,
+                url: "token/" + id,
                 success: function(data) {
                     $("#edit_token input[type=hidden]").val(data.token.id);
                     $("#edit_token #label").val(data.token.label);
@@ -527,12 +527,12 @@ $(document).ready(function() {
         $("#actions_album_random_cover").click(function(event) {
             var id = $("#actions_album input[type=hidden]").val();
             $.ajax({
-                url: baseUrl + "album/" + id + "/cover",
+                url: "album/" + id + "/cover",
                 type : "post",
                 success: function() {
                     //add date the query just to avoid the cache
                     var d = new Date();
-                    $("#actions_album_thumbnail").css("background-image", "url('" + baseUrl + "album/" + id  + "/cover?" + d.getTime() + "')");
+                    $("#actions_album_thumbnail").css("background-image", "url('" + "album/" + id  + "/cover?" + d.getTime() + "')");
                 }
             });
             return false;

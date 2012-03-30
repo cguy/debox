@@ -2,7 +2,6 @@
 package.base=org.debox.photo
 package.filters=filter
 package.actions=action
-package.views=WEB-INF/
 
 [actions]
 # -----------------------------------------------------------------------------------------------
@@ -65,10 +64,10 @@ GET /download/album/{albumId}                   AlbumController.download        
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES
 # -----------------------------------------------------------------------------------------------
-GET   /tpl                                      HomeController.getTemplates
+GET   /tpl                                      HomeController.renderTemplates
 
 # -----------------------------------------------------------------------------------------------
 # HOME
 # -----------------------------------------------------------------------------------------------
-GET   /{token}/                                 HomeController.index
-GET   /                                         HomeController.index
+GET   /{token}                                  view:index.html
+GET   /                                         view:index.html

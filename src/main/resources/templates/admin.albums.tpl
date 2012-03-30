@@ -2,7 +2,7 @@
 <ul class="thumbnails">
     {{#data.albums}}
     <li>
-        <a href="#/administration/album/{{name}}" class="album admin thumbnail" style="background-image:url('{{data.baseUrl}}{{coverUrl}}')">
+        <a href="#/administration/album/{{name}}" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
             <ul class="unstyled">
                 <li><strong>{{name}}</strong></li>
                 <li>Nombre de photos : {{photosCount}}</li>

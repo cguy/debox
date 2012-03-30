@@ -16,8 +16,8 @@
 <hr />
 
 <div class="media-grid" style="text-align: center;">
-    <a class="thumbnail" href="{{data.baseUrl}}photo/{{data.photo.id}}" style="display:inline-block; float:none;">
-        <img src="{{data.baseUrl}}photo/{{data.photo.id}}" style="max-height:700px;max-width:100%;" />
+    <a class="thumbnail" href="photo/{{data.photo.id}}" style="display:inline-block; float:none;">
+        <img src="photo/{{data.photo.id}}" style="max-height:700px;max-width:100%;" />
     </a>
 </div>
 

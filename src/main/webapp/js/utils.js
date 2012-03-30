@@ -23,18 +23,19 @@ var templatesLoaded = false;
 
 function loadTemplates() {
     $.ajax({
-        url: baseUrl + "tpl",
-        success: function(templates) {
-            $.each(templates, function (name, template) {
+        url: "tpl",
+        success: function(data) {
+            $.each(data.templates, function (name, template) {
                 ich.addTemplate(name, template);
             });
             templatesLoaded = true;
+            initHeader(data.config.title, data.config.username);
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
                 var id = templatesToLoad[i].id;
-                var data = templatesToLoad[i].data;
+                var model = templatesToLoad[i].data;
                 var selector = templatesToLoad[i].selector;
                 var callback = templatesToLoad[i].callback;
-                loadTemplate(id, data, selector, callback);
+                loadTemplate(id, model, selector, callback);
             }
             delete templatesToLoad;
         }
@@ -50,7 +51,6 @@ function loadTemplate(tplId, data, selector, callback) {
     if (!data) {
         data = {};
     }
-    data.baseUrl = baseUrl;
     var html = ich[tplId]({"data": data});
     
     if (!selector) {
@@ -86,7 +86,7 @@ function ajax(object) {
     
 function computeUrl(url) {
     if (location.pathname != "/") {
-        var token = location.pathname.substring(baseUrl.length, location.pathname.length - 1);
+        var token = location.pathname.substr(location.pathname.lastIndexOf("/") + 1, location.pathname.length - 1);
         var separator = url.indexOf("?") == -1 ? "?" : "&";
         return url + separator + "token=" + token;
     }
@@ -120,7 +120,7 @@ function resetModalForm() {
 function handleArchiveUpload() {
     $.ajax({
         type : "GET",
-        url: baseUrl + "uploadProgress",
+        url: "uploadProgress",
         success: function(progression){
             if (!progression) {
                 setTimeout(handleArchiveUpload, 250);
