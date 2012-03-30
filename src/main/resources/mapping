@@ -2,6 +2,7 @@
 package.base=org.debox.photo
 package.filters=filter
 package.actions=action
+package.views=WEB-INF/
 
 [actions]
 # -----------------------------------------------------------------------------------------------
