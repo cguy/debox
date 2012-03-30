@@ -297,6 +297,7 @@
                                 <exclude>**/mustache.js</exclude>
                                 <exclude>**/sammy-0.7.1.min.js</exclude>
                                 <exclude>**/bootstrap*.css</exclude>
+                                <exclude>**/*.tpl</exclude>
                             </excludes>
                         </configuration>
                     </execution>

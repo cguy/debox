@@ -70,7 +70,8 @@ public class HomeController extends DeboxController {
         Map<String, Object> templates = new HashMap<>();
 
         try {
-            URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("templates");
+            // Note : current path is /WEB-INF/classes/
+            URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("../templates");
             URI templatesURI = templatesDirectoryUrl.toURI();
 
 
