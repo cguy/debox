@@ -2,26 +2,30 @@
 <ul class="thumbnails">
     {{#data.albums}}
     <li>
-        <a href="#/administration/album/{{name}}" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
-            <ul class="unstyled">
+        <a href="#/album/{{name}}" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
+            <ul class="unstyled" style="font-size:16px;">
                 <li><strong>{{name}}</strong></li>
                 <li>Nombre de photos : {{photosCount}}</li>
-                <li>
-                    {{#downloadable}}
-                        <i class="icon-ok"></i>&nbsp;Téléchargeable
-                    {{/downloadable}}
-                    {{^downloadable}}
-                        <i class="icon-ban-circle"></i>&nbsp;N'est pas téléchargeable
-                    {{/downloadable}}
+                {{#downloadable}}
+                <li style="color:#2E9E32;">
+                    <i class="icon-download-alt"></i>&nbsp;Téléchargeable
                 </li>
-                <li>
-                    {{#visibility}}
-                        <i class="icon-ok"></i>&nbsp;Public
-                    {{/visibility}}
-                    {{^visibility}}
-                        <i class="icon-ban-circle"></i>&nbsp;Privé
-                    {{/visibility}}
+                {{/downloadable}}
+                {{^downloadable}}
+                <li style="color:#C42323;">
+                    <i class="icon-download-alt"></i>&nbsp;N'est pas téléchargeable
                 </li>
+                {{/downloadable}}
+                {{#visibility}}
+                <li style="color:#2E9E32;">
+                    <i class="icon-ok" style="color:#2E9E32;"></i>&nbsp;Public
+                </li>
+                {{/visibility}}
+                {{^visibility}}
+                <li style="color:#C42323;">
+                    <i class="icon-ban-circle" style="color:#C42323;"></i>&nbsp;Privé
+                </li>
+                {{/visibility}}
             </ul>
         </a>
     </li>

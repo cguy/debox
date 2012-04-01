@@ -13,13 +13,13 @@
 
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#/administration/configuration" data-target="#configuration"><i class="icon-cog"></i>&nbsp;Configuration générale</a>
+            <a href="#/administration/configuration" data-target="#configuration"><i class="icon-cogs"></i>&nbsp;Configuration générale</a>
         </li>
         <li>
             <a href="#/administration/sync" data-target="#sync"><i class="icon-refresh"></i>&nbsp;Synchroniser les répertoires</a>
         </li>
         <li>
-            <a href="#/administration/albums" data-target="#albums"><i class="icon-camera"></i>&nbsp;Gestion des albums photos</a>
+            <a href="#/administration/albums" data-target="#albums"><i class="icon-camera-retro"></i>&nbsp;Gestion des albums photos</a>
         </li>
         <li>
             <a href="#/administration/tokens" data-target="#tokens"><i class="icon-user"></i>&nbsp;Gestion des accès visiteurs</a>

@@ -10,7 +10,7 @@
     <ul class="nav">
         <li><a href="#/"><i class="icon-home icon-white"></i>&nbsp;&nbsp;Liste des albums</a></li>
     {{#data.username}}
-        <li><a href="#/administration"><i class="icon-cog icon-white"></i>&nbsp;&nbsp;Administration</a></li>
+        <li><a href="#/administration"><i class="icon-cogs icon-white"></i>&nbsp;&nbsp;Administration</a></li>
     {{/data.username}}
     </ul>
     <p class="navbar-text pull-right">

@@ -39,8 +39,50 @@ $(document).ready(function() {
                     }
                     data.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
                     data.downloadUrl = computeUrl("download/album/" + data.album.id);
-                    loadTemplate("album", data, null, function(){
+                    data.album.visibility = data.album.visibility == "PUBLIC";
+                    
+                    loadTemplate("album", data, null, function() {
                         editTitle($("a.brand").text() + " - " + data.album.name);
+                        $("button.edit-album").click(function() {
+                            $("#edit_album").toggleClass("visible");
+                        });
+                        $("button.choose-cover").click(function() {
+                            $("#photos").fadeOut(500, function(){
+                                ajax({
+                                    url: "api/album/" + data.album.id + "/photos?target=cover",
+                                    success: function(photos) {
+                                        loadTemplate("photo.thumbnails.admin", photos, "#cover-photos", function(){
+                                            $('#cover-photos *[rel|=tooltip]').tooltip('hide');
+                                            $("#cover-photos").fadeIn(500, function(){
+                                                $(document.body).animate({scrollTop: $('#cover-photos').offset().top - 50}, 500);
+                                            });
+                                            $('#cover-photos .thumbnail').click(function() {
+                                                var id;
+                                                if ($(this).hasClass("thumbnail")) {
+                                                    id = $(this).attr("id");
+                                                } else {
+                                                    id = $(this).parents(".thumbnail").attr("id");
+                                                }
+                                                ajax({
+                                                    url: "album/" + data.album.id + "/cover",
+                                                    type : "post",
+                                                    data : {photoId:id},
+                                                    success: function() {
+                                                        $("#cover-photos").fadeOut(250, function() {
+                                                            $('#cover-photos *[rel|=tooltip]').tooltip('hide');
+                                                            $("#cover-photos").html("");
+                                                            $("#photos").fadeIn(250);
+                                                            $("#edit_album").prepend("");
+                                                        });
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    }
+                                });
+                            });
+                        });
+
                     });
                 }
             });
@@ -207,7 +249,7 @@ $(document).ready(function() {
             $.ajax({
                 url: "album",
                 type : "post",
-                data : $("#edit_album").serializeArray(),
+                data : $("#edit_album form").serializeArray(),
                 success: function(data) {
                     $("#edit_album").modal("hide");
                     $("#"+data.id + " .name strong").text(data.name);

@@ -32,18 +32,20 @@
         <script type="text/javascript" src="js/lib/sammy-0.7.1.min.js"></script>
         <script type="text/javascript" src="js/lib/mustache.js"></script>
         <script type="text/javascript" src="js/lib/ICanHaz-no-mustache.min.js"></script>
-        <script type="text/javascript" src="js/routes.js"></script>
         <script type="text/javascript" src="js/slideshow.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
-
-        <link rel="stylesheet" href="css/bootstrap.min.css" />
-        <link rel="stylesheet" href="css/style.css" />
-
         <script type="text/javascript">
             $(document).ready(function() {
+                // Load templates before enable application routing
                 loadTemplates();
             });
         </script>
+        <script type="text/javascript" src="js/routes.js"></script>
+
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/font-awesome.css" />
+        <link rel="stylesheet" href="css/style.css" />
+
     </head>
     <body>
         <div class="navbar navbar-fixed-top">

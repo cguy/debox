@@ -30,6 +30,7 @@ body {
 body > .container-fluid {
     min-height: 700px;
     overflow:auto;
+    padding: 0 10px;
 }
 
 h2.page-header {
@@ -40,7 +41,7 @@ h2.page-header {
 h1.page-header {
     background-color: #f5f5f5;
     padding: 20px 20px 5px;
-    margin: -10px -20px 20px;
+    margin: -10px -10px 10px -10px;
 }
 
 h1.page-header a {
@@ -68,11 +69,21 @@ h1 small {
     text-align: center;
 }
 
+*[rel=tooltip]:hover {
+    cursor: pointer;
+}
+
 #account form, #configuration form,  #sync form {
     width: 500px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+#edit_album form {
+    width: auto;
+    border-right: 1px solid #ddd;
+    padding-right: 20px;
 }
 
 #configuration form {
@@ -83,7 +94,45 @@ h1 small {
     width: 560px;
 }
 
-#account form .form-actions, #configuration form .form-actions,  #sync form .form-actions {
+#edit_album .row {
+    margin-top: 15px;
+}
+
+#edit_album {
+    overflow: hidden;
+/*    height: 0;*/
+    -webkit-transition: height 0.25s ease-in;
+    -moz-transition: height 0.25s ease-in;
+    transition: height 0.25s ease-in;
+}
+
+#edit_album .span4 .btn:first-of-type {
+    margin: 0 0 3px 0;
+}
+
+#edit_album .span4 .btn {
+    font-size: 15px;
+    width: 100%;
+    margin: 3px 0;
+}
+
+#edit_album + hr {
+    margin-top: 5px;
+    -webkit-transition: margin-top 0.25s linear;
+    -moz-transition: margin-top 0.25s linear;
+    transition: margin-top 0.25s linear;
+}
+
+#edit_album.visible {
+    visibility: visible;
+    height: 335px;
+}
+
+#edit_album.visible + hr {
+    margin-top: 18px;
+}
+
+#account form .form-actions, #configuration form .form-actions,  #sync form .form-actions, #edit_album form .form-actions {
     margin-bottom: 0;
     text-align: right;
 }
@@ -142,7 +191,8 @@ p.footer {
 }
 
 .thumbnails {
-    padding: 0 10px;
+    padding: 0;
+    margin: 0 auto;
 }
 
 .thumbnails li {

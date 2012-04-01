@@ -262,13 +262,8 @@ public class PhotoDao extends JdbcMysqlRealm {
         statement.setString(1, albumId);
         Photo result = executeSingleQueryStatement(statement, null);
         if (result == null) {
-            logger.debug("no defined cover for album : " + albumId);
-            connection = getDataSource().getConnection();
-            statement = connection.prepareStatement(SQL_GET_ALBUM_RANDOM_COVER);
-            statement.setString(1, albumId);
-            result = executeSingleQueryStatement(statement, null);
-        } else {
-            logger.debug("defined cover for album : " + albumId);
+            setAlbumCover(albumId, null);
+            return getAlbumCover(albumId);
         }
         return result;
     }
@@ -298,6 +293,14 @@ public class PhotoDao extends JdbcMysqlRealm {
         statement.setString(1, albumId);
         List<Photo> result = executeListQueryStatement(statement, null);
         Collections.sort(result);
+        return result;
+    }
+    
+    public List<Photo> getPhotos(List<String> ids) throws SQLException {
+        List<Photo> result = new ArrayList<>();
+        for (String id : ids) {
+            result.addAll(getPhotos(id));
+        }
         return result;
     }
 

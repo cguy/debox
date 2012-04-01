@@ -98,6 +98,7 @@ public class AlbumDao extends JdbcMysqlRealm {
             + "        OR visibility = 'public'"
             + "    )";
     
+    protected static String SQL_GET_CHILDREN_ID = "SELECT id from albums WHERE parent_id = ?";
     
     protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE source_path = ?";
 
@@ -231,6 +232,28 @@ public class AlbumDao extends JdbcMysqlRealm {
         return result;
     }
 
+    public List<String> getSubAlbumsId(String parentId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_CHILDREN_ID);
+        statement.setString(1, parentId);
+        
+        List<String> result = new ArrayList<>();
+        ResultSet resultSet = null;
+        try {
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String id = resultSet.getString(1);
+                result.add(id);
+                result.addAll(getSubAlbumsId(id));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeConnection(statement.getConnection());
+            JdbcUtils.closeStatement(statement);
+        }
+        return result;
+    }
+    
     public List<Album> getVisibleAlbums(String token, String parentId, boolean grantedAccess) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement;

@@ -78,6 +78,8 @@ function ajax(object) {
                             "title" : $("a.brand").html()
                         }, ".navbar .container-fluid");
                 }
+            } else {
+                alert(xhr.status + " : " + xhr.responseText);
             }
         }
     }
