@@ -90,7 +90,7 @@ public class Photo implements Comparable<Photo> {
         } 
         if (object instanceof Photo) {
             Photo photo = (Photo) object; 
-            return Objects.equals(this.relativePath + File.separatorChar + this.getId(), photo.getRelativePath() + File.separatorChar + photo.getId());
+            return Objects.equals(this.relativePath + File.separatorChar + this.getName(), photo.getRelativePath() + File.separatorChar + photo.getName());
         } 
         return false;
     }
