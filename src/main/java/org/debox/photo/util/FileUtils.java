@@ -46,12 +46,26 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      */
     public static final FileAttribute PERMISSIONS = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
 
-    public static byte[] zipDirectoryContent(Path directoryPath, Map<String, String> names) throws IOException {
+    public static long getSize(Path directoryPath, Map<String, String> names) throws IOException {
+        File directoryFile = directoryPath.toFile();
+        File[] files = directoryFile.listFiles();
+        long size = 0;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            size += file.length();
+        }
+
+        return size;
+    }
+
+    public static void zipDirectoryContent(OutputStream outputStream, Path directoryPath, Map<String, String> names) throws IOException {
         File directoryFile = directoryPath.toFile();
         File[] files = directoryFile.listFiles();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     continue;
@@ -65,16 +79,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                 if (fileName != null) {
                     try (FileInputStream fis = new FileInputStream(file)) {
                         zos.putNextEntry(new ZipEntry(fileName));
-                        zos.write(IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath()))));
+                        byte[] byteArray = IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath())));
+                        zos.write(byteArray);
                         zos.closeEntry();
                     }
                 }
             }
             zos.flush();
-            baos.flush();
         }
-        baos.close();
-        return baos.toByteArray();
     }
 
     public static void unzipArchiveToDirectory(String archivePath, String targetPathStr) throws IOException {
@@ -101,10 +113,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
             logger.debug("Extracting: " + entry);
             try (
-                    BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry)); 
+                    BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
                     FileOutputStream fos = new FileOutputStream(outputPath.toFile());
                     BufferedOutputStream outputStream = new BufferedOutputStream(fos)) {
-                
+
                 IOUtils.copy(inputStream, outputStream);
             }
         }
