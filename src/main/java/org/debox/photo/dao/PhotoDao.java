@@ -59,7 +59,13 @@ public class PhotoDao extends JdbcMysqlRealm {
             + "WHERE"
             + "    ac.album_id = ?";
     protected static String SQL_GET_ALBUM_RANDOM_COVER = SQL_GET_PHOTOS_BY_ALBUM_ID + " LIMIT 1";
-    protected static String SQL_GET_VISIBLE_ALBUM_COVER = SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID + " LIMIT 1";
+    protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
+            + "SELECT p.id, p.name, p.relative_path, p.album_id "
+            + "FROM photos p "
+            + "LEFT JOIN album_covers ac ON p.id = ac.photo_id "
+            + "LEFT JOIN albums a ON a.id = p.album_id "
+            + "LEFT JOIN albums_tokens at ON at.album_id = ac.album_id "
+            + "WHERE ac.album_id = ? AND (at.token_id = ? OR a.visibility = 'public')";
     
     protected static String SQL_GET_PHOTOS_COUNT = "SELECT count(id) FROM photos";
 
@@ -270,6 +276,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
         Connection connection = getDataSource().getConnection();
+        logger.debug(SQL_GET_VISIBLE_ALBUM_COVER);
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
         statement.setString(1, albumId);
         statement.setString(2, token);
