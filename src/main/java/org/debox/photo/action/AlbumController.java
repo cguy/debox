@@ -122,7 +122,7 @@ public class AlbumController extends DeboxController {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        photoDao.setAlbumCover(albumId, photoId);
+        albumDao.setAlbumCover(albumId, photoId);
         
         return null;
     }
@@ -130,9 +130,9 @@ public class AlbumController extends DeboxController {
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {
-            photo = photoDao.getAlbumCover(albumId);
+            photo = albumDao.getAlbumCover(albumId);
         } else {
-            photo = photoDao.getVisibleAlbumCover(token, albumId);
+            photo = albumDao.getVisibleAlbumCover(token, albumId);
         }
 
         if (photo == null) {

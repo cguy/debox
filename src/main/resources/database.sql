@@ -72,8 +72,10 @@ CREATE TABLE IF NOT EXISTS `albums` (
     `relative_path` TEXT NOT NULL,
     `parent_id` VARCHAR(32),
     `visibility` VARCHAR(32) NOT NULL,
+    `cover` VARCHAR(32),
     FOREIGN KEY (`parent_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`visibility`) REFERENCES `visibilities`(`id`),
+    FOREIGN KEY (`visibility`) REFERENCES `visibilities`(`id`,
+    FOREIGN KEY (`cover`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE),
     INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
@@ -93,14 +95,6 @@ CREATE TABLE IF NOT EXISTS `photos` (
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX USING BTREE (`album_id`),
     INDEX USING BTREE (`relative_path`(255))
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `album_covers` (
-    `album_id` VARCHAR(32),
-    `photo_id` VARCHAR(32),
-    PRIMARY KEY (`album_id`),
-    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `photos_generation` (

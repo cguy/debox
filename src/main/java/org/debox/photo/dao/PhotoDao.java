@@ -48,25 +48,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, relative_path, album_id FROM photos WHERE id = ?";
     protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public')";
     protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, relative_path, album_id FROM photos WHERE source_path = ?";
-    protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
 
-    protected static String SQL_CREATE_ALBUM_COVER = "INSERT INTO album_covers VALUES (?, ?) ON DUPLICATE KEY UPDATE photo_id = ?";
-    protected static String SQL_GET_ALBUM_COVER =
-            "SELECT"
-            + "    id, name, relative_path, p.album_id "
-            + "FROM"
-            + "    photos p LEFT JOIN album_covers ac ON id = photo_id "
-            + "WHERE"
-            + "    ac.album_id = ?";
-    protected static String SQL_GET_ALBUM_RANDOM_COVER = SQL_GET_PHOTOS_BY_ALBUM_ID + " LIMIT 1";
-    protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
-            + "SELECT p.id, p.name, p.relative_path, p.album_id "
-            + "FROM photos p "
-            + "LEFT JOIN album_covers ac ON p.id = ac.photo_id "
-            + "LEFT JOIN albums a ON a.id = p.album_id "
-            + "LEFT JOIN albums_tokens at ON at.album_id = ac.album_id "
-            + "WHERE ac.album_id = ? AND (at.token_id = ? OR a.visibility = 'public')";
-    
     protected static String SQL_GET_PHOTOS_COUNT = "SELECT count(id) FROM photos";
 
     protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
@@ -146,7 +128,7 @@ public class PhotoDao extends JdbcMysqlRealm {
         return result;
     }
 
-    protected Photo convertPhoto(ResultSet resultSet, String token) throws SQLException {
+    protected static Photo convertPhoto(ResultSet resultSet, String token) throws SQLException {
         Photo result = new Photo();
         result.setId(resultSet.getString(1));
         result.setName(resultSet.getString(2));
@@ -235,54 +217,6 @@ public class PhotoDao extends JdbcMysqlRealm {
 
         return result;
     }
-
-    public void setAlbumCover(String albumId, String photoId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = null;
-
-        try {
-            if (StringUtils.isEmpty(photoId)) {
-                statement = connection.prepareStatement(SQL_GET_RANDOM_PHOTO);
-                statement.setString(1, albumId);
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.first()) {
-                    photoId = resultSet.getString(1);
-                }
-                JdbcUtils.closeResultSet(resultSet);
-            }
-            statement = connection.prepareStatement(SQL_CREATE_ALBUM_COVER);
-            statement.setString(1, albumId);
-            statement.setString(2, photoId);
-            statement.setString(3, photoId);
-            statement.executeUpdate();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-    }
-
-    public Photo getAlbumCover(String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_COVER);
-        statement.setString(1, albumId);
-        Photo result = executeSingleQueryStatement(statement, null);
-        if (result == null) {
-            setAlbumCover(albumId, null);
-            return getAlbumCover(albumId);
-        }
-        return result;
-    }
-    
-    public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        logger.debug(SQL_GET_VISIBLE_ALBUM_COVER);
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
-        statement.setString(1, albumId);
-        statement.setString(2, token);
-        Photo result = executeSingleQueryStatement(statement, token);
-        return result;
-    }
     
     public List<Photo> getVisiblePhotos(String token, String albumId) throws SQLException {
         Connection connection = getDataSource().getConnection();
@@ -328,7 +262,7 @@ public class PhotoDao extends JdbcMysqlRealm {
         return result;
     }
     
-    protected Photo executeSingleQueryStatement(PreparedStatement statement, String token) throws SQLException {
+    protected static Photo executeSingleQueryStatement(PreparedStatement statement, String token) throws SQLException {
         Photo result = null;
         ResultSet resultSet = null;
         try {
@@ -344,7 +278,7 @@ public class PhotoDao extends JdbcMysqlRealm {
         return result;
     }
     
-    protected List<Photo> executeListQueryStatement(PreparedStatement statement, String token) throws SQLException {
+    protected static List<Photo> executeListQueryStatement(PreparedStatement statement, String token) throws SQLException {
         List<Photo> result = new ArrayList<>();
         ResultSet resultSet = null;
         try {

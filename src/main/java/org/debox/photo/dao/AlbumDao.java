@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.Photo;
 import org.debox.photo.util.SourcePathComparator;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -102,6 +103,19 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE source_path = ?";
 
+    protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
+
+    protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
+    
+    protected static String SQL_GET_ALBUM_COVER = "SELECT cover FROM albums WHERE id = ?";
+    
+    protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
+            + "SELECT p.id, p.name, p.relative_path, p.album_id "
+            + "FROM photos p "
+            + "LEFT JOIN albums a ON a.cover = p.id "
+            + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
+            + "WHERE a.id = ? AND (at.token_id = ? OR a.visibility = 'public')";
+    
     public void save(List<Album> albums) throws SQLException {
         Connection connection = getDataSource().getConnection();
         connection.setAutoCommit(false);
@@ -283,6 +297,53 @@ public class AlbumDao extends JdbcMysqlRealm {
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_SOURCE_PATH);
         statement.setString(1, sourcePath);
         Album result = executeSingleQueryStatement(statement, null);
+        return result;
+    }
+    
+    public void setAlbumCover(String albumId, String photoId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+
+        try {
+            if (StringUtils.isEmpty(photoId)) {
+                statement = connection.prepareStatement(SQL_GET_RANDOM_PHOTO);
+                statement.setString(1, albumId);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.first()) {
+                    photoId = resultSet.getString(1);
+                }
+                JdbcUtils.closeResultSet(resultSet);
+            }
+            statement = connection.prepareStatement(SQL_UPDATE_ALBUM_COVER);
+            statement.setString(1, photoId);
+            statement.setString(2, albumId);
+            statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+
+    public Photo getAlbumCover(String albumId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_COVER);
+        statement.setString(1, albumId);
+        Photo result = PhotoDao.executeSingleQueryStatement(statement, null);
+        if (result == null) {
+            setAlbumCover(albumId, null);
+            return getAlbumCover(albumId);
+        }
+        return result;
+    }
+    
+    public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        logger.debug(SQL_GET_VISIBLE_ALBUM_COVER);
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
+        statement.setString(1, albumId);
+        statement.setString(2, token);
+        Photo result = PhotoDao.executeSingleQueryStatement(statement, token);
         return result;
     }
     
