@@ -38,11 +38,6 @@ POST        /token                              TokenController.editToken
 DELETE      /token/{id}                         TokenController.deleteToken
 
 # -----------------------------------------------------------------------------------------------
-# MEDIA - PHOTO LIST
-# -----------------------------------------------------------------------------------------------
-GET         /api/album/{albumId}/photos?target=cover    PhotoController.getAvailablePhotosForAlbumCover
-
-# -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
 # GET       /api/photo/{photoId}                PhotoController.displayPhoto

@@ -20,10 +20,10 @@
  */
 $(document).ready(function() {
     
-    Sammy(function() {
+    var app = Sammy(function() {
         
         this.get('#/album/:album', function() {
-            if ($("h1 a").text() == this.params['album']) {
+            if ($("h1 a").text() == this.params['album'] && document.getElementById("fullscreenContainer") != null) {
                 return;
             }
             
@@ -43,42 +43,64 @@ $(document).ready(function() {
                     
                     loadTemplate("album", data, null, function() {
                         editTitle($("a.brand").text() + " - " + data.album.name);
-                        $("button.edit-album").click(function() {
+                        $("button.edit-album, button.edit-album-cancel").click(function() {
+                            $("#edit_album .alert").hide();
                             $("#edit_album").toggleClass("visible");
+                            $("button.edit-album").toggleClass("hide");
+                            $("button.edit-album-cancel").toggleClass("hide");
+                            hideAlbumChoose();
                         });
+                        
+                        var hideAlbumChoose = function() {
+                            $("button.choose-cover-cancel").fadeOut(250, function() {
+                                $("button.choose-cover").fadeIn(250);
+                            });
+                            $("#cover-photos").fadeOut(250, function() {
+                                $('#cover-photos *[rel|=tooltip]').tooltip('hide');
+                                $("#photos").fadeIn(250);
+                            });
+                        };
+                        
+                        $("button.choose-cover-cancel").click(function() {
+                            hideAlbumChoose();
+                            $("#edit_album .cover.alert-success").fadeOut(250);
+                            $("#edit_album .cover.alert-danger").fadeOut(250);
+                        });
+                        
                         $("button.choose-cover").click(function() {
-                            $("#photos").fadeOut(500, function(){
-                                ajax({
-                                    url: "api/album/" + data.album.id + "/photos?target=cover",
-                                    success: function(photos) {
-                                        loadTemplate("photo.thumbnails.admin", photos, "#cover-photos", function(){
-                                            $('#cover-photos *[rel|=tooltip]').tooltip('hide');
-                                            $("#cover-photos").fadeIn(500, function(){
-                                                $(document.body).animate({scrollTop: $('#cover-photos').offset().top - 50}, 500);
-                                            });
-                                            $('#cover-photos .thumbnail').click(function() {
-                                                var id;
-                                                if ($(this).hasClass("thumbnail")) {
-                                                    id = $(this).attr("id");
-                                                } else {
-                                                    id = $(this).parents(".thumbnail").attr("id");
-                                                }
-                                                ajax({
-                                                    url: "album/" + data.album.id + "/cover",
-                                                    type : "post",
-                                                    data : {photoId:id},
-                                                    success: function() {
-                                                        $("#cover-photos").fadeOut(250, function() {
-                                                            $('#cover-photos *[rel|=tooltip]').tooltip('hide');
-                                                            $("#cover-photos").html("");
-                                                            $("#photos").fadeIn(250);
-                                                            $("#edit_album").prepend("");
-                                                        });
-                                                    }
-                                                });
-                                            });
-                                        });
+                            $("#edit_album .cover.alert-success").fadeOut(250);
+                            $("#edit_album .cover.alert-danger").fadeOut(250);
+                            $("button.choose-cover").fadeOut(250, function() {
+                                $("button.choose-cover-cancel").fadeIn(250);
+                            });
+                            $("#photos").fadeOut(250, function() {
+                                $('#cover-photos *[rel|=tooltip]').tooltip('hide');
+                                $("#cover-photos").fadeIn(250, function(){
+                                    $(document.body).animate({
+                                        scrollTop: $('#cover-photos').offset().top - 50
+                                    }, 250);
+                                });
+                                $('#cover-photos .thumbnail').click(function() {
+                                    var id;
+                                    if ($(this).hasClass("thumbnail")) {
+                                        id = $(this).attr("id");
+                                    } else {
+                                        id = $(this).parents(".thumbnail").attr("id");
                                     }
+                                    ajax({
+                                        url: "album/" + data.album.id + "/cover",
+                                        type : "post",
+                                        data : {
+                                            objectId:id
+                                        },
+                                        success: function() {
+                                            hideAlbumChoose();
+                                            $("#edit_album .cover.alert-success").fadeIn(250);
+                                        },
+                                        error: function() {
+                                            $("#edit_album .cover.alert-danger").fadeIn(250);
+                                        }
+                                    });
                                 });
                             });
                         });
@@ -246,23 +268,19 @@ $(document).ready(function() {
         });
         
         this.post('#/album', function() {
+            var context = this;
+            $("#edit_album .edit.alert-success").fadeOut(250);
+            $("#edit_album .edit.alert-danger").fadeOut(250);
             $.ajax({
                 url: "album",
                 type : "post",
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
-                    $("#edit_album").modal("hide");
-                    $("#"+data.id + " .name strong").text(data.name);
-                    if (data.visibility == "PUBLIC") {
-                        $("#"+data.id + " .visibility").html("<i class=\"icon-ok\"></i>&nbsp;Public");
-                    } else {
-                        $("#"+data.id + " .visibility").html("<i class=\"icon-ban-circle\"></i>&nbsp;Privé");
-                    }
-                    if (data.downloadable) {
-                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ok\"></i>&nbsp;Oui");
-                    } else {
-                        $("#"+data.id + " .downloadable").html("<i class=\"icon-ban-circle\"></i>&nbsp;Non");
-                    }
+                    $("#edit_album .edit.alert-success").fadeIn(250);
+                    context.redirect("#/album/"+data.name);
+                },
+                error : function() {
+                    $("#edit_album .edit.alert-danger").fadeIn(250);
                 }
             });
             return false;

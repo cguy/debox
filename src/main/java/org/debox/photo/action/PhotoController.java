@@ -26,11 +26,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
@@ -48,22 +44,6 @@ public class PhotoController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
     
-    protected static AlbumDao albumDao = new AlbumDao();
-    
-    public Render getAvailablePhotosForAlbumCover(String albumId) throws SQLException {
-        Subject currentUser = SecurityUtils.getSubject();
-        if (!currentUser.isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-        
-        List<String> ids = new ArrayList<>();
-        ids.add(albumId);
-        ids.addAll(albumDao.getSubAlbumsId(albumId));
-        
-        List<Photo> result = photoDao.getPhotos(ids);
-        return renderJSON("photos", result);
-    }
-
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
         Photo photo;
         if (SecurityUtils.getSubject().isAuthenticated()) {

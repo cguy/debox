@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.model.Album;
@@ -118,13 +120,26 @@ public class AlbumController extends DeboxController {
         return renderJSON(album);
     }
 
-    public Render setAlbumCover(String albumId, String photoId) throws SQLException, IOException {
+    public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        albumDao.setAlbumCover(albumId, photoId);
         
-        return null;
+        if (StringUtils.isEmpty(objectId) && photoDao.getPhoto(objectId) != null) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The photoId parameter must correspond with a valid photo.");
+        }
+        
+        String id;
+        if (objectId.startsWith("a.")) {
+            Photo photo = albumDao.getAlbumCover(objectId.substring(2));
+            id = photo.getId();
+        } else {
+            id = objectId;
+        }
+        
+        photoDao.savePhotoGenerationTime("a." + albumId, ThumbnailSize.SQUARE, new Date().getTime());
+        albumDao.setAlbumCover(albumId, id);
+        return renderStatus(HttpURLConnection.HTTP_OK);
     }
 
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
@@ -140,15 +155,21 @@ public class AlbumController extends DeboxController {
             return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
         
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+        }
+        
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
-            handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }
+        
+        handleLastModifiedHeader(album);
         return renderStream(fis, "image/jpeg");
     }
 

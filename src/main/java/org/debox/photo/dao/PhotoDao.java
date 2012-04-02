@@ -54,20 +54,16 @@ public class PhotoDao extends JdbcMysqlRealm {
     protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
     protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
     
-    public void savePhotoGenerationTime(Photo photo, ThumbnailSize size, long time) throws SQLException {
+    public void savePhotoGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_INSERT_PHOTO_GENERATION);
-                String id = photo.getId();
-                if (id == null) {
-                    id = StringUtils.randomUUID();
-                }
-                statement.setString(1, id);
-                statement.setString(2, size.name());
-                statement.setTimestamp(3, new Timestamp(time));
-                statement.setTimestamp(4, new Timestamp(time));
-                statement.executeUpdate();
+            statement.setString(1, id);
+            statement.setString(2, size.name());
+            statement.setTimestamp(3, new Timestamp(time));
+            statement.setTimestamp(4, new Timestamp(time));
+            statement.executeUpdate();
 
         } finally {
             JdbcUtils.closeStatement(statement);
@@ -75,7 +71,7 @@ public class PhotoDao extends JdbcMysqlRealm {
         }
     }
     
-    public long getGenerationTime(Photo photo, ThumbnailSize size) throws SQLException {
+    public long getGenerationTime(String id, ThumbnailSize size) throws SQLException {
         long result = -1;
 
         Connection connection = getDataSource().getConnection();
@@ -83,7 +79,7 @@ public class PhotoDao extends JdbcMysqlRealm {
         ResultSet resultSet = null;
         try {
             statement = connection.prepareStatement(SQL_GET_PHOTO_GENERATION);
-            statement.setString(1, photo.getId());
+            statement.setString(1, id);
             statement.setString(2, size.name());
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -237,14 +233,6 @@ public class PhotoDao extends JdbcMysqlRealm {
         return result;
     }
     
-    public List<Photo> getPhotos(List<String> ids) throws SQLException {
-        List<Photo> result = new ArrayList<>();
-        for (String id : ids) {
-            result.addAll(getPhotos(id));
-        }
-        return result;
-    }
-
     public Photo getPhoto(String photoId) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTO_BY_ID);

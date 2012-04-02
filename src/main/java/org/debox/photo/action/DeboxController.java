@@ -28,9 +28,11 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
@@ -68,7 +70,7 @@ public class DeboxController extends WebMotionController {
 
     protected void handleLastModifiedHeader(Photo photo, ThumbnailSize size) {
         try {
-            long lastModified = photoDao.getGenerationTime(photo, size);
+            long lastModified = photoDao.getGenerationTime(photo.getId(), size);
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
 
             if (lastModified == -1) {
@@ -81,7 +83,7 @@ public class DeboxController extends WebMotionController {
                     FileTime lastModifiedTimeAttribute = attributes.lastModifiedTime();
 
                     lastModified = lastModifiedTimeAttribute.toMillis();
-                    photoDao.savePhotoGenerationTime(photo, size, lastModified);
+                    photoDao.savePhotoGenerationTime(photo.getId(), size, lastModified);
 
                 } catch (IOException ioe) {
                     logger.error("Unable to access last modified property from file: " + strPath, ioe);
@@ -101,4 +103,28 @@ public class DeboxController extends WebMotionController {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
     }
+    
+    protected void handleLastModifiedHeader(Album album) {
+        try {
+            String id = "a." + album.getId();
+            long lastModified = photoDao.getGenerationTime(id, ThumbnailSize.SQUARE);
+            long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
+
+            if (lastModified == -1) {
+                photoDao.savePhotoGenerationTime(id, ThumbnailSize.SQUARE, new Date().getTime());
+                logger.warn("Get -1 value for album " + album.getId() + " and size " + ThumbnailSize.SQUARE.name());
+            }
+
+            if (lastModified != -1) {
+                if (lastModified <= ifModifiedSince) {
+                    getContext().getResponse().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
+                }
+                getContext().getResponse().addDateHeader("Last-Modified", lastModified);
+            }
+
+        } catch (SQLException ex) {
+            logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
+        }
+    }
+    
 }

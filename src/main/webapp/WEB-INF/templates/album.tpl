@@ -19,9 +19,14 @@
     </div>
     {{/data.album.downloadable}}{{/data.photos.length}}
     <button class="btn pull-right edit-album"><i class="icon-pencil"></i>&nbsp;Modifier cet album</button>
+    <button class="btn btn-info pull-right edit-album-cancel hide"><i class="icon-remove"></i>&nbsp;Fermer la zone de modification</button>
 </div>
 
 <div id="edit_album">
+    <p class="hide cover alert alert-success">La vignette de l'album a été modifiée avec succès.<a class="close" data-dismiss="alert" href="#">&times;</a></p>
+    <p class="hide cover alert alert-danger">Une erreur est survenue lors de la modification de la vignette de cet album.<a class="close" data-dismiss="alert" href="#">&times;</a></p>
+    <p class="hide edit alert alert-success">L'album a été modifié avec succès.<a class="close" data-dismiss="alert" href="#">&times;</a></p>
+    <p class="hide edit alert alert-danger">Une erreur est survenue lors de la modification de l'album.<a class="close" data-dismiss="alert" href="#">&times;</a></p>
     <div class="row">
         <div class="span6">
             <form class="form-horizontal" action="#/album" method="post">
@@ -59,6 +64,7 @@
         <div class="span4">
             <h2 class="page-header">Actions</h2>
             <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;Choisir une nouvelle vignette d'album</button>
+            <button class="btn btn-danger hide choose-cover-cancel"><i class="icon-remove"></i>&nbsp;Annuler le choix d'une vignette</button>
         </div>
     </div>
 </div>
@@ -82,4 +88,6 @@
     {{/data.photos}}
     {{/data.albums}}
 </div>
-<div id="cover-photos"></div>
+<div id="cover-photos" class="hide">
+    {{> photo.thumbnails.admin}}
+</div>

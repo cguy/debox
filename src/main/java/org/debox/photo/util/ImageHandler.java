@@ -88,7 +88,7 @@ public class ImageHandler {
         Future<Pair<String, FileInputStream>> future = threadPool.submit(processor);
         inProgressPaths.put(path, future);
         try {
-            photoDao.savePhotoGenerationTime(photo, size, new Date().getTime());
+            photoDao.savePhotoGenerationTime(photo.getId(), size, new Date().getTime());
         } catch (SQLException ex) {
             logger.error("Unable to save time generation for photo: " + path, ex);
         }
@@ -112,7 +112,7 @@ public class ImageHandler {
             }
             fis = future.get().getValue();
             try {
-                photoDao.savePhotoGenerationTime(photo, size, new Date().getTime());
+                photoDao.savePhotoGenerationTime(photo.getId(), size, new Date().getTime());
             } catch (SQLException sqle) {
                 logger.error("Unable to save time generation for photo: " + path, sqle);
             }

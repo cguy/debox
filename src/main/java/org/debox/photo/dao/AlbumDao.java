@@ -107,7 +107,7 @@ public class AlbumDao extends JdbcMysqlRealm {
 
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
-    protected static String SQL_GET_ALBUM_COVER = "SELECT cover FROM albums WHERE id = ?";
+    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
             + "SELECT p.id, p.name, p.relative_path, p.album_id "
@@ -339,7 +339,6 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
         Connection connection = getDataSource().getConnection();
-        logger.debug(SQL_GET_VISIBLE_ALBUM_COVER);
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
         statement.setString(1, albumId);
         statement.setString(2, token);

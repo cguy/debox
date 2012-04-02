@@ -101,6 +101,5 @@ CREATE TABLE IF NOT EXISTS `photos_generation` (
     `id` VARCHAR(32) NOT NULL,
     `size` VARCHAR(255) NOT NULL,
     `time` TIMESTAMP NOT NULL,
-    PRIMARY KEY (`id`, `size`),
-    FOREIGN KEY (`id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+    PRIMARY KEY (`id`, `size`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
