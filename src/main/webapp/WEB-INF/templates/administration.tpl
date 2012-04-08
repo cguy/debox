@@ -35,6 +35,7 @@
         <div id="configuration" class="tab-pane active">
             <form  class="form-vertical" action="#/administration/configuration" method="post">
                 <h2 class="page-header">Configuration générale</h2>
+                <p class="alert hide"></p>
                 <div class="control-group">
                     <label for="title">Titre de la galerie photos</label>
                     <div class="controls">
@@ -53,8 +54,8 @@
                         <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="Exemple : /home/user/thumbnails/" value="{{data.configuration.target_path}}" />
                     </div>
                 </div>
-                <input type="hidden" name="force" />
                 <div class="form-actions">
+                    <input type="hidden" name="force" />
                     <button type="button" class="btn btn-danger" data-loading-text="Traitement en cours ...">Enregistrer et synchroniser les répertoires</button>
                     <input type="submit" class="btn btn-primary" data-loading-text="Traitement en cours ..." value="Enregistrer" />
                 </div>
@@ -86,57 +87,7 @@
 
         {{! Albums }}
         <div id="albums" class="tab-pane">
-            <h2 class="page-header">Liste des albums</h2>
             {{> admin.albums}}
-
-            {{#data.albums.length}}
-            <table id="administration_albums" class="table table-striped table-bordered table-condensed">
-                <thead>
-                    <tr>
-                        <th>Nom de l'album</th>
-                        <th>Répertoire source</th>
-                        <th style="width:65px;text-align:center;">Téléchargeable</th>
-                        <th style="width:65px;text-align:center;">Visibilité</th>
-                        <th style="width:275px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {{#data.albums}}
-                    <tr id="{{id}}">
-                        <td class="name"><strong>{{name}}</strong></td>
-                        <td class="relativePath">{{relativePath}}</td>
-                        <td class="downloadable" style="text-align: center;">
-                            {{#downloadable}}
-                                <i class="icon-ok"></i>&nbsp;Oui
-                            {{/downloadable}}
-                            {{^downloadable}}
-                                <i class="icon-ban-circle"></i>&nbsp;Non
-                            {{/downloadable}}
-                        </td>
-                        <td class="visibility">
-                            {{#visibility}}
-                                <i class="icon-ok"></i>&nbsp;Public
-                            {{/visibility}}
-                            {{^visibility}}
-                                <i class="icon-ban-circle"></i>&nbsp;Privé
-                            {{/visibility}}
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn actions"><i class="icon-cog"></i>&nbsp;Actions</button>
-                                <button class="btn edit"><i class="icon-pencil"></i>&nbsp;Modifier</button>
-                                <a class="btn" target="_blank" href="download/album/{{id}}"><i class="icon-download-alt"></i>&nbsp;Télécharger</a>
-                            </div>
-                        </td>
-                    </tr>
-                {{/data.albums}}
-                </tbody>
-            </table>
-            {{/data.albums.length}}
-
-            {{^data.albums}}
-            <p class="alert">Aucun album n'a été créé pour le moment !</p>
-            {{/data.albums}}
         </div>
         {{! End of albums }}
 
@@ -190,7 +141,7 @@
         <div id="account" class="tab-pane">
             <form class="form-horizontal" action="#/administration/credentials" method="post">
                 <h2 class="page-header">Modifier mes identifiants de connexion</h2>
-                <p></p>
+                <p class="hide"><a class="close">&times;</a></p>
                 <div class="control-group">
                     <label class="control-label" for="username">Nouveau nom d'utilisateur :</label>
                     <div class="controls">

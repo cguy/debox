@@ -276,7 +276,7 @@ public class AdministrationController extends DeboxController {
         sync.put("total", total);
         sync.put("current", current);
         if (total == 0L) {
-            sync.put("percent", 0L);
+            sync.put("percent", 100L);
         } else {
             sync.put("percent", Double.valueOf(Math.floor(current * 100 / total)).longValue());
         }

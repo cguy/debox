@@ -1,3 +1,5 @@
+<h2 class="page-header">Liste des albums</h2>
+
 {{#data.albums.length}}
 <ul class="thumbnails">
     {{#data.albums}}
@@ -32,3 +34,6 @@
     {{/data.albums}}
 </ul>
 {{/data.albums.length}}
+{{^data.albums}}
+<p class="alert">Aucun album n'a été créé pour le moment !</p>
+{{/data.albums}}
