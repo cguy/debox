@@ -107,18 +107,6 @@ function initHeader(title, username) {
     }, ".navbar .container-fluid");
 }
 
-function hideModal() {
-    $(this).parents(".modal").modal("hide");
-}
-
-function resetModalForm() {
-    $(this).find("p.alert-error").text("");
-    $(this).find("p.alert-error").removeClass("alert alert-error");
-    $(this).each(function(){
-        this.reset();
-    });
-}
-
 function handleArchiveUpload() {
     $.ajax({
         type : "GET",
@@ -142,7 +130,6 @@ function handleArchiveUpload() {
                 $("#upload-progress .progress").removeClass("progress-info active");
                 $("#upload-progress .progress").addClass("progress-success");
             }
-                        
         }
     });
 }

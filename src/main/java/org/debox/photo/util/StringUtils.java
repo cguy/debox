@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(StringUtils.class);
-
     public static String randomUUID() {
         UUID uuid = UUID.randomUUID();
         byte[] bytes = new byte[16];

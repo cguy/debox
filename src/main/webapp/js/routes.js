@@ -37,6 +37,14 @@ $(document).ready(function() {
                         plural = (album.photosCount > 1) ? "s" : "";
                         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
                     }
+                    
+                    var beginDate = new Date(data.album.beginDate).at("0:00am");
+                    var endDate = new Date(data.album.endDate).at("0:00am");
+                    
+                    data.album.isInterval = !beginDate.equals(endDate);
+                    data.album.beginDate = beginDate.toString("dd MMMM yyyy");
+                    data.album.endDate = endDate.toString("dd MMMM yyyy");
+                    
                     data.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
                     data.downloadUrl = computeUrl("download/album/" + data.album.id);
                     data.album.visibility = data.album.visibility == "PUBLIC";
@@ -362,7 +370,7 @@ $(document).ready(function() {
             var tabId = this.params['tab'];
             if ($("#administration").length > 0) {
                 $(".nav-tabs a[data-target|=\"#" + tabId.substr(1) + "\"]").tab("show");
-                $("#account .alert, #configuration p").addClass("hide");
+                $("form .alert").addClass("hide");
                 return;
             }
             
@@ -559,6 +567,10 @@ $(document).ready(function() {
             refreshProgressBar(data.sync);
         }
     }
+    
+    $("#login button[type=reset]").click(function() {
+        $(this).parents(".modal").modal("hide");
+    });
     
 });
 

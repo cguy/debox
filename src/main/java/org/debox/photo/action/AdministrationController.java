@@ -28,6 +28,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -58,6 +60,7 @@ public class AdministrationController extends DeboxController {
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
     protected static UserDao userDao = new UserDao();
+    protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
@@ -191,22 +194,23 @@ public class AdministrationController extends DeboxController {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
 
-        try {
-            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
 
-            String strSource = configuration.get(Configuration.Key.SOURCE_PATH);
-            String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
+        String strSource = configuration.get(Configuration.Key.SOURCE_PATH);
+        String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
 
-            if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
-                return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
-            }
+        if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
+            return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
+        }
 
-            Path source = Paths.get(strSource);
-            Path target = Paths.get(strTarget);
+        Path source = Paths.get(strSource);
+        Path target = Paths.get(strTarget);
 
+        if (syncJob != null && !syncJob.isTerminated()) {
+            logger.warn("Cannot launch process, it is already running");
+        } else {
             if (syncJob == null) {
                 syncJob = new SyncJob(source, target, syncMode);
-                syncJob.process();
 
             } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
                 logger.warn("Aborting sync between {} and {}", syncJob.getSource(), syncJob.getTarget());
@@ -214,21 +218,15 @@ public class AdministrationController extends DeboxController {
                 syncJob.setSource(source);
                 syncJob.setTarget(target);
                 syncJob.setMode(syncMode);
-                syncJob.process();
 
-            } else if (!syncJob.isTerminated()) {
-                logger.warn("Cannot launch process, it is already running");
             } else {
                 syncJob.setMode(syncMode);
-                syncJob.process();
             }
 
-            return renderStatus(HttpURLConnection.HTTP_OK);
-
-        } catch (SQLException | IOException ex) {
-            logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to synchronize directories");
+            threadPool.execute(syncJob);
         }
+
+        return renderStatus(HttpURLConnection.HTTP_OK);
     }
 
     public Render cancelSynchronization() {
@@ -270,8 +268,8 @@ public class AdministrationController extends DeboxController {
     }
 
     protected Map<String, Long> getSyncData() throws SQLException {
-        long total = syncJob.getPhotosToProcess();
-        long current = syncJob.getTerminatedProcessesCount();
+        long total = syncJob.getNumberToProcess();
+        long current = syncJob.getNumberProcessed();
         Map<String, Long> sync = new HashMap<>();
         sync.put("total", total);
         sync.put("current", current);

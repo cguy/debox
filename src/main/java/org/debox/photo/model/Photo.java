@@ -21,6 +21,7 @@
 package org.debox.photo.model;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -34,6 +35,15 @@ public class Photo implements Comparable<Photo> {
     protected String albumId;
     protected String thumbnailUrl;
     protected String url;
+    protected Date date;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public String getThumbnailUrl() {
         return thumbnailUrl;

@@ -20,17 +20,13 @@
  */
 package org.debox.photo.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
-import org.debox.photo.util.SourcePathComparator;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,15 +38,15 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     private static final Logger logger = LoggerFactory.getLogger(AlbumDao.class);
     
-    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, visibility = ?, photos_count = ?, downloadable = ?";
+    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, visibility = ?, photos_count = ?, downloadable = ?";
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
-    protected static String SQL_GET_ALBUMS = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums";
+    protected static String SQL_GET_ALBUMS = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums ORDER BY begin_date";
     
-    protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE parent_id is null";
+    protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE parent_id is null ORDER BY begin_date";
     protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = ""
             + "SELECT"
-            + "    id, name, date, photos_count, downloadable, relative_path, parent_id, visibility "
+            + "    id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility "
             + "FROM"
             + "    albums LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
@@ -58,12 +54,13 @@ public class AlbumDao extends JdbcMysqlRealm {
             + "    AND ("
             + "        token_id = ?"
             + "        OR visibility = 'public'"
-            + "    )";
+            + "    )"
+            + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE parent_id = ?";
+    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE parent_id = ?  ORDER BY begin_date";
     protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = ""
             + "SELECT"
-            + "    id, name, date,  photos_count, downloadable, relative_path, parent_id, visibility "
+            + "    id, name, begin_date, end_date,  photos_count, downloadable, relative_path, parent_id, visibility "
             + "FROM"
             + "    albums LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
@@ -71,17 +68,18 @@ public class AlbumDao extends JdbcMysqlRealm {
             + "    AND ("
             + "        token_id = ?"
             + "        OR visibility = 'public'"
-            + "    )";
+            + "    )"
+            + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE id = ?";
-    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
+    protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE id = ?";
+    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
             + "        token_id = ?"
             + "        OR visibility = 'public'"
             + "    )";
     
     protected static String SQL_GET_ALBUM_BY_NAME = ""
             + "SELECT"
-            + "    id, name, date, photos_count, downloadable, relative_path, parent_id, visibility "
+            + "    id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility "
             + "FROM"
             + "    albums LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
@@ -89,7 +87,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_VISIBLE_ALBUM_BY_NAME = ""
             + "SELECT"
-            + "    id, name, date, photos_count, downloadable, relative_path, parent_id, visibility "
+            + "    id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility "
             + "FROM"
             + "    albums LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
@@ -101,13 +99,13 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_CHILDREN_ID = "SELECT id from albums WHERE parent_id = ?";
     
-    protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE source_path = ?";
+    protected static String SQL_GET_ALBUM_BY_SOURCE_PATH = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE source_path = ?";
 
     protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
 
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
-    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
+    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
             + "SELECT p.id, p.name, p.relative_path, p.album_id "
@@ -121,27 +119,22 @@ public class AlbumDao extends JdbcMysqlRealm {
         connection.setAutoCommit(false);
         PreparedStatement statement = null;
         
-        Collections.sort(albums, new SourcePathComparator());
-        
         try {
             statement = connection.prepareStatement(SQL_CREATE_ALBUM);
             for (Album album : albums) {
                 statement.setString(1, album.getId());
                 statement.setString(2, album.getName());
-                if (album.getDate() != null) {
-                    statement.setDate(3, new java.sql.Date(album.getDate().getTime()));
-                } else {
-                    statement.setDate(3, null);
-                }
-                statement.setInt(4, album.getPhotosCount());
-                statement.setBoolean(5, album.isDownloadable());
-                statement.setString(6, album.getRelativePath());
-                statement.setString(7, album.getParentId());
-                statement.setString(8, album.getVisibility().name().toLowerCase());
-                statement.setString(9, album.getName());
-                statement.setString(10, album.getVisibility().name().toLowerCase());
-                statement.setInt(11, album.getPhotosCount());
-                statement.setBoolean(12, album.isDownloadable());
+                statement.setTimestamp(3, new Timestamp(album.getBeginDate().getTime()));
+                statement.setTimestamp(4, new Timestamp(album.getEndDate().getTime()));
+                statement.setInt(5, album.getPhotosCount());
+                statement.setBoolean(6, album.isDownloadable());
+                statement.setString(7, album.getRelativePath());
+                statement.setString(8, album.getParentId());
+                statement.setString(9, album.getVisibility().name().toLowerCase());
+                statement.setString(10, album.getName());
+                statement.setString(11, album.getVisibility().name().toLowerCase());
+                statement.setInt(12, album.getPhotosCount());
+                statement.setBoolean(13, album.isDownloadable());
                 statement.addBatch();
             }
 
@@ -168,20 +161,17 @@ public class AlbumDao extends JdbcMysqlRealm {
             statement = connection.prepareStatement(SQL_CREATE_ALBUM);
             statement.setString(1, id);
             statement.setString(2, album.getName());
-            if (album.getDate() != null) {
-                statement.setDate(3, new java.sql.Date(album.getDate().getTime()));
-            } else {
-                statement.setDate(3, null);
-            }
-            statement.setInt(4, album.getPhotosCount());
-            statement.setBoolean(5, album.isDownloadable());
-            statement.setString(6, album.getRelativePath());
-            statement.setString(7, album.getParentId());
-            statement.setString(8, album.getVisibility().name().toLowerCase());
-            statement.setString(9, album.getName());
-            statement.setString(10, album.getVisibility().name().toLowerCase());
-            statement.setInt(11, album.getPhotosCount());
-            statement.setBoolean(12, album.isDownloadable());
+            statement.setTimestamp(3, new Timestamp(album.getBeginDate().getTime()));
+            statement.setTimestamp(4, new Timestamp(album.getEndDate().getTime()));
+            statement.setInt(5, album.getPhotosCount());
+            statement.setBoolean(6, album.isDownloadable());
+            statement.setString(7, album.getRelativePath());
+            statement.setString(8, album.getParentId());
+            statement.setString(9, album.getVisibility().name().toLowerCase());
+            statement.setString(10, album.getName());
+            statement.setString(11, album.getVisibility().name().toLowerCase());
+            statement.setInt(12, album.getPhotosCount());
+            statement.setBoolean(13, album.isDownloadable());
             statement.executeUpdate();
 
         } finally {
@@ -242,7 +232,6 @@ public class AlbumDao extends JdbcMysqlRealm {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
         List<Album> result = executeListQueryStatement(statement, null);
-        Collections.sort(result);
         return result;
     }
 
@@ -288,7 +277,6 @@ public class AlbumDao extends JdbcMysqlRealm {
             statement.setString(2, token);
         }
         List<Album> result = this.executeListQueryStatement(statement, token);
-        Collections.sort(result);
         return result;
     }
 
@@ -350,12 +338,13 @@ public class AlbumDao extends JdbcMysqlRealm {
         Album result = new Album();
         result.setId(resultSet.getString(1));
         result.setName(resultSet.getString(2));
-        result.setDate(resultSet.getDate(3));
-        result.setPhotosCount(resultSet.getInt(4));
-        result.setDownloadable(resultSet.getBoolean(5));
-        result.setRelativePath(resultSet.getString(6));
-        result.setParentId(resultSet.getString(7));
-        result.setVisibility(Album.Visibility.valueOf(resultSet.getString(8).toUpperCase()));
+        result.setBeginDate(resultSet.getTimestamp(3));
+        result.setEndDate(resultSet.getTimestamp(4));
+        result.setPhotosCount(resultSet.getInt(5));
+        result.setDownloadable(resultSet.getBoolean(6));
+        result.setRelativePath(resultSet.getString(7));
+        result.setParentId(resultSet.getString(8));
+        result.setVisibility(Album.Visibility.valueOf(resultSet.getString(9).toUpperCase()));
 
         String url = "album/" + result.getId() + "/cover";
         if (token != null) {

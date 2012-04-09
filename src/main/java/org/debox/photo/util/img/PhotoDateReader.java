@@ -18,22 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.util;
+package org.debox.photo.util.img;
 
 import java.io.File;
-import org.debox.photo.model.Configuration;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.concurrent.RecursiveTask;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.ThumbnailSize;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ImageUtils {
+public class PhotoDateReader extends RecursiveTask<Photo> {
+
+    protected String basePath;
+    protected Photo photo;
     
-    public static final String JPEG_MIME_TYPE = "image/jpeg";
-    
-    public static String getTargetPath(Configuration configuration, Photo photo, ThumbnailSize size) {
-        return configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
+    public PhotoDateReader(String basePath, Photo photo) {
+        this.basePath = basePath;
+        this.photo = photo;
     }
-    
+
+    @Override
+    protected Photo compute() {
+        String path = basePath + photo.getRelativePath() + File.separatorChar + photo.getName();
+        Date date = ImageUtils.getShootingDate(Paths.get(path));
+        photo.setDate(date);
+        return photo;
+    }
+
 }

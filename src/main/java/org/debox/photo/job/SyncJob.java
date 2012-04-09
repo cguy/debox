@@ -24,34 +24,39 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.FileUtils;
-import org.debox.photo.util.ImageUtils;
+import org.debox.photo.util.img.ImageUtils;
 import org.debox.photo.util.StringUtils;
+import org.debox.photo.util.img.AlbumDateReader;
+import org.debox.photo.util.img.ThumbnailGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class SyncJob implements FileVisitor<Path> {
+public class SyncJob implements FileVisitor<Path>, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncJob.class);
     
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
+    protected AlbumDateReader albumDateReader;
+    protected ForkJoinPool forkJoinPool = new ForkJoinPool();
     
     protected Path source;
     protected Path target;
@@ -64,11 +69,47 @@ public class SyncJob implements FileVisitor<Path> {
     
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
     protected List<Future> imageProcesses = new ArrayList<>();
+    protected List<ForkJoinTask> exifReaderProcesses = new ArrayList<>();
 
     public SyncJob(Path source, Path target, SynchronizationMode mode) {
         this.source = source;
         this.target = target;
         this.mode = mode;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+
+            // Cleaning target path
+            if (SynchronizationMode.SLOW.equals(this.mode)) {
+                FileUtils.deleteDirectory(target.toFile());
+            }
+
+            // Create target if not exists
+            if (!Files.exists(target)) {
+                Files.createDirectories(target, FileUtils.PERMISSIONS);
+            }
+
+            // Launch sync
+            albums.clear();
+            List<Album> existingAlbums = albumDao.getAlbums();
+            for (Album existing : existingAlbums) {
+                albums.put(existing, Boolean.FALSE);
+            }
+
+            photos.clear();
+            List<Photo> existingPhotos = photoDao.getAll();
+            for (Photo existing : existingPhotos) {
+                photos.put(existing, Boolean.FALSE);
+            }
+
+            Files.walkFileTree(source, this);
+            
+        } catch (SQLException | IOException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
     }
 
     public Path getSource() {
@@ -97,7 +138,23 @@ public class SyncJob implements FileVisitor<Path> {
                 return false;
             }
         }
-        return true;
+        return albumDateReader != null && albumDateReader.isTerminated();
+    }
+    
+    public long getNumberToProcess() {
+        long result = getPhotosToProcess();
+        if (albumDateReader != null) {
+            result += albumDateReader.getNumbertoProcess();
+        }
+        return result;
+    }
+    
+    public long getNumberProcessed() {
+        long result = getTerminatedProcessesCount();
+        if (albumDateReader != null) {
+            result += albumDateReader.getNumberProcessed();
+        }
+        return result;
     }
 
     public long getTerminatedProcessesCount() {
@@ -114,39 +171,11 @@ public class SyncJob implements FileVisitor<Path> {
         return imageProcesses.size();
     }
     
-    public void process() throws IOException, SQLException {
-        threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
-
-        // Cleaning target path
-        if (SynchronizationMode.SLOW.equals(this.mode)) {
-            FileUtils.deleteDirectory(target.toFile());
-        }
-
-        // Create target if not exists
-        if (!Files.exists(target)) {
-            Files.createDirectories(target, FileUtils.PERMISSIONS);
-        }
-
-        // Launch sync
-        albums.clear();
-        List<Album> existingAlbums = albumDao.getAlbums();
-        for (Album existing : existingAlbums) {
-            albums.put(existing, Boolean.FALSE);
-        }
-        
-        photos.clear();
-        List<Photo> existingPhotos = photoDao.getAll();
-        for (Photo existing : existingPhotos) {
-            photos.put(existing, Boolean.FALSE);
-        }
-        
-        Files.walkFileTree(source, this);
-    }
-
     public void abort() {
         aborted = true;
         threadPool.shutdownNow();
         imageProcesses.clear();
+        exifReaderProcesses.clear();
         albums.clear();
         photos.clear();
         aborted = false;
@@ -232,7 +261,18 @@ public class SyncJob implements FileVisitor<Path> {
         photo.setName(path.getFileName().toString());
         photo.setAlbumId(album.getId());
         photo.setRelativePath(album.getRelativePath());
-   
+        
+        FileTime lastModifiedTime = Files.getLastModifiedTime(path);
+        photo.setDate(new Date(lastModifiedTime.toMillis()));
+        if (photo.getAlbumId().equals(album.getId())) {
+            if (album.getBeginDate() == null || photo.getDate().before(album.getBeginDate())) {
+                album.setBeginDate(photo.getDate());
+            }
+            if (album.getEndDate() == null || photo.getDate().after(album.getEndDate())) {
+                album.setEndDate(photo.getDate());
+            }
+        }
+        
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
                 photo.setId(existing.getId());
@@ -262,6 +302,10 @@ public class SyncJob implements FileVisitor<Path> {
             return FileVisitResult.CONTINUE;
         }
 
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
+        String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
+
         // End of synchronise, persist data
         try {
             List<Album> albumsToSave = new ArrayList<>();
@@ -274,9 +318,6 @@ public class SyncJob implements FileVisitor<Path> {
                     albumDao.delete(album);
                 }
             }
-            albumDao.save(albumsToSave);
-            
-            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
             
             List<Photo> existingPhotos = photoDao.getAll();
             List<Photo> photosToSave = new ArrayList<>();
@@ -287,25 +328,31 @@ public class SyncJob implements FileVisitor<Path> {
                 if (entry.getValue()) {
                     
                     if (!existingPhotos.contains(photo) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
-                        ImageProcessor processor = new ImageProcessor(configuration, photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
+                        ThumbnailGenerator processor = new ThumbnailGenerator(sourcePath, photo, targetPath, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
                         Future future = threadPool.submit(processor);
                         imageProcesses.add(future);
                     }
                     
                     photosToSave.add(photo);
                 } else {
-                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(configuration, photo, ThumbnailSize.LARGE)));
-                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(configuration, photo, ThumbnailSize.SQUARE)));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(targetPath, photo, ThumbnailSize.LARGE)));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(targetPath, photo, ThumbnailSize.SQUARE)));
                     photosToDelete.add(photo);
                 }
             }
             
             photoDao.delete(photosToDelete);
-            photoDao.save(photosToSave);
+            
+            albumDateReader = new AlbumDateReader(sourcePath, albumsToSave, photosToSave);
+            Pair<List<Album>, List<Photo>> modifiedLists = forkJoinPool.invoke(albumDateReader);
+            albumDao.save(modifiedLists.getLeft());
+            photoDao.save(modifiedLists.getRight());
 
             // Ensure clear
             albums.clear();
             photos.clear();
+            albumDateReader = null;
+            
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
             return FileVisitResult.TERMINATE;
@@ -313,4 +360,5 @@ public class SyncJob implements FileVisitor<Path> {
 
         return FileVisitResult.TERMINATE;
     }
+
 }

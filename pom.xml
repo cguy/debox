@@ -210,7 +210,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.18</version>
+            <version>5.1.19</version>
         </dependency>
         
         <dependency>
@@ -290,12 +290,7 @@
                         <configuration>
                             <licenseName>agpl_v3</licenseName>
                             <excludes>
-                                <exclude>**/ICanHaz-no-mustache.min.js</exclude>
-                                <exclude>**/bootstrap.min.js</exclude>
-                                <exclude>**/jquery*.js</exclude>
-                                <exclude>**/jwerty.js</exclude>
-                                <exclude>**/mustache.js</exclude>
-                                <exclude>**/sammy-0.7.1.min.js</exclude>
+                                <exclude>**/js/lib/*.js</exclude>
                                 <exclude>**/bootstrap*.css</exclude>
                                 <exclude>**/*.tpl</exclude>
                             </excludes>

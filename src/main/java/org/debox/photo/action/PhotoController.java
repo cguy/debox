@@ -32,7 +32,7 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
-import org.debox.photo.util.ImageHandler;
+import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -38,18 +38,16 @@ public class PhotoDao extends JdbcMysqlRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
-    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?";
+    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?";
     
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
-    protected static String SQL_GET_ALL = "SELECT id, name, relative_path, album_id FROM photos";
-    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, relative_path, album_id FROM photos WHERE album_id = ?";
-    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public')";
+    protected static String SQL_GET_ALL = "SELECT id, name, date, relative_path, album_id FROM photos";
+    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE album_id = ? ORDER BY date";
+    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public') ORDER BY date";
     
-    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, relative_path, album_id FROM photos WHERE id = ?";
-    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public')";
-    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, relative_path, album_id FROM photos WHERE source_path = ?";
-
-    protected static String SQL_GET_PHOTOS_COUNT = "SELECT count(id) FROM photos";
+    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE id = ?";
+    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public') ORDER BY date";
+    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, date, relative_path, album_id FROM photos WHERE source_path = ?";
 
     protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
     protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
@@ -98,7 +96,6 @@ public class PhotoDao extends JdbcMysqlRealm {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALL);
         List<Photo> result = executeListQueryStatement(statement, null);
-        Collections.sort(result);
         return result;
     }
 
@@ -128,8 +125,9 @@ public class PhotoDao extends JdbcMysqlRealm {
         Photo result = new Photo();
         result.setId(resultSet.getString(1));
         result.setName(resultSet.getString(2));
-        result.setRelativePath(resultSet.getString(3));
-        result.setAlbumId(resultSet.getString(4));
+        result.setDate(resultSet.getTimestamp(3));
+        result.setRelativePath(resultSet.getString(4));
+        result.setAlbumId(resultSet.getString(5));
         
         String thumbnail = "thumbnail/" + result.getId();
         String url = "photo/" + result.getId();
@@ -159,10 +157,11 @@ public class PhotoDao extends JdbcMysqlRealm {
                 }
                 statement.setString(1, id);
                 statement.setString(2, photo.getName());
-                statement.setString(3, photo.getRelativePath());
-                statement.setString(4, photo.getAlbumId());
+                statement.setTimestamp(3, new Timestamp(photo.getDate().getTime()));
+                statement.setString(4, photo.getRelativePath());
                 statement.setString(5, photo.getAlbumId());
-                statement.setString(6, photo.getRelativePath());
+                statement.setString(6, photo.getAlbumId());
+                statement.setString(7, photo.getRelativePath());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -192,35 +191,12 @@ public class PhotoDao extends JdbcMysqlRealm {
         }
     }
 
-
-    public long getPhotosCount() throws SQLException {
-        long result = -1;
-
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement(SQL_GET_PHOTOS_COUNT);
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                result = resultSet.getLong(1);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-
-        return result;
-    }
-    
     public List<Photo> getVisiblePhotos(String token, String albumId) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID);
         statement.setString(1, albumId);
         statement.setString(2, token);
         List<Photo> result = executeListQueryStatement(statement, token);
-        Collections.sort(result);
         return result;
     }
 
@@ -229,7 +205,6 @@ public class PhotoDao extends JdbcMysqlRealm {
         PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTOS_BY_ALBUM_ID);
         statement.setString(1, albumId);
         List<Photo> result = executeListQueryStatement(statement, null);
-        Collections.sort(result);
         return result;
     }
     

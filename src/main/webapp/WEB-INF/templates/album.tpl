@@ -1,4 +1,15 @@
-<h1 class="page-header"><a href="#/album/{{data.album.name}}">{{data.album.name}}</a><small>{{data.album.photosCount}}</small></h1>
+<h1 class="page-header">
+    <a href="#/album/{{data.album.name}}">{{data.album.name}}</a>
+    <small>
+        {{data.album.photosCount}}
+        {{#data.album.isInterval}}
+            du {{data.album.beginDate}} au {{data.album.endDate}}
+        {{/data.album.isInterval}}
+        {{^data.album.isInterval}}
+            le {{data.album.beginDate}}
+        {{/data.album.isInterval}}
+    </small>
+</h1>
 
 <div class="btn-toolbar" style="margin-top: 18px;">
     <div class="btn-group">

@@ -35,7 +35,8 @@ public class Album implements Comparable<Album> {
     
     protected String id;
     protected String name;
-    protected Date date;
+    protected Date beginDate;
+    protected Date endDate;
     protected int photosCount;
     protected String relativePath;
     protected String parentId;
@@ -66,15 +67,23 @@ public class Album implements Comparable<Album> {
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
     }
+
+    public Date getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
     
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public String getId() {
         return id;
     }

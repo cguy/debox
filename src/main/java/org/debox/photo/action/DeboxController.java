@@ -38,7 +38,7 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
-import org.debox.photo.util.ImageUtils;
+import org.debox.photo.util.img.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -75,7 +75,8 @@ public class DeboxController extends WebMotionController {
 
             if (lastModified == -1) {
                 Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-                String strPath = ImageUtils.getTargetPath(configuration, photo, size);
+                String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
+                String strPath = ImageUtils.getTargetPath(targetPath, photo, size);
                 Path path = Paths.get(strPath);
 
                 try {

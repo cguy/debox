@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.util;
+package org.debox.photo.util.img;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,10 +27,8 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.dao.PhotoDao;
-import org.debox.photo.job.ImageProcessor;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
@@ -79,12 +77,15 @@ public class ImageHandler {
     }
 
     public void generateThumbnail(Configuration configuration, Photo photo, ThumbnailSize size) {
-        String path = ImageUtils.getTargetPath(configuration, photo, size);
+        String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
+        String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
+        
+        String path = ImageUtils.getTargetPath(targetPath, photo, size);
         if (inProgressPaths.containsKey(path) || Files.exists(Paths.get(path))) {
             return;
         }
 
-        ImageProcessor processor = new ImageProcessor(configuration, photo, size);
+        ThumbnailGenerator processor = new ThumbnailGenerator(sourcePath, photo, targetPath, size);
         Future<Pair<String, FileInputStream>> future = threadPool.submit(processor);
         inProgressPaths.put(path, future);
         try {
@@ -95,7 +96,9 @@ public class ImageHandler {
     }
 
     public FileInputStream getStream(Configuration configuration, Photo photo, ThumbnailSize size) throws Exception {
-        String path = ImageUtils.getTargetPath(configuration, photo, size);
+        String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
+        String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
+        String path = ImageUtils.getTargetPath(targetPath, photo, size);
         FileInputStream fis;
 
         try {
@@ -106,7 +109,7 @@ public class ImageHandler {
 
             Future<Pair<String, FileInputStream>> future = inProgressPaths.get(path);
             if (future == null) {
-                ImageProcessor processor = new ImageProcessor(configuration, photo, size);
+                ThumbnailGenerator processor = new ThumbnailGenerator(sourcePath, photo, targetPath, size);
                 future = threadPool.submit(processor);
                 inProgressPaths.put(path, future);
             }

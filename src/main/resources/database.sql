@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `visibilities` (
     `id` VARCHAR(20) PRIMARY KEY
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-INSERT INTO `visibilities` VALUES ('public'),('private'),('token_access');
+INSERT INTO `visibilities` VALUES ('public'),('private');
 
 CREATE TABLE IF NOT EXISTS `tokens` (
     `id` VARCHAR(32) PRIMARY KEY,
@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS `roles` (
 CREATE TABLE IF NOT EXISTS `albums` (
     `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
-    `date` DATE,
+    `begin_date` DATETIME,
+    `end_date` DATETIME,
     `photos_count` INTEGER NOT NULL,
     `downloadable` TINYINT(1) NOT NULL,
     `relative_path` TEXT NOT NULL,
@@ -92,6 +93,7 @@ CREATE TABLE IF NOT EXISTS `albums_tokens` (
 CREATE TABLE IF NOT EXISTS `photos` (
     `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
+    `date` DATETIME,
     `relative_path` TEXT NOT NULL,
     `album_id` VARCHAR(32),
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
