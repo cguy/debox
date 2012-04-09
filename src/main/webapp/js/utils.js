@@ -21,10 +21,11 @@
 var templatesToLoad = new Array();
 var templatesLoaded = false;
 
-function loadTemplates() {
+function loadTemplates(callback) {
     $.ajax({
         url: "tpl",
         success: function(data) {
+            ich.clearAll();
             $.each(data.templates, function (name, template) {
                 ich.addTemplate(name, template);
             });
@@ -34,10 +35,13 @@ function loadTemplates() {
                 var id = templatesToLoad[i].id;
                 var model = templatesToLoad[i].data;
                 var selector = templatesToLoad[i].selector;
-                var callback = templatesToLoad[i].callback;
-                loadTemplate(id, model, selector, callback);
+                var tplCallback = templatesToLoad[i].callback;
+                loadTemplate(id, model, selector, tplCallback);
             }
             delete templatesToLoad;
+            if (callback) {
+                callback();
+            }
         }
     });
 }
@@ -105,6 +109,18 @@ function initHeader(title, username) {
         "title": title, 
         "username" : username
     }, ".navbar .container-fluid");
+}
+
+function hideModal() {
+    $(this).parents(".modal").modal("hide");
+}
+
+function resetModalForm() {
+    $(this).find("p.alert-error").text("");
+    $(this).find("p.alert-error").removeClass("alert alert-error");
+    $(this).each(function(){
+        this.reset();
+    });
 }
 
 function handleArchiveUpload() {

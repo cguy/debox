@@ -108,7 +108,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
-            + "SELECT p.id, p.name, p.relative_path, p.album_id "
+            + "SELECT p.id, p.name, p.date, p.relative_path, p.album_id "
             + "FROM photos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN albums_tokens at ON at.album_id = a.id "

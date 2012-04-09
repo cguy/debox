@@ -273,8 +273,10 @@ public class AdministrationController extends DeboxController {
         Map<String, Long> sync = new HashMap<>();
         sync.put("total", total);
         sync.put("current", current);
-        if (total == 0L) {
+        if (total == 0L && syncJob.isTerminated()) {
             sync.put("percent", 100L);
+        } else if (total == 0L && !syncJob.isTerminated()) {
+            sync.put("percent", 0L);
         } else {
             sync.put("percent", Double.valueOf(Math.floor(current * 100 / total)).longValue());
         }

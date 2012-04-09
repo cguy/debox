@@ -264,7 +264,11 @@ $(document).ready(function() {
                 success: function(data) {
                     console.log(data);
                     $("#sync form input[type=submit]").button("reset");
-                    manageSync({sync:{percent:0}});
+                    manageSync({
+                        sync:{
+                            percent:0
+                        }
+                    });
                 },
                 error: function(xhr) {
                     $("#sync form input[type=submit]").button("reset");
@@ -415,16 +419,18 @@ $(document).ready(function() {
                 success: function(username) {
                     $("#login input[type=submit]").button('reset');
                     $("#login p").removeClass("alert alert-error");
-                    if (location.hash && location.hash.length > 1) {
-                        context.redirect(location.hash);
-                    } else {
-                        context.redirect("#/");
-                    }
                     $("#login").modal("hide");
-                    loadTemplate("header", {
-                        "username" : username,
-                        "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
+                    loadTemplates(function() {
+                        if (location.hash && location.hash.length > 1) {
+                            context.redirect(location.hash);
+                        } else {
+                            context.redirect("#/");
+                        }
+                        loadTemplate("header", {
+                            "username" : username,
+                            "title" : $("a.brand").html()
+                        }, ".navbar .container-fluid");
+                    });
                 },
                 error: function(xhr) {
                     $("#login input[type=submit]").button('reset');
@@ -448,11 +454,13 @@ $(document).ready(function() {
                 url: "session",
                 type : "delete",
                 success: function() {
-                    loadTemplate("header", {
-                        "username" : null,
-                        "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
-                    context.redirect("#/");
+                    loadTemplates(function() {
+                        loadTemplate("header", {
+                            "username" : null,
+                            "title" : $("a.brand").html()
+                        }, ".navbar .container-fluid");
+                        context.redirect("#/");
+                    })
                 },
                 error: function() {
                     context.redirect("#/");
@@ -524,6 +532,10 @@ $(document).ready(function() {
                 }
             });
         });
+        
+        // Need to refresh binding because of DOM operations
+        $("button[type=reset]").click(hideModal);
+        $('form.modal').on('hidden', resetModalForm);
         
         $("#administration_tokens button.btn-danger").click(function() {
             var id = $(this).parents("tr").attr("id");

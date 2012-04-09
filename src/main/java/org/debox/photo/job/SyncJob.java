@@ -93,6 +93,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             }
 
             // Launch sync
+            albumDateReader = null;
             albums.clear();
             List<Album> existingAlbums = albumDao.getAlbums();
             for (Album existing : existingAlbums) {
@@ -174,6 +175,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     public void abort() {
         aborted = true;
         threadPool.shutdownNow();
+        forkJoinPool.shutdownNow();
         imageProcesses.clear();
         exifReaderProcesses.clear();
         albums.clear();
@@ -351,7 +353,6 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             // Ensure clear
             albums.clear();
             photos.clear();
-            albumDateReader = null;
             
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);

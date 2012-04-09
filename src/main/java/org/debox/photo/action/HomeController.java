@@ -74,7 +74,6 @@ public class HomeController extends DeboxController {
             URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("../templates");
             URI templatesURI = templatesDirectoryUrl.toURI();
 
-
             File templatesDirectory = new File(templatesURI);
             if (templatesDirectory != null && templatesDirectory.isDirectory()) {
                 for (File child : templatesDirectory.listFiles()) {
@@ -82,8 +81,11 @@ public class HomeController extends DeboxController {
                         
                         String filename = StringUtils.substringBeforeLast(child.getName(), ".");
                         String content = IOUtils.toString(fis, "UTF-8");
-
-                        templates.put(filename, content);
+                        if ((SecurityUtils.getSubject().isAuthenticated() && filename.contains("admin")) || !filename.contains("admin")) {
+                            templates.put(filename, content);
+                        } else {
+                            templates.put(filename, "");
+                        }
 
                     } catch (IOException ex) {
                         logger.error("Unable to load template " + child.getAbsolutePath(), ex);
