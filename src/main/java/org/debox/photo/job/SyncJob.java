@@ -28,7 +28,7 @@ import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,8 +61,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     protected Path source;
     protected Path target;
     
-    protected Map<Album, Boolean> albums = new HashMap<>();
-    protected Map<Photo, Boolean> photos = new HashMap<>();
+    protected Map<Album, Boolean> albums = new LinkedHashMap<>();
+    protected Map<Photo, Boolean> photos = new LinkedHashMap<>();
     
     protected SynchronizationMode mode;
     protected boolean aborted = false;
@@ -344,7 +344,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             }
             
             photoDao.delete(photosToDelete);
-            
+
             albumDateReader = new AlbumDateReader(sourcePath, albumsToSave, photosToSave);
             Pair<List<Album>, List<Photo>> modifiedLists = forkJoinPool.invoke(albumDateReader);
             albumDao.save(modifiedLists.getLeft());
