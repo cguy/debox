@@ -261,8 +261,7 @@ $(document).ready(function() {
                 url: "administration/sync",
                 type : "post",
                 data : $("#sync form").serializeArray(),
-                success: function(data) {
-                    console.log(data);
+                success: function() {
                     $("#sync form input[type=submit]").button("reset");
                     manageSync({
                         sync:{
@@ -498,10 +497,11 @@ $(document).ready(function() {
                         clearTimeout(syncTimeout);
                         syncTimeout = null;
                     }
+                    $("#sync input").removeAttr("disabled");
                     $("#sync-progress .btn-warning").hide();
                     $("#sync-progress").removeClass("alert-info");
-                    $("#sync-progress").addClass("alert-danger");
                     $("#sync-progress .progress").removeClass("progress-info active");
+                    $("#sync-progress").addClass("alert-danger");
                     $("#sync-progress .progress").addClass("progress-danger");
                 },
                 error: function() {
@@ -549,20 +549,26 @@ $(document).ready(function() {
     function manageSync(data) {
         if (data.sync) {
             $("#sync-progress").show();
+            $("#sync-progress").addClass("alert-info");
+            $("#sync-progress .progress").addClass("progress-info active");
+            $("#sync-progress").removeClass("alert-success alert-danger");
+            $("#sync-progress .progress").removeClass("progress-success progress-danger");
+            $("#sync-progress h3 #progress-label").text("Synchronisation en cours...");
+            $("#sync-progress .btn-warning").show();
+            $("#sync input").attr("disabled", "disabled");
+            
             var refreshProgressBar = function(data) {
                 $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
                 $("#sync-progress .bar").css("width", data.percent+"%");
                 if (data.percent < 100) {
-                    $("#configuration-form input").attr("disabled", "disabled");
-                    syncTimeout = setTimeout(getSyncStatus, 2000);
-                    $("#synx-progress .btn-warning").show();
+                    syncTimeout = setTimeout(getSyncStatus, 3000);
                 } else {
                     syncTimeout = null;
-                    $("#configuration-form input").removeAttr("disabled");
+                    $("#sync input").removeAttr("disabled");
                     $("#sync-progress").removeClass("alert-info");
-                    $("#sync-progress").addClass("alert-success");
                     $("#sync-progress h3 #progress-label").text("Synchronisation terminée");
                     $("#sync-progress .progress").removeClass("progress-info active");
+                    $("#sync-progress").addClass("alert-success");
                     $("#sync-progress .progress").addClass("progress-success");
                     $("#sync-progress .btn-warning").hide();
                 }

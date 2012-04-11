@@ -25,11 +25,15 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.concurrent.RecursiveTask;
 import org.debox.photo.model.Photo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class PhotoDateReader extends RecursiveTask<Photo> {
+    
+    private static final Logger logger = LoggerFactory.getLogger(PhotoDateReader.class);
 
     protected String basePath;
     protected Photo photo;
@@ -42,6 +46,7 @@ public class PhotoDateReader extends RecursiveTask<Photo> {
     @Override
     protected Photo compute() {
         String path = basePath + photo.getRelativePath() + File.separatorChar + photo.getName();
+        logger.debug("Get shooting date from photo: {}", path);
         Date date = ImageUtils.getShootingDate(Paths.get(path));
         photo.setDate(date);
         return photo;

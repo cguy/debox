@@ -3,7 +3,7 @@
 <div id="administration">
     <div id="sync-progress" class="alert alert-info hide">
         <h3 class="alert-heading" style="line-height:50px;">
-            <span id="progress-label">Synchronisation en cours</span>&hellip;&nbsp;<span id="progress-percentage"></span>
+            <span id="progress-label">Synchronisation en cours&hellip;</span>&nbsp;<span id="progress-percentage"></span>
             <button class="btn btn-warning pull-right" style="margin: 5px -20px 0 20px;">Annuler la synchronisation</button>
         </h3>
         <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
@@ -74,7 +74,10 @@
                         <div class="controls">
                             <label class="radio"><input type="radio" name="mode" value="fast" /><strong>Le plus rapide :</strong> Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.</label>
                             <label class="radio"><input type="radio" name="mode" value="normal" checked /><strong>Normal :</strong> Pré-génération des vignettes pour les nouvelles photos.</label>
-                            <label class="radio"><input type="radio" name="mode" value="slow" /><strong>Le plus long :</strong> Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.</label>
+                            <label class="radio">
+                                <input type="radio" name="mode" value="slow" /><strong>Le plus long :</strong> Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.
+                            </label>
+                            <div class="alert alert-warning"><span class="label label-warning">Attention</span>&nbsp;Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.</div>
                         </div>
                     </div>
                 </div>

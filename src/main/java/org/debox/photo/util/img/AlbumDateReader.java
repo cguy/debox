@@ -49,10 +49,16 @@ public class AlbumDateReader extends RecursiveTask<Pair<List<Album>, List<Photo>
     }
     
     public long getNumbertoProcess() {
+        if (inProgress == null) {
+            return 0;
+        }
         return inProgress.size();
     }
     
     public long getNumberProcessed() {
+        if (inProgress == null) {
+            return 0;
+        }
         long result = 0;
         for (PhotoDateReader task : inProgress) {
             if (task.isDone()) {
@@ -63,6 +69,9 @@ public class AlbumDateReader extends RecursiveTask<Pair<List<Album>, List<Photo>
     }
     
     public boolean isTerminated() {
+        if (inProgress == null) {
+            return true;
+        }
         for (PhotoDateReader task : inProgress) {
             if (!task.isDone()) {
                 return false;

@@ -56,7 +56,6 @@ public class ThumbnailGenerator implements Callable<Pair<String, FileInputStream
 
         try {
             String imagePath = sourcePath + photo.getRelativePath() + File.separatorChar + photo.getName();
-            logger.debug("{} image processing ...", imagePath);
 
             // Read orientation from source
             String orientation = ImageUtils.getOrientation(imagePath);

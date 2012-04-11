@@ -64,12 +64,12 @@ public class ImageUtils {
             date = dateFormat.parse(strDate);
 
         } catch (ParseException | IOException | InterruptedException | IM4JavaException ex) {
-            logger.warn("Unable to get DateTime property for path \"" + path.toString() + "\", reason: " + ex.getMessage(), ex);
+            logger.warn("Unable to get DateTime property for path \"" + path.toString() + "\", reason: " + ex.getMessage());
             try {
                 FileTime fileTime = Files.getLastModifiedTime(path);
                 date = new Date(fileTime.toMillis());
             } catch (IOException ioe) {
-                logger.warn("Unable to get last modified time property for path \"" + path.toString() + "\", reason: " + ioe.getMessage(), ioe);
+                logger.warn("Unable to get last modified time property for path \"" + path.toString() + "\", reason: " + ioe.getMessage());
             }
         }
         return date;

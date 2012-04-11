@@ -80,7 +80,23 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     @Override
     public void run() {
         try {
+            // Reset & cleaning somes resources
             threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+            forkJoinPool = new ForkJoinPool();
+            albumDateReader = null;
+            albums.clear();
+            photos.clear();
+            
+            // Get existing photos & albums from DB
+            List<Album> existingAlbums = albumDao.getAlbums();
+            for (Album existing : existingAlbums) {
+                albums.put(existing, Boolean.FALSE);
+            }
+
+            List<Photo> existingPhotos = photoDao.getAll();
+            for (Photo existing : existingPhotos) {
+                photos.put(existing, Boolean.FALSE);
+            }
 
             // Cleaning target path
             if (SynchronizationMode.SLOW.equals(this.mode)) {
@@ -92,20 +108,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 Files.createDirectories(target, FileUtils.PERMISSIONS);
             }
 
-            // Launch sync
-            albumDateReader = null;
-            albums.clear();
-            List<Album> existingAlbums = albumDao.getAlbums();
-            for (Album existing : existingAlbums) {
-                albums.put(existing, Boolean.FALSE);
-            }
-
-            photos.clear();
-            List<Photo> existingPhotos = photoDao.getAll();
-            for (Photo existing : existingPhotos) {
-                photos.put(existing, Boolean.FALSE);
-            }
-
+            // Launch directory scan
             Files.walkFileTree(source, this);
             
         } catch (SQLException | IOException ex) {
@@ -139,14 +142,14 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 return false;
             }
         }
-        return albumDateReader != null && albumDateReader.isTerminated();
+        return albumDateReader == null || (albumDateReader != null && albumDateReader.isTerminated());
     }
     
     public long getNumberToProcess() {
         long result = getPhotosToProcess();
         if (albumDateReader != null) {
             result += albumDateReader.getNumbertoProcess();
-        }
+    }
         return result;
     }
     
@@ -154,7 +157,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         long result = getTerminatedProcessesCount();
         if (albumDateReader != null) {
             result += albumDateReader.getNumberProcessed();
-        }
+    }
         return result;
     }
 
@@ -176,6 +179,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         aborted = true;
         threadPool.shutdownNow();
         forkJoinPool.shutdownNow();
+        albumDateReader = null;
         imageProcesses.clear();
         exifReaderProcesses.clear();
         albums.clear();
