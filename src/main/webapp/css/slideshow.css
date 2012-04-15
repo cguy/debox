@@ -1,0 +1,123 @@
+/*
+ * #%L
+ * debox-photos
+ * %%
+ * Copyright (C) 2012 Debox
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * #L%
+ */
+/* ************************************************************************** */
+/* ** FULLSCREEN ************************************************************* */
+/* ************************************************************************** */
+#fullscreenContainer {
+    z-index: 9999;
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+}
+
+/* ************************************************************************** */
+/* ** SLIDESHOW ************************************************************* */
+/* ************************************************************************** */
+.rs-slideshow {
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.95);
+    background-image: url("../img/loader.gif");
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.rs-slideshow .slide-container {
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.rs-slideshow .slide-container img {
+    border: 4px solid #fefefe;
+    position: absolute;
+    max-height: 90%;
+}
+
+.rs-slideshow .slide-container .photo {
+    position: absolute;
+}
+
+.rs-slideshow .slides {
+    display: none;
+}
+
+.slide-container .slide-caption {
+    background-color: rgba(0, 0, 0, 0.7);
+    bottom: 0;
+    color: #fff;
+    display: block;
+    left: 0;
+    padding: 6px 12px;
+    position: absolute;
+    text-align: center;
+    right: 0;
+    font-weight: bold;
+}
+
+.rs-prev, .rs-next {
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    width: 100px;
+    text-align: center;
+    z-index: 21;
+    line-height: 25px;
+    font-size: 13px;
+}
+
+.rs-controls {
+    position: fixed;
+    background-color: #fff;
+    width: 100%;
+    height: 100%;
+}
+
+.rs-prev, .rs-next {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    height: 100%;
+}
+
+.rs-next {
+    background: url("../img/arrow_right.png") center center no-repeat;
+    background-size: 32px 32px;
+    right: 0px;
+}
+
+.rs-prev {
+    background: url("../img/arrow_left.png") center center no-repeat;
+    background-size: 32px 32px;
+    left: 0px;
+}
+
+.rs-controls a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}

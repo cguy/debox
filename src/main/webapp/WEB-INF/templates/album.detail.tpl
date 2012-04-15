@@ -1,5 +1,5 @@
 {{#data.albums.length}}
-<ul class="thumbnails">
+<ul class="thumbnails albums">
     {{#data.albums}}
     <li>
         <a class="thumbnail cover" href="#/album/{{name}}" style="background-image:url('{{coverUrl}}')">
@@ -12,3 +12,4 @@
     {{/data.albums}}
 </ul>
 {{/data.albums.length}}
+
