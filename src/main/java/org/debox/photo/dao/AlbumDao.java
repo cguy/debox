@@ -22,7 +22,6 @@ package org.debox.photo.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
@@ -73,26 +72,6 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums WHERE id = ?";
     protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility FROM albums LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
-            + "        token_id = ?"
-            + "        OR visibility = 'public'"
-            + "    )";
-    
-    protected static String SQL_GET_ALBUM_BY_NAME = ""
-            + "SELECT"
-            + "    id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility "
-            + "FROM"
-            + "    albums LEFT JOIN albums_tokens ON id = album_id "
-            + "WHERE"
-            + "    name = ?";
-    
-    protected static String SQL_GET_VISIBLE_ALBUM_BY_NAME = ""
-            + "SELECT"
-            + "    id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, visibility "
-            + "FROM"
-            + "    albums LEFT JOIN albums_tokens ON id = album_id "
-            + "WHERE"
-            + "    name = ? "
-            + "    AND ("
             + "        token_id = ?"
             + "        OR visibility = 'public'"
             + "    )";
@@ -209,23 +188,6 @@ public class AlbumDao extends JdbcMysqlRealm {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_ID);
         statement.setString(1, albumId);
-        Album result = executeSingleQueryStatement(statement, null);
-        return result;
-    }
-    
-    public Album getAlbumByName(String token, String albumName) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_NAME);
-        statement.setString(1, albumName);
-        statement.setString(2, token);
-        Album result = executeSingleQueryStatement(statement, token);
-        return result;
-    }
-    
-    public Album getAlbumByName(String albumName) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_NAME);
-        statement.setString(1, albumName);
         Album result = executeSingleQueryStatement(statement, null);
         return result;
     }

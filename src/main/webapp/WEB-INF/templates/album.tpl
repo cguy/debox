@@ -1,4 +1,4 @@
-<h1 class="page-header">
+<h1 id="{{data.album.id}}" class="page-header">
     <a href="#/album/{{data.album.name}}">{{data.album.name}}</a>
     <small>
         {{data.album.photosCount}}

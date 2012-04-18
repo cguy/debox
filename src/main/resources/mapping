@@ -43,7 +43,7 @@ DELETE      /token/{id}                         TokenController.deleteToken
 # -----------------------------------------------------------------------------------------------
 # GET       /api/photo/{photoId}                PhotoController.displayPhoto
 GET         /api/albums                         AlbumController.getAlbums
-GET         /api/album/{albumName}              AlbumController.getAlbum
+GET         /api/album/{id}                     AlbumController.getAlbum
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS

@@ -23,7 +23,7 @@ $(document).ready(function() {
     Sammy(function() {
         
         this.get('#/album/:album', function() {
-            if ($("h1 a").text() == this.params['album'] && document.getElementById("fullscreenContainer") != null) {
+            if ($("h1").attr("id") == this.params['album'] && document.getElementById("fullscreenContainer") != null) {
                 return;
             }
             
@@ -304,7 +304,7 @@ $(document).ready(function() {
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
                     $("#alerts .edit.alert-success").fadeIn(250);
-                    context.redirect("#/album/"+data.name);
+                    context.redirect("#/album/"+data.id);
                 },
                 error : function() {
                     $("#alerts .edit.alert-danger").fadeIn(250);

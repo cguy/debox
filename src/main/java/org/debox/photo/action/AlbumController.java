@@ -20,7 +20,6 @@
  */
 package org.debox.photo.action;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -66,17 +65,14 @@ public class AlbumController extends DeboxController {
         return renderJSON("albums", albums);
     }
 
-    public Render getAlbum(String token, String albumName) throws IOException, SQLException {
+    public Render getAlbum(String token, String id) throws IOException, SQLException {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
-        
         Album album;
-        albumName = URLDecoder.decode(albumName, "UTF-8");
         if (isAuthenticated) {
-            album = albumDao.getAlbumByName(albumName);
+            album = albumDao.getAlbum(id);
         } else {
-            album = albumDao.getAlbumByName(token, albumName);
+            album = albumDao.getVisibleAlbum(token, id);
         }
-        
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }

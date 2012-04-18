@@ -49,6 +49,6 @@
             <h2 class="page-header">Actions</h2>
             <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;Choisir une nouvelle vignette d'album</button>
             <button class="btn btn-danger hide choose-cover-cancel"><i class="icon-remove"></i>&nbsp;Annuler le choix d'une vignette</button>
-            <button class="btn regenerate-thumbnails"><i class="icon-camera"></i>&nbsp;Regénérer vignettes</button>
+            <button class="btn regenerate-thumbnails"><i class="icon-repeat"></i>&nbsp;Regénérer les vignettes de cet album</button>
         </div>
     </div>

@@ -116,7 +116,7 @@
                                 Aucun album n'est visible pour cet accès
                             {{/albums}}
                             {{#albums}}
-                                <a href="#/album/{{name}}">{{name}}</a><br />
+                                <a href="#/album/{{id}}">{{name}}</a><br />
                             {{/albums}}
                         </td>
                         <td><a href="{{id}}#/">Lien</a></td>
