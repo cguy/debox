@@ -52,7 +52,7 @@ $(document).ready(function() {
                     loadTemplate("album", data, null, function() {
                         editTitle($("a.brand").text() + " - " + data.album.name);
                         $("button.edit-album, button.edit-album-cancel").click(function() {
-                            $("#edit_album .alert").hide();
+                            $("#alerts .alert").hide();
                             $("#edit_album").toggleClass("visible");
                             $("button.edit-album").toggleClass("hide");
                             $("button.edit-album-cancel").toggleClass("hide");
@@ -71,13 +71,13 @@ $(document).ready(function() {
                         
                         $("button.choose-cover-cancel").click(function() {
                             hideAlbumChoose();
-                            $("#edit_album .cover.alert-success").fadeOut(250);
-                            $("#edit_album .cover.alert-danger").fadeOut(250);
+                            $("#alerts .cover.alert-success").fadeOut(250);
+                            $("#alerts .cover.alert-danger").fadeOut(250);
                         });
                         
                         $("button.choose-cover").click(function() {
-                            $("#edit_album .cover.alert-success").fadeOut(250);
-                            $("#edit_album .cover.alert-danger").fadeOut(250);
+                            $("#alerts .cover.alert-success").fadeOut(250);
+                            $("#alerts .cover.alert-danger").fadeOut(250);
                             $("button.choose-cover").fadeOut(250, function() {
                                 $("button.choose-cover-cancel").fadeIn(250);
                             });
@@ -103,10 +103,10 @@ $(document).ready(function() {
                                         },
                                         success: function() {
                                             hideAlbumChoose();
-                                            $("#edit_album .cover.alert-success").fadeIn(250);
+                                            $("#alerts .cover.alert-success").fadeIn(250);
                                         },
                                         error: function() {
-                                            $("#edit_album .cover.alert-danger").fadeIn(250);
+                                            $("#alerts .cover.alert-danger").fadeIn(250);
                                         }
                                     });
                                 });
@@ -284,18 +284,18 @@ $(document).ready(function() {
         
         this.post('#/album', function() {
             var context = this;
-            $("#edit_album .edit.alert-success").fadeOut(250);
-            $("#edit_album .edit.alert-danger").fadeOut(250);
+            $("#alerts .edit.alert-success").fadeOut(250);
+            $("#alerts .edit.alert-danger").fadeOut(250);
             $.ajax({
                 url: "album",
                 type : "post",
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
-                    $("#edit_album .edit.alert-success").fadeIn(250);
                     context.redirect("#/album/"+data.name);
+                    $("#alerts .edit.alert-success").fadeIn(250);
                 },
                 error : function() {
-                    $("#edit_album .edit.alert-danger").fadeIn(250);
+                    $("#alerts .edit.alert-danger").fadeIn(250);
                 }
             });
             return false;
@@ -586,9 +586,9 @@ $(document).ready(function() {
         }
     }
     
-    $("#login button[type=reset]").click(function() {
-        $(this).parents(".modal").modal("hide");
-    });
+//    $("#login button[type=reset]").click(function() {
+//        $(this).parents(".modal").modal("hide");
+//    });
     
 });
 
