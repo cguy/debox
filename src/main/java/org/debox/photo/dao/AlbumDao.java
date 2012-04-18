@@ -293,7 +293,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     public String setAlbumCover(String albumId, String photoId) throws SQLException {
         //if no photo id is given, then get a random photo
         if (StringUtils.isEmpty(photoId)) {
-            photoId = randomAlbumPhoto(albumId);
+            photoId = getRandomAlbumPhoto(albumId);
         }
         //if the album has no photo, only subalbums, then get a random subalbum and get its cover
         if (StringUtils.isEmpty(photoId)) {
@@ -349,7 +349,7 @@ public class AlbumDao extends JdbcMysqlRealm {
      * @return the id of a random photo
      * @throws SQLException
      */
-    protected String randomAlbumPhoto(String albumId) throws SQLException {
+    protected String getRandomAlbumPhoto(String albumId) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
         String photoId = null;
