@@ -112,6 +112,18 @@ $(document).ready(function() {
                                 });
                             });
                         });
+                        $("button.regenerate-thumbnails").click(function() {
+                            ajax({
+                                url: "album/" + data.album.id + "/regeneratethumbnails",
+                                type : "post",
+                                success: function() {
+                                    console.log("regenerate-thumbnails yeah !!!");
+                                },
+                                error: function(xhr) {
+                                    console.log("regenerate-thumbnails fuck !!!");
+                                }
+                            });
+                        });
 
                     });
                 }

@@ -20,18 +20,24 @@
  */
 package org.debox.photo.action;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
@@ -51,6 +57,8 @@ public class AlbumController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
+    protected RegenerateThumbnailsJob regenerateThumbnailsJob;
+    protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     public Render getAlbums(String token) throws SQLException {
         boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
@@ -198,6 +206,46 @@ public class AlbumController extends DeboxController {
             return new ZipDownloadRenderer(configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath(), album.getName(), names);
         }
         return new ZipDownloadRenderer(configuration.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath(), album.getName());
+    }
+
+    public Render regenerateThumbnails(String albumId) throws SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+
+        String strSource = configuration.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath();
+        String strTarget = configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath();
+
+        if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
+            return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
+        }
+
+        Path source = Paths.get(strSource);
+        Path target = Paths.get(strTarget);
+
+        if (regenerateThumbnailsJob != null && !regenerateThumbnailsJob.isTerminated()) {
+            logger.warn("Cannot launch process, it is already running");
+        } else {
+            if (regenerateThumbnailsJob == null) {
+                regenerateThumbnailsJob = new RegenerateThumbnailsJob(source, target);
+
+            } else if (!regenerateThumbnailsJob.getSource().equals(source) || !regenerateThumbnailsJob.getTarget().equals(target)) {
+                logger.warn("Aborting sync between {} and {}", regenerateThumbnailsJob.getSource(), regenerateThumbnailsJob.getTarget());
+                regenerateThumbnailsJob.abort();
+                regenerateThumbnailsJob.setSource(source);
+                regenerateThumbnailsJob.setTarget(target);
+            }
+
+            threadPool.execute(regenerateThumbnailsJob);
+        }
+
+        return renderStatus(HttpURLConnection.HTTP_OK);
     }
     
 }

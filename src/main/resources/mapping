@@ -28,6 +28,7 @@ GET         /album/{albumId}                    AlbumController.getAlbumById
 POST        /album                              AlbumController.editAlbum                           downloadable=false
 POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                     AdministrationController.getUploadProgress
+POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - TOKENS
