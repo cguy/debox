@@ -103,6 +103,8 @@ public class AlbumDao extends JdbcMysqlRealm {
 
     protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
 
+    protected static String SQL_GET_RANDOM_SUB_ALBUM = "SELECT id FROM albums WHERE parent_id = ? ORDER BY RAND( ) LIMIT 1";
+
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
     protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
@@ -287,21 +289,22 @@ public class AlbumDao extends JdbcMysqlRealm {
         Album result = executeSingleQueryStatement(statement, null);
         return result;
     }
-    
-    public void setAlbumCover(String albumId, String photoId) throws SQLException {
+
+    public String setAlbumCover(String albumId, String photoId) throws SQLException {
+        //if no photo id is given, then get a random photo
+        if (StringUtils.isEmpty(photoId)) {
+            photoId = randomAlbumPhoto(albumId);
+        }
+        //if the album has no photo, only subalbums, then get a random subalbum and get its cover
+        if (StringUtils.isEmpty(photoId)) {
+            String subAlbumId = getRandomSubAlbumId(albumId);
+            Photo cover = getAlbumCover(subAlbumId);
+            photoId = cover.getId();
+        }
+        
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = null;
-
         try {
-            if (StringUtils.isEmpty(photoId)) {
-                statement = connection.prepareStatement(SQL_GET_RANDOM_PHOTO);
-                statement.setString(1, albumId);
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.first()) {
-                    photoId = resultSet.getString(1);
-                }
-                JdbcUtils.closeResultSet(resultSet);
-            }
             statement = connection.prepareStatement(SQL_UPDATE_ALBUM_COVER);
             statement.setString(1, photoId);
             statement.setString(2, albumId);
@@ -311,6 +314,58 @@ public class AlbumDao extends JdbcMysqlRealm {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
+        return photoId;
+    }
+
+    /**
+     * Gets a random subalbum of an album
+     * @param albumId
+     * @return the id of a andom subalbum
+     * @throws SQLException
+     */
+    protected String getRandomSubAlbumId(String albumId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        String subAlbumId = null;
+        try {
+            statement = connection.prepareStatement(SQL_GET_RANDOM_SUB_ALBUM);
+            statement.setString(1, albumId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.first()) {
+                subAlbumId = resultSet.getString(1);
+            }
+            JdbcUtils.closeResultSet(resultSet);
+            
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+        return subAlbumId;
+    }
+
+    /**
+     * Get a random photo of an album
+     * @param albumId
+     * @return the id of a random photo
+     * @throws SQLException
+     */
+    protected String randomAlbumPhoto(String albumId) throws SQLException {
+        Connection connection = getDataSource().getConnection();
+        PreparedStatement statement = null;
+        String photoId = null;
+        try {
+            statement = connection.prepareStatement(SQL_GET_RANDOM_PHOTO);
+            statement.setString(1, albumId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.first()) {
+                photoId = resultSet.getString(1);
+            }
+            JdbcUtils.closeResultSet(resultSet);
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+        return photoId;
     }
 
     public Photo getAlbumCover(String albumId) throws SQLException {
