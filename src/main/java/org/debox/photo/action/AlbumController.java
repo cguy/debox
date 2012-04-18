@@ -23,7 +23,6 @@ package org.debox.photo.action;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -105,7 +104,7 @@ public class AlbumController extends DeboxController {
         return renderJSON(album);
     }
 
-    public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException {
+    public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException, IOException {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
@@ -121,7 +120,7 @@ public class AlbumController extends DeboxController {
 
         albumDao.save(album);
 
-        return renderJSON(album);
+        return getAlbum(null, id);
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {

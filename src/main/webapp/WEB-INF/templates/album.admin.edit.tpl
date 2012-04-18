@@ -1,12 +1,12 @@
-<button class="btn pull-right edit-album"><i class="icon-pencil"></i>&nbsp;Modifier cet album</button>
+    <button class="btn pull-right edit-album"><i class="icon-pencil"></i>&nbsp;Modifier cet album</button>
     <button class="btn btn-info pull-right edit-album-cancel hide"><i class="icon-remove"></i>&nbsp;Fermer la zone de modification</button>
 </div>
 
 <div id="alerts">
-    <p class="hide cover alert alert-success">La vignette de l'album a été modifiée avec succès.<a class="close" onClick="$('#alerts .cover.alert-success').fadeOut(250);" href="#">&times;</a></p>
-    <p class="hide cover alert alert-danger">Une erreur est survenue lors de la modification de la vignette de cet album.<a class="close" onClick="$('#alerts .cover.alert-danger').fadeOut(250);" href="#">&times;</a></p>
-    <p class="hide edit alert alert-success">L'album a été modifié avec succès.<a class="close" onClick="$('#alerts .edit.alert-success').fadeOut(250);" href="#">&times;</a></p>
-    <p class="hide edit alert alert-danger">Une erreur est survenue lors de la modification de l'album.<a class="close" onClick="$('#alerts .edit.alert-danger').fadeOut(250);" href="#">&times;</a></p>
+    <p class="hide cover alert alert-success">La vignette de l'album a été modifiée avec succès.<span class="close">&times;</span></p>
+    <p class="hide cover alert alert-danger">Une erreur est survenue lors de la modification de la vignette de cet album.<span class="close">&times;</span></p>
+    <p class="hide edit alert alert-success">L'album a été modifié avec succès.<span class="close">&times;</span></p>
+    <p class="hide edit alert alert-danger">Une erreur est survenue lors de la modification de l'album.<span class="close">&times;</span></p>
 </div>
 
 <div id="edit_album">
