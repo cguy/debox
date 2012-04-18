@@ -291,8 +291,8 @@ $(document).ready(function() {
                 type : "post",
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
-                    context.redirect("#/album/"+data.name);
                     $("#alerts .edit.alert-success").fadeIn(250);
+                    context.redirect("#/album/"+data.name);
                 },
                 error : function() {
                     $("#alerts .edit.alert-danger").fadeIn(250);
