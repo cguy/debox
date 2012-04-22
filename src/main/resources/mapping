@@ -29,6 +29,7 @@ POST        /album                              AlbumController.editAlbum       
 POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                     AdministrationController.getUploadProgress
 POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
+GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerationProgress
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - TOKENS

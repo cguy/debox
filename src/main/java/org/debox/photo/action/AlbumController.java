@@ -89,7 +89,7 @@ public class AlbumController extends DeboxController {
         }
         albums = albumDao.getVisibleAlbums(token, album.getId(), isAuthenticated);
 
-        return renderJSON("album", album, "photos", photos, "albums", albums, "parent", parent);
+        return renderJSON("album", album, "photos", photos, "albums", albums, "parent", parent, "regeneration", getRegenerationData());
     }
 
     public Render getAlbumById(String albumId) throws SQLException {
@@ -243,4 +243,40 @@ public class AlbumController extends DeboxController {
         return renderStatus(HttpURLConnection.HTTP_OK);
     }
     
+    public Render getRegenerationProgress() throws SQLException {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+
+        if (regenerateThumbnailsJob == null) {
+            return renderStatus(404);
+        }
+        return renderJSON(getRegenerationData());
+    }
+    
+    protected Map<String, Long> getRegenerationData() throws SQLException {
+        if (regenerateThumbnailsJob == null) {
+            return null;
+        }
+        
+        long total = regenerateThumbnailsJob.getNumberToProcess();
+        long current = regenerateThumbnailsJob.getNumberProcessed();
+        Map<String, Long> regeneration = new HashMap<>();
+        regeneration.put("total", total);
+        regeneration.put("current", current);
+        if (total == 0L && regenerateThumbnailsJob.isTerminated()) {
+            regeneration.put("percent", 100L);
+            regenerateThumbnailsJob = null;
+        } else if (total == 0L && !regenerateThumbnailsJob.isTerminated()) {
+            regeneration.put("percent", 0L);
+        } else {
+            Long percent = Double.valueOf(Math.floor(current * 100 / total)).longValue();
+            regeneration.put("percent", percent);
+            if (percent == 100L) {
+                regenerateThumbnailsJob = null;
+            }
+        }
+        return regeneration;
+    }
+
 }

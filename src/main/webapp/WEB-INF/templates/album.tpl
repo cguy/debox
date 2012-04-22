@@ -14,7 +14,7 @@
 <div class="btn-toolbar" style="margin-top: 18px;">
     <div class="btn-group">
     {{#data.parent}}
-        <a href="#/album/{{data.parent.name}}" class="btn"><i class="icon-list-alt"></i>&nbsp;Retour à l'album : {{data.parent.name}}</a>
+        <a href="#/album/{{data.parent.id}}" class="btn"><i class="icon-list-alt"></i>&nbsp;Retour à l'album : {{data.parent.name}}</a>
     {{/data.parent}}
     {{^data.parent}}
         <a href="#/" class="btn"><i class="icon-list-alt"></i>&nbsp;Retour à la liste des albums</a>

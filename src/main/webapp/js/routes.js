@@ -420,7 +420,7 @@ $(document).ready(function() {
                     $("#sync-progress .progress").addClass("progress-danger");
                 },
                 error: function() {
-                    alert("Errur pendant l'annulation de la synchronisation");
+                    alert("Erreur pendant l'annulation de la synchronisation");
                 }
             });
         });

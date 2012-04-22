@@ -2,6 +2,15 @@
     <button class="btn btn-info pull-right edit-album-cancel hide"><i class="icon-remove"></i>&nbsp;Fermer la zone de modification</button>
 </div>
 
+<div id="sync-progress" class="alert alert-info hide">
+    <h3 class="alert-heading" style="line-height:50px;">
+        <span id="progress-label">Synchronisation en cours&hellip;</span>&nbsp;<span id="progress-percentage"></span>
+    </h3>
+    <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
+        <div class="bar"></div>
+    </div>
+</div>
+
 <div id="alerts">
     <p class="hide cover alert alert-success">La vignette de l'album a été modifiée avec succès.<span class="close">&times;</span></p>
     <p class="hide cover alert alert-danger">Une erreur est survenue lors de la modification de la vignette de cet album.<span class="close">&times;</span></p>
