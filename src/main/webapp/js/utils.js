@@ -183,6 +183,7 @@ function loadAlbum(data, callback) {
     data.album.visibility = data.album.visibility == "PUBLIC";
                     
     loadTemplate("album", data, null, function() {
+        onBodyScroll();
         manageRegenerationProgress(data);
         editTitle($("a.brand").text() + " - " + data.album.name);
         $("button.edit-album, button.edit-album-cancel").click(function() {
@@ -270,6 +271,20 @@ function loadAlbum(data, callback) {
             callback();
         }
     });
+    $("#top").click(function() {
+        $("html, body").animate({
+            scrollTop: 0
+        });
+        return false;
+    })
+    $("#top").hover(
+        function () {
+            $(this).animate({ opacity: 0.6 });
+        },
+        function () {
+            $(this).animate({ opacity: 0.3 });
+        }
+    );
 }
 
 function manageRegenerationProgress(data) {
@@ -317,3 +332,14 @@ function manageRegenerationProgress(data) {
 }
 
 var generationTimeout = null;
+
+function onBodyScroll() {
+    var top = $("#top");
+    if (top) {
+        if ($("html, body").scrollTop()) {
+            top.fadeIn();
+        } else {
+            top.fadeOut();
+        }
+    }
+}

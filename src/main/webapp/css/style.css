@@ -153,3 +153,15 @@ p.footer {
     color: #888;
     font-size: 11px;
 }
+
+#top {
+    width: 64px;
+    height: 64px;
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
+    background-image: url("../img/to-top-icone.png");
+    opacity: 0.3;
+    display: none;
+    z-index: 100000;
+}

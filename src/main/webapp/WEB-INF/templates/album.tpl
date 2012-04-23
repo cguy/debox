@@ -54,3 +54,5 @@
 <div id="cover-photos" class="hide">
     {{> photo.thumbnails.admin}}
 </div>
+
+<a id="top"></a>
