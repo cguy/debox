@@ -61,6 +61,22 @@ h1 small {
     padding-left: 10px;
 }
 
+.dropdown-menu.dropdown-form  {
+    padding: 20px 0 0 0;
+}
+
+.dropdown-menu.dropdown-form form {
+    margin: 0px;
+}
+
+.dropdown-menu.dropdown-form .control-group {
+    padding: 0 10px;
+}
+
+.dropdown-menu.dropdown-form .form-actions {
+    margin-bottom: 0;
+}
+
 #administration_albums td, #administration_tokens td {
     vertical-align: middle;
 }

@@ -101,7 +101,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : data.username,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
+                    }, ".navbar .container-fluid", headerTemplateLoaded);
                     
                     $("#account form p").text("Identifiants de connexion modifiés avec succès !");
                     $("#account form input[type=submit]").button('reset');
@@ -150,7 +150,7 @@ $(document).ready(function() {
                     loadTemplate("header", {
                         "username" : $(".navbar-text.pull-right strong").html(), 
                         "title" : data.configuration.title
-                    }, ".navbar .container-fluid");
+                    }, ".navbar .container-fluid", headerTemplateLoaded);
                     
                     if (force) {
                         $("#sync form input[type=checkbox]").attr("checked", "checked");
@@ -331,9 +331,8 @@ $(document).ready(function() {
                 type : "post",
                 data : data,
                 success: function(username) {
-                    $("#login input[type=submit]").button('reset');
+                    $("#login #connect").button('reset');
                     $("#login p").removeClass("alert alert-error");
-                    $("#login").modal("hide");
                     loadTemplates(function() {
                         if (location.hash && location.hash.length > 1) {
                             context.redirect(location.hash);
@@ -343,11 +342,11 @@ $(document).ready(function() {
                         loadTemplate("header", {
                             "username" : username,
                             "title" : $("a.brand").html()
-                        }, ".navbar .container-fluid");
+                        }, ".navbar .container-fluid", headerTemplateLoaded);
                     });
                 },
                 error: function(xhr) {
-                    $("#login input[type=submit]").button('reset');
+                    $("#login #connect").button('reset');
                     $("#login p").addClass("alert alert-error");
                     if (xhr.status == 401) {
                         $("#login p").html("Erreur de connexion: veuillez vérifier vos identifiants de connexion.");
@@ -372,7 +371,7 @@ $(document).ready(function() {
                         loadTemplate("header", {
                             "username" : null,
                             "title" : $("a.brand").html()
-                        }, ".navbar .container-fluid");
+                        }, ".navbar .container-fluid", headerTemplateLoaded);
                         context.redirect("#/");
                     })
                 },
@@ -500,10 +499,6 @@ $(document).ready(function() {
             refreshProgressBar(data.sync);
         }
     }
-    
-    $("#login button[type=reset]").click(function() {
-        $(this).parents(".modal").modal("hide");
-    });
 
 });
 

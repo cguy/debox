@@ -86,7 +86,7 @@ function ajax(object) {
                     loadTemplate("header", {
                         "username" : null,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
+                    }, ".navbar .container-fluid", headerTemplateLoaded);
                 }
             } else {
                 alert(xhr.status + " : " + xhr.responseText);
@@ -114,7 +114,7 @@ function initHeader(title, username) {
     loadTemplate("header", {
         "title": title, 
         "username" : username
-    }, ".navbar .container-fluid");
+    }, ".navbar .container-fluid", headerTemplateLoaded);
 }
 
 function hideModal() {
@@ -342,4 +342,14 @@ function onBodyScroll() {
             top.fadeOut();
         }
     }
+}
+
+function headerTemplateLoaded() {
+    $('#login-dropdown').on('click', '*', function(event){
+        /* stop propagation otherwise the dropdown hides */
+        event.stopPropagation();
+        /* return true if the submit is clicked, false otherwise */
+        return event.target && event.target.id == "connect";
+
+    });
 }
