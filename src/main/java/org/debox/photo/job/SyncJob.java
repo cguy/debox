@@ -222,7 +222,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         //in any case, set the photo count to 0
         album.setPhotosCount(0);
         if (!existing && parent != null) {
-            album.setParentId(parent.getId());
+            album.setParent(parent);
         }
 
         albums.put(album, Boolean.TRUE);

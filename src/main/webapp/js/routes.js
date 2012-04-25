@@ -308,6 +308,50 @@ $(document).ready(function() {
                         } else {
                             $(".nav-tabs a[data-target|=\"#configuration\"]").tab("show");
                         }
+                        
+                        var treeChildren = [];
+                        function test(src, target) {
+                            if (!src) {
+                                return;
+                            }
+                            for (var i = 0 ; i < src.length ; i++) {
+                                var p = {title:src[i].name, key: src[i].id, isFolder: true, children:[]};
+                                test(src[i].subAlbums, p.children);
+                                target.push(p);
+                            }
+                        }
+                        test(data.albums, treeChildren);
+                        console.log(treeChildren)
+                        
+                        $(function(){
+                            // Attach the dynatree widget to an existing <div id="tree"> element
+                            // and pass the tree options as an argument to the dynatree() function:
+                            $(".albums-access").dynatree({
+                                onActivate: function(node) {
+                                    // A DynaTreeNode object is passed to the activation handler
+                                    // Note: we also get this event, if persistence is on, and the page is reloaded.
+                                    console.log("You activated " + node.data.title);
+                                },
+                                onSelect : function(flag, node) {
+                                    console.log(flag + "=" + node);
+                                    node.tooltip = "Youhou";
+                                },
+                                autoCollapse: true,
+                                persist: false,
+                                imagePath: "/skin-vista",
+                                checkbox: true, // Show checkboxes.
+                                selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+                                fx: {
+                                    height: "toggle", 
+                                    duration: 200
+                                }, // Animations, e.g. null or { height: "toggle", duration: 200 }
+                                noLink: true,
+                                children: treeChildren,
+                                debugLevel: 2
+                            });
+//                            $(".albums").dynatree("disable");
+                        });
+                        
                     }); // End loading template
                 }
             }); // End ajax call
@@ -429,23 +473,34 @@ $(document).ready(function() {
             $(this).parents("form").submit();
         });
         
-        $("#administration_tokens button.btn-info").click(function() {
-            var id = $(this).parents("tr").attr("id");
-            $.ajax({
-                url: "token/" + id,
-                success: function(data) {
-                    $("#edit_token input[type=hidden]").val(data.token.id);
-                    $("#edit_token #label").val(data.token.label);
-                    $("#edit_token #albums option").removeAttr("selected");
-            
-                    for (var i = 0 ; i < data.token.albums.length ; i++) {
-                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
-                    }
-        
-                    $("#edit_token").modal();
-                }
-            });
+        $("#administration_tokens .albums button.btn-info").click(function() {
+            $(this).hide();
+            $(this).parents(".albums").find("button.btn-warning, .albums-access").show();
         });
+        
+        $("#administration_tokens .albums button.btn-warning").click(function() {
+            $(this).hide();
+            $(".albums-access").hide();
+            $(this).parents(".albums").find("button.btn-info").show();
+        });
+        
+//        $("#administration_tokens button.btn-info").click(function() {
+//            var id = $(this).parents("tr").attr("id");
+//            $.ajax({
+//                url: "token/" + id,
+//                success: function(data) {
+//                    $("#edit_token input[type=hidden]").val(data.token.id);
+//                    $("#edit_token #label").val(data.token.label);
+//                    $("#edit_token #albums option").removeAttr("selected");
+//            
+//                    for (var i = 0 ; i < data.token.albums.length ; i++) {
+//                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+//                    }
+//        
+//                    $("#edit_token").modal();
+//                }
+//            });
+//        });
         
         // Need to refresh binding because of DOM operations
         $("button[type=reset]").click(hideModal);

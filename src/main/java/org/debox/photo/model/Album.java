@@ -21,6 +21,7 @@
 package org.debox.photo.model;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,10 +40,13 @@ public class Album implements Comparable<Album> {
     protected Date endDate;
     protected int photosCount;
     protected String relativePath;
-    protected String parentId;
+    protected Album parent;
     protected Visibility visibility;
     protected String coverUrl;
     protected boolean downloadable;
+    protected List<Photo> photos;
+    protected List<Album> subAlbums;
+    
 
     public boolean isDownloadable() {
         return downloadable;
@@ -100,14 +104,37 @@ public class Album implements Comparable<Album> {
         this.name = name;
     }
 
+    public Album getParent() {
+        return parent;
+    }
+
+    public void setParent(Album parent) {
+        this.parent = parent;
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
+
+    public List<Album> getSubAlbums() {
+        return subAlbums;
+    }
+
+    public void setSubAlbums(List<Album> subAlbums) {
+        this.subAlbums = subAlbums;
+    }
+    
     public String getParentId() {
-        return parentId;
+        if (this.parent != null) {
+            return this.parent.getId();
+        }
+        return null;
     }
-
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
+    
     public String getRelativePath() {
         return relativePath;
     }

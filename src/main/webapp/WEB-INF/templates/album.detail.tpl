@@ -1,6 +1,6 @@
-{{#data.albums.length}}
+{{#data.subAlbums.length}}
 <ul class="thumbnails albums">
-    {{#data.albums}}
+    {{#data.subAlbums}}
     <li>
         <a class="thumbnail cover" href="#/album/{{id}}" style="background-image:url('{{coverUrl}}')">
             <span class="container">
@@ -9,7 +9,7 @@
             </span>
         </a>
     </li>
-    {{/data.albums}}
+    {{/data.subAlbums}}
 </ul>
-{{/data.albums.length}}
+{{/data.subAlbums.length}}
 

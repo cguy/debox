@@ -165,8 +165,9 @@ function handleArchiveUpload() {
 function loadAlbum(data, callback) {
     var plural = (data.album.photosCount > 1) ? "s" : ""
     data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
-    for (var i = 0 ; i < data.albums.length ; i++) {
-        var album = data.albums[i];
+    var subAlbums = data.album.subAlbums;
+    for (var i = 0 ; i < subAlbums.length ; i++) {
+        var album = subAlbums[i];
         plural = (album.photosCount > 1) ? "s" : "";
         album.photosCount = album.photosCount + "&nbsp;photo" + plural;
     }
@@ -182,7 +183,7 @@ function loadAlbum(data, callback) {
     data.downloadUrl = computeUrl("download/album/" + data.album.id);
     data.album.visibility = data.album.visibility == "PUBLIC";
                     
-    loadTemplate("album", data, null, function() {
+    loadTemplate("album", data.album, null, function() {
         onBodyScroll();
         manageRegenerationProgress(data);
         editTitle($("a.brand").text() + " - " + data.album.name);

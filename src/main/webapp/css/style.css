@@ -181,3 +181,38 @@ p.footer {
     display: none;
     z-index: 100000;
 }
+
+#administration_tokens {
+    width: auto;
+}
+#administration_tokens td {
+    vertical-align: top;
+}
+#administration_tokens .actions {
+    vertical-align: top;
+}
+
+#administration .access_label {
+    width: 100px;
+}
+
+#administration .albums {
+    width: 400px;
+}
+
+#administration .albums button {
+    margin: 0 auto;
+}
+
+#administration .albums-access {
+    padding-top: 5px;
+}
+
+#administration .albums ul li .dynatree-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
+}
+
+
