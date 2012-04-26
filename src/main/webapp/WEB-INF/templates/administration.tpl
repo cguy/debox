@@ -112,21 +112,21 @@
                     <tr id="{{id}}">
                         <td class="access_label">{{label}}</td>
                         <td class="albums">
-                            {{^albums}}
-                                Aucun album n'est visible pour cet accès
-                            {{/albums}}
-                            {{#albums.length}}
-                                <button class="btn"><i class="icon icon-camera"></i>&nbsp;Voir les albums visibles via cet accès</button>
-                                <button class="btn btn-warning hide"><i class="icon icon-remove"></i>&nbsp;Ne plus voir la liste</button>
-                                <div class="albums-access hide"></div>
-                            {{/albums.length}}
-                        </td>
-                        <td><a href="{{id}}#/">Lien</a></td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
-                                <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>
+                            <div>
+                                <button class="btn show-tree"><i class="icon icon-list"></i>&nbsp;Voir les albums visibles via cet accès</button>
+                                <span class="hide">
+                                    <button class="btn cancel"><i class="icon icon-remove"></i>&nbsp;Annuler</button>
+                                    <button class="btn btn-primary validate"><i class="icon icon-ok"></i>&nbsp;Valider</button>
+                                </span>
                             </div>
+                            <div class="albums-access hide"></div>
+                        </td>
+                        <td><a href="{{id}}#/"><i class="icon icon-share"></i>&nbsp;Lien</a></td>
+                        <td>
+                            <span>
+                                <button class="btn btn-info edit"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>
+                                <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger delete"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>
+                            </span>
                         </td>
                     </tr>
                 {{/data.tokens}}
@@ -283,17 +283,6 @@
             <label class="control-label" for="label">Libellé du groupe</label>
             <div class="controls">
                 <input type="text" required class="span4" id="label" name="label" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="albums">Albums visibles</label>
-            <div class="controls">
-                <select name="albums" class="span4" id="albums" multiple="multiple" size="10">
-                {{#data.albums}}
-                    <option value="{{id}}">{{name}}</option>
-                {{/data.albums}}
-                </select>
-                <p class="help-block">Maintenez la touche <code>ctrl</code> appuyée de votre clavier et cliquez sur les albums de votre choix pour permettre la sélection multiple.</p>
             </div>
         </div>
     </div>

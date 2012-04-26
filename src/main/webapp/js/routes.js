@@ -246,15 +246,6 @@ $(document).ready(function() {
                 data: $("#edit_token").serializeArray(),
                 success: function(data) {
                     $("#" + data.id + " .access_label").text(data.label);
-                    var albums = "";
-                    if (data.albums.length) {
-                        for (var i = 0 ; i < data.albums.length ; i++) {
-                            albums += '<a href="#/album/' + data.albums[i].name + '">' + data.albums[i].name + '</a><br />';
-                        }
-                        $("#" + data.id + " .albums").html(albums);
-                    } else {
-                        $("#" + data.id + " .albums").text("Aucun album n'est visible pour cet accès");
-                    }
                     $("#edit_token").modal("hide");
                 }
             });
@@ -336,7 +327,7 @@ $(document).ready(function() {
                                     console.log(flag + "=" + node);
                                     node.tooltip = "Youhou";
                                 },
-                                autoCollapse: true,
+                                autoCollapse: false,
                                 persist: false,
                                 imagePath: "/skin-vista",
                                 checkbox: true, // Show checkboxes.
@@ -473,18 +464,18 @@ $(document).ready(function() {
             $(this).parents("form").submit();
         });
         
-        $("#administration_tokens .albums button.btn").click(function() {
+        $("#administration_tokens .albums button.show-tree").click(function() {
             $(this).hide();
-            $(this).parents(".albums").find("button.btn-warning, .albums-access").show();
+            $(this).parents(".albums").find("span, .albums-access").show();
         });
         
-        $("#administration_tokens .albums button.btn-warning").click(function() {
-            $(".albums-access").hide();
+        $("#administration_tokens .albums button.cancel").click(function() {
+            $(this).parents(".albums").find(".albums-access").hide();
             $(this).parents(".albums").find("button.btn").show();
-$(this).hide();
+            $(this).parents("span").hide();
         });
         
-        $("#administration_tokens button.btn-info").click(function() {
+        $("#administration_tokens button.edit").click(function() {
             var id = $(this).parents("tr").attr("id");
             $.ajax({
                 url: "token/" + id,
@@ -506,7 +497,7 @@ $(this).hide();
         $("button[type=reset]").click(hideModal);
         $('form.modal').on('hidden', resetModalForm);
         
-        $("#administration_tokens button.btn-danger").click(function() {
+        $("#administration_tokens button.delete").click(function() {
             var id = $(this).parents("tr").attr("id");
             var name = $(this).parents("tr").find(".access_label").text();
             $("#modal-token-delete input[type=hidden]").val(id);
