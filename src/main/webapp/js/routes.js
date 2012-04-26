@@ -40,12 +40,10 @@ $(document).ready(function() {
                 ajax({
                     url: computeUrl("api/album/" + this.params['album']),
                     success: function(data) {
-                        var plural = (data.album.photosCount > 1) ? "s" : ""
-                        data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
+                        createAlbum(data.album);
                         for (var i = 0 ; i < data.albums.length ; i++) {
                             var album = data.albums[i];
-                            plural = (album.photosCount > 1) ? "s" : "";
-                            album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+                            createAlbum(album);
                         }
                         data.downloadUrl = computeUrl("download/album/" + data.album.id);
                         loadTemplate("album", data, null, function() {
@@ -426,8 +424,7 @@ $(document).ready(function() {
                 success: function(data) {
                     for (var i = 0 ; i < data.albums.length ; i++) {
                         var album = data.albums[i];
-                        var plural = (album.photosCount > 1) ? "s" : ""
-                        album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+                        createAlbum(album);
                     }
                     loadTemplate("home", data);
                 }

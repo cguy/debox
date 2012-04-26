@@ -1,5 +1,5 @@
-<h1 class="page-header">Ressource non trouvée</h1>
-<p class="alert alert-danger">La ressource demandée n'existe pas.</p>
+<h1 class="page-header">{{i18n.error404.title}}</h1>
+<p class="alert alert-danger">{{i18n.error404.message}}</p>
 <ul>
-    <li><a href="#/">Retour à l'accueil</a></li>
+    <li><a href="#/">{{i18n.common.back2home}}</a></li>
 </ul>

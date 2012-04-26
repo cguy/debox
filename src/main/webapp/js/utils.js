@@ -164,13 +164,11 @@ function handleArchiveUpload() {
 }
 
 function loadAlbum(data, callback) {
-    var plural = (data.album.photosCount > 1) ? "s" : ""
-    data.album.photosCount = data.album.photosCount + "&nbsp;photo" + plural;
+    createAlbum(data.album);
     var subAlbums = data.album.subAlbums;
     for (var i = 0 ; i < subAlbums.length ; i++) {
         var album = subAlbums[i];
-        plural = (album.photosCount > 1) ? "s" : "";
-        album.photosCount = album.photosCount + "&nbsp;photo" + plural;
+        createAlbum(album);
     }
                     
     var beginDate = new Date(data.album.beginDate).at("0:00am");

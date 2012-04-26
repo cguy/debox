@@ -1,5 +1,5 @@
-<h1 class="page-header">Authentification nécessaire</h1>
-<p class="alert alert-danger">Vous devez vous connecter pour accéder à la ressource demandée.</p>
+<h1 class="page-header">{{i18n.error403.title}}</h1>
+<p class="alert alert-danger">{{i18n.error403.message}}</p>
 <ul>
-    <li><a href="#/">Retour à l'accueil</a></li>
+    <li><a href="#/">{{i18n.common.back2home}}</a></li>
 </ul>
