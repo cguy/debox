@@ -331,7 +331,7 @@ $(document).ready(function() {
                                 persist: false,
                                 imagePath: "/skin-vista",
                                 checkbox: true, // Show checkboxes.
-                                selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+                                selectMode: 2, // 1:single, 2:multi, 3:multi-hier
                                 fx: {
                                     height: "toggle", 
                                     duration: 200

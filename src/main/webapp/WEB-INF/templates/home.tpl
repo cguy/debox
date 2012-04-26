@@ -1,4 +1,4 @@
-<h1 class="page-header">{{data.i18n.home.title}}</h1>
+<h1 class="page-header">{{i18n.home.title}}</h1>
 
 {{#data.albums.length}}
 <ul class="thumbnails albums">
@@ -15,5 +15,5 @@
 </ul>
 {{/data.albums.length}}
 {{^data.albums}}
-    <p class="alert"><strong>{{data.i18n.common.warning}} : </strong>{{data.i18n.home.no_album}}</p>
+    <p class="alert"><strong>{{i18n.common.warning}} : </strong>{{i18n.home.no_album}}</p>
 {{/data.albums}}

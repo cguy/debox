@@ -60,10 +60,9 @@ function loadTemplate(tplId, data, selector, callback) {
     if (!data) {
         data = {};
     }
-    console.log(lang)
-    data.i18n = lang;
     var html = ich[tplId]({
-        "data": data
+        "data" : data,
+        "i18n" : lang
     });
     
     if (!selector) {
