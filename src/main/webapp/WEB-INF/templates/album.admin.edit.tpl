@@ -23,20 +23,20 @@
     <div class="row">
         <div class="span6">
             <form class="form-horizontal" action="#/album" method="post">
-                <h2 class="page-header">Modifier l'album {{data.album.name}}</h2>
+                <h2 class="page-header">Modifier l'album {{data.name}}</h2>
                 <p></p>
                 <div class="control-group">
                     <label class="control-label" for="name">Nom de l'album</label>
                     <div class="controls">
-                        <input type="text" required class="input-large" id="name" name="name" value="{{data.album.name}}" />
+                        <input type="text" required class="input-large" id="name" name="name" value="{{data.name}}" />
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="visibility">Visibilité de l'album</label>
                     <div class="controls">
                         <select name="visibility" id="visibility">
-                            <option value="public" {{#data.album.visibility}}selected{{/data.album.visibility}}>Public</option>
-                            <option value="private" {{^data.album.visibility}}selected{{/data.album.visibility}}>Privé</option>
+                            <option value="public" {{#data.visibility}}selected{{/data.visibility}}>Public</option>
+                            <option value="private" {{^data.visibility}}selected{{/data.visibility}}>Privé</option>
                         </select>
                     </div>
                 </div>
@@ -44,12 +44,12 @@
                     <label class="control-label" for="downloadable">Téléchargement</label>
                     <div class="controls">
                         <label class="checkbox">
-                            <input id="downloadable" type="checkbox" name="downloadable" {{#data.album.downloadable}}checked{{/data.album.downloadable}}> Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.
+                            <input id="downloadable" type="checkbox" name="downloadable" {{#data.downloadable}}checked{{/data.downloadable}}> Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.
                         </label>
                     </div>
                 </div>
                 <div class="form-actions">
-                    <input type="hidden" name="id" value="{{data.album.id}}" />
+                    <input type="hidden" name="id" value="{{data.id}}" />
                     <input type="submit" class="btn btn-primary" data-loading-text="Modification en cours ..." value="Modifier" />
                 </div>
             </form>

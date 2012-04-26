@@ -105,7 +105,7 @@ public class AlbumController extends DeboxController {
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
-        return renderJSON(album);
+        return renderJSON("album", album);
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
