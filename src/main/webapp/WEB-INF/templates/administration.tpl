@@ -112,14 +112,16 @@
                     <tr id="{{id}}">
                         <td class="access_label">{{label}}</td>
                         <td class="albums">
-                            <div>
-                                <button class="btn show-tree"><i class="icon icon-list"></i>&nbsp;Voir les albums visibles via cet accès</button>
-                                <span class="hide">
-                                    <button class="btn cancel"><i class="icon icon-remove"></i>&nbsp;Annuler</button>
-                                    <button class="btn btn-primary validate"><i class="icon icon-ok"></i>&nbsp;Valider</button>
-                                </span>
-                            </div>
-                            <div class="albums-access hide"></div>
+                            <form action="#/token/{{id}}" method="post" class="album-access-form">
+                                <div>
+                                    <button type="button" class="btn show-tree"><i class="icon icon-list"></i>&nbsp;Voir les albums visibles via cet accès</button>
+                                    <span class="hide">
+                                        <button type="button" class="btn cancel"><i class="icon icon-remove"></i>&nbsp;Annuler</button>
+                                        <button type="submit" class="btn btn-primary validate"><i class="icon icon-ok"></i>&nbsp;Valider</button>
+                                    </span>
+                                </div>
+                                <div class="albums-access hide" name="albums"></div>
+                            </form>
                         </td>
                         <td><a href="{{id}}#/"><i class="icon icon-share"></i>&nbsp;Lien</a></td>
                         <td>

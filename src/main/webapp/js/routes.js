@@ -237,6 +237,25 @@ $(document).ready(function() {
             return false;
         });
         
+        this.post('#/token/:token', function() {
+            console.log(this.params["token"]);
+            console.log($("#" + this.params["token"] + " .albums-access"));
+            console.log($("#" + this.params["token"] + " .albums-access").dynatree("getTree"));
+            console.log($("#" + this.params["token"] + " .albums-access").dynatree("getTree").serializeArray());
+            $.ajax({
+                url: "token/" + this.params["token"],
+                type : "post",
+                data: $("#" + this.params["token"] + " .album-access-form").serializeArray().concat($("#" + this.params["token"] + " .album-access-form .albums-access").dynatree("getTree").serializeArray()),
+                success: function(data) {
+                    $("#" + data.id + " .access_label").text(data.label);
+                    $("#" + data.id + " .album-access-form .albums-access").hide();
+                    $("#" + data.id + " .album-access-form button.btn").show();
+                    $("#" + data.id + " .album-access-form span").hide();
+                }
+            });
+            return false;
+        });
+        
         this.post('#/token', function() {
             $.ajax({
                 url: "token",
@@ -298,33 +317,38 @@ $(document).ready(function() {
                             $(".nav-tabs a[data-target|=\"#configuration\"]").tab("show");
                         }
                         
-                        var treeChildren = [];
-                        function test(src, target) {
-                            if (!src) {
-                                return;
+                        // Generates trees for tokens management
+                        var tokens = data.tokens;
+                        for (var tokenIndex = 0 ; tokenIndex < tokens.length ; tokenIndex++) {
+                            var treeChildren = [];
+                            function test(src, target) {
+                                if (!src) {
+                                    return;
+                                }
+                                for (var i = 0 ; i < src.length ; i++) {
+                                    var found = false;
+                                    var albums = tokens[tokenIndex].albums;
+                                    for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < albums.length ; tokenAlbumsIndex++) {
+                                        if (albums[tokenAlbumsIndex].id == src[i].id) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    var p = {
+                                        title:src[i].name, 
+                                        key: src[i].id, 
+                                        isFolder: true,
+                                        select: found,
+                                        children:[]
+                                    };
+                                    test(src[i].subAlbums, p.children);
+                                    target.push(p);
+                                }
                             }
-                            for (var i = 0 ; i < src.length ; i++) {
-                                var p = {title:src[i].name, key: src[i].id, isFolder: true, children:[]};
-                                test(src[i].subAlbums, p.children);
-                                target.push(p);
-                            }
-                        }
-                        test(data.albums, treeChildren);
-                        console.log(treeChildren)
+                            test(data.albums, treeChildren);
                         
-                        $(function(){
-                            // Attach the dynatree widget to an existing <div id="tree"> element
-                            // and pass the tree options as an argument to the dynatree() function:
-                            $(".albums-access").dynatree({
-                                onActivate: function(node) {
-                                    // A DynaTreeNode object is passed to the activation handler
-                                    // Note: we also get this event, if persistence is on, and the page is reloaded.
-                                    console.log("You activated " + node.data.title);
-                                },
-                                onSelect : function(flag, node) {
-                                    console.log(flag + "=" + node);
-                                    node.tooltip = "Youhou";
-                                },
+                            $("#" + tokens[tokenIndex].id + " .albums-access").dynatree({
                                 autoCollapse: false,
                                 persist: false,
                                 imagePath: "/skin-vista",
@@ -338,8 +362,8 @@ $(document).ready(function() {
                                 children: treeChildren,
                                 debugLevel: 2
                             });
-//                            $(".albums").dynatree("disable");
-                        });
+                        }
+                       
                         
                     }); // End loading template
                 }

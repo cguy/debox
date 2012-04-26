@@ -192,6 +192,10 @@ p.footer {
     vertical-align: top;
 }
 
+#administration_tokens form {
+    margin-bottom: 0px;
+}
+
 #administration .access_label {
     width: 100px;
 }

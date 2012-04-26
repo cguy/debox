@@ -76,7 +76,7 @@ public class TokenController extends DeboxController {
                 "token", token);
     }
 
-    public Render editToken(String id, String label, List<String> albums) throws SQLException {
+    public Render editToken(String id, String label, String[] albums) throws SQLException {
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
@@ -87,10 +87,12 @@ public class TokenController extends DeboxController {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
 
-        token.setLabel(label);
-        token.setAlbums(null);
+        if (label != null) {
+            token.setLabel(label);
+        }
         
         if (albums != null) {
+            token.setAlbums(null);
             for (String albumId : albums) {
                 Album album = albumDao.getAlbum(albumId);
                 token.getAlbums().add(album);
