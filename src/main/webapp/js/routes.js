@@ -473,34 +473,34 @@ $(document).ready(function() {
             $(this).parents("form").submit();
         });
         
-        $("#administration_tokens .albums button.btn-info").click(function() {
+        $("#administration_tokens .albums button.btn").click(function() {
             $(this).hide();
             $(this).parents(".albums").find("button.btn-warning, .albums-access").show();
         });
         
         $("#administration_tokens .albums button.btn-warning").click(function() {
-            $(this).hide();
             $(".albums-access").hide();
-            $(this).parents(".albums").find("button.btn-info").show();
+            $(this).parents(".albums").find("button.btn").show();
+$(this).hide();
         });
         
-//        $("#administration_tokens button.btn-info").click(function() {
-//            var id = $(this).parents("tr").attr("id");
-//            $.ajax({
-//                url: "token/" + id,
-//                success: function(data) {
-//                    $("#edit_token input[type=hidden]").val(data.token.id);
-//                    $("#edit_token #label").val(data.token.label);
-//                    $("#edit_token #albums option").removeAttr("selected");
-//            
-//                    for (var i = 0 ; i < data.token.albums.length ; i++) {
-//                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
-//                    }
-//        
-//                    $("#edit_token").modal();
-//                }
-//            });
-//        });
+        $("#administration_tokens button.btn-info").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            $.ajax({
+                url: "token/" + id,
+                success: function(data) {
+                    $("#edit_token input[type=hidden]").val(data.token.id);
+                    $("#edit_token #label").val(data.token.label);
+                    $("#edit_token #albums option").removeAttr("selected");
+            
+                    for (var i = 0 ; i < data.token.albums.length ; i++) {
+                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+                    }
+        
+                    $("#edit_token").modal();
+                }
+            });
+        });
         
         // Need to refresh binding because of DOM operations
         $("button[type=reset]").click(hideModal);

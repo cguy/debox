@@ -116,7 +116,7 @@
                                 Aucun album n'est visible pour cet accès
                             {{/albums}}
                             {{#albums.length}}
-                                <button class="btn btn-info"><i class="icon icon-camera"></i>&nbsp;Voir les albums visibles via cet accès</button>
+                                <button class="btn"><i class="icon icon-camera"></i>&nbsp;Voir les albums visibles via cet accès</button>
                                 <button class="btn btn-warning hide"><i class="icon icon-remove"></i>&nbsp;Ne plus voir la liste</button>
                                 <div class="albums-access hide"></div>
                             {{/albums.length}}
