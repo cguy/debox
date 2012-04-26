@@ -1,4 +1,4 @@
-<h1 class="page-header">Accueil</h1>
+<h1 class="page-header">{{data.i18n.home.title}}</h1>
 
 {{#data.albums.length}}
 <ul class="thumbnails albums">
@@ -15,5 +15,5 @@
 </ul>
 {{/data.albums.length}}
 {{^data.albums}}
-    <p class="alert"><strong>Attention : </strong>Aucun album n'a été créé pour le moment !</p>
+    <p class="alert"><strong>{{data.i18n.common.warning}} : </strong>{{data.i18n.home.no_album}}</p>
 {{/data.albums}}
