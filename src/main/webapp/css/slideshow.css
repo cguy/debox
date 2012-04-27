@@ -63,6 +63,13 @@
 
 .rs-slideshow .slide-container .photo {
     position: absolute;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 90%;
+    height: 90%;
+    left: 5%;
+    top: 5%;
 }
 
 .rs-slideshow .slides {

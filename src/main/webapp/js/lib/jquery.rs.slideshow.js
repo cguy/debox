@@ -501,13 +501,7 @@
                             $slide = $('<div></div>');
                             div = $('<div class="photo"></div>');
                             div.css({
-                                "background":"url('" + slide.url + "') center center no-repeat",
-                                "background-size":"contain",
-                                "width":"90%",
-                                "height":"90%",
-                                "margin-left": "5%",
-                                "margin-top": "5%"
-//                                "height": Math.round(window.innerHeight * 0.9) + "px"
+                                "background-image":"url('" + slide.url + "')"
                             });
                         }
                         
