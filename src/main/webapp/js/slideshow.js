@@ -26,6 +26,73 @@ $.getDocHeight = function(){
         document.documentElement.clientHeight
         );
 };
+
+(function() {
+    var fullScreenApi = {
+        supportsFullScreen: false,
+        isFullScreen: function() {
+            return false;
+        },
+        requestFullScreen: function() {},
+        cancelFullScreen: function() {},
+        fullScreenEventName: '',
+        prefix: ''
+    },
+    browserPrefixes = 'webkit moz o ms khtml'.split(' ');
+
+    // check for native support
+    if (typeof document.cancelFullScreen != 'undefined') {
+        fullScreenApi.supportsFullScreen = true;
+    } else {
+        // check for fullscreen support by vendor prefix
+        for (var i = 0, il = browserPrefixes.length; i < il; i++ ) {
+            fullScreenApi.prefix = browserPrefixes[i];
+
+            if (typeof document[fullScreenApi.prefix + 'CancelFullScreen' ] != 'undefined' ) {
+                fullScreenApi.supportsFullScreen = true;
+
+                break;
+            }
+        }
+    }
+
+    // update methods to do something useful
+    if (fullScreenApi.supportsFullScreen) {
+        fullScreenApi.fullScreenEventName = fullScreenApi.prefix + 'fullscreenchange';
+
+        fullScreenApi.isFullScreen = function() {
+            switch (this.prefix) {
+                case '':
+                    return document.fullScreen;
+                case 'webkit':
+                    return document.webkitIsFullScreen;
+                default:
+                    return document[this.prefix + 'FullScreen'];
+            }
+        }
+        fullScreenApi.requestFullScreen = function(el) {
+            return (this.prefix === '') ? el.requestFullScreen() : el[this.prefix + 'RequestFullScreen']();
+        }
+        fullScreenApi.cancelFullScreen = function(el) {
+            return (this.prefix === '') ? document.cancelFullScreen() : document[this.prefix + 'CancelFullScreen']();
+        }
+    }
+
+    // jQuery plugin
+    if (typeof jQuery != 'undefined') {
+        jQuery.fn.requestFullScreen = function() {
+
+            return this.each(function() {
+                if (fullScreenApi.supportsFullScreen) {
+                    fullScreenApi.requestFullScreen(this);
+                }
+            });
+        };
+    }
+
+    // export api
+    window.fullScreenApi = fullScreenApi;
+})();
             
 function exitFullscreen() {
     var elt = document.getElementById("fullscreenContainer");
@@ -34,21 +101,19 @@ function exitFullscreen() {
     if (controls) {
         document.body.removeChild(controls);
     }
+    if (fullScreenApi.supportsFullScreen) {
+        document.removeEventListener(fullScreenApi.fullScreenEventName);
+    }
     location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
 }
             
 function createBg() {
     var container = document.createElement("div");
     container.id = "fullscreenContainer";
-    container.style.height = $.getDocHeight() + "px";
                 
     var elt = document.createElement("div");
     elt.id = "slideshow-div";
     elt.className = "rs-slideshow";
-    elt.style.position = "fixed";
-    elt.style.top = "0px";
-    elt.style.left = "0px";
-    elt.style.height = Math.round(window.innerHeight) + "px";
     elt.onclick = exitFullscreen;
 
     container.appendChild(elt);
@@ -72,9 +137,19 @@ function fullscreen(index, data) {
         },
         effect: 'fade'
     });
-    $('#slideshow-div').rsfSlideshow(
-        'goToSlide', index
-    );
+    if (fullScreenApi.supportsFullScreen) {
+        document.addEventListener(fullScreenApi.fullScreenEventName, function() {
+            $('#slideshow-div').rsfSlideshow(
+                'goToSlide', index
+            );
+        }, false);
+        fullScreenApi.requestFullScreen(elt);
+        
+    } else {
+        $('#slideshow-div').rsfSlideshow(
+            'goToSlide', index
+        );
+    }
 }
 
 jwerty.key('←', function () {

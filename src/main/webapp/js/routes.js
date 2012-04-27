@@ -41,8 +41,8 @@ $(document).ready(function() {
                     url: computeUrl("api/album/" + this.params['album']),
                     success: function(data) {
                         createAlbum(data.album);
-                        for (var i = 0 ; i < data.albums.length ; i++) {
-                            var album = data.albums[i];
+                        for (var i = 0 ; i < data.album.subAlbums.length ; i++) {
+                            var album = data.album.subAlbums[i];
                             createAlbum(album);
                         }
                         data.downloadUrl = computeUrl("download/album/" + data.album.id);
