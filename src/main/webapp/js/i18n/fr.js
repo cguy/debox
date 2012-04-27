@@ -100,7 +100,9 @@ var fr = {
             new_token_label: "Libellé du nouvel accès",
             edit: {
                 title: "Modifier un accès visiteur",
-                label: "Libellé de l'accès visiteur"
+                label: "Libellé de l'accès visiteur",
+                success: "La liste des albums visibles via cet accès a été modifée avec succès.",
+                error: "Erreur durant la modification de la liste des albums visibles via cet accès."
             },
             "delete": {
                 title: "Supprimer un accès visiteur",

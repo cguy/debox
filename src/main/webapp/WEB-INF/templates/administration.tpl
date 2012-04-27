@@ -119,6 +119,8 @@
                                         <button type="button" class="btn cancel"><i class="icon icon-remove"></i>&nbsp;{{i18n.common.cancel}}</button>
                                         <button type="submit" class="btn btn-primary validate"><i class="icon icon-ok"></i>&nbsp;{{i18n.common.validate}}</button>
                                     </span>
+                                    <div class="alert alert-success hide">{{i18n.administration.tokens.edit.success}}</div>
+                                    <div class="alert alert-error hide">{{i18n.administration.tokens.edit.error}}</div>
                                 </div>
                                 <div class="albums-access hide" name="albums"></div>
                             </form>

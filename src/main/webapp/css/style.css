@@ -200,6 +200,10 @@ p.footer {
     vertical-align: top;
 }
 
+#administration_tokens .alert {
+    margin: 5px 3px 3px 3px;
+}
+
 #administration_tokens form {
     margin-bottom: 0px;
 }

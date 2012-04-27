@@ -238,15 +238,22 @@ $(document).ready(function() {
         });
         
         this.post('#/token/:token', function() {
+            var token = this.params["token"];
+            $("#" + token + " .alert-success").hide();
+            $("#" + token + " .alert-error").hide();
             $.ajax({
-                url: "token/" + this.params["token"],
+                url: "token/" + token,
                 type : "post",
-                data: $("#" + this.params["token"] + " .album-access-form").serializeArray().concat($("#" + this.params["token"] + " .album-access-form .albums-access").dynatree("getTree").serializeArray()),
+                data: $("#" + token + " .album-access-form").serializeArray().concat($("#" + token + " .album-access-form .albums-access").dynatree("getTree").serializeArray()),
                 success: function(data) {
                     $("#" + data.id + " .access_label").text(data.label);
                     $("#" + data.id + " .album-access-form .albums-access").hide();
                     $("#" + data.id + " .album-access-form button.btn").show();
+                    $("#" + data.id + " .alert-success").show();
                     $("#" + data.id + " .album-access-form span").hide();
+                },
+                error : function() {
+                    $("#" + token + " .alert-error").show();
                 }
             });
             return false;
@@ -490,9 +497,13 @@ $(document).ready(function() {
         $("#administration_tokens .albums button.show-tree").click(function() {
             $(this).hide();
             $(this).parents(".albums").find("span, .albums-access").show();
+            $(this).parents(".albums").find(".alert-success").hide();
+            $(this).parents(".albums").find(".alert-error").hide();
         });
         
         $("#administration_tokens .albums button.cancel").click(function() {
+            $(this).parents(".albums").find(".alert-success").hide();
+            $(this).parents(".albums").find(".alert-error").hide();
             $(this).parents(".albums").find(".albums-access").hide();
             $(this).parents(".albums").find("button.btn").show();
             $(this).parents("span").hide();
