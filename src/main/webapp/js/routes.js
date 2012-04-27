@@ -389,7 +389,7 @@ $(document).ready(function() {
                 type : "post",
                 data : data,
                 success: function(username) {
-                    $("#login #connect").button('reset');
+                    $("#connect").button('reset');
                     $("#login p").removeClass("alert alert-error");
                     loadTemplates(function() {
                         if (location.hash && location.hash.length > 1) {
@@ -404,7 +404,7 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr) {
-                    $("#login #connect").button('reset');
+                    $("#connect").button('reset');
                     $("#login p").addClass("alert alert-error");
                     if (xhr.status == 401) {
                         $("#login p").html("Erreur de connexion: veuillez vérifier vos identifiants de connexion.");
@@ -459,7 +459,7 @@ $(document).ready(function() {
     }).run("#/");
     
     function handleAdmin() {
-        $("#sync-progress .btn-warning").click(function() {
+        $("#cancel-sync").click(function() {
             $.ajax({
                 url: "administration/sync",
                 type: "delete",
@@ -469,7 +469,7 @@ $(document).ready(function() {
                         syncTimeout = null;
                     }
                     $("#sync input").removeAttr("disabled");
-                    $("#sync-progress .btn-warning").hide();
+                    $("#cancel-sync").hide();
                     $("#sync-progress").removeClass("alert-info");
                     $("#sync-progress .progress").removeClass("progress-info active");
                     $("#sync-progress").addClass("alert-danger");
@@ -535,9 +535,9 @@ $(document).ready(function() {
             $("#sync-progress .progress").addClass("progress-info active");
             $("#sync-progress").removeClass("alert-success alert-danger");
             $("#sync-progress .progress").removeClass("progress-success progress-danger");
-            $("#sync-progress h3 #progress-label").text("Synchronisation en cours...");
-            $("#sync-progress .btn-warning").show();
+            $("#progress-label").text("Synchronisation en cours...");
             $("#sync input").attr("disabled", "disabled");
+            $("#cancel-sync").show();
             
             var refreshProgressBar = function(data) {
                 $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
@@ -548,11 +548,11 @@ $(document).ready(function() {
                     syncTimeout = null;
                     $("#sync input").removeAttr("disabled");
                     $("#sync-progress").removeClass("alert-info");
-                    $("#sync-progress h3 #progress-label").text("Synchronisation terminée");
+                    $("#progress-label").text("Synchronisation terminée");
                     $("#sync-progress .progress").removeClass("progress-info active");
                     $("#sync-progress").addClass("alert-success");
                     $("#sync-progress .progress").addClass("progress-success");
-                    $("#sync-progress .btn-warning").hide();
+                    $("#cancel-sync").hide();
                 }
             }
                         
