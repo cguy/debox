@@ -18,7 +18,7 @@
     <p class="hide edit alert alert-danger">{{i18n.album.admin.edit.error}}<span class="close">&times;</span></p>
 </div>
 
-<div id="edit_album">
+<div id="edit_album" class="{{#data.inEdition}}visible{{/data.inEdition}}">
     
     <div class="row">
         <div class="span6">

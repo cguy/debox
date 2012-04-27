@@ -203,9 +203,10 @@ $(document).ready(function() {
                 type : "post",
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
-                    var album = data.album;
-                    $("#" + album.id + " a, #edit_album form h2 span").text(album.name);
-                    $("#alerts .edit.alert-success").fadeIn(250);
+                    data.album.inEdition = true;
+                    loadAlbum(data, function(){
+                        $("#alerts .edit.alert-success").fadeIn(250);
+                    });
                 },
                 error : function() {
                     $("#alerts .edit.alert-danger").fadeIn(250);
