@@ -1,24 +1,23 @@
-    <button class="btn pull-right edit-album"><i class="icon-pencil"></i>&nbsp;{{i18n.album.admin.edit.modify_this}}</button>
-    <button class="btn btn-info pull-right edit-album-cancel hide"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.close_notif_zone}}</button>
-</div>
-
-<div id="sync-progress" class="alert alert-info hide">
-    <h3 class="alert-heading" style="line-height:50px;">
-        <span id="progress-label">{{i18n.administration.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
-    </h3>
-    <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
-        <div class="bar"></div>
-    </div>
-</div>
-
-<div id="alerts">
-    <p class="hide cover alert alert-success">{{i18n.album.admin.edit.choose_cover.success}}<span class="close">&times;</span></p>
-    <p class="hide cover alert alert-danger">{{i18n.album.admin.edit.choose_cover.error}}<span class="close">&times;</span></p>
-    <p class="hide edit alert alert-success">{{i18n.album.admin.edit.success}}<span class="close">&times;</span></p>
-    <p class="hide edit alert alert-danger">{{i18n.album.admin.edit.error}}<span class="close">&times;</span></p>
+    <button class="btn pull-right edit-album {{#data.inEdition}}hide{{/data.inEdition}}"><i class="icon-pencil"></i>&nbsp;{{i18n.album.admin.edit.modify_this}}</button>
+    <button class="btn btn-info pull-right edit-album-cancel {{^data.inEdition}}hide{{/data.inEdition}}"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.close_notif_zone}}</button>
 </div>
 
 <div id="edit_album" class="{{#data.inEdition}}visible{{/data.inEdition}}">
+    <div id="regeneration-progress" class="alert alert-info hide">
+        <h3 class="alert-heading" style="line-height:50px;">
+            <span id="progress-label">{{i18n.administration.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
+        </h3>
+        <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
+            <div class="bar"></div>
+        </div>
+    </div>
+
+    <div id="alerts">
+        <p class="hide cover alert alert-success">{{i18n.album.admin.edit.choose_cover.success}}<span class="close">&times;</span></p>
+        <p class="hide cover alert alert-danger">{{i18n.album.admin.edit.choose_cover.error}}<span class="close">&times;</span></p>
+        <p class="hide edit alert alert-success">{{i18n.album.admin.edit.success}}<span class="close">&times;</span></p>
+        <p class="hide edit alert alert-danger">{{i18n.album.admin.edit.error}}<span class="close">&times;</span></p>
+    </div>
     
     <div class="row">
         <div class="span6">

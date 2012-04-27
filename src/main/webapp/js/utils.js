@@ -290,29 +290,25 @@ function loadAlbum(data, callback) {
 function manageRegenerationProgress(data) {
     console.log("manageRegenerationProgress : " + data.regeneration)
     if (data.regeneration) {
-        $("#sync-progress").show();
-        $("#sync-progress").addClass("alert-info");
-        $("#sync-progress .progress").addClass("progress-info active");
-        $("#sync-progress").removeClass("alert-success alert-danger");
-        $("#sync-progress .progress").removeClass("progress-success progress-danger");
-        $("#sync-progress h3 #progress-label").text("Regénération en cours...");
-        $("#sync-progress .btn-warning").show();
-        $("#sync input").attr("disabled", "disabled");
+        $("#regeneration-progress").show();
+        $("#regeneration-progress").addClass("alert-info");
+        $("#regeneration-progress .progress").addClass("progress-info active");
+        $("#regeneration-progress").removeClass("alert-success alert-danger");
+        $("#regeneration-progress .progress").removeClass("progress-success progress-danger");
+        $("#regeneration-progress h3 #progress-label").text("Regénération en cours...");
             
         var refreshProgressBar = function(data) {
-            $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
-            $("#sync-progress .bar").css("width", data.percent+"%");
+            $("#regeneration-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
+            $("#regeneration-progress .bar").css("width", data.percent+"%");
             if (data.percent < 100) {
                 generationTimeout = setTimeout(getGenerationStatus, 3000);
             } else {
                 generationTimeout = null;
-                $("#sync input").removeAttr("disabled");
-                $("#sync-progress").removeClass("alert-info");
-                $("#sync-progress h3 #progress-label").text("Regénération terminée");
-                $("#sync-progress .progress").removeClass("progress-info active");
-                $("#sync-progress").addClass("alert-success");
-                $("#sync-progress .progress").addClass("progress-success");
-                $("#sync-progress .btn-warning").hide();
+                $("#regeneration-progress").removeClass("alert-info");
+                $("#regeneration-progress h3 #progress-label").text("Regénération terminée");
+                $("#regeneration-progress .progress").removeClass("progress-info active");
+                $("#regeneration-progress").addClass("alert-success");
+                $("#regeneration-progress .progress").addClass("progress-success");
             }
         }
                         
@@ -327,7 +323,7 @@ function manageRegenerationProgress(data) {
         refreshProgressBar(data.regeneration);
         
     } else {
-        $("#sync-progress").hide();
+        $("#regeneration-progress").hide();
     }
 }
 
