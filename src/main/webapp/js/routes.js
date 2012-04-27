@@ -221,15 +221,16 @@ $(document).ready(function() {
                 success: function(data) {
                     $("#administration_tokens").removeClass("hide");
                     $("#tokens p.alert-warning").addClass("hide");
-                    var html = '<tr id="' + data.id + '">';
-                    html += '<td class="access_label">' + data.label + '</td>';
-                    html += '<td class="albums">Aucun album n\'est visible pour cet accès</td>';
-                    html += '<td><a href="' + data.id + '/#/">Lien</a></td>';
-                    html += '<td><div class="btn-group">';
-                    html += '<button class="btn btn-info"><i class="icon-pencil icon-white"></i>&nbsp;Modifier</button>';
-                    html += '<button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger"><i class="icon-remove icon-white"></i>&nbsp;Supprimer</button>';
-                    html += '</div></td></tr>';
+                    
+                    var treeChildren = [];
+                    prepareDynatree(pouet, [], treeChildren, null);
+                    
+                    data.i18n = lang;
+                    var html = templates["admin.tokens.row"].render(data, templates);
                     $("#administration_tokens tbody").append(html);
+                    
+                    initDynatree(data.id, treeChildren);
+                    
                     $("#form-token-create input[type=text]").val("");
                     handleAdmin();
                 }
@@ -306,9 +307,16 @@ $(document).ready(function() {
             ajax({
                 url: "administration",
                 success: function(data) {
-                    for (var i = 0 ; i < data.albums.length ; i++) {
-                        data.albums[i].visibility = data.albums[i].visibility == "PUBLIC";
+                    function convertVisibilityToBoolean(albumsArray) {
+                        for (var i = 0 ; i < albumsArray.length ; i++) {
+                            albumsArray[i].visibility = albumsArray[i].visibility == "PUBLIC";
+                            if (albumsArray[i].subAlbums) {
+                                convertVisibilityToBoolean(albumsArray[i].subAlbums);
+                            }
+                        }
                     }
+                    convertVisibilityToBoolean(data.albums);
+                    pouet = data.albums;
                     
                     loadTemplate("administration", data, null, function() {
                         handleAdmin();
@@ -324,56 +332,9 @@ $(document).ready(function() {
                         var tokens = data.tokens;
                         for (var tokenIndex = 0 ; tokenIndex < tokens.length ; tokenIndex++) {
                             var treeChildren = [];
-                            function test(src, target) {
-                                if (!src) {
-                                    return;
-                                }
-                                for (var i = 0 ; i < src.length ; i++) {
-                                    var found = false;
-                                    var albums = tokens[tokenIndex].albums;
-                                    for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < albums.length ; tokenAlbumsIndex++) {
-                                        if (albums[tokenAlbumsIndex].id == src[i].id) {
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    var p = {
-                                        title:src[i].name, 
-                                        key: src[i].id, 
-                                        isFolder: true,
-                                        select: found,
-                                        hideCheckbox: src[i].visibility,
-                                        children:[]
-                                    };
-                                    
-                                    if (src[i].visibility) {
-                                        p.addClass = "public";
-                                        p.title += fr.administration.tokens.public_album;
-                                    }
-                                    
-                                    test(src[i].subAlbums, p.children);
-                                    target.push(p);
-                                }
-                            }
-                            test(data.albums, treeChildren);
-                        
-                            $("#" + tokens[tokenIndex].id + " .albums-access").dynatree({
-                                autoCollapse: false,
-                                persist: false,
-                                imagePath: "/skin-vista",
-                                checkbox: true, // Show checkboxes.
-                                selectMode: 2, // 1:single, 2:multi, 3:multi-hier
-                                fx: {
-                                    height: "toggle", 
-                                    duration: 200
-                                }, // Animations, e.g. null or { height: "toggle", duration: 200 }
-                                noLink: true,
-                                children: treeChildren,
-                                debugLevel: 2
-                            });
+                            prepareDynatree(data.albums, tokens[tokenIndex].albums, treeChildren, null);
+                            initDynatree(tokens[tokenIndex].id, treeChildren);
                         }
-                       
                         
                     }); // End loading template
                 }

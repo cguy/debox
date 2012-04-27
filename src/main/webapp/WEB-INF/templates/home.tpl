@@ -19,5 +19,5 @@
 </ul>
 {{/data.albums.length}}
 {{^data.albums}}
-    <p class="alert"><strong>{{i18n.common.warning}}: </strong>{{i18n.home.no_album}}</p>
+    <p class="alert"><strong>{{i18n.common.warning}}: </strong>{{i18n.common.no_album}}</p>
 {{/data.albums}}

@@ -20,14 +20,14 @@
  */
 var templatesToLoad = new Array();
 var templatesLoaded = false;
-
+var templates = {};
 function loadTemplates(callback) {
     $.ajax({
         url: "tpl",
         success: function(data) {
-            ich.clearAll();
+            templates = {};
             $.each(data.templates, function (name, template) {
-                ich.addTemplate(name, template);
+                templates[name] = Hogan.compile(template);
             });
             templatesLoaded = true;
             initHeader(data.config.title, data.config.username);
@@ -57,13 +57,7 @@ function loadTemplate(tplId, data, selector, callback) {
         return;
     }
     
-    if (!data) {
-        data = {};
-    }
-    var html = ich[tplId]({
-        "data" : data,
-        "i18n" : lang
-    });
+    var html = applyTemplate(tplId, data);
     
     if (!selector) {
         selector = "body > .container-fluid";
@@ -73,6 +67,20 @@ function loadTemplate(tplId, data, selector, callback) {
     if (callback) {
         callback();
     }
+}
+
+function applyTemplate(templateId, data) {
+    if (!data) {
+        data = {};
+    }
+    
+    console.log(templateId);
+    console.log(templates[templateId]);
+    var html = templates[templateId].render({
+        "data" : data,
+        "i18n" : lang
+    }, templates);
+    return html;
 }
     
 function ajax(object) {
@@ -279,12 +287,16 @@ function loadAlbum(data, callback) {
     })
     $("#top").hover(
         function () {
-            $(this).animate({ opacity: 0.6 });
+            $(this).animate({
+                opacity: 0.6
+            });
         },
         function () {
-            $(this).animate({ opacity: 0.3 });
+            $(this).animate({
+                opacity: 0.3
+            });
         }
-    );
+        );
 }
 
 function manageRegenerationProgress(data) {
@@ -354,4 +366,55 @@ function headerTemplateLoaded() {
     $('#login a').on('click', resetForm);
     $('html').on('click.dropdown.data-api', resetForm);
 
+}
+
+function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData, parentId) {
+    if (!allAlbums) {
+        return;
+    }
+    for (var i = 0 ; i < allAlbums.length ; i++) {
+        var found = false;
+        for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < accessibleAlbumsWithCurrentToken.length ; tokenAlbumsIndex++) {
+            if (accessibleAlbumsWithCurrentToken[tokenAlbumsIndex].id == allAlbums[i].id) {
+                found = true;
+                break;
+            }
+        }
+                                    
+        var p = {
+            title:allAlbums[i].name, 
+            key: allAlbums[i].id, 
+            isFolder: true,
+            select: found,
+            hideCheckbox: allAlbums[i].visibility,
+            children:[]
+        };
+                                    
+        if (allAlbums[i].visibility) {
+            p.addClass = "public";
+            p.title += fr.administration.tokens.public_album;
+        }
+                                    
+        prepareDynatree(allAlbums[i].subAlbums, accessibleAlbumsWithCurrentToken, p.children, allAlbums[i].id);
+        if (parentId == allAlbums[i].parentId) {
+            targetData.push(p);
+        }
+    }
+}
+
+function initDynatree(id, children) {
+    $("#" + id + " .albums-access").dynatree({
+        autoCollapse: false,
+        persist: false,
+        imagePath: "/skin-vista",
+        checkbox: true, // Show checkboxes.
+        selectMode: 2, // 1:single, 2:multi, 3:multi-hier
+        fx: {
+            height: "toggle", 
+            duration: 200
+        }, // Animations, e.g. null or { height: "toggle", duration: 200 }
+        noLink: true,
+        children: children,
+        debugLevel: 2
+    });
 }
