@@ -238,10 +238,6 @@ $(document).ready(function() {
         });
         
         this.post('#/token/:token', function() {
-            console.log(this.params["token"]);
-            console.log($("#" + this.params["token"] + " .albums-access"));
-            console.log($("#" + this.params["token"] + " .albums-access").dynatree("getTree"));
-            console.log($("#" + this.params["token"] + " .albums-access").dynatree("getTree").serializeArray());
             $.ajax({
                 url: "token/" + this.params["token"],
                 type : "post",
@@ -340,8 +336,15 @@ $(document).ready(function() {
                                         key: src[i].id, 
                                         isFolder: true,
                                         select: found,
+                                        hideCheckbox: src[i].visibility,
                                         children:[]
                                     };
+                                    
+                                    if (src[i].visibility) {
+                                        p.addClass = "public";
+                                        p.title += fr.administration.tokens.public_album;
+                                    }
+                                    
                                     test(src[i].subAlbums, p.children);
                                     target.push(p);
                                 }

@@ -37,6 +37,10 @@ body > .container-fluid {
     padding: 0 10px;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 h2.page-header {
     margin: 0 0 15px 0;
     padding-bottom: 0;
@@ -223,4 +227,11 @@ p.footer {
     max-width: 360px;
 }
 
+#administration .albums ul li .dynatree-node.public {
+    padding-left: 19px;
+}
 
+#administration .albums ul li .dynatree-node.public .dynatree-title {
+    color: #57a957;
+    font-style: italic;
+}
