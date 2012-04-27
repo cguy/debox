@@ -152,6 +152,7 @@ var fr = {
             }
         }
     },
+    footer: "&COPY;&nbsp;Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur - Ce site Internet utilise le projet libre <a href='http://projects.debux.org/projects/debox-photos'>debox-photos</a>",
     header: {
         album_list: "Liste des albums",
         administration: "Administration",
