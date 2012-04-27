@@ -1,13 +1,13 @@
 <h1 id="{{data.id}}" class="page-header">
-    <a href="#/album/{{data.name}}">{{data.name}}</a>
+    <a href="#/album/{{data.id}}">{{data.name}}</a>
     <small>
         {{data.photosCount}}
-        {{#data.hasSeveralPhotosCount}}
+        {{#data.hasSeveralTotalPhotos}}
             {{i18n.common.photos}}
-        {{/data.hasSeveralPhotosCount}}
-        {{^data.hasSeveralPhotosCount}}
+        {{/data.hasSeveralTotalPhotos}}
+        {{^data.hasSeveralTotalPhotos}}
             {{i18n.common.photo}}
-        {{/data.hasSeveralPhotosCount}}
+        {{/data.hasSeveralTotalPhotos}}
         
         {{#data.isInterval}}
             {{i18n.album.from_date}} {{data.beginDate}} {{i18n.album.to_date}} {{data.endDate}}

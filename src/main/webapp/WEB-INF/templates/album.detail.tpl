@@ -7,8 +7,8 @@
                 <span class="title"><span>{{name}}</span></span>
                 <span class="count">
                     {{photosCount}}
-                    {{#hasSeveralPhotos}}{{i18n.common.photos}}{{/hasSeveralPhotos}}
-                    {{^hasSeveralPhotos}}{{i18n.common.photo}}{{/hasSeveralPhotos}}
+                    {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
+                    {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
                 </span>
             </span>
         </a>

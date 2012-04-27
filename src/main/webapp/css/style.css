@@ -122,11 +122,11 @@ h1 small {
     transition: height 0.25s ease-in;
 }
 
-#edit_album .span4 .btn:first-of-type {
+#edit_album .actions .btn:first-of-type {
     margin: 0 0 3px 0;
 }
 
-#edit_album .span4 .btn {
+#edit_album .actions .btn {
     font-size: 15px;
     width: 100%;
     margin: 3px 0;

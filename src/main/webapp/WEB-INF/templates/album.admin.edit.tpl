@@ -4,7 +4,7 @@
 
 <div id="sync-progress" class="alert alert-info hide">
     <h3 class="alert-heading" style="line-height:50px;">
-        <span id="progress-label">{{i18n.common.sync_in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
+        <span id="progress-label">{{i18n.administration.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
     </h3>
     <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
         <div class="bar"></div>
@@ -12,10 +12,10 @@
 </div>
 
 <div id="alerts">
-    <p class="hide cover alert alert-success">La vignette de l'album a été modifiée avec succès.<span class="close">&times;</span></p>
-    <p class="hide cover alert alert-danger">Une erreur est survenue lors de la modification de la vignette de cet album.<span class="close">&times;</span></p>
-    <p class="hide edit alert alert-success">L'album a été modifié avec succès.<span class="close">&times;</span></p>
-    <p class="hide edit alert alert-danger">Une erreur est survenue lors de la modification de l'album.<span class="close">&times;</span></p>
+    <p class="hide cover alert alert-success">{{i18n.album.admin.edit.choose_cover.success}}<span class="close">&times;</span></p>
+    <p class="hide cover alert alert-danger">{{i18n.album.admin.edit.choose_cover.error}}<span class="close">&times;</span></p>
+    <p class="hide edit alert alert-success">{{i18n.album.admin.edit.success}}<span class="close">&times;</span></p>
+    <p class="hide edit alert alert-danger">{{i18n.album.admin.edit.error}}<span class="close">&times;</span></p>
 </div>
 
 <div id="edit_album">
@@ -23,7 +23,7 @@
     <div class="row">
         <div class="span6">
             <form class="form-horizontal" action="#/album" method="post">
-                <h2 class="page-header">{{i18n.album.admin.edit.modify}} {{data.name}}</h2>
+                <h2 class="page-header">{{i18n.album.admin.edit.modify}} <span>{{data.name}}</span></h2>
                 <p></p>
                 <div class="control-group">
                     <label class="control-label" for="name">{{i18n.album.admin.edit.album_name}}</label>
@@ -54,9 +54,9 @@
                 </div>
             </form>
         </div>
-        <div class="span4">
+        <div class="span6 actions">
             <h2 class="page-header">{{i18n.album.admin.edit.actions}}</h2>
-            <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;{{i18n.album.admin.edit.choose_cover}}</button>
+            <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;{{i18n.album.admin.edit.choose_cover.button}}</button>
             <button class="btn btn-danger hide choose-cover-cancel"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.cancel_cover_choice}}</button>
             <button class="btn regenerate-thumbnails"><i class="icon-repeat"></i>&nbsp;{{i18n.album.admin.edit.regenerate_thumbnails}}</button>
         </div>

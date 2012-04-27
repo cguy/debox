@@ -25,7 +25,7 @@ function createAlbum(album) {
     album.hasSeveralPhotos = function() {
         return album.photos && album.photos.length > 1;
     }
-    album.hasSeveralPhotosCount = function() {
+    album.hasSeveralTotalPhotos = function() {
         return album.photosCount && album.photosCount > 1;
     }
 }

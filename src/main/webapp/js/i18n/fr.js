@@ -24,11 +24,15 @@ var fr = {
         back2home: "Retour à l'accueil",
         photo: "photo",
         photos: "photos",
-        sync_in_progress: "Synchronisation en cours",
-        public: "Publique",
-        private: "Privé",
+        "public": "Publique",
+        "private": "Privé",
+        cancel: "Annuler",
+        validate: "Valider",
         modify: "Modifier",
-        modification_in_progress: "Modification en cours..."
+        "delete": "Supprimer",
+        deletion_in_progress: "Suppression en cours...",
+        modification_in_progress: "Modification en cours...",
+        no_album: "Aucun album n'a été créé pour le moment !"
     },
     error403: {
         title: "Authentification nécessaire",
@@ -41,6 +45,75 @@ var fr = {
     error500: {
         title: "Erreur",
         message: "Une erreur interne au serveur est survenue."
+    },
+    administration: {
+        title: "Administration",
+        processing: "Traitement en cours...",
+        config: {
+            title: "Configuration générale",
+            tab: "Configuration générale",
+            galery_title: "Titre de la galerie photos",
+            galery_title_placeholder: "Exemple : Galerie photos personnelle",
+            source_directory: "Répertoire source (contenant les photos au format original) ",
+            source_directory_placeholder: "Exemple : /home/user/photos/",
+            target_directory: "Répertoire de travail (qui contiendra notamment les vignettes des photos) ",
+            target_directory_placeholder: "Exemple : /home/user/thumbnails/",
+            save: "Enregistrer",
+            save_and_sync: "Enregistrer et synchroniser les répertoires"
+        },
+        albums: {
+            title: "Liste des albums",
+            tab: "Gestion des albums photos",
+            photo_number: "Nombre de photos ",
+            downloadable: "Téléchargeable",
+            not_downloadable: "N'est pas téléchargeable"
+        },
+        sync: {
+            title: "Synchroniser les répertoires",
+            tab: "Synchronisation des répertoires",
+            in_progress: "Synchronisation en cours",
+            cancel: "Annuler la synchronisation",
+            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
+            fastest: "Le plus rapide ",
+            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
+            normal: "Normal ",
+            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
+            longest: "Le plus long ",
+            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
+            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
+            launch: "Lancer la synchronisation"
+        },
+        tokens: {
+            title: "Gestion des accès visiteurs",
+            tab: "Gestion des accès visiteurs",
+            token_list: "Liste des accès visiteurs",
+            label: "Libellé",
+            albums: "Albums",
+            link2share: "Lien à partager",
+            actions: "Actions",
+            visible_albums: "Voir les albums visibles via cet accès",
+            link: "Lien",
+            no_token: "Aucun accès visiteur n'a été créé !",
+            new_token: "Créer un nouvel accès visiteur",
+            create_token: "Créer l'accès",
+            new_token_label: "Libellé du nouvel accès",
+            edit: {
+                title: "Modifier un accès visiteur",
+                label: "Libellé de l'accès visiteur"
+            },
+            "delete": {
+                title: "Supprimer un accès visiteur",
+                message: "Êtes-vous sûr de vouloir supprimer l'accès visiteur"
+            }
+        },
+        account: {
+            title: "Modifier mes identifiants de connexion",
+            tab: "Gestion des identifiants de connexion",
+            username: "Nom d'utilisateur ",
+            old_password: "Ancien mot de passe ",
+            new_password: "Nouveau mot de passe ",
+            password_repeat: "Confirmation du nouveau mot de passe "
+        }
     },
     album: {
         from_date: "du",
@@ -64,9 +137,18 @@ var fr = {
                 download: "Téléchargement",
                 download_description: "Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.",
                 actions: "Actions",
-                choose_cover: "Choisir une nouvelle vignette d'album",
-                cancel_cover_choice: "Annuler le choix d'une vignette",
-                regenerate_thumbnails: "Regénérer les vignettes de cet album"
+                choose_cover: {
+                    button: "Choisir une couverture pour l'album",
+                    title: "Choix de la couverture de l'album",
+                    tooltip: "Cliquez sur la photo pour qu'elle devienne la couverture de cette album",
+                    photos: "Photos",
+                    success: "La couverture de l'album a été modifiée avec succès.",
+                    error: "Une erreur est survenue lors de la modification de la couvreture de cet album."
+                },
+                cancel_cover_choice: "Annuler le choix de la couverture",
+                regenerate_thumbnails: "Regénérer les vignettes de cet album",
+                success: "L'album a été modifié avec succès.",
+                error: "Une erreur est survenue lors de la modification de l'album."
             }
         }
     },
@@ -79,7 +161,13 @@ var fr = {
         password: "Mot de passe"
     },
     home: {
-        title: "Accueil",
-        no_album: "Aucun album n'a été créé pour le moment !"
+        title: "Accueil"
+    },
+    photo: {
+        thumbnails: {
+            admin: {
+                cover_choice: "Choix d'une photo de couverture"
+            }
+        }
     }
 };
