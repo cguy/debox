@@ -346,6 +346,12 @@ function headerTemplateLoaded() {
         event.stopPropagation();
         /* return true if the submit is clicked, false otherwise */
         return event.target && event.target.id == "connect";
-
     });
+    var resetForm = function () {
+        $("#login p").html("").removeClass("alert alert-error");
+        $("#login :text, #login :password").val('');
+    };
+    $('#login a').on('click', resetForm);
+    $('html').on('click.dropdown.data-api', resetForm);
+
 }

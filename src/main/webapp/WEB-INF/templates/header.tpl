@@ -24,8 +24,10 @@
             <a class="dropdown-toggle" href="#login" data-toggle="dropdown">&nbsp;&nbsp;{{i18n.header.connection}} <b class="caret"></b></a>
             <ul class="dropdown-menu dropdown-form" id="login-dropdown">
                 <li>
-                    <form id="login" action="#/authenticate" method="post">
-                        <p></p>
+                    <form id="loginForm" action="#/authenticate" method="post">
+                        <div class="control-group">
+                            <p></p>
+                        </div>
                         <div class="control-group">
                             <label class="control-label" for="username">{{i18n.header.username}}</label>
                             <div class="controls">

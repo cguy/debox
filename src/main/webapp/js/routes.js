@@ -377,7 +377,7 @@ $(document).ready(function() {
         /* ******************* */
         this.post('#/authenticate', function() {
             $("#login input[type=submit]").button('loading');
-            $("#login p").html("");
+            $("#login p").html("").removeClass("alert alert-error");
             var context = this;
             
             var data = {
@@ -390,7 +390,6 @@ $(document).ready(function() {
                 data : data,
                 success: function(username) {
                     $("#connect").button('reset');
-                    $("#login p").removeClass("alert alert-error");
                     loadTemplates(function() {
                         if (location.hash && location.hash.length > 1) {
                             context.redirect(location.hash);
