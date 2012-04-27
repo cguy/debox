@@ -46,17 +46,17 @@ $(document).ready(function() {
                             createAlbum(album);
                         }
                         data.downloadUrl = computeUrl("download/album/" + data.album.id);
-                        loadTemplate("album", data, null, function() {
+                        loadTemplate("album", data.album, null, function() {
                             editTitle($("a.brand").text() + " - " + data.album.name);
                             if (photoId.length > 1) {
                                 var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
                                 if (index != -1) {
                                     var slideshowData = [];
-                                    for (var i = 0 ; i < data.photos.length ; i++) {
+                                    for (var i = 0 ; i < data.album.photos.length ; i++) {
                                         slideshowData.push({
-                                            "id" : "/album/" + data.album.id + "/" + data.photos[i].id,
-                                            "url" : data.photos[i].url,
-                                            "caption" : data.photos[i].name
+                                            "id" : "/album/" + data.album.id + "/" + data.album.photos[i].id,
+                                            "url" : data.album.photos[i].url,
+                                            "caption" : data.album.photos[i].name
                                         });
                                     }
                                     fullscreen(index, slideshowData);
@@ -69,12 +69,11 @@ $(document).ready(function() {
                 var slideshowData = [];
                 var photos = $(".photos a.thumbnail");
                 for (var i = 0 ; i < photos.length ; i++) {
-                    var img = $(photos[i]).find("img");
                     var span = $(photos[i]).find("span");
                     slideshowData.push({
                         "id" : "/album/" + this.params['album'] + "/" + photos[i].id,
                         "url" : span.text(),
-                        "caption" : img.attr("title")
+                        "caption" : $(photos[i]).attr("title")
                     });
                 }
                 fullscreen(index, slideshowData);
@@ -297,7 +296,7 @@ $(document).ready(function() {
             var tabId = this.params['tab'];
             if ($("#administration").length > 0) {
                 $(".nav-tabs a[data-target|=\"#" + tabId.substr(1) + "\"]").tab("show");
-                $("form .alert").addClass("hide");
+                $("form .alert-error, form .alert-success").addClass("hide");
                 return;
             }
             

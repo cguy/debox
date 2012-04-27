@@ -95,6 +95,7 @@ $.getDocHeight = function(){
 })();
             
 function exitFullscreen() {
+    $(document.body).removeClass("fixed");
     var elt = document.getElementById("fullscreenContainer");
     document.body.removeChild(elt);
     var controls = document.getElementById("rs-controls-slideshow-div");
@@ -114,6 +115,10 @@ function createBg() {
     var elt = document.createElement("div");
     elt.id = "slideshow-div";
     elt.className = "rs-slideshow";
+    elt.style.position = "fixed";
+    elt.style.top = "0px";
+    elt.style.left = "0px";
+    elt.style.bottom = "0px";
     elt.onclick = exitFullscreen;
 
     container.appendChild(elt);
@@ -123,6 +128,7 @@ function createBg() {
 function fullscreen(index, data) {
     var elt = createBg();
     document.body.appendChild(elt);
+    $(document.body).addClass("fixed");
     $('#slideshow-div').rsfSlideshow({
         autostart : false,
         transition: 350,
@@ -137,19 +143,14 @@ function fullscreen(index, data) {
         },
         effect: 'fade'
     });
+
     if (fullScreenApi.supportsFullScreen) {
-        document.addEventListener(fullScreenApi.fullScreenEventName, function() {
-            $('#slideshow-div').rsfSlideshow(
-                'goToSlide', index
-            );
-        }, false);
         fullScreenApi.requestFullScreen(elt);
-        
-    } else {
-        $('#slideshow-div').rsfSlideshow(
-            'goToSlide', index
-        );
     }
+
+    $('#slideshow-div').rsfSlideshow(
+        'goToSlide', index
+    );
 }
 
 jwerty.key('←', function () {

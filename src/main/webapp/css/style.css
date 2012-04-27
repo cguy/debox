@@ -23,6 +23,10 @@ body {
     background-color: #fff;
 }
 
+body.fixed {
+    position: fixed;
+}
+
 .container > footer p {
     text-align: center;
 }

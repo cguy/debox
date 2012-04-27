@@ -504,9 +504,10 @@
                                 "background":"url('" + slide.url + "') center center no-repeat",
                                 "background-size":"contain",
                                 "width":"90%",
+                                "height":"90%",
                                 "margin-left": "5%",
-                                "margin-top": Math.round(window.innerHeight * 0.05) + "px",
-                                "height": Math.round(window.innerHeight * 0.9) + "px"
+                                "margin-top": "5%"
+//                                "height": Math.round(window.innerHeight * 0.9) + "px"
                             });
                         }
                         
