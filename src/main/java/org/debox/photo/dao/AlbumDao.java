@@ -377,7 +377,7 @@ public class AlbumDao extends JdbcMysqlRealm {
         result.setParent(this.getAlbum(resultSet.getString(8), true));
         result.setVisibility(Album.Visibility.valueOf(resultSet.getString(9).toUpperCase()));
         
-        List<Photo> photos = PHOTO_DAO.getPhotos(result.getId());
+        List<Photo> photos = PHOTO_DAO.getPhotos(result.getId(), token);
         result.setPhotos(photos);
 
         String url = "album/" + result.getId() + "/cover";

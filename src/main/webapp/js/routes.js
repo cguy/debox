@@ -47,8 +47,8 @@ $(document).ready(function() {
                             var album = data.album.subAlbums[i];
                             createAlbum(album);
                         }
-                        data.downloadUrl = computeUrl("download/album/" + data.album.id);
-                        loadTemplate("album", data.album, null, function() {
+                        data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
+                        loadTemplate("album", data.album, null, function() { 
                             editTitle($("a.brand").text() + " - " + data.album.name);
                             if (photoId.length > 1) {
                                 var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));

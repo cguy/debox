@@ -49,7 +49,7 @@ function loadTemplates(callback) {
 function loadTemplate(templateId, data, selector, callback) {
     if (!templatesLoaded) {
         templatesToLoad.push({
-            "id" : tplId, 
+            "id" : templateId, 
             "data" : data, 
             "selector" : selector, 
             "callback" : callback
@@ -179,8 +179,8 @@ function loadAlbum(data, callback) {
     data.album.beginDate = beginDate.toString("dd MMMM yyyy");
     data.album.endDate = endDate.toString("dd MMMM yyyy");
                     
-    data.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
-    data.downloadUrl = computeUrl("download/album/" + data.album.id);
+    data.album.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
+    data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
     data.album.visibility = data.album.visibility == "PUBLIC";
                     
     loadTemplate("album", data.album, null, function() {

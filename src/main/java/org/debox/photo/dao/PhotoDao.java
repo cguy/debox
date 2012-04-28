@@ -147,7 +147,6 @@ public class PhotoDao extends JdbcMysqlRealm {
         Connection connection = getDataSource().getConnection();
         connection.setAutoCommit(false);
         PreparedStatement statement = null;
-        logger.debug("photos : " + photos.size());
         try {
             statement = connection.prepareStatement(SQL_CREATE_PHOTO);
             for (Photo photo : photos) {
@@ -201,10 +200,14 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
 
     public List<Photo> getPhotos(String albumId) throws SQLException {
+        return getPhotos(albumId, null);
+    }
+    
+    public List<Photo> getPhotos(String albumId, String token) throws SQLException {
         Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTOS_BY_ALBUM_ID);
         statement.setString(1, albumId);
-        List<Photo> result = executeListQueryStatement(statement, null);
+        List<Photo> result = executeListQueryStatement(statement, token);
         return result;
     }
     
