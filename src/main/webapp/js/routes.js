@@ -83,6 +83,12 @@ $(document).ready(function() {
         /* ******************** */
         /* Aministration access */
         /* ******************** */
+        this.before({except: null}, function() {
+            if (this.verb == "get" && this.path.indexOf("#/administration") == -1) {
+                delete allAlbums;
+            }
+        });
+        
         this.post('#/administration/credentials', function() {
             $("#account form input[type=submit]").button('loading');
             
@@ -223,7 +229,7 @@ $(document).ready(function() {
                     $("#tokens p.alert-warning").addClass("hide");
                     
                     var treeChildren = [];
-                    prepareDynatree(pouet, [], treeChildren, null);
+                    prepareDynatree(allAlbums, [], treeChildren, null);
                     
                     data.i18n = lang;
                     var html = templates["admin.tokens.row"].render(data, templates);
@@ -316,7 +322,7 @@ $(document).ready(function() {
                         }
                     }
                     convertVisibilityToBoolean(data.albums);
-                    pouet = data.albums;
+                    allAlbums = data.albums;
                     
                     loadTemplate("administration", data, null, function() {
                         handleAdmin();

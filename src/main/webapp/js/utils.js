@@ -46,7 +46,7 @@ function loadTemplates(callback) {
     });
 }
 
-function loadTemplate(tplId, data, selector, callback) {
+function loadTemplate(templateId, data, selector, callback) {
     if (!templatesLoaded) {
         templatesToLoad.push({
             "id" : tplId, 
@@ -57,7 +57,14 @@ function loadTemplate(tplId, data, selector, callback) {
         return;
     }
     
-    var html = applyTemplate(tplId, data);
+    if (!data) {
+        data = {};
+    }
+    
+    var html = templates[templateId].render({
+        "data" : data,
+        "i18n" : lang
+    }, templates);
     
     if (!selector) {
         selector = "body > .container-fluid";
@@ -69,20 +76,6 @@ function loadTemplate(tplId, data, selector, callback) {
     }
 }
 
-function applyTemplate(templateId, data) {
-    if (!data) {
-        data = {};
-    }
-    
-    console.log(templateId);
-    console.log(templates[templateId]);
-    var html = templates[templateId].render({
-        "data" : data,
-        "i18n" : lang
-    }, templates);
-    return html;
-}
-    
 function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
@@ -404,6 +397,26 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
 
 function initDynatree(id, children) {
     $("#" + id + " .albums-access").dynatree({
+        onSelect : function(checked, node) {
+            var parent = node.parent;
+            if (checked) {
+                while (parent != null) {
+                    $(parent.span).addClass("dynatree-selected");
+                    parent.bSelected = true;
+                    parent = parent.parent;
+                }
+            } else if ($(node.span).parent("li").find(".dynatree-selected").length > 0) {
+                $(node.span).parent("li").find(".dynatree-selected").removeClass("dynatree-selected");
+                function disableChildren(childrenArray) {
+                    if (!childrenArray) return;
+                    for (var i = 0 ; i < childrenArray.length ; i++) {
+                        childrenArray[i].bSelected = false;
+                        disableChildren(childrenArray[i].childList);
+                    }
+                }
+                disableChildren(node.childList);
+            }
+        },
         autoCollapse: false,
         persist: false,
         imagePath: "/skin-vista",
@@ -415,6 +428,6 @@ function initDynatree(id, children) {
         }, // Animations, e.g. null or { height: "toggle", duration: 200 }
         noLink: true,
         children: children,
-        debugLevel: 2
+        debugLevel: 0
     });
 }

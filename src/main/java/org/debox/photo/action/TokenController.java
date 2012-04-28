@@ -24,6 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.AlbumDao;
@@ -91,6 +93,20 @@ public class TokenController extends DeboxController {
         }
         
         if (albums != null) {
+            // Test that all albums that have accessible subAlbums are also accessible
+            List<Album> allAlbums = albumDao.getAlbums();
+            for (String accessibleAlbumId : albums) {
+                for (Album album : allAlbums) {
+                    if (accessibleAlbumId.equals(album.getId())) {
+                        if (album.getParentId() != null && !Arrays.asList(albums).contains(album.getParentId())) {
+                            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, 
+                                    "You're trying to give an access for a subAlbum without access for its parent");
+                        }
+                        break;
+                    }
+                }
+            }
+            
             token.setAlbums(null);
             for (String albumId : albums) {
                 Album album = albumDao.getAlbum(albumId);
