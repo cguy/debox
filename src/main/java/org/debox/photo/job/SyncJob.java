@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
@@ -66,6 +67,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     
     protected SynchronizationMode mode;
     protected boolean aborted = false;
+    protected boolean memoryProcessing = false;
     
     protected ExecutorService threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
     protected List<Future> imageProcesses = new ArrayList<>();
@@ -81,6 +83,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     public void run() {
         try {
             // Reset & cleaning somes resources
+            memoryProcessing = true;
             threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
             forkJoinPool = new ForkJoinPool();
             albumDateReader = null;
@@ -142,7 +145,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 return false;
             }
         }
-        return albumDateReader == null || (albumDateReader != null && albumDateReader.isTerminated());
+        boolean albumReadTaskDone = albumDateReader == null || (albumDateReader != null && albumDateReader.isTerminated());
+        return !memoryProcessing && albumReadTaskDone;
     }
     
     public long getNumberToProcess() {
@@ -185,6 +189,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         albums.clear();
         photos.clear();
         aborted = false;
+        memoryProcessing = false;
     }
 
     @Override
@@ -311,7 +316,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
         String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
-
+        
         // End of synchronise, persist data
         try {
             List<Album> albumsToSave = new ArrayList<>();
@@ -357,6 +362,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             // Ensure clear
             albums.clear();
             photos.clear();
+            
+            memoryProcessing = false;
             
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
