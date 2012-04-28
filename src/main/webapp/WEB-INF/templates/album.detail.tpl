@@ -2,8 +2,8 @@
 <ul class="thumbnails albums">
     {{#data.subAlbums}}
     <li>
-        <a class="thumbnail cover" href="#/album/{{id}}" style="background-image:url('{{coverUrl}}')">
-            <span class="container">
+        <a class="thumbnail cover" href="#/album/{{id}}">
+            <span class="picture" style="background-image:url('{{coverUrl}}')">
                 <span class="title"><span>{{name}}</span></span>
                 <span class="count">
                     {{photosCount}}

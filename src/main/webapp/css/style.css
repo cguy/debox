@@ -127,6 +127,7 @@ h1 small {
     height: 0;
     -webkit-transition: height 0.25s ease-in;
     -moz-transition: height 0.25s ease-in;
+    -o-transition: height 0.25s ease-in;
     transition: height 0.25s ease-in;
 }
 
@@ -144,6 +145,7 @@ h1 small {
     margin-top: 5px;
     -webkit-transition: margin-top 0.25s linear;
     -moz-transition: margin-top 0.25s linear;
+    -o-transition: margin-top 0.25s linear;
     transition: margin-top 0.25s linear;
 }
 
