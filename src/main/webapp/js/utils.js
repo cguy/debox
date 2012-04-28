@@ -337,7 +337,7 @@ var generationTimeout = null;
 function onBodyScroll() {
     var top = $("#top");
     if (top) {
-        if ($("html, body").scrollTop()) {
+        if ($(window).scrollTop()) {
             top.fadeIn();
         } else {
             top.fadeOut();
