@@ -21,6 +21,8 @@
 $(document).ready(function() {
     
     Sammy(function() {
+        // Comment this line to enable SammyJS logging
+        this.log = function() {}
         
         this.get('#/album/:album', function() {
             if ($("h1").attr("id") == this.params['album'] && document.getElementById("fullscreenContainer") != null) {
