@@ -254,7 +254,7 @@ public class AlbumDao extends JdbcMysqlRealm {
             statement.setString(1, parentId);
             statement.setString(2, token);
         }
-        List<Album> result = this.executeListQueryStatement(statement, token, grantedAccess, partialLoading);
+        List<Album> result = this.executeListQueryStatement(statement, token, grantedAccess);
         return result;
     }
 
@@ -390,20 +390,14 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
 
     protected List<Album> executeListQueryStatement(PreparedStatement statement, String token, boolean grantedAccess) throws SQLException {
-        return executeListQueryStatement(statement, token, grantedAccess, false);
-    }
-    
-    protected List<Album> executeListQueryStatement(PreparedStatement statement, String token, boolean grantedAccess, boolean partialLoading) throws SQLException {
         List<Album> result = new ArrayList<>();
         ResultSet resultSet = null;
         try {
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 Album album = convertAlbum(resultSet, token);
-                if (!partialLoading) {
-                    List<Album> subAlbums = getVisibleAlbums(token, album.getId(), grantedAccess, true);
-                    album.setSubAlbums(subAlbums);
-                }
+                List<Album> subAlbums = getVisibleAlbums(token, album.getId(), grantedAccess);
+                album.setSubAlbums(subAlbums);
                 result.add(album);
             }
         } finally {
