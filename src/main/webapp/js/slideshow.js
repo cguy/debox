@@ -102,9 +102,6 @@ function exitFullscreen() {
     if (controls) {
         document.body.removeChild(controls);
     }
-    if (fullScreenApi.supportsFullScreen) {
-        document.removeEventListener(fullScreenApi.fullScreenEventName);
-    }
     location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
 }
             
