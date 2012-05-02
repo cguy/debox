@@ -204,8 +204,8 @@ public class AlbumDao extends JdbcMysqlRealm {
     
     public List<Album> getAlbums() throws SQLException {
         Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
-        List<Album> result = executeListQueryStatement(statement, null, true);
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS);
+        List<Album> result = executeListQueryStatement(statement, null, true, false);
         return result;
     }
 
@@ -254,7 +254,7 @@ public class AlbumDao extends JdbcMysqlRealm {
             statement.setString(1, parentId);
             statement.setString(2, token);
         }
-        List<Album> result = this.executeListQueryStatement(statement, token, grantedAccess);
+        List<Album> result = this.executeListQueryStatement(statement, token, grantedAccess, partialLoading);
         return result;
     }
 
@@ -389,21 +389,25 @@ public class AlbumDao extends JdbcMysqlRealm {
         return result;
     }
 
-    protected List<Album> executeListQueryStatement(PreparedStatement statement, String token, boolean grantedAccess) throws SQLException {
+    protected List<Album> executeListQueryStatement(PreparedStatement statement, String token, boolean grantedAccess, boolean partialLoading) throws SQLException {
         List<Album> result = new ArrayList<>();
         ResultSet resultSet = null;
         try {
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 Album album = convertAlbum(resultSet, token);
-                List<Album> subAlbums = getVisibleAlbums(token, album.getId(), grantedAccess);
-                album.setSubAlbums(subAlbums);
                 result.add(album);
             }
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeConnection(statement.getConnection());
             JdbcUtils.closeStatement(statement);
+        }
+        if (!partialLoading) {
+            for (Album album : result) {
+                List<Album> subAlbums = getVisibleAlbums(token, album.getId(), grantedAccess, false);
+                album.setSubAlbums(subAlbums);
+            }
         }
         return result;
     }
