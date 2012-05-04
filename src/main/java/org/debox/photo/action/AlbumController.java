@@ -79,10 +79,6 @@ public class AlbumController extends DeboxController {
     }
 
     public Render getAlbumById(String albumId) throws SQLException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-        
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -91,10 +87,6 @@ public class AlbumController extends DeboxController {
     }
 
     public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException, IOException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-        
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -109,10 +101,6 @@ public class AlbumController extends DeboxController {
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-        
         if (StringUtils.isEmpty(objectId) && photoDao.getPhoto(objectId) != null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The photoId parameter must correspond with a valid photo.");
         }
@@ -189,9 +177,6 @@ public class AlbumController extends DeboxController {
     }
 
     public Render regenerateThumbnails(String albumId) throws SQLException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
 
         Album album = albumDao.getAlbum(albumId);
@@ -229,10 +214,6 @@ public class AlbumController extends DeboxController {
     }
     
     public Render getRegenerationProgress() throws SQLException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         if (regenerateThumbnailsJob == null) {
             return renderStatus(404);
         }

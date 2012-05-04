@@ -26,8 +26,6 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.model.Album;
@@ -48,11 +46,6 @@ public class TokenController extends DeboxController {
     protected static TokenDao tokenDao = new TokenDao();
 
     public Render createToken(String label) throws SQLException, UnsupportedEncodingException {
-        Subject currentUser = SecurityUtils.getSubject();
-        if (!currentUser.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "User must be logged in.");
-        }
-
         Token token = new Token();
         token.setId(StringUtils.randomUUID());
         token.setLabel(URLDecoder.decode(label, "UTF-8"));
@@ -62,11 +55,6 @@ public class TokenController extends DeboxController {
     }
     
     public Render getToken(String id) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
         Token token = tokenDao.getById(id);
         if (token == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
@@ -78,11 +66,6 @@ public class TokenController extends DeboxController {
     }
 
     public Render editToken(String id, String label, String[] albums) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
         Token token = tokenDao.getById(id);
         if (token == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
@@ -119,11 +102,6 @@ public class TokenController extends DeboxController {
     }
     
     public Render deleteToken(String id) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-        
         tokenDao.delete(id);
         return renderStatus(HttpURLConnection.HTTP_OK);
     }

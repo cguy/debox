@@ -4,6 +4,19 @@ package.filters=filter
 package.actions=action
 package.views=WEB-INF/
 
+[filters]
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION
+# -----------------------------------------------------------------------------------------------
+*           /administration                         AdministrationFilter.checkUserSession
+*           /administration/*                       AdministrationFilter.checkUserSession
+*           /token                                  AdministrationFilter.checkUserSession
+*           /token/*                                AdministrationFilter.checkUserSession
+POST        /album                                  AdministrationFilter.checkUserSession
+POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
+GET         /uploadProgress                         AdministrationFilter.checkUserSession
+*           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
+
 [actions]
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
@@ -25,7 +38,7 @@ DELETE      /session                            AdministrationController.logout
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
 GET         /album/{albumId}                    AlbumController.getAlbumById
-POST        /album                              AlbumController.editAlbum                           downloadable=false
+POST        /album/{albumId}                    AlbumController.editAlbum                           downloadable=false
 POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                     AdministrationController.getUploadProgress
 POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails

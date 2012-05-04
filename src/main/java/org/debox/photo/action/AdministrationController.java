@@ -64,12 +64,6 @@ public class AdministrationController extends DeboxController {
 
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
-
-        // Authenticating user must be a guest
-        if (currentUser.isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             currentUser.login(token);
@@ -88,13 +82,8 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
         try {
-            User user = (User) subject.getPrincipal();
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
 
             boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
             if (!oldCredentialsChecked) {
@@ -115,25 +104,15 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render logout() {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         try {
-            subject.logout();
-
+            SecurityUtils.getSubject().logout();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        return renderJSON(true);
+        return renderStatus(HttpURLConnection.HTTP_OK);
     }
 
     public Render getSyncProgress() throws SQLException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         if (syncJob == null) {
             return renderStatus(404);
         }
@@ -141,10 +120,6 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         Path source = Paths.get(sourceDirectory);
         Path target = Paths.get(targetDirectory);
 
@@ -185,10 +160,6 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render synchronize(String mode) {
-        if (!SecurityUtils.getSubject().isAuthenticated()) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
-        }
-
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
@@ -230,11 +201,6 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render cancelSynchronization() {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
         if (syncJob != null) {
             syncJob.abort();
             return renderStatus(HttpURLConnection.HTTP_OK);
@@ -243,13 +209,7 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render getData() throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
-        String username = ((User) subject.getPrincipal()).getUsername();
-
+        String username = ((User) SecurityUtils.getSubject().getPrincipal()).getUsername();
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
@@ -288,11 +248,6 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render handleThumbnailsArchive(String albumId, UploadFile file) {
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "");
-        }
-
         Album album = null;
         try {
             album = albumDao.getAlbum(albumId);
