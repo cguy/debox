@@ -49,12 +49,6 @@ CREATE TABLE IF NOT EXISTS `users` (
     `password_salt` varchar(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `visibilities` (
-    `id` VARCHAR(20) PRIMARY KEY
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
-INSERT INTO `visibilities` VALUES ('public'),('private');
-
 CREATE TABLE IF NOT EXISTS `tokens` (
     `id` VARCHAR(32) PRIMARY KEY,
     `label` VARCHAR(255) NOT NULL
@@ -74,10 +68,9 @@ CREATE TABLE IF NOT EXISTS `albums` (
     `downloadable` TINYINT(1) NOT NULL,
     `relative_path` TEXT NOT NULL,
     `parent_id` VARCHAR(32),
-    `visibility` VARCHAR(32) NOT NULL,
+    `public` TINYINT(1) NOT NULL,
     `cover` VARCHAR(32),
     FOREIGN KEY (`parent_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`visibility`) REFERENCES `visibilities`(`id`),
     FOREIGN KEY (`cover`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;

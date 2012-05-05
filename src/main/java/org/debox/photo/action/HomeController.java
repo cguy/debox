@@ -31,9 +31,11 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +51,10 @@ public class HomeController extends DeboxController {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        Subject subject = SecurityUtils.getSubject();
         String username = null;
-        if (user != null) {
+        if (SessionUtils.isLogged(subject)) {
+            User user = (User) subject.getPrincipal();
             username = user.getUsername();
         }
         
@@ -81,7 +84,7 @@ public class HomeController extends DeboxController {
                         
                         String filename = StringUtils.substringBeforeLast(child.getName(), ".");
                         String content = IOUtils.toString(fis, "UTF-8");
-                        if ((SecurityUtils.getSubject().isAuthenticated() && filename.contains("admin")) || !filename.contains("admin")) {
+                        if ((SessionUtils.isLogged(SecurityUtils.getSubject()) && filename.contains("admin")) || !filename.contains("admin")) {
                             templates.put(filename, content);
                         } else {
                             templates.put(filename, "");

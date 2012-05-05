@@ -20,15 +20,15 @@
  */
 /* Admin part */
 #albums > .thumbnails > li {
-    width: 450px;
-    height: 150px;
+    width: 300px;
+    height: 75px;
     margin: 10px;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail {
-    width: 450px;
-    height: 150px;
-    background-size: 150px 150px;
+    width: 300px;
+    height: 75px;
+    background-size: 75px 75px;
     background-repeat: no-repeat;
     background-position: 5px 5px;
     color: #333;
@@ -41,7 +41,7 @@
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail ul {
-    margin-left: 160px;
+    margin-left: 80px;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail ul li {

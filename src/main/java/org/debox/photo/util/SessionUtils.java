@@ -18,16 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-function createAlbum(album) {
-    if (!album) {
-        album = {}
-    }
-    album.hasSeveralPhotos = function() {
-        return album.photos && album.photos.length > 1;
-    }
-    album.hasSeveralTotalPhotos = function() {
-        return album.photosCount && album.photosCount > 1;
+package org.debox.photo.util;
+
+import org.apache.shiro.subject.Subject;
+
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class SessionUtils {
+
+    public static boolean isLogged(Subject subject) {
+        if (subject == null) {
+            return false;
+        }
+        return subject.isAuthenticated() || subject.isRemembered();
     }
     
-    return album;
 }

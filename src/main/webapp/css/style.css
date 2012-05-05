@@ -97,7 +97,7 @@ h1 small {
     cursor: pointer;
 }
 
-#account form, #configuration form,  #sync form {
+#account form, #configuration form,  #synchronization form {
     width: 500px;
     padding: 10px;
     border: 1px solid #ddd;
@@ -114,8 +114,8 @@ h1 small {
     width: 450px;
 }
 
-#sync form {
-    width: 560px;
+#synchronization form {
+    width: 960px;
 }
 
 #edit_album .row {
@@ -158,7 +158,7 @@ h1 small {
     margin-top: 18px;
 }
 
-#account form .form-actions, #configuration form .form-actions,  #sync form .form-actions, #edit_album form .form-actions {
+#account form .form-actions, #configuration form .form-actions,  #synchronization form .form-actions, #edit_album form .form-actions {
     margin-bottom: 0;
     text-align: right;
 }
@@ -168,7 +168,7 @@ h1 small {
     margin-right: 10px;
 }
 
-.tab-content .form-vertical, .tab-content .form-horizontal {
+#configuration .form-vertical, #synchronization .form-vertical, #account form {
     max-width: 978px;
     margin: 0 auto;
 }
@@ -226,18 +226,18 @@ p.footer {
     padding-top: 5px;
 }
 
-#administration .albums ul li .dynatree-title {
+#administration_tokens ul li .dynatree-title {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 360px;
 }
 
-#administration .albums ul li .dynatree-node.public {
+#administration_tokens ul li .dynatree-node.public {
     padding-left: 19px;
 }
 
-#administration .albums ul li .dynatree-node.public .dynatree-title {
+#administration_tokens ul li .dynatree-node.public .dynatree-title {
     color: #57a957;
     font-style: italic;
 }

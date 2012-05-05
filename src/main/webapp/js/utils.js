@@ -60,12 +60,12 @@ function loadTemplate(templateId, data, selector, callback) {
     if (!data) {
         data = {};
     }
+    data.i18n = lang;
     
-    var html = templates[templateId].render({
-        "data" : data,
-        "i18n" : lang
-    }, templates);
-    
+    if (!templates[templateId]) {
+        throw "Template \""+"\" doesn't exist.";
+    }
+    var html = templates[templateId].render(data, templates);
     if (!selector) {
         selector = "body > .container-fluid";
     }
@@ -166,10 +166,12 @@ function handleArchiveUpload() {
 
 function loadAlbum(data, callback) {
     createAlbum(data.album);
-    var subAlbums = data.album.subAlbums;
-    for (var i = 0 ; i < subAlbums.length ; i++) {
-        var album = subAlbums[i];
-        createAlbum(album);
+    var subAlbums = data.subAlbums;
+    if (subAlbums) {
+        for (var i = 0 ; i < subAlbums.length ; i++) {
+            var album = subAlbums[i];
+            createAlbum(album);
+        }
     }
                     
     var beginDate = new Date(data.album.beginDate).at("0:00am");
@@ -181,9 +183,8 @@ function loadAlbum(data, callback) {
                     
     data.album.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
     data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
-    data.album.visibility = data.album.visibility == "PUBLIC";
-                    
-    loadTemplate("album", data.album, null, function() {
+    
+    loadTemplate("album", data, null, function() {
         onBodyScroll();
         manageRegenerationProgress(data);
         editTitle($("a.brand").text() + " - " + data.album.name);
@@ -379,11 +380,11 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
             key: allAlbums[i].id, 
             isFolder: true,
             select: found,
-            hideCheckbox: allAlbums[i].visibility,
+            hideCheckbox: allAlbums[i]['public'],
             children:[]
         };
                                     
-        if (allAlbums[i].visibility) {
+        if (allAlbums[i]['public']) {
             p.addClass = "public";
             p.title += fr.administration.tokens.public_album;
         }
@@ -431,3 +432,173 @@ function initDynatree(id, children) {
         debugLevel: 0
     });
 }
+
+function loadAdministrationTab(id, data) {
+    if ($("#administration").length == 0) {
+        loadTemplate("administration", null, null, function() {
+            loadAdministrationTab(id, data);
+        });
+    } else {
+        preprocessAdministrationTabLoading(id, data);
+        loadTemplate("administration." + id, data, "#" + id, function() {
+            $(".nav-tabs a[data-target|=\"#" + id + "\"]").tab("show");
+            loadFunctions(id);
+            afterAdministrationTabLoading(id, data);
+        });
+    }
+}
+
+function preprocessAdministrationTabLoading(id, data) {
+    if (id == "albums") {
+        for (var i = 0 ; i < data.albums.length ; i++) {
+            var album = data.albums[i];
+            album = createAlbum(album);
+        }
+    }
+}
+
+function afterAdministrationTabLoading(id, data) {
+    if (id == "tokens") {
+        allAlbums = data.albums;
+                        
+        // Generates trees for tokens management
+        var tokens = data.tokens;
+        for (var tokenIndex = 0 ; tokenIndex < tokens.length ; tokenIndex++) {
+            var treeChildren = [];
+            prepareDynatree(data.albums, tokens[tokenIndex].albums, treeChildren, null);
+            initDynatree(tokens[tokenIndex].id, treeChildren);
+        }
+    }
+}
+
+function loadFunctions(partId) {
+    if (partId == "configuration") {
+        loadSettingsTabFunctions();
+    } else if (partId == "tokens") {
+        loadTokensTabFunctions();
+    }
+}
+
+function loadSettingsTabFunctions() {
+    $("#configuration .btn-danger").click(function() {
+        $(this).parents("form").find("input[type=hidden]").val(true);
+        $(this).parents("form").submit();
+    });
+}
+
+function loadTokensTabFunctions() {
+    $("#administration_tokens .albums button.show-tree").unbind('click');
+    $("#administration_tokens .albums button.show-tree").click(function() {
+        $(this).hide();
+        $(this).parents(".albums").find("span, .albums-access").show();
+        $(this).parents(".albums").find(".alert-success").hide();
+        $(this).parents(".albums").find(".alert-error").hide();
+    });
+
+    $("#administration_tokens .albums button.cancel").unbind('click');
+    $("#administration_tokens .albums button.cancel").click(function() {
+        $(this).parents(".albums").find(".alert-success").hide();
+        $(this).parents(".albums").find(".alert-error").hide();
+        $(this).parents(".albums").find(".albums-access").hide();
+        $(this).parents(".albums").find("button.btn").show();
+        $(this).parents("span").hide();
+    });
+
+    $("#administration_tokens button.edit").unbind('click');
+    $("#administration_tokens button.edit").click(function() {
+        var id = $(this).parents("tr").attr("id");
+        $.ajax({
+            url: "token/" + id,
+            success: function(data) {
+                $("#edit_token input[type=hidden]").val(data.token.id);
+                $("#edit_token #label").val(data.token.label);
+                $("#edit_token #albums option").removeAttr("selected");
+
+                for (var i = 0 ; i < data.token.albums.length ; i++) {
+                    $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+                }
+
+                $("#edit_token").modal();
+            }
+        });
+    });
+
+    // Need to refresh binding because of DOM operations
+    $("button[type=reset]").unbind('click');
+    $("button[type=reset]").click(hideModal);
+    $('form.modal').unbind('hidden');
+    $('form.modal').on('hidden', resetModalForm);
+
+    $("#administration_tokens button.delete").unbind('click');
+    $("#administration_tokens button.delete").click(function() {
+        var id = $(this).parents("tr").attr("id");
+        var name = $(this).parents("tr").find(".access_label").text();
+        $("#modal-token-delete input[type=hidden]").val(id);
+        $("#modal-token-delete p strong").text(name);
+    });
+}
+
+function handleAdmin() {
+    $("#cancel-sync").click(function() {
+        $.ajax({
+            url: "administration/sync",
+            type: "delete",
+            success: function() {
+                if (syncTimeout != null) {
+                    clearTimeout(syncTimeout);
+                    syncTimeout = null;
+                }
+                $("#sync input").removeAttr("disabled");
+                $("#cancel-sync").hide();
+                $("#sync-progress").removeClass("alert-info");
+                $("#sync-progress .progress").removeClass("progress-info active");
+                $("#sync-progress").addClass("alert-danger");
+                $("#sync-progress .progress").addClass("progress-danger");
+            },
+            error: function() {
+                alert("Erreur pendant l'annulation de la synchronisation");
+            }
+        });
+    });
+}
+    
+function manageSync(data) {
+    if (data.sync) {
+        $("#sync-progress").show();
+        $("#sync-progress").addClass("alert-info");
+        $("#sync-progress .progress").addClass("progress-info active");
+        $("#sync-progress").removeClass("alert-success alert-danger");
+        $("#sync-progress .progress").removeClass("progress-success progress-danger");
+        $("#progress-label").text("Synchronisation en cours...");
+        $("#sync input").attr("disabled", "disabled");
+        $("#cancel-sync").show();
+            
+        var refreshProgressBar = function(data) {
+            $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
+            $("#sync-progress .bar").css("width", data.percent+"%");
+            if (data.percent < 100) {
+                syncTimeout = setTimeout(getSyncStatus, 3000);
+            } else {
+                syncTimeout = null;
+                $("#sync input").removeAttr("disabled");
+                $("#sync-progress").removeClass("alert-info");
+                $("#progress-label").text("Synchronisation terminée");
+                $("#sync-progress .progress").removeClass("progress-info active");
+                $("#sync-progress").addClass("alert-success");
+                $("#sync-progress .progress").addClass("progress-success");
+                $("#cancel-sync").hide();
+            }
+        }
+                        
+        var getSyncStatus = function() {
+            $.ajax({
+                url: "administration/sync",
+                success: function(data) {
+                    refreshProgressBar(data);
+                }
+            });
+        }
+        refreshProgressBar(data.sync);
+    }
+}
+    

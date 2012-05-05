@@ -8,36 +8,44 @@ package.views=WEB-INF/
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------
-*           /administration                         AdministrationFilter.checkUserSession
-*           /administration/*                       AdministrationFilter.checkUserSession
-*           /token                                  AdministrationFilter.checkUserSession
+GET,POST    /configuration                          AdministrationFilter.checkUserSession
+
+GET         /account                                AdministrationFilter.checkUserSession
+POST        /account/*                              AdministrationFilter.checkUserSession
+
+GET         /tokens                                 AdministrationFilter.checkUserSession
+PUT,POST    /token                                  AdministrationFilter.checkUserSession
 *           /token/*                                AdministrationFilter.checkUserSession
+
+*           /administration/*                       AdministrationFilter.checkUserSession
+
 POST        /album                                  AdministrationFilter.checkUserSession
+*           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
+
 POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
 GET         /uploadProgress                         AdministrationFilter.checkUserSession
-*           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
 
 [actions]
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------
-POST        /administration/configuration       AdministrationController.editConfiguration
+GET         /configuration                      ConfigurationController.getConfiguration
+POST        /configuration                      ConfigurationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
 POST        /administration/sync                AdministrationController.synchronize
 DELETE      /administration/sync                AdministrationController.cancelSynchronization
-GET         /administration                     AdministrationController.getData
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER
 # -----------------------------------------------------------------------------------------------
-POST        /authenticate                       AdministrationController.authenticate
-POST        /administration/credentials         AdministrationController.editCredentials
-DELETE      /session                            AdministrationController.logout
+POST        /authenticate                       AccountController.authenticate
+GET         /account                            AccountController.getLoggedUser
+POST        /account/{userId}                   AccountController.editCredentials
+DELETE      /session                            AccountController.logout
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-GET         /album/{albumId}                    AlbumController.getAlbumById
 POST        /album/{albumId}                    AlbumController.editAlbum                           downloadable=false
 POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                     AdministrationController.getUploadProgress
@@ -47,6 +55,7 @@ GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerat
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - TOKENS
 # -----------------------------------------------------------------------------------------------
+GET         /tokens                             TokenController.getTokens
 PUT         /token                              TokenController.createToken
 GET         /token/{id}                         TokenController.getToken
 POST        /token                              TokenController.editToken
@@ -56,9 +65,8 @@ DELETE      /token/{id}                         TokenController.deleteToken
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
-# GET       /api/photo/{photoId}                PhotoController.displayPhoto
-GET         /api/albums                         AlbumController.getAlbums
-GET         /api/album/{id}                     AlbumController.getAlbum
+GET         /albums                             AlbumController.getAlbums
+GET         /album/{id}                         AlbumController.getAlbum
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS
@@ -73,10 +81,6 @@ GET   /photo/{photoId}                          PhotoController.getPhotoStream
 # -----------------------------------------------------------------------------------------------
 GET /download/album/{albumId}/min               AlbumController.download        resized=true
 GET /download/album/{albumId}                   AlbumController.download        resized=false
-
-# Download photo feature is not ready yet
-# GET /download/photo/{photoId}/min             PhotoController.download        resized=true
-# GET /download/photo/{photoId}                 PhotoController.download        resized=false
 
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES

@@ -22,7 +22,6 @@ package org.debox.photo.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Photo;
@@ -43,10 +42,10 @@ public class PhotoDao extends JdbcMysqlRealm {
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
     protected static String SQL_GET_ALL = "SELECT id, name, date, relative_path, album_id FROM photos";
     protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE album_id = ? ORDER BY date";
-    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR visibility = 'public') ORDER BY date";
+    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     
     protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE id = ?";
-    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR visibility = 'public') ORDER BY date";
+    protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, date, relative_path, album_id FROM photos WHERE source_path = ?";
 
     protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
@@ -188,15 +187,6 @@ public class PhotoDao extends JdbcMysqlRealm {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
-    }
-
-    public List<Photo> getVisiblePhotos(String token, String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID);
-        statement.setString(1, albumId);
-        statement.setString(2, token);
-        List<Photo> result = executeListQueryStatement(statement, token);
-        return result;
     }
 
     public List<Photo> getPhotos(String albumId) throws SQLException {

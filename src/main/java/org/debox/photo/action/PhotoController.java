@@ -32,6 +32,7 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.FileDownloadRenderer;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class PhotoController extends DeboxController {
     
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
         Photo photo;
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
@@ -69,7 +70,7 @@ public class PhotoController extends DeboxController {
 
     public Render getPhotoStream(String token, String photoId) throws IOException, SQLException {
         Photo photo;
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
@@ -90,22 +91,4 @@ public class PhotoController extends DeboxController {
         return renderStream(fis, "image/jpeg");
     }
 
-    /*
-     * TODO [cguy:2012-02-12|15:41] Handle security access for next version.
-     */
-    public Render download(String photoId, boolean resized) throws SQLException, IOException {
-        Photo photo = photoDao.getPhoto(photoId);
-        if (photo == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-        if (resized) {
-            String path = configuration.get(Configuration.Key.TARGET_PATH) + photo.getRelativePath() + File.separatorChar + ThumbnailSize.LARGE.getPrefix() + photo.getName();
-            return new FileDownloadRenderer(Paths.get(path), ThumbnailSize.LARGE.getPrefix() + photo.getName(), "image/jpeg");
-
-        } else {
-            return new FileDownloadRenderer(Paths.get(configuration.get(Configuration.Key.SOURCE_PATH) + photo.getRelativePath()), photo.getName(), "image/jpeg");
-        }
-    }
 }

@@ -30,7 +30,7 @@ $(document).ready(function() {
             }
             
             ajax({
-                url: computeUrl("api/album/" + this.params['album']),
+                url: computeUrl("album/" + this.params['album']),
                 success: loadAlbum
             });
         }),
@@ -40,7 +40,7 @@ $(document).ready(function() {
             var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
             if (index == -1) {
                 ajax({
-                    url: computeUrl("api/album/" + this.params['album']),
+                    url: computeUrl("album/" + this.params['album']),
                     success: function(data) {
                         createAlbum(data.album);
                         for (var i = 0 ; i < data.album.subAlbums.length ; i++) {
@@ -91,7 +91,7 @@ $(document).ready(function() {
             }
         });
         
-        this.post('#/administration/credentials', function() {
+        this.post('#/account/:accountId', function() {
             $("#account form input[type=submit]").button('loading');
             
             $("#account form p").addClass("hide");
@@ -99,7 +99,7 @@ $(document).ready(function() {
             $("#account form p").html("");
             
             $.ajax({
-                url: "administration/credentials",
+                url: "account/" + this.params['accountId'],
                 type : "post",
                 data : $("#account form").serializeArray(),
                 success: function(data) {
@@ -147,14 +147,14 @@ $(document).ready(function() {
             targetBtn.button("loading");
             
             $.ajax({
-                url: "administration/configuration",
+                url: "configuration",
                 type : "post",
                 data : data,
                 success: function(data) {
                     targetBtn.button("reset");
                     loadTemplate("header", {
                         "username" : $(".navbar-text.pull-right strong").html(), 
-                        "title" : data.configuration.title
+                        "title" : data.title
                     }, ".navbar .container-fluid", headerTemplateLoaded);
                     
                     if (force) {
@@ -202,15 +202,15 @@ $(document).ready(function() {
             return false;
         });
         
-        this.post('#/album', function() {
+        this.post('#/album/:albumId', function() {
             $("#alerts .edit.alert-success").fadeOut(250);
             $("#alerts .edit.alert-danger").fadeOut(250);
             $.ajax({
-                url: "album",
+                url: "album/" + this.params["albumId"],
                 type : "post",
                 data : $("#edit_album form").serializeArray(),
                 success: function(data) {
-                    data.album.inEdition = true;
+                    data.inEdition = true;
                     loadAlbum(data, function(){
                         $("#alerts .edit.alert-success").fadeIn(250);
                     });
@@ -240,7 +240,7 @@ $(document).ready(function() {
                     initDynatree(data.id, treeChildren);
                     
                     $("#form-token-create input[type=text]").val("");
-                    handleAdmin();
+                    loadFunctions("tokens");
                 }
             });
             return false;
@@ -304,6 +304,27 @@ $(document).ready(function() {
         });
         
         this.get('#/administration(/:tab)?', function() {
+            var tab = this.params["tab"];
+            if (tab) {
+                tab = tab.substr(1);
+                if (tab == "synchronization") {
+                    loadAdministrationTab("synchronization");
+                
+                } else {
+                    ajax({
+                        url: tab,
+                        success: function(data) {
+                            loadAdministrationTab(tab, data);
+                        }
+                    });
+                }
+            } else {
+                this.redirect("#/administration/configuration");
+            }
+        });
+        
+        this.get('#/administration(/:tab)?', function() {
+            return false;
             editTitle($("a.brand").text() + " - Administration");
             var tabId = this.params['tab'];
             if ($("#administration").length > 0) {
@@ -315,15 +336,6 @@ $(document).ready(function() {
             ajax({
                 url: "administration",
                 success: function(data) {
-                    function convertVisibilityToBoolean(albumsArray) {
-                        for (var i = 0 ; i < albumsArray.length ; i++) {
-                            albumsArray[i].visibility = albumsArray[i].visibility == "PUBLIC";
-                            if (albumsArray[i].subAlbums) {
-                                convertVisibilityToBoolean(albumsArray[i].subAlbums);
-                            }
-                        }
-                    }
-                    convertVisibilityToBoolean(data.albums);
                     allAlbums = data.albums;
                     
                     loadTemplate("administration", data, null, function() {
@@ -422,7 +434,7 @@ $(document).ready(function() {
         this.get('#/', function() {
             editTitle($("a.brand").text() + " - Accueil");
             ajax({
-                url: computeUrl("api/albums"),
+                url: computeUrl("albums"),
                 success: function(data) {
                     for (var i = 0 ; i < data.albums.length ; i++) {
                         var album = data.albums[i];
@@ -435,120 +447,6 @@ $(document).ready(function() {
         
     }).run("#/");
     
-    function handleAdmin() {
-        $("#cancel-sync").click(function() {
-            $.ajax({
-                url: "administration/sync",
-                type: "delete",
-                success: function() {
-                    if (syncTimeout != null) {
-                        clearTimeout(syncTimeout);
-                        syncTimeout = null;
-                    }
-                    $("#sync input").removeAttr("disabled");
-                    $("#cancel-sync").hide();
-                    $("#sync-progress").removeClass("alert-info");
-                    $("#sync-progress .progress").removeClass("progress-info active");
-                    $("#sync-progress").addClass("alert-danger");
-                    $("#sync-progress .progress").addClass("progress-danger");
-                },
-                error: function() {
-                    alert("Erreur pendant l'annulation de la synchronisation");
-                }
-            });
-        });
-        
-        $("#configuration .btn-danger").click(function() {
-            $(this).parents("form").find("input[type=hidden]").val(true);
-            $(this).parents("form").submit();
-        });
-        
-        $("#administration_tokens .albums button.show-tree").click(function() {
-            $(this).hide();
-            $(this).parents(".albums").find("span, .albums-access").show();
-            $(this).parents(".albums").find(".alert-success").hide();
-            $(this).parents(".albums").find(".alert-error").hide();
-        });
-        
-        $("#administration_tokens .albums button.cancel").click(function() {
-            $(this).parents(".albums").find(".alert-success").hide();
-            $(this).parents(".albums").find(".alert-error").hide();
-            $(this).parents(".albums").find(".albums-access").hide();
-            $(this).parents(".albums").find("button.btn").show();
-            $(this).parents("span").hide();
-        });
-        
-        $("#administration_tokens button.edit").click(function() {
-            var id = $(this).parents("tr").attr("id");
-            $.ajax({
-                url: "token/" + id,
-                success: function(data) {
-                    $("#edit_token input[type=hidden]").val(data.token.id);
-                    $("#edit_token #label").val(data.token.label);
-                    $("#edit_token #albums option").removeAttr("selected");
-            
-                    for (var i = 0 ; i < data.token.albums.length ; i++) {
-                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
-                    }
-        
-                    $("#edit_token").modal();
-                }
-            });
-        });
-        
-        // Need to refresh binding because of DOM operations
-        $("button[type=reset]").click(hideModal);
-        $('form.modal').on('hidden', resetModalForm);
-        
-        $("#administration_tokens button.delete").click(function() {
-            var id = $(this).parents("tr").attr("id");
-            var name = $(this).parents("tr").find(".access_label").text();
-            $("#modal-token-delete input[type=hidden]").val(id);
-            $("#modal-token-delete p strong").text(name);
-        });
-        
-    } // End handleAdmin function
-    
-    function manageSync(data) {
-        if (data.sync) {
-            $("#sync-progress").show();
-            $("#sync-progress").addClass("alert-info");
-            $("#sync-progress .progress").addClass("progress-info active");
-            $("#sync-progress").removeClass("alert-success alert-danger");
-            $("#sync-progress .progress").removeClass("progress-success progress-danger");
-            $("#progress-label").text("Synchronisation en cours...");
-            $("#sync input").attr("disabled", "disabled");
-            $("#cancel-sync").show();
-            
-            var refreshProgressBar = function(data) {
-                $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
-                $("#sync-progress .bar").css("width", data.percent+"%");
-                if (data.percent < 100) {
-                    syncTimeout = setTimeout(getSyncStatus, 3000);
-                } else {
-                    syncTimeout = null;
-                    $("#sync input").removeAttr("disabled");
-                    $("#sync-progress").removeClass("alert-info");
-                    $("#progress-label").text("Synchronisation terminée");
-                    $("#sync-progress .progress").removeClass("progress-info active");
-                    $("#sync-progress").addClass("alert-success");
-                    $("#sync-progress .progress").addClass("progress-success");
-                    $("#cancel-sync").hide();
-                }
-            }
-                        
-            var getSyncStatus = function() {
-                $.ajax({
-                    url: "administration/sync",
-                    success: function(data) {
-                        refreshProgressBar(data);
-                    }
-                });
-            }
-            refreshProgressBar(data.sync);
-        }
-    }
-
 });
 
 var syncTimeout = null;

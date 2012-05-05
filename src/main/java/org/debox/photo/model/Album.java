@@ -21,7 +21,6 @@
 package org.debox.photo.model;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,14 +39,19 @@ public class Album implements Comparable<Album> {
     protected Date endDate;
     protected int photosCount;
     protected String relativePath;
-    protected Album parent;
-    protected Visibility visibility;
+    protected String parentId;
     protected String coverUrl;
+    protected boolean isPublic;
     protected boolean downloadable;
-    protected List<Photo> photos;
-    protected List<Album> subAlbums;
-    
 
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+    
     public boolean isDownloadable() {
         return downloadable;
     }
@@ -104,37 +108,6 @@ public class Album implements Comparable<Album> {
         this.name = name;
     }
 
-    public Album getParent() {
-        return parent;
-    }
-
-    public void setParent(Album parent) {
-        this.parent = parent;
-    }
-
-    public List<Photo> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-    }
-
-    public List<Album> getSubAlbums() {
-        return subAlbums;
-    }
-
-    public void setSubAlbums(List<Album> subAlbums) {
-        this.subAlbums = subAlbums;
-    }
-    
-    public String getParentId() {
-        if (this.parent != null) {
-            return this.parent.getId();
-        }
-        return null;
-    }
-    
     public String getRelativePath() {
         return relativePath;
     }
@@ -143,14 +116,14 @@ public class Album implements Comparable<Album> {
         this.relativePath = relativePath;
     }
 
-    public Visibility getVisibility() {
-        return visibility;
+    public boolean isPublic() {
+        return isPublic;
     }
 
-    public void setVisibility(Visibility visibility) {
-        this.visibility = visibility;
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
-    
+
     @Override
     public boolean equals(Object object) {
         if (object == this) {

@@ -4,21 +4,21 @@
     <span class="icon-bar"></span> 
 </a>
 
-{{#data.title}}<a class="brand" href="#/">{{data.title}}</a>{{/data.title}}
+{{#title}}<a class="brand" href="#/">{{title}}</a>{{/title}}
 
 <div class="nav-collapse">
     <ul class="nav">
         <li><a href="#/"><i class="icon-home icon-white"></i>&nbsp;&nbsp;{{i18n.header.album_list}}</a></li>
-        {{#data.username}}
+        {{#username}}
         <li><a href="#/administration"><i class="icon-cogs icon-white"></i>&nbsp;&nbsp;{{i18n.header.administration}}</a></li>
-        {{/data.username}}
+        {{/username}}
     </ul>
-    {{#data.username}}
+    {{#username}}
     <p class="navbar-text pull-right">
-        <i class="icon-user icon-white"></i>&nbsp;&nbsp;<strong>{{data.username}}</strong> (<a href="#/logout">{{i18n.header.disconnection}}</a>)
+        <i class="icon-user icon-white"></i>&nbsp;&nbsp;<strong>{{username}}</strong> (<a href="#/logout">{{i18n.header.disconnection}}</a>)
     </p>
-    {{/data.username}}
-    {{^data.username}}
+    {{/username}}
+    {{^username}}
     <ul class="nav pull-right">
         <li class="dropdown" id="login">
             <a class="dropdown-toggle" href="#login" data-toggle="dropdown">&nbsp;&nbsp;{{i18n.header.connection}} <b class="caret"></b></a>
@@ -47,6 +47,6 @@
                 </li>
             </ul>
         </li>
-        {{/data.username}}
     </ul>
+    {{/username}}
 </div>

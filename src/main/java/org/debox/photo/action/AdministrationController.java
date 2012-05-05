@@ -23,7 +23,6 @@ package org.debox.photo.action;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -31,14 +30,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
-import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
@@ -59,58 +52,7 @@ public class AdministrationController extends DeboxController {
     protected SyncJob syncJob;
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
-    protected static UserDao userDao = new UserDao();
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
-
-    public Render authenticate(String username, String password) {
-        Subject currentUser = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-        try {
-            currentUser.login(token);
-
-        } catch (UnknownAccountException | IncorrectCredentialsException e) {
-            logger.error(e.getMessage(), e);
-            return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
-
-        } catch (AuthenticationException e) {
-            logger.error(e.getMessage(), e);
-            return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
-        }
-
-        User user = (User) currentUser.getPrincipal();
-        return renderJSON(user.getUsername());
-    }
-
-    public Render editCredentials(String id, String username, String oldPassword, String password, String confirm) {
-        try {
-            User user = (User) SecurityUtils.getSubject().getPrincipal();
-
-            boolean oldCredentialsChecked = userDao.checkCredentials(user.getUsername(), oldPassword);
-            if (!oldCredentialsChecked) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
-            }
-
-            user.setUsername(username);
-            user.setPassword(password);
-
-            userDao.save(user);
-
-            return renderJSON("username", username);
-
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
-        }
-    }
-
-    public Render logout() {
-        try {
-            SecurityUtils.getSubject().logout();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return renderStatus(HttpURLConnection.HTTP_OK);
-    }
 
     public Render getSyncProgress() throws SQLException {
         if (syncJob == null) {
@@ -118,47 +60,7 @@ public class AdministrationController extends DeboxController {
         }
         return renderJSON(getSyncData());
     }
-
-    public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
-        Path source = Paths.get(sourceDirectory);
-        Path target = Paths.get(targetDirectory);
-
-        boolean error = false;
-        if (!Files.isDirectory(source)) {
-            getContext().addErrorMessage("source", "source.notdirectory");
-            error = true;
-        }
-
-        if (!Files.exists(source)) {
-            getContext().addErrorMessage("source", "source.notexist");
-            error = true;
-        }
-
-        if (source.equals(target)) {
-            getContext().addErrorMessage("path", "paths.equals");
-            error = true;
-        }
-
-        if (StringUtils.isEmpty(title)) {
-            getContext().addErrorMessage("name", "isEmpty");
-            error = true;
-        }
-
-        if (error) {
-            return renderStatus(500);
-        }
-
-        getContext().addInfoMessage("success", "configuration.edit.success");
-
-        Configuration configuration = new Configuration();
-        configuration.set(Configuration.Key.SOURCE_PATH, sourceDirectory);
-        configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
-        configuration.set(Configuration.Key.TITLE, title);
-        ApplicationContext.getInstance().saveConfiguration(configuration);
-
-        return renderJSON("configuration", configuration.get());
-    }
-
+    
     public Render synchronize(String mode) {
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {

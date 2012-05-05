@@ -24,8 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.model.Album;
@@ -54,6 +52,10 @@ public class TokenController extends DeboxController {
         return renderJSON(token);
     }
     
+    public Render getTokens() throws SQLException {
+        return renderJSON("tokens", tokenDao.getAll(), "albums", albumDao.getVisibleAlbums(null, null, true));
+    }
+    
     public Render getToken(String id) throws SQLException {
         Token token = tokenDao.getById(id);
         if (token == null) {
@@ -61,7 +63,7 @@ public class TokenController extends DeboxController {
         }
 
         return renderJSON(
-                "albums", albumDao.getAlbums(),
+                "albums", albumDao.getVisibleAlbums(null, null, true),
                 "token", token);
     }
 
@@ -77,18 +79,19 @@ public class TokenController extends DeboxController {
         
         if (albums != null) {
             // Test that all albums that have accessible subAlbums are also accessible
-            List<Album> allAlbums = albumDao.getAlbums();
-            for (String accessibleAlbumId : albums) {
-                for (Album album : allAlbums) {
-                    if (accessibleAlbumId.equals(album.getId())) {
-                        if (album.getParentId() != null && !Arrays.asList(albums).contains(album.getParentId())) {
-                            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, 
-                                    "You're trying to give an access for a subAlbum without access for its parent");
-                        }
-                        break;
-                    }
-                }
-            }
+            // TODO [cguy:2012-05-05] Rewrite this code
+//            List<Album> allAlbums = albumDao.getAlbums();
+//            for (String accessibleAlbumId : albums) {
+//                for (Album album : allAlbums) {
+//                    if (accessibleAlbumId.equals(album.getId())) {
+//                        if (album.getParentId() != null && !Arrays.asList(albums).contains(album.getParentId())) {
+//                            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, 
+//                                    "You're trying to give an access for a subAlbum without access for its parent");
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
             
             token.setAlbums(null);
             for (String albumId : albums) {

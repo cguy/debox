@@ -1,8 +1,8 @@
 <h1 class="page-header">{{i18n.home.title}}</h1>
 
-{{#data.albums.length}}
+{{#albums.length}}
 <ul class="thumbnails albums">
-    {{#data.albums}}
+    {{#albums}}
     <li>
         <a class="thumbnail cover" href="#/album/{{id}}">
             <span class="picture" style="background-image:url('{{coverUrl}}')">
@@ -15,9 +15,9 @@
             </span>
         </a>
     </li>
-    {{/data.albums}}
+    {{/albums}}
 </ul>
-{{/data.albums.length}}
-{{^data.albums}}
+{{/albums.length}}
+{{^albums}}
     <p class="alert"><strong>{{i18n.common.warning}}: </strong>{{i18n.common.no_album}}</p>
-{{/data.albums}}
+{{/albums}}

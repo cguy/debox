@@ -22,6 +22,7 @@ package org.debox.photo.filter;
 
 import java.net.HttpURLConnection;
 import org.apache.shiro.SecurityUtils;
+import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.WebMotionFilter;
 import org.debux.webmotion.server.render.Render;
 
@@ -31,7 +32,7 @@ import org.debux.webmotion.server.render.Render;
 public class AdministrationFilter extends WebMotionFilter {
 
     public Render checkUserSession() {
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             doProcess();
             return null;
         }

@@ -42,6 +42,7 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -59,15 +60,15 @@ public class AlbumController extends DeboxController {
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     public Render getAlbums(String token) throws SQLException {
-        boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
-        List<Album> albums = albumDao.getVisibleAlbums(token, null, isAuthenticated);
+        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
+        List<Album> albums = albumDao.getVisibleAlbums(token, null, authenticated);
         return renderJSON("albums", albums);
     }
 
     public Render getAlbum(String token, String id) throws IOException, SQLException {
-        boolean isAuthenticated = SecurityUtils.getSubject().isAuthenticated();
+        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
         Album album;
-        if (isAuthenticated) {
+        if (authenticated) {
             album = albumDao.getAlbum(id);
         } else {
             album = albumDao.getVisibleAlbum(token, id);
@@ -75,25 +76,22 @@ public class AlbumController extends DeboxController {
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        return renderJSON("album", album, "regeneration", getRegenerationData());
+        
+        List<Album> subAlbums = albumDao.getVisibleAlbums(token, album.getId(), authenticated);
+        List<Photo> photos = photoDao.getPhotos(id, token);
+        Album parent = albumDao.getAlbum(album.getParentId());
+        
+        return renderJSON("album", album, "albumParent", parent, "subAlbums", subAlbums, "photos", photos, "regeneration", getRegenerationData());
     }
 
-    public Render getAlbumById(String albumId) throws SQLException {
+    public Render editAlbum(String albumId, String name, String visibility, boolean downloadable) throws SQLException, IOException {
         Album album = albumDao.getAlbum(albumId);
-        if (album == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        return renderJSON(album);
-    }
-
-    public Render editAlbum(String id, String name, String visibility, boolean downloadable) throws SQLException, IOException {
-        Album album = albumDao.getAlbum(id);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
         album.setName(name);
-        album.setVisibility(Album.Visibility.valueOf(visibility.toUpperCase()));
+        album.setPublic(Boolean.parseBoolean(visibility));
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
@@ -120,7 +118,7 @@ public class AlbumController extends DeboxController {
 
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         Photo photo;
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = albumDao.getAlbumCover(albumId);
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
@@ -151,7 +149,8 @@ public class AlbumController extends DeboxController {
 
     public Render download(String token, String albumId, boolean resized) throws SQLException {
         Album album;
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
+        if (authenticated) {
             album = albumDao.getAlbum(albumId);
         } else {
             album = albumDao.getVisibleAlbum(token, albumId);
@@ -160,7 +159,7 @@ public class AlbumController extends DeboxController {
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
 
-        } else if (!album.isDownloadable() && !SecurityUtils.getSubject().isAuthenticated()) {
+        } else if (!album.isDownloadable() && !authenticated) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 

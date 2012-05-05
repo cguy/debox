@@ -1,66 +1,81 @@
-<h1 id="{{data.id}}" class="page-header">
-    <a href="#/album/{{data.id}}">{{data.name}}</a>
+<h1 id="{{album.id}}" class="page-header">
+    <a href="#/album/{{album.id}}">{{album.name}}</a>
     <small>
-        {{data.photosCount}}
-        {{#data.hasSeveralTotalPhotos}}
+        {{album.photosCount}}
+        {{#album.hasSeveralTotalPhotos}}
             {{i18n.common.photos}}
-        {{/data.hasSeveralTotalPhotos}}
-        {{^data.hasSeveralTotalPhotos}}
+        {{/album.hasSeveralTotalPhotos}}
+        {{^album.hasSeveralTotalPhotos}}
             {{i18n.common.photo}}
-        {{/data.hasSeveralTotalPhotos}}
+        {{/album.hasSeveralTotalPhotos}}
         
-        {{#data.isInterval}}
-            {{i18n.album.from_date}} {{data.beginDate}} {{i18n.album.to_date}} {{data.endDate}}
-        {{/data.isInterval}}
-        {{^data.isInterval}}
-            {{i18n.album.on_date}} {{data.beginDate}}
-        {{/data.isInterval}}
+        {{#album.isInterval}}
+            {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
+        {{/album.isInterval}}
+        {{^album.isInterval}}
+            {{i18n.album.on_date}} {{album.beginDate}}
+        {{/album.isInterval}}
     </small>
 </h1>
 
 <div class="btn-toolbar" style="margin-top: 18px;">
     <div class="btn-group">
-    {{#data.parent}}
-        <a href="#/album/{{data.parent.id}}" class="btn"><i class="icon-list-alt"></i>&nbsp;{{i18n.album.back2album}}: {{data.parent.name}}</a>
-    {{/data.parent}}
-    {{^data.parent}}
+    {{#albumParent}}
+        <a href="#/album/{{albumParent.id}}" class="btn"><i class="icon-list-alt"></i>&nbsp;{{i18n.album.back2album}}: {{albumParent.name}}</a>
+    {{/albumParent}}
+    {{^albumParent}}
         <a href="#/" class="btn"><i class="icon-list-alt"></i>&nbsp;{{i18n.album.back2albums}}</a>
-    {{/data.parent}}
+    {{/albumParent}}
     </div>
-    {{#data.photos.length}}{{#data.downloadable}}
+    {{#photos.length}}{{#album.downloadable}}
     <div class="btn-group">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-download"></i>&nbsp;{{i18n.album.download}}&nbsp;<span class="caret"></span></a>
         <ul class="dropdown-menu">
-            <li><a target="_blank" href="{{data.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>
-            <li><a target="_blank" href="{{data.downloadUrl}}">{{i18n.album.original_size}}</a></li>
+            <li><a target="_blank" href="{{album.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>
+            <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>
         </ul>
     </div>
-    {{/data.downloadable}}{{/data.photos.length}}
+    {{/album.downloadable}}{{/photos.length}}
     {{> album.admin.edit}}
 </div>
 
 <hr style="clear:both;" />
 
 <div id="photos">
-    {{#data.subAlbums.length}}
-        {{#data.photos.length}}<h2>{{i18n.album.subalbums}}</h2>{{/data.photos.length}}
-        {{> album.detail}}
-    {{/data.subAlbums.length}}
+    {{#subAlbums.length}}
+        {{#photos.length}}<h2>{{i18n.album.subalbums}}</h2>{{/photos.length}}
+        <ul class="thumbnails albums">
+            {{#subAlbums}}
+            <li>
+                <a class="thumbnail cover" href="#/album/{{id}}">
+                    <span class="picture" style="background-image:url('{{coverUrl}}')">
+                        <span class="title"><span>{{name}}</span></span>
+                        <span class="count">
+                            {{photosCount}}
+                            {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
+                            {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
+                        </span>
+                    </span>
+                </a>
+            </li>
+            {{/subAlbums}}
+        </ul>
+    {{/subAlbums.length}}
 
-    {{#data.photos.length}}
-        {{#data.subAlbums.length}}
-            <h2>{{data.photos.length}} 
-                {{#data.hasSeveralPhotos}}{{i18n.common.photos}}{{/data.hasSeveralPhotos}}
-                {{^data.hasSeveralPhotos}}{{i18n.common.photo}}{{/data.hasSeveralPhotos}}
-            </h2>{{/data.subAlbums.length}}
+    {{#photos.length}}
+        {{#subAlbums.length}}
+            <h2>{{photos.length}} 
+                {{#hasSeveralPhotos}}{{i18n.common.photos}}{{/hasSeveralPhotos}}
+                {{^hasSeveralPhotos}}{{i18n.common.photo}}{{/hasSeveralPhotos}}
+            </h2>{{/subAlbums.length}}
         {{> photo.thumbnails}}
-    {{/data.photos.length}}
+    {{/photos.length}}
 
-    {{^data.subAlbums}}
-    {{^data.photos}}
+    {{^subAlbums}}
+    {{^photos}}
     <p class="alert alert-danger">{{i18n.album.no_photos}}</p>
-    {{/data.photos}}
-    {{/data.subAlbums}}
+    {{/photos}}
+    {{/subAlbums}}
 </div>
 <div id="cover-photos" class="hide">
     {{> photo.thumbnails.admin}}
