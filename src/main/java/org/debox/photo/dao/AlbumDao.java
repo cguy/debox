@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AlbumDao extends JdbcMysqlRealm {
+public class AlbumDao {
     
     private static final Logger logger = LoggerFactory.getLogger(AlbumDao.class);
     
@@ -98,7 +99,7 @@ public class AlbumDao extends JdbcMysqlRealm {
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)";
     
     public void save(List<Album> albums) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
         PreparedStatement statement = null;
         
@@ -133,7 +134,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
     public void save(Album album) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         String id = album.getId();
         if (id == null) {
             id = StringUtils.randomUUID();
@@ -164,7 +165,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
     public void delete(Album album) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_DELETE_ALBUM);
@@ -178,7 +179,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
     public Album getVisibleAlbum(String token, String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID);
         statement.setString(1, albumId);
         statement.setString(2, token);
@@ -187,7 +188,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
     public Album getAlbum(String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_ID);
         statement.setString(1, albumId);
         Album result = executeSingleQueryStatement(statement, null);
@@ -195,36 +196,14 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
      public List<Album> getAlbums() throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
         List<Album> result = executeListQueryStatement(statement, null);
         return result;
     }
 
-    public List<String> getSubAlbumsId(String parentId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_CHILDREN_ID);
-        statement.setString(1, parentId);
-        
-        List<String> result = new ArrayList<>();
-        ResultSet resultSet = null;
-        try {
-            resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String id = resultSet.getString(1);
-                result.add(id);
-                result.addAll(getSubAlbumsId(id));
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeConnection(statement.getConnection());
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
-    }
-    
     public List<Album> getVisibleAlbums(String token, String parentId, boolean grantedAccess) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement;
         if (parentId == null && grantedAccess) {
             statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS);
@@ -246,14 +225,6 @@ public class AlbumDao extends JdbcMysqlRealm {
         return result;
     }
 
-    public Album getAlbumBySourcePath(String sourcePath) throws SQLException {
-        Connection connection = getDataSource().getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_SOURCE_PATH);
-        statement.setString(1, sourcePath);
-        Album result = executeSingleQueryStatement(statement, null);
-        return result;
-    }
-
     public String setAlbumCover(String albumId, String photoId) throws SQLException {
         //if no photo id is given, then get a random photo
         if (StringUtils.isEmpty(photoId)) {
@@ -266,7 +237,7 @@ public class AlbumDao extends JdbcMysqlRealm {
             photoId = cover.getId();
         }
         
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_UPDATE_ALBUM_COVER);
@@ -288,7 +259,7 @@ public class AlbumDao extends JdbcMysqlRealm {
      * @throws SQLException
      */
     protected String getRandomSubAlbumId(String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         String subAlbumId = null;
         try {
@@ -314,7 +285,7 @@ public class AlbumDao extends JdbcMysqlRealm {
      * @throws SQLException
      */
     protected String getRandomAlbumPhoto(String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         String photoId = null;
         try {
@@ -333,7 +304,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
 
     public Photo getAlbumCover(String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_COVER);
         statement.setString(1, albumId);
         Photo result = PhotoDao.executeSingleQueryStatement(statement, null);
@@ -345,7 +316,7 @@ public class AlbumDao extends JdbcMysqlRealm {
     }
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
         statement.setString(1, albumId);
         statement.setString(2, token);

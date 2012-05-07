@@ -26,10 +26,10 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.JdbcMysqlRealm;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.User;
+import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
-        ComboPooledDataSource dataSource = JdbcMysqlRealm.getDataSource();
+        ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
         if (dataSource != null) {
             dataSource.close();
         }

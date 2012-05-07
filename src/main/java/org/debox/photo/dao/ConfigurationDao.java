@@ -27,11 +27,12 @@ import java.sql.SQLException;
 import java.util.Map.Entry;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.util.DatabaseUtils;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ConfigurationDao extends JdbcMysqlRealm {
+public class ConfigurationDao {
 
     protected static final String SQL_GET_CONFIGURATION = "SELECT `key`, `value` FROM configurations";
     protected static final String SQL_SET_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?";
@@ -39,7 +40,7 @@ public class ConfigurationDao extends JdbcMysqlRealm {
     public Configuration get() throws SQLException {
         Configuration configuration = new Configuration();
         
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_GET_CONFIGURATION);
@@ -56,7 +57,7 @@ public class ConfigurationDao extends JdbcMysqlRealm {
     }
     
     public void save(Configuration applicationConfiguration) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_SET_CONFIGURATION);

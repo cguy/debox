@@ -45,6 +45,7 @@
                 // Load templates before enable application routing
                 loadTemplates();
                 $(".footer").html(lang.footer);
+                $("#loading").text(lang.common.loading);
             });
         </script>
         <script src="js/routes.js"></script>
@@ -65,11 +66,13 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="container-fluid">
             <!-- Fill in with loadTemplate(...); call -->
         </div>
         <p class="footer">
         </p>
+
+        <div id="loading"></div>
     </body>
 </html>

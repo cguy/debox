@@ -32,11 +32,12 @@
     background-repeat: no-repeat;
     background-position: 5px 5px;
     color: #333;
+    background-color: #fefefe;
+    border-color: #ccc;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail:hover {
     margin: 0;
-    background-color: #ddd;
     text-decoration: none;
 }
 
@@ -99,7 +100,7 @@
 }
 
 .thumbnails > li > .thumbnail:hover {
-    z-index: 100;
+    z-index: 10;
     
     margin-top: -15px;
     margin-left: -15px;

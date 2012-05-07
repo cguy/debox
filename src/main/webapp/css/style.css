@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
- */
+*/
 body {
     padding-top: 40px;
     background-color: #fff;
@@ -25,6 +25,37 @@ body {
 
 body.fixed {
     position: fixed;
+}
+
+#loading {
+    position: fixed;
+    top:0;
+    left: 50%;
+
+    width: 190px;
+    height: 30px;
+    line-height: 30px;
+    
+    margin-left: -110px;
+    padding: 0 10px 0 20px; 
+
+    z-index: 1050; /* must be greater than 1030, navbar z-index */
+
+    background: url('../img/loader-screen.gif') 10px center no-repeat rgba(245, 245, 245, .5);
+
+    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+
+    border: 1px solid #ccc;
+    border-top: none;
+
+    text-align: center;
+    font-size: 14px;
+    color: #fefefe;
 }
 
 .container > footer p {

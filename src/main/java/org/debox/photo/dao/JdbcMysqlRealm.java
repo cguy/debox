@@ -20,21 +20,16 @@
  */
 package org.debox.photo.dao;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.util.JdbcUtils;
 import org.apache.shiro.util.SimpleByteSource;
 import org.debox.photo.model.User;
+import org.debox.photo.util.DatabaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,55 +40,14 @@ public class JdbcMysqlRealm extends JdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
     
-    protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     protected static final String DEFAULT_SALTED_AUTHENTICATION_QUERY = "select password, password_salt, id from users where username = ?";
-    protected static final String PROPERTY_DATABASE_HOST = "database.host";
-    protected static final String PROPERTY_DATABASE_PORT = "database.port";
-    protected static final String PROPERTY_DATABASE_NAME = "database.name";
-    protected static final String PROPERTY_DATABASE_USERNAME = "database.username";
-    protected static final String PROPERTY_DATABASE_PASSWORD = "database.password";
-    protected static final String PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD = "database.idle.connection.test.period";
-    protected static final String PROPERTY_DATABASE_PREFERED_TEST_QUERY = "database.prefered.test.query";
-    
-    protected static ComboPooledDataSource comboPooledDataSource;
 
     public JdbcMysqlRealm() {
-        this.setDataSource(getDataSource());
+        this.setDataSource(DatabaseUtils.getDataSource());
         this.setAuthenticationQuery(DEFAULT_SALTED_AUTHENTICATION_QUERY);
         this.setSaltStyle(SaltStyle.COLUMN);
     }
 
-    public static synchronized ComboPooledDataSource getDataSource() {
-        if (comboPooledDataSource == null) {
-            try {
-                Properties properties = new Properties();
-                properties.load(JdbcMysqlRealm.class.getClassLoader().getResourceAsStream("application.properties"));
-                
-                comboPooledDataSource = new ComboPooledDataSource();
-                comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
-                
-                String host = properties.getProperty(PROPERTY_DATABASE_HOST);
-                String port = properties.getProperty(PROPERTY_DATABASE_PORT);
-                String name = properties.getProperty(PROPERTY_DATABASE_NAME);
-                String user = properties.getProperty(PROPERTY_DATABASE_USERNAME);
-                String password = properties.getProperty(PROPERTY_DATABASE_PASSWORD);
-                Integer period = Integer.valueOf(properties.getProperty(PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD));
-                String testQuery = properties.getProperty(PROPERTY_DATABASE_PREFERED_TEST_QUERY);
-                
-                String url = "jdbc:mysql://" + host + ':' + port + '/' + name;
-                comboPooledDataSource.setJdbcUrl(url);
-                comboPooledDataSource.setUser(user);
-                comboPooledDataSource.setPassword(password);
-                comboPooledDataSource.setIdleConnectionTestPeriod(period);
-                comboPooledDataSource.setPreferredTestQuery(testQuery);
-                
-            } catch (IOException | PropertyVetoException ex) {
-                logger.error(ex.getMessage(), ex);
-            }
-        }
-        return comboPooledDataSource;
-    }
-    
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;

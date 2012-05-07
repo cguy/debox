@@ -29,11 +29,12 @@ import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Token;
+import org.debox.photo.util.DatabaseUtils;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class TokenDao extends JdbcMysqlRealm {
+public class TokenDao {
 
     protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?) ON DUPLICATE KEY UPDATE label = ?";
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
@@ -53,7 +54,7 @@ public class TokenDao extends JdbcMysqlRealm {
             + "WHERE tokens.id = ? ORDER BY label, tokens.id";
 
     public void save(Token token) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_CREATE);
@@ -82,7 +83,7 @@ public class TokenDao extends JdbcMysqlRealm {
     
     public Token getById(String id) throws SQLException {
         Token result = null;
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -117,7 +118,7 @@ public class TokenDao extends JdbcMysqlRealm {
 
     public List<Token> getAll() throws SQLException {
         List<Token> result = new ArrayList<>();
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -154,7 +155,7 @@ public class TokenDao extends JdbcMysqlRealm {
     }
     
     public void delete(String id) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_DELETE);

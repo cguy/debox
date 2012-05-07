@@ -74,6 +74,10 @@ function loadTemplate(templateId, data, selector, callback) {
     if (callback) {
         callback();
     }
+    
+    if (templateId != "header") {
+        setTimeout('$("#loading").addClass("hide");', 150);
+    }
 }
 
 function ajax(object) {
@@ -95,6 +99,7 @@ function ajax(object) {
             }
         }
     }
+    $("#loading").removeClass("hide");
     $.ajax(object);
 }
     

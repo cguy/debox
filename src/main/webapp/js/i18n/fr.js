@@ -21,6 +21,7 @@
 var fr = {
     common: {
         warning: "Attention",
+        loading : "Chargement en cours ...",
         back2home: "Retour à l'accueil",
         photo: "photo",
         photos: "photos",

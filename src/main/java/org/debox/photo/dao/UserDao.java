@@ -24,23 +24,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.User;
+import org.debox.photo.util.DatabaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class UserDao extends JdbcMysqlRealm {
+public class UserDao {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
+    
+    protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
@@ -52,7 +53,8 @@ public class UserDao extends JdbcMysqlRealm {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = dataSource.getConnection();
+      
+            connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_GET_USERS_COUNT);
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -75,7 +77,7 @@ public class UserDao extends JdbcMysqlRealm {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            connection = dataSource.getConnection();
+            connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_CREATE_USER);
             statement.setString(1, user.getId());
             statement.setString(2, user.getUsername());
@@ -90,21 +92,6 @@ public class UserDao extends JdbcMysqlRealm {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
-    }
-    
-    public boolean checkCredentials(String username, String password) throws SQLException {
-        boolean result = false;
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-        
-        try {
-            SecurityUtils.getSecurityManager().authenticate(token);
-            result = true;
-            
-        } catch (UnknownAccountException | IncorrectCredentialsException e) {
-            logger.error(e.getMessage());
-        }
-        
-        return result;
     }
     
 }

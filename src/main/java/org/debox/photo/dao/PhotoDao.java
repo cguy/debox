@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class PhotoDao extends JdbcMysqlRealm {
+public class PhotoDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
@@ -52,7 +53,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
     
     public void savePhotoGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_INSERT_PHOTO_GENERATION);
@@ -71,7 +72,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     public long getGenerationTime(String id, ThumbnailSize size) throws SQLException {
         long result = -1;
 
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -92,7 +93,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
     
     public List<Photo> getAll() throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALL);
         List<Photo> result = executeListQueryStatement(statement, null);
         return result;
@@ -101,7 +102,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     public Photo getPhotoBySourcePath(String sourcePath) throws SQLException {
         Photo result = null;
 
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -143,7 +144,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
 
     public void save(List<Photo> photos) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
         PreparedStatement statement = null;
         try {
@@ -172,7 +173,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
     
     public void delete(List<Photo> photos) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
         PreparedStatement statement = null;
         try {
@@ -194,7 +195,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
     
     public List<Photo> getPhotos(String albumId, String token) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTOS_BY_ALBUM_ID);
         statement.setString(1, albumId);
         List<Photo> result = executeListQueryStatement(statement, token);
@@ -202,7 +203,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
     
     public Photo getPhoto(String photoId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTO_BY_ID);
         statement.setString(1, photoId);
         Photo result = executeSingleQueryStatement(statement, null);
@@ -210,7 +211,7 @@ public class PhotoDao extends JdbcMysqlRealm {
     }
     
     public Photo getVisiblePhoto(String token, String photoId) throws SQLException {
-        Connection connection = getDataSource().getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_PHOTO_BY_ID);
         statement.setString(1, photoId);
         statement.setString(2, token);
