@@ -290,8 +290,26 @@
 			var data = this.data('rsf_slideshow');
 			return data.this_slide;
 		},
-		
-		
+        
+        getPreviousSlideId: function() {
+			var data = this.data('rsf_slideshow');
+            var index = data.this_slide - 1;
+            if (index < 0) {
+                index = data.slides.length - 1;
+            }
+			return data.slides[index].id;
+		},
+        
+        getNextSlideId: function() {
+			var data = this.data('rsf_slideshow');
+            var index = data.this_slide + 1;
+            if (index == data.slides.length) {
+                index = 0;
+            }
+			return data.slides[index].id;
+		},
+        
+        
 		/**
 		*	Return the total number of slides currently in the slideshow
 		*/
@@ -427,6 +445,10 @@
 		*/
 	
 		showSlide: function(slide, effect) {
+            if (!isNaN(slide)) {
+                this.data('rsf_slideshow').this_slide = slide;
+                slide = this.data('rsf_slideshow').slides[slide];
+            }
 			var $slideshow = this,
 				data =  $slideshow.data('rsf_slideshow'),
 				containerWidth = $slideshow.width(),
@@ -487,39 +509,45 @@
 			};
 			
                         
-                        RssPrivateMethods._trigger($slideshow, 'rsImageReady');
-                        var $slide = null;
-                        var div = null;
+            RssPrivateMethods._trigger($slideshow, 'rsImageReady');
+            var $slide = null;
+            var div = null;
+
+            $slide = $('<div></div>');
+            div = $('<div class="photo"></div>');
+            div.css({
+                "background-image":"url('" + slide.url + "')"
+            });
                         
-                        if(slide.type == "video") {
-                            $slide = $('<div class="video"></div>');
-                            div = $(slide.url);
-                            $slide.css({
-                                "margin-top": Math.round((window.innerHeight - 600) / 2) + "px"
-                            });
-                        } else {
-                            $slide = $('<div></div>');
-                            div = $('<div class="photo"></div>');
-                            div.css({
-                                "background-image":"url('" + slide.url + "')"
-                            });
-                        }
-                        
-                        $slide.addClass(data.settings.slide_container_class);
-                        $slide.append(div).css('display', 'none');
-                        if (slide.caption) {
-                                var $capt = $('<div>' + slide.caption + '</div>');
-                                $capt.addClass(data.settings.slide_caption_class);
-                                $capt.appendTo($slide);
-                        }
-                        var anEffect = effect || data.settings.effect;
-                        if (slide.effect) {
-                                anEffect = slide.effect;
-                        }
-                        RssPrivateMethods._transitionWith($slideshow, $slide, anEffect);
-                        window.location.hash = slide.id;
+            $slide.addClass(data.settings.slide_container_class);
+            $slide.append(div).css('display', 'none');
+            if (slide.caption) {
+                var $capt = $('<div>' + slide.caption + '</div>');
+                $capt.addClass(data.settings.slide_caption_class);
+                $capt.appendTo($slide);
+            }
+            var anEffect = effect || data.settings.effect;
+            if (slide.effect) {
+                anEffect = slide.effect;
+            }
+            RssPrivateMethods._transitionWith($slideshow, $slide, anEffect);
+            
+            var slides = this.data('rsf_slideshow').slides;
+            var currentIndex = this.data('rsf_slideshow').this_slide;
+            var previousIndex = currentIndex - 1;
+            if (previousIndex < 0) {
+                previousIndex = slides.length - 1;
+            }
+            
+            var nextIndex = currentIndex + 1;
+            if (nextIndex == slides.length) {
+                nextIndex = 0;
+            }
+            
+            $(".rs-prev").attr("href", "#" + slides[previousIndex].id);
+            $(".rs-next").attr("href", "#" + slides[nextIndex].id);
 			
-			return this;
+            return this;
 		},
 		
 
@@ -578,6 +606,7 @@
 		*/
 		
 		bindPreviousSlide: function($prev, autostop) {
+            return;
 			return this.each(function() {
 				var $slideshow = $(this);
 				var data = $slideshow.data('rsf_slideshow');
@@ -605,6 +634,7 @@
 		*/
 		
 		bindNextSlide: function($next, autostop) {
+            return;
 			return this.each(function() {
 				var $slideshow = $(this);
 				var data = $slideshow.data('rsf_slideshow');
@@ -627,6 +657,7 @@
 		*/
 		
 		bindIndex: function($index, autostop) {
+            return;
 			return this.each(function() {
 				var $slideshow = $(this),
 					settings = $slideshow.data('rsf_slideshow').settings;

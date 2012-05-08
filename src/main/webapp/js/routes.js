@@ -43,22 +43,22 @@ $(document).ready(function() {
                     url: computeUrl("album/" + this.params['album']),
                     success: function(data) {
                         createAlbum(data.album);
-                        for (var i = 0 ; i < data.album.subAlbums.length ; i++) {
-                            var album = data.album.subAlbums[i];
+                        for (var i = 0 ; i < data.subAlbums.length ; i++) {
+                            var album = data.subAlbums[i];
                             createAlbum(album);
                         }
                         data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
-                        loadTemplate("album", data.album, null, function() { 
+                        loadTemplate("album", data, null, function() { 
                             editTitle($("a.brand").text() + " - " + data.album.name);
                             if (photoId.length > 1) {
                                 var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
                                 if (index != -1) {
                                     var slideshowData = [];
-                                    for (var i = 0 ; i < data.album.photos.length ; i++) {
+                                    for (var i = 0 ; i < data.photos.length ; i++) {
                                         slideshowData.push({
-                                            "id" : "/album/" + data.album.id + "/" + data.album.photos[i].id,
-                                            "url" : data.album.photos[i].url,
-                                            "caption" : data.album.photos[i].name
+                                            "id" : "/album/" + data.album.id + "/" + data.photos[i].id,
+                                            "url" : data.photos[i].url,
+                                            "caption" : data.photos[i].name
                                         });
                                     }
                                     fullscreen(index, slideshowData);
@@ -79,6 +79,33 @@ $(document).ready(function() {
                     });
                 }
                 fullscreen(index, slideshowData);
+                
+            } else {
+                var currentIndex = $('#slideshow-div').rsfSlideshow("currentSlideKey");
+                // We are displaying first photo and we want to see the previous one
+                if (currentIndex == 0 && index == $(".photos a.thumbnail").length - 1) {
+                    $('#slideshow-div').rsfSlideshow(
+                        'showSlide', index, "slideRight"
+                    );
+                
+                // We are displaying last photo and we want to see the next one
+                } else if (index == 0 && currentIndex == $(".photos a.thumbnail").length - 1) {
+                    $('#slideshow-div').rsfSlideshow(
+                        'showSlide', index, "slideLeft"
+                    );
+                        
+                // We want to see the next one
+                } else if (currentIndex < index) {
+                    $('#slideshow-div').rsfSlideshow(
+                        'showSlide', index, "slideLeft"
+                    );
+                        
+                // We want to see the previous one
+                } else if (currentIndex > index) {
+                    $('#slideshow-div').rsfSlideshow(
+                        'showSlide', index, "slideRight"
+                    );
+                }
             }
         }),
         
@@ -86,8 +113,15 @@ $(document).ready(function() {
         /* Aministration access */
         /* ******************** */
         this.before({except: null}, function() {
-            if (this.verb == "get" && this.path.indexOf("#/administration") == -1) {
-                delete allAlbums;
+            if (this.verb == "get") {
+                $("html, body").animate({scrollTop: 0}, 0);
+                if (this.path.indexOf("#/administration") == -1) {
+                    delete allAlbums;
+                }
+                var regex = new RegExp("^\/#\/album\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
+                if (!regex.test(this.path) && document.getElementById("fullscreenContainer") != null) {
+                    exitFullscreen();
+                }
             }
         });
         

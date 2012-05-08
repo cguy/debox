@@ -95,11 +95,13 @@ function ajax(object) {
                     }, ".navbar .container-fluid", headerTemplateLoaded);
                 }
             } else {
-                alert(xhr.status + " : " + xhr.responseText);
+//                alert(xhr.status + " : " + xhr.responseText);
             }
         }
     }
-    $("#loading").removeClass("hide");
+    if (object.type == "get") {
+        $("#loading").removeClass("hide");
+    }
     $.ajax(object);
 }
     

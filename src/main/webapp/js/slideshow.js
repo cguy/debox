@@ -152,13 +152,13 @@ function fullscreen(index, data) {
 
 jwerty.key('←', function () {
     if (document.getElementById("slideshow-div") != null) {
-        $('#slideshow-div').rsfSlideshow('previousSlide');
+        window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getPreviousSlideId");
     }
 });
 
 jwerty.key('→', function () {
     if (document.getElementById("slideshow-div") != null) {
-        $('#slideshow-div').rsfSlideshow('nextSlide');
+        window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getNextSlideId");
     }
 });
 
