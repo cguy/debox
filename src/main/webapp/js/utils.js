@@ -587,7 +587,7 @@ function handleAdmin() {
                     clearTimeout(syncTimeout);
                     syncTimeout = null;
                 }
-                $("#sync input").removeAttr("disabled");
+                $("#synchronization input").removeAttr("disabled");
                 $("#cancel-sync").hide();
                 $("#sync-progress").removeClass("alert-info");
                 $("#sync-progress .progress").removeClass("progress-info active");
@@ -609,7 +609,7 @@ function manageSync(data) {
         $("#sync-progress").removeClass("alert-success alert-danger");
         $("#sync-progress .progress").removeClass("progress-success progress-danger");
         $("#progress-label").text("Synchronisation en cours...");
-        $("#sync input").attr("disabled", "disabled");
+        $("#synchronization input").attr("disabled", "disabled");
         $("#cancel-sync").show();
             
         var refreshProgressBar = function(data) {
@@ -619,7 +619,7 @@ function manageSync(data) {
                 syncTimeout = setTimeout(getSyncStatus, 3000);
             } else {
                 syncTimeout = null;
-                $("#sync input").removeAttr("disabled");
+                $("#synchronization input").removeAttr("disabled");
                 $("#sync-progress").removeClass("alert-info");
                 $("#progress-label").text("Synchronisation terminée");
                 $("#sync-progress .progress").removeClass("progress-info active");

@@ -192,8 +192,8 @@ $(document).ready(function() {
                     }, ".navbar .container-fluid", headerTemplateLoaded);
                     
                     if (force) {
-                        $("#sync form input[type=checkbox]").attr("checked", "checked");
-                        $("#sync form").submit();
+                        $("#synchronization form input[type=checkbox]").attr("checked", "checked");
+                        $("#synchronization form").submit();
                     }
                     $("#configuration p").text("Configuration enregistrée avec succès !");
                     $("#configuration p").addClass("alert-success");
@@ -210,13 +210,13 @@ $(document).ready(function() {
         });
         
         this.post('#/administration/sync', function() {
-            $("#sync form input[type=submit]").button("loading");
+            $("#synchronization form input[type=submit]").button("loading");
             $.ajax({
                 url: "administration/sync",
                 type : "post",
-                data : $("#sync form").serializeArray(),
+                data : $("#synchronization form").serializeArray(),
                 success: function() {
-                    $("#sync form input[type=submit]").button("reset");
+                    $("#synchronization form input[type=submit]").button("reset");
                     manageSync({
                         sync:{
                             percent:0
@@ -224,12 +224,12 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr) {
-                    $("#sync form input[type=submit]").button("reset");
-                    $("#sync form p.error").addClass("alert alert-error");
+                    $("#synchronization form input[type=submit]").button("reset");
+                    $("#synchronization form p.error").addClass("alert alert-error");
                     if (xhr.status == 409) {
-                        $("#sync form p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
+                        $("#synchronization form p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
                     } else {
-                        $("#sync form p.error").text("Erreur de communication avec le serveur.");
+                        $("#synchronization form p.error").text("Erreur de communication avec le serveur.");
                     }
                 }
             });
