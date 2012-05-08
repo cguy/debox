@@ -386,9 +386,9 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
             isFolder: true,
             select: found,
             hideCheckbox: allAlbums[i]['public'],
-            children:[]
+            isLazy : !!allAlbums[i]['subAlbumsCount']
         };
-                                    
+        
         if (allAlbums[i]['public']) {
             p.addClass = "public";
             p.title += fr.administration.tokens.public_album;
@@ -422,6 +422,38 @@ function initDynatree(id, children) {
                 }
                 disableChildren(node.childList);
             }
+        },
+        onLazyRead : function(node) {
+            $.ajax({
+                url: "albums?parentId=" + node.data.key,
+                success : function(data) {
+                    
+                    var albums = data.albums;
+                    var childrenObject = [];
+                    for (var i = 0 ; i < albums.length ; i++) {
+                        var currentAlbum = albums[i];
+                        var currentChild = {
+                            title: currentAlbum.name, 
+                            key: currentAlbum.id, 
+                            isFolder: true,
+                            select: false,
+                            hideCheckbox: currentAlbum['public'],
+                            isLazy : !!currentAlbum['subAlbumsCount']
+                        };
+                        
+                        childrenObject.push(currentChild);
+                    }
+                    
+                    node.setLazyNodeStatus(DTNodeStatus_Ok);
+                    node.addChild(childrenObject);
+                },
+                error : function(xhr) {
+                    node.setLazyNodeStatus(DTNodeStatus_Error, {
+                        tooltip: data.faultDetails,
+                        info: data.faultString
+                    });
+                }
+            });
         },
         autoCollapse: false,
         persist: false,

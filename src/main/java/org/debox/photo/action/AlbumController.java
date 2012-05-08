@@ -59,9 +59,9 @@ public class AlbumController extends DeboxController {
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
-    public Render getAlbums(String token) throws SQLException {
+    public Render getAlbums(String parentId, String token) throws SQLException {
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        List<Album> albums = albumDao.getVisibleAlbums(token, null, authenticated);
+        List<Album> albums = albumDao.getVisibleAlbums(token, parentId, authenticated);
         return renderJSON("albums", albums);
     }
 
