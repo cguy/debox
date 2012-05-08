@@ -99,7 +99,7 @@ function ajax(object) {
             }
         }
     }
-    if (object.type == "get") {
+    if (!object.type || object.type == "get") {
         $("#loading").removeClass("hide");
     }
     $.ajax(object);
