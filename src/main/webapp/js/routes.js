@@ -118,7 +118,7 @@ $(document).ready(function() {
                 if (this.path.indexOf("#/administration") == -1) {
                     delete allAlbums;
                 }
-                var regex = new RegExp("^\/#\/album\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
+                var regex = new RegExp("#\/album\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
                 if (!regex.test(this.path) && document.getElementById("fullscreenContainer") != null) {
                     exitFullscreen();
                 }
