@@ -24,10 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -279,25 +277,10 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         photo.setAlbumId(album.getId());
         photo.setRelativePath(album.getRelativePath());
 
-        boolean photoExists = false;
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
                 photo.setId(existing.getId());
-                photoExists = true;
                 break;
-            }
-        }
-
-        if (forceCheckDates || !photoExists) {
-            FileTime lastModifiedTime = Files.getLastModifiedTime(path);
-            photo.setDate(new Date(lastModifiedTime.toMillis()));
-            if (photo.getAlbumId().equals(album.getId())) {
-                if (album.getBeginDate() == null || photo.getDate().before(album.getBeginDate())) {
-                    album.setBeginDate(photo.getDate());
-                }
-                if (album.getEndDate() == null || photo.getDate().after(album.getEndDate())) {
-                    album.setEndDate(photo.getDate());
-                }
             }
         }
         

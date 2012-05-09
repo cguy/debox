@@ -21,7 +21,11 @@
 package org.debox.photo.util.img;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.Date;
 import java.util.concurrent.RecursiveTask;
 import org.debox.photo.model.Photo;
@@ -48,6 +52,18 @@ public class PhotoDateReader extends RecursiveTask<Photo> {
         String path = basePath + photo.getRelativePath() + File.separatorChar + photo.getName();
         logger.debug("Get shooting date from photo: {}", path);
         Date date = ImageUtils.getShootingDate(Paths.get(path));
+        if (date == null) {
+            Path p = Paths.get(path);
+            FileTime lastModifiedTime;
+            try {
+                lastModifiedTime = Files.getLastModifiedTime(p);
+                date = new Date(lastModifiedTime.toMillis());
+                
+            } catch (IOException eee) {
+                logger.error("Error while getting the last modification date of " + path, eee);
+                date = new Date();
+            }
+        }
         photo.setDate(date);
         return photo;
     }
