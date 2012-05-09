@@ -60,8 +60,8 @@ public class AdministrationController extends DeboxController {
         }
         return renderJSON(getSyncData());
     }
-    
-    public Render synchronize(String mode) {
+
+    public Render synchronize(String mode, boolean forceCheckDates) {
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
@@ -83,7 +83,7 @@ public class AdministrationController extends DeboxController {
             logger.warn("Cannot launch process, it is already running");
         } else {
             if (syncJob == null) {
-                syncJob = new SyncJob(source, target, syncMode);
+                syncJob = new SyncJob(source, target, syncMode, forceCheckDates);
 
             } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
                 logger.warn("Aborting sync between {} and {}", syncJob.getSource(), syncJob.getTarget());
@@ -91,9 +91,11 @@ public class AdministrationController extends DeboxController {
                 syncJob.setSource(source);
                 syncJob.setTarget(target);
                 syncJob.setMode(syncMode);
+                syncJob.setForceCheckDates(forceCheckDates);
 
             } else {
                 syncJob.setMode(syncMode);
+                syncJob.setForceCheckDates(forceCheckDates);
             }
 
             threadPool.execute(syncJob);

@@ -32,7 +32,7 @@ GET         /uploadProgress                         AdministrationFilter.checkUs
 GET         /configuration                      ConfigurationController.getConfiguration
 POST        /configuration                      ConfigurationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
-POST        /administration/sync                AdministrationController.synchronize
+POST        /administration/sync                AdministrationController.synchronize                forceCheckDates=false
 DELETE      /administration/sync                AdministrationController.cancelSynchronization
 
 # -----------------------------------------------------------------------------------------------

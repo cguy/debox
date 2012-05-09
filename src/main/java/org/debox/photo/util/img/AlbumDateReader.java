@@ -22,7 +22,6 @@ package org.debox.photo.util.img;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.RecursiveTask;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.model.Album;
@@ -37,11 +36,13 @@ public class AlbumDateReader extends RecursiveTask<Pair<List<Album>, List<Photo>
     List<Album> albums;
     List<Photo> photos;
     String basePath;
+    boolean forceCheckDates;
     
-    public AlbumDateReader(String basePath, List<Album> albums, List<Photo> photos) {
+    public AlbumDateReader(String basePath, List<Album> albums, List<Photo> photos, boolean forceCheckDates) {
         this.albums = albums;
         this.photos = photos;
         this.basePath = basePath;
+        this.forceCheckDates = forceCheckDates;
     }
     
     public boolean isPhotoInAlbum(Photo photo, Album album) {
@@ -84,15 +85,19 @@ public class AlbumDateReader extends RecursiveTask<Pair<List<Album>, List<Photo>
     protected Pair<List<Album>, List<Photo>> compute() {
         inProgress = new ArrayList<>();
         for (Photo photo : photos) {
-            PhotoDateReader photoDateDetector = new PhotoDateReader(basePath, photo);
-            inProgress.add(photoDateDetector);
-            photoDateDetector.fork();
+            if (forceCheckDates || photo.getDate() == null) {
+                PhotoDateReader photoDateDetector = new PhotoDateReader(basePath, photo);
+                inProgress.add(photoDateDetector);
+                photoDateDetector.fork();
+            }
         }
         
         // Reset old saved dates
-        for (Album album : albums) {
-            album.setBeginDate(null);
-            album.setEndDate(null);
+        if (forceCheckDates) {
+            for (Album album : albums) {
+                album.setBeginDate(null);
+                album.setEndDate(null);
+            }
         }
 
         for (PhotoDateReader detector : inProgress) {
@@ -110,6 +115,7 @@ public class AlbumDateReader extends RecursiveTask<Pair<List<Album>, List<Photo>
             for (Photo current : photos) {
                 if (photo.equals(current)) {
                     current.setDate(photo.getDate());
+                    break;
                 }
             }
         }

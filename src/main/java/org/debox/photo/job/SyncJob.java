@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
@@ -66,6 +65,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     protected Map<Photo, Boolean> photos = new LinkedHashMap<>();
     
     protected SynchronizationMode mode;
+    protected boolean forceCheckDates = false;
     protected boolean aborted = false;
     protected boolean memoryProcessing = false;
     
@@ -73,10 +73,11 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     protected List<Future> imageProcesses = new ArrayList<>();
     protected List<ForkJoinTask> exifReaderProcesses = new ArrayList<>();
 
-    public SyncJob(Path source, Path target, SynchronizationMode mode) {
+    public SyncJob(Path source, Path target, SynchronizationMode mode, boolean forceCheckDates) {
         this.source = source;
         this.target = target;
         this.mode = mode;
+        this.forceCheckDates = forceCheckDates;
     }
     
     @Override
@@ -139,6 +140,10 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         this.mode = mode;
     }
 
+    public void setForceCheckDates(boolean forceCheckDates) {
+        this.forceCheckDates = forceCheckDates;
+    }
+
     public boolean isTerminated() {
         for (Future future : imageProcesses) {
             if (!future.isDone()) {
@@ -190,6 +195,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         photos.clear();
         aborted = false;
         memoryProcessing = false;
+        forceCheckDates = false;
     }
 
     @Override
@@ -272,24 +278,29 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         photo.setName(path.getFileName().toString());
         photo.setAlbumId(album.getId());
         photo.setRelativePath(album.getRelativePath());
-        
-        FileTime lastModifiedTime = Files.getLastModifiedTime(path);
-        photo.setDate(new Date(lastModifiedTime.toMillis()));
-        if (photo.getAlbumId().equals(album.getId())) {
-            if (album.getBeginDate() == null || photo.getDate().before(album.getBeginDate())) {
-                album.setBeginDate(photo.getDate());
-            }
-            if (album.getEndDate() == null || photo.getDate().after(album.getEndDate())) {
-                album.setEndDate(photo.getDate());
-            }
-        }
-        
+
+        boolean photoExists = false;
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
                 photo.setId(existing.getId());
+                photoExists = true;
+                break;
             }
         }
 
+        if (forceCheckDates || !photoExists) {
+            FileTime lastModifiedTime = Files.getLastModifiedTime(path);
+            photo.setDate(new Date(lastModifiedTime.toMillis()));
+            if (photo.getAlbumId().equals(album.getId())) {
+                if (album.getBeginDate() == null || photo.getDate().before(album.getBeginDate())) {
+                    album.setBeginDate(photo.getDate());
+                }
+                if (album.getEndDate() == null || photo.getDate().after(album.getEndDate())) {
+                    album.setEndDate(photo.getDate());
+                }
+            }
+        }
+        
         photos.put(photo, Boolean.TRUE);
         return FileVisitResult.CONTINUE;
     }
@@ -354,7 +365,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             
             photoDao.delete(photosToDelete);
 
-            albumDateReader = new AlbumDateReader(sourcePath, albumsToSave, photosToSave);
+            albumDateReader = new AlbumDateReader(sourcePath, albumsToSave, photosToSave, forceCheckDates);
             Pair<List<Album>, List<Photo>> modifiedLists = forkJoinPool.invoke(albumDateReader);
             albumDao.save(modifiedLists.getLeft());
             photoDao.save(modifiedLists.getRight());

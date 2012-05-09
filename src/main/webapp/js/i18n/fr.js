@@ -81,6 +81,7 @@ var fr = {
             normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
             longest: "Le plus long ",
             longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
+            force_check_dates: "Forcer la vérification des dates des photos existantes",
             warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
             launch: "Lancer la synchronisation"
         },
