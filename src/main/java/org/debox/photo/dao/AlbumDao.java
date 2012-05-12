@@ -331,7 +331,7 @@ public class AlbumDao {
         result.setPhotosCount(resultSet.getInt(5));
         result.setDownloadable(resultSet.getBoolean(6));
         result.setRelativePath(resultSet.getString(7));
-        result.setParentId(resultSet.getString(8));
+        result.setParent(getAlbum(resultSet.getString(8)));
         result.setPublic(resultSet.getBoolean(9));
         result.setSubAlbumsCount(resultSet.getInt(10));
         

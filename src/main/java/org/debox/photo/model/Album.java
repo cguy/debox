@@ -28,18 +28,13 @@ import java.util.Objects;
  */
 public class Album implements Comparable<Album> {
 
-    public enum Visibility {
-        PUBLIC,
-        PRIVATE
-    }
-    
     protected String id;
     protected String name;
     protected Date beginDate;
     protected Date endDate;
     protected int photosCount;
     protected String relativePath;
-    protected String parentId;
+    protected Album parent;
     protected String coverUrl;
     protected boolean isPublic;
     protected boolean downloadable;
@@ -52,13 +47,20 @@ public class Album implements Comparable<Album> {
     public void setSubAlbumsCount(int subAlbumsCount) {
         this.subAlbumsCount = subAlbumsCount;
     }
-
-    public String getParentId() {
-        return parentId;
+    
+    public Album getParent() {
+        return this.parent;
     }
 
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
+    public String getParentId() {
+        if (this.parent == null) {
+            return null;
+        }
+        return this.parent.getId();
+    }
+
+    public void setParent(Album parent) {
+        this.parent = parent;
     }
     
     public boolean isDownloadable() {
@@ -154,4 +156,23 @@ public class Album implements Comparable<Album> {
     public int compareTo(Album album) {
         return this.getRelativePath().compareToIgnoreCase(album.getRelativePath());
     }
+    
+    public boolean hasParent() {
+        return this.parent != null;
+    }
+    
+    public boolean isSubAlbum(Album target) {
+        if (target == null || !this.hasParent()) {
+            return false;
+        }
+        
+        Album current = this.getParent();
+        boolean result = target.equals(current);
+        while (!result && current.hasParent()) {
+            current = current.getParent();
+            result = current.equals(target);
+        } 
+        return result;
+    }
+    
 }

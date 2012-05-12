@@ -216,7 +216,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         album.setDownloadable(false);
 
         // Search for parent & for any already existing
-        String parentId = null;
+        Album parent = null;
         boolean existing = false;
         for (Album current : albums.keySet()) {
             String currentRelativePath = this.source + current.getRelativePath();
@@ -224,14 +224,14 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 album = current;
                 existing = true;
             } else if (currentRelativePath.equals(currentPath.getParent().toString())) {
-                parentId = current.getId();
+                parent = current;
                 break;
             }
         }
         //in any case, set the photo count to 0
         album.setPhotosCount(0);
-        if (!existing && parentId != null) {
-            album.setParentId(parentId);
+        if (!existing && parent != null) {
+            album.setParent(parent);
         }
 
         albums.put(album, Boolean.TRUE);

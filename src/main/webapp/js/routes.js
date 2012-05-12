@@ -285,10 +285,33 @@ $(document).ready(function() {
             var token = this.params["token"];
             $("#" + token + " .alert-success").hide();
             $("#" + token + " .alert-error").hide();
+            
+            var tree = $("#" + token + " .album-access-form .albums-access").dynatree("getTree");
+            
+            var albums = tree.serializeArray();
+            var tokenData = $("#" + token + " .album-access-form").serializeArray();
+            var data = albums.concat(tokenData);
+            
+            function processIgnoreList(children, ignoreList) {
+                if (children == null) {
+                    return;
+                }
+                for (var i = 0 ; i < children.length ; i++) {
+                    var child = children[i];
+                    if (child.childList) {
+                        processIgnoreList(child.childList, ignoreList);
+                    } else if (child.data.isLazy) {
+                        ignoreList.push({name:"ignore", value:child.data.key});
+                    }
+                }
+            }
+            var children = tree.getRoot().childList;
+            processIgnoreList(children, data);
+            
             $.ajax({
                 url: "token/" + token,
                 type : "post",
-                data: $("#" + token + " .album-access-form").serializeArray().concat($("#" + token + " .album-access-form .albums-access").dynatree("getTree").serializeArray()),
+                data: data,
                 success: function(data) {
                     $("#" + data.id + " .access_label").text(data.label);
                     $("#" + data.id + " .album-access-form .albums-access").hide();

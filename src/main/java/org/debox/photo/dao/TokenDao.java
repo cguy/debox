@@ -30,11 +30,15 @@ import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Token;
 import org.debox.photo.util.DatabaseUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class TokenDao {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TokenDao.class);
 
     protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?) ON DUPLICATE KEY UPDATE label = ?";
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
@@ -48,10 +52,11 @@ public class TokenDao {
             + "ORDER BY label, tokens.id";
     
     protected static String SQL_GET_BY_ID = ""
-            + "SELECT tokens.id id, label, album_id, name FROM tokens "
+            + "SELECT tokens.id id, label, album_id FROM tokens "
             + "LEFT JOIN albums_tokens ON id = token_id "
-            + "LEFT JOIN albums on album_id = albums.id "
             + "WHERE tokens.id = ? ORDER BY label, tokens.id";
+    
+    protected static AlbumDao albumDao = new AlbumDao();
 
     public void save(Token token) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
@@ -94,16 +99,13 @@ public class TokenDao {
             while (resultSet.next()) {
                 String label = resultSet.getString("label");
                 String albumId = resultSet.getString("album_id");
-                String albumName = resultSet.getString("name");
                 if (result == null || !result.getId().equals(id)) {
                     result = new Token();
                     result.setId(id);
                     result.setLabel(label);
                 }
                 if (albumId != null) {
-                    Album album = new Album();
-                    album.setId(albumId);
-                    album.setName(albumName);
+                    Album album = albumDao.getAlbum(albumId);
                     result.getAlbums().add(album);
                 }
             }
