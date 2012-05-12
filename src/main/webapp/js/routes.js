@@ -117,6 +117,7 @@ $(document).ready(function() {
                 $("html, body").animate({scrollTop: 0}, 0);
                 if (this.path.indexOf("#/administration") == -1) {
                     delete allAlbums;
+                    delete allTokens;
                 }
                 var regex = new RegExp("#\/album\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
                 if (!regex.test(this.path) && document.getElementById("fullscreenContainer") != null) {

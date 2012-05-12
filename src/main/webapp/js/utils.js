@@ -434,11 +434,27 @@ function initDynatree(id, children) {
                     var childrenObject = [];
                     for (var i = 0 ; i < albums.length ; i++) {
                         var currentAlbum = albums[i];
+                        
+                        var found = false;
+                        for (var tokenIndex = 0 ; tokenIndex < allTokens.length ; tokenIndex++) {
+                            var currentToken = allTokens[tokenIndex];
+                            var tokenId = $(node.li).parents("tr").attr("id");
+                            if (currentToken.id == tokenId) {
+                                for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < currentToken.albums.length ; tokenAlbumsIndex++) {
+                                    if (currentToken.albums[tokenAlbumsIndex].id == currentAlbum.id) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        
                         var currentChild = {
                             title: currentAlbum.name, 
                             key: currentAlbum.id, 
                             isFolder: true,
-                            select: false,
+                            select: found,
                             hideCheckbox: currentAlbum['public'],
                             isLazy : !!currentAlbum['subAlbumsCount']
                         };
@@ -499,6 +515,7 @@ function preprocessAdministrationTabLoading(id, data) {
 function afterAdministrationTabLoading(id, data) {
     if (id == "tokens") {
         allAlbums = data.albums;
+        allTokens = data.tokens;
                         
         // Generates trees for tokens management
         var tokens = data.tokens;
