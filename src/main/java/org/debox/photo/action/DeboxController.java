@@ -41,6 +41,7 @@ import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.img.ImageUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
+import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,7 @@ public class DeboxController extends WebMotionController {
         return super.toMap(model);
     }
 
-    protected void handleLastModifiedHeader(Photo photo, ThumbnailSize size) {
+    protected RenderStatus handleLastModifiedHeader(Photo photo, ThumbnailSize size) {
         try {
             long lastModified = photoDao.getGenerationTime(photo.getId(), size);
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
@@ -94,18 +95,20 @@ public class DeboxController extends WebMotionController {
             }
 
             if (lastModified != -1) {
-                if (lastModified <= ifModifiedSince) {
-                    getContext().getResponse().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
-                }
                 getContext().getResponse().addDateHeader("Last-Modified", lastModified);
+                if (lastModified <= ifModifiedSince) {
+                    return new RenderStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
+                }
             }
 
         } catch (SQLException ex) {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
+        
+        return new RenderStatus(HttpURLConnection.HTTP_OK);
     }
     
-    protected void handleLastModifiedHeader(Album album) {
+    protected RenderStatus handleLastModifiedHeader(Album album) {
         try {
             String id = "a." + album.getId();
             long lastModified = photoDao.getGenerationTime(id, ThumbnailSize.SQUARE);
@@ -117,15 +120,17 @@ public class DeboxController extends WebMotionController {
             }
 
             if (lastModified != -1) {
-                if (lastModified <= ifModifiedSince) {
-                    getContext().getResponse().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
-                }
                 getContext().getResponse().addDateHeader("Last-Modified", lastModified);
+                if (lastModified <= ifModifiedSince) {
+                    return new RenderStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
+                }
             }
 
         } catch (SQLException ex) {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
+                
+        return new RenderStatus(HttpURLConnection.HTTP_OK);
     }
     
 }

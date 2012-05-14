@@ -45,6 +45,7 @@ import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
+import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,8 +143,10 @@ public class AlbumController extends DeboxController {
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }
-        
-        handleLastModifiedHeader(album);
+        RenderStatus status = handleLastModifiedHeader(album);
+        if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+            return status;
+        }
         return renderStream(fis, "image/jpeg");
     }
 

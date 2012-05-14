@@ -20,21 +20,19 @@
  */
 package org.debox.photo.action;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
-import org.debox.photo.server.renderer.FileDownloadRenderer;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
+import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +58,10 @@ public class PhotoController extends DeboxController {
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
-            handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
+            RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
+            if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                return status;
+            }
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
@@ -83,7 +84,10 @@ public class PhotoController extends DeboxController {
         FileInputStream fis = null;
         try {
             fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.LARGE);
-            handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
+            RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
+            if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                return status;
+            }
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
