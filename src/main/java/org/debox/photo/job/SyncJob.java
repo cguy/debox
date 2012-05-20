@@ -107,7 +107,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
 
             // Create target if not exists
             if (!Files.exists(target)) {
-                Files.createDirectories(target, FileUtils.PERMISSIONS);
+                FileUtils.createDirectories(target);
             }
 
             // Launch directory scan
@@ -239,7 +239,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         // Create target path if not exists
         Path targetPath = Paths.get(this.target + album.getRelativePath());
         if (!Files.exists(targetPath)) {
-            Files.createDirectories(targetPath, FileUtils.PERMISSIONS);
+            FileUtils.createDirectories(targetPath);
         }
 
         return FileVisitResult.CONTINUE;

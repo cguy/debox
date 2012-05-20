@@ -45,6 +45,20 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * Default permissions for created directories and files, corresponding with 755 digit value.
      */
     public static final FileAttribute PERMISSIONS = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
+    
+    public static void createDirectories(Path path) throws IOException {
+        try {
+            Files.createDirectories(path, PERMISSIONS);
+        } catch (UnsupportedOperationException ex) {
+            logger.error("Cannot create directories, reason: " + ex.getMessage() + ", trying without specified permissions...");
+            try {
+                Files.createDirectories(path);
+            } catch (UnsupportedOperationException ex1) {
+                logger.error("Cannot create directories (without any specified permissions), reason: " + ex.getMessage());
+                throw ex1;
+            }
+        }
+    }
 
     public static long getSize(Path directoryPath, Map<String, String> names) throws IOException {
         File directoryFile = directoryPath.toFile();
@@ -100,7 +114,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                 Path currentPath = Paths.get(targetPath.toString(), entry.getName());
                 if (!Files.exists(currentPath)) {
                     logger.debug("Creating... " + currentPath);
-                    Files.createDirectories(currentPath, PERMISSIONS);
+                    createDirectories(targetPath);
                 }
                 continue;
             }
@@ -108,7 +122,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             Path outputPath = Paths.get(targetPath.toString(), entry.getName());
             if (!Files.exists(outputPath.getParent())) {
                 logger.debug("Creating... " + outputPath.getParent());
-                Files.createDirectories(outputPath.getParent(), PERMISSIONS);
+                createDirectories(outputPath.getParent());
             }
 
             logger.debug("Extracting: " + entry);
