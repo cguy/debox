@@ -23,9 +23,13 @@ body {
     background-color: #fff;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 979px) {
     body {
         padding: 0;
+    }
+    
+    .navbar-fixed-top {
+        margin-bottom: 3px;
     }
 }
 
@@ -34,6 +38,7 @@ body.fixed {
 }
 
 #loading {
+    display: none;
     position: fixed;
     top:0;
     left: 50%;
@@ -62,10 +67,6 @@ body.fixed {
     text-align: center;
     font-size: 14px;
     color: #fefefe;
-}
-
-.container > footer p {
-    text-align: center;
 }
 
 body > .container-fluid {
@@ -120,6 +121,11 @@ h1 small {
 
 .dropdown-menu.dropdown-form .form-actions {
     margin-bottom: 0;
+}
+
+.dropdown-menu.dropdown-form input[type=text], .dropdown-menu.dropdown-form input[type=password] {
+    min-height: 28px;
+    padding: 0 5px;
 }
 
 #administration_albums td, #administration_tokens td {
@@ -220,7 +226,6 @@ p.footer {
     bottom: 5px;
     right: 5px;
     background-image: url("../img/to-top-icone.png");
-    opacity: 0.3;
     display: none;
     z-index: 100000;
 }
@@ -273,4 +278,9 @@ p.footer {
 #administration_tokens ul li .dynatree-node.public .dynatree-title {
     color: #57a957;
     font-style: italic;
+}
+
+.footer {
+    margin: 10px;
+    text-align: center;
 }

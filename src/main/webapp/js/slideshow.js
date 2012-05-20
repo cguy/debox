@@ -116,9 +116,28 @@ function createBg() {
     elt.style.top = "0px";
     elt.style.left = "0px";
     elt.style.bottom = "0px";
-    elt.onclick = exitFullscreen;
+    
+    var close = document.createElement("div");
+    close.className = "slideshow-close";
+    close.onclick = exitFullscreen;
+    $(close).animate({opacity: 0.3}, 0); /* Initial setup for IE < 9 */
+    $(close).hover(
+        function () {
+            $(this).css("cursor", "pointer");
+            $(this).animate({
+                opacity: 1
+            });
+        },
+        function () {
+            $(this).css("cursor", "inherit");
+            $(this).animate({
+                opacity: 0.3
+            });
+        }
+    );
 
     container.appendChild(elt);
+    container.appendChild(close);
     return container;
 }
             

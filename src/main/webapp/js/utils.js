@@ -297,7 +297,7 @@ function loadAlbum(data, callback) {
                 opacity: 0.3
             });
         }
-        );
+    );
 }
 
 function manageRegenerationProgress(data) {
@@ -346,6 +346,7 @@ function onBodyScroll() {
     var top = $("#top");
     if (top) {
         if ($(window).scrollTop() > 200) {
+            top.animate({opacity: 0.3}, 0); /* Initial setup for IE < 9 */
             top.fadeIn();
         } else {
             top.fadeOut();
