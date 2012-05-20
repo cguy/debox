@@ -303,6 +303,7 @@
                                 <exclude>**/js/lib/*.*</exclude>
                                 <exclude>**/bootstrap*.css</exclude>
                                 <exclude>**/*.tpl</exclude>
+                                <exclude>**/index.html</exclude>
                             </excludes>
                         </configuration>
                     </execution>
