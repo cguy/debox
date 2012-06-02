@@ -84,7 +84,7 @@ public class AlbumController extends DeboxController {
         
         return renderJSON("album", album, "albumParent", parent, "subAlbums", subAlbums, "photos", photos, "regeneration", getRegenerationData());
     }
-
+    
     public Render editAlbum(String albumId, String name, String visibility, boolean downloadable) throws SQLException, IOException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
@@ -96,7 +96,7 @@ public class AlbumController extends DeboxController {
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
-        return renderJSON("album", album);
+        return getAlbum(null, album.getId());
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
