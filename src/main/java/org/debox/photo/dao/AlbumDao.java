@@ -40,7 +40,7 @@ public class AlbumDao {
     
     protected static final PhotoDao PHOTO_DAO = new PhotoDao();
     
-    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, public = ?, photos_count = ?, downloadable = ?";
+    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, public = ?, photos_count = ?, downloadable = ?, begin_date = ?, end_date = ?";
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
     protected static String SQL_GET_ALBUMS = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a ORDER BY begin_date";
@@ -117,6 +117,8 @@ public class AlbumDao {
                 statement.setBoolean(11, album.isPublic());
                 statement.setInt(12, album.getPhotosCount());
                 statement.setBoolean(13, album.isDownloadable());
+                statement.setTimestamp(14, new Timestamp(album.getBeginDate().getTime()));
+                statement.setTimestamp(15, new Timestamp(album.getEndDate().getTime()));
                 statement.addBatch();
             }
 
