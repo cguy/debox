@@ -158,28 +158,15 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
             <scope>runtime</scope>
-        </dependency>
-        
-        <!-- JSTL & taglibs -->
-        <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
         </dependency>
         
         <!-- WebMotion -->
         <dependency>
             <groupId>org.debux.webmotion</groupId>
             <artifactId>webmotion</artifactId>
-            <version>2.1</version>
+            <version>2.2</version>
         </dependency>
         
         <!-- Useful for StringUtils -->
@@ -220,7 +207,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.19</version>
+            <version>5.1.20</version>
         </dependency>
         
         <dependency>
@@ -233,13 +220,13 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-lgpl</artifactId>
-            <version>1.9.6</version>
+            <version>1.9.7</version>
         </dependency>
         
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-lgpl</artifactId>
-            <version>1.9.6</version>
+            <version>1.9.7</version>
         </dependency>
         
     </dependencies>
