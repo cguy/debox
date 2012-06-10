@@ -103,9 +103,39 @@ public class AlbumController extends DeboxController {
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
-        tokenDao.updateTokensForAlbum(album.getId(), authorizedTokens);
+        
+//        tokenDao.updateTokensForAlbum(album.getId(), authorizedTokens);
+        
+        if (authorizedTokens != null) {
+            List<Token> tokens = tokenDao.getAll();
+            for (Token token : tokens) {
+                if (authorizedTokens.contains(token.getId())) {
+                    addParentAlbumsToToken(album, token);
+                } else {
+                    removeChildAlbumToToken(album, token);
+                }
+            }
+            tokenDao.saveAll(tokens);
+        }
         
         return getAlbum(null, album.getId());
+    }
+    
+    protected void addParentAlbumsToToken(Album album, Token token) {
+        if (album != null && !token.getAlbums().contains(album)) {
+            token.getAlbums().add(album);
+            addParentAlbumsToToken(album.getParent(), token);
+        }
+    }
+    
+    protected void removeChildAlbumToToken(Album album, Token token) throws SQLException {
+        if (album != null && token.getAlbums().contains(album)) {
+            List<Album> children = albumDao.getVisibleAlbums(null, album.getId(), true);
+            for (Album child : children) {
+                removeChildAlbumToToken(child, token);
+            }
+            token.getAlbums().remove(album);
+        }
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
