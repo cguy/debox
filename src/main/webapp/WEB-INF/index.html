@@ -8,6 +8,12 @@
 
         <script src="static/js/lib/jquery-1.7.2.min.js"></script>
         <script src="static/js/lib/jquery-ui-1.8.19.custom.min.js"></script>
+        
+<!--        <script src="static/js/lib/fu/jquery.fileupload.js"></script>
+        <script src="static/js/lib/fu/jquery.fileupload-fp.js"></script>
+        <script src="static/js/lib/fu/jquery.fileupload-ui.js"></script>
+        <script src="static/js/lib/fu/jquery.iframe-transport.js"></script>-->
+        
         <script src="static/js/lib/jquery.dynatree.min.js"></script>
         <script src="static/js/lib/jquery.rs.slideshow.js"></script>
         <script src="static/js/lib/jwerty.js"></script>
@@ -37,6 +43,7 @@
         <link rel="stylesheet" href="static/css/style.css" />
         <link rel="stylesheet" href="static/css/thumbnails.css" />
         <link rel="stylesheet" href="static/css/slideshow.css" />
+        <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css" />
         <link rel="stylesheet" href="static/js/lib/skin-vista/ui.dynatree.css" />
         <link rel="stylesheet" href="static/js/lib/chosen/chosen.css" />
         <!--[if lt IE 9]><link rel="stylesheet" href="static/css/style.ie.css" /><![endif]-->
@@ -54,5 +61,78 @@
         </div>
         <p class="footer"></p>
         <div id="loading"></div>
+        
+        
+        <script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-upload fade">
+        <td class="preview"><span class="fade"></span></td>
+        <td class="name"><span>{%=file.name%}</span></td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        {% if (file.error) { %}
+            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+        {% } else if (o.files.valid && !i) { %}
+            <td>
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar" style="width:0%;"></div></div>
+            </td>
+            <td class="start">{% if (!o.options.autoUpload) { %}
+                <button class="btn btn-primary">
+                    <i class="icon-upload icon-white"></i>
+                    <span>{%=locale.fileupload.start%}</span>
+                </button>
+            {% } %}</td>
+        {% } else { %}
+            <td colspan="2"></td>
+        {% } %}
+        <td class="cancel">{% if (!i) { %}
+            <button class="btn btn-warning">
+                <i class="icon-ban-circle icon-white"></i>
+                <span>{%=locale.fileupload.cancel%}</span>
+            </button>
+        {% } %}</td>
+    </tr>
+{% } %}
+</script>
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-download fade">
+        {% if (file.error) { %}
+            <td></td>
+            <td class="name"><span>{%=file.name%}</span></td>
+            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+        {% } else { %}
+            <td class="preview">{% if (file.thumbnail_url) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery" download="{%=file.name%}"><img src="{%=file.thumbnail_url%}"></a>
+            {% } %}</td>
+            <td class="name">
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
+            </td>
+            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+            <td colspan="2"></td>
+        {% } %}
+        <td class="delete">
+            <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+                <i class="icon-trash icon-white"></i>
+                <span>{%=locale.fileupload.destroy%}</span>
+            </button>
+        </td>
+    </tr>
+{% } %}
+</script>
+        
+
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="static/js/lib/fu/jquery.fileupload.js"></script>
+<!-- The File Upload file processing plugin -->
+<script src="static/js/lib/fu/jquery.fileupload-fp.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="static/js/lib/fu/jquery.fileupload-ui.js"></script>
+        
     </body>
 </html>

@@ -19,6 +19,9 @@
             <a href="#/administration/synchronization" data-target="#synchronization"><i class="icon-refresh"></i>&nbsp;{{i18n.administration.sync.tab}}</a>
         </li>
         <li>
+            <a href="#/administration/upload" data-target="#upload"><i class="icon-upload-alt"></i>&nbsp;{{i18n.administration.upload.tab}}</a>
+        </li>
+        <li>
             <a href="#/administration/albums" data-target="#albums"><i class="icon-camera-retro"></i>&nbsp;{{i18n.administration.albums.tab}}</a>
         </li>
         <li>
@@ -32,6 +35,7 @@
     <div class="tab-content">
         <div id="configuration" class="tab-pane active"></div>
         <div id="synchronization" class="tab-pane"></div>
+        <div id="upload" class="tab-pane"></div>
         <div id="albums" class="tab-pane"></div>
         <div id="tokens" class="tab-pane"></div>
         <div id="account" class="tab-pane"></div>

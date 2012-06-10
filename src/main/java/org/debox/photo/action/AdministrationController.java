@@ -22,6 +22,7 @@ package org.debox.photo.action;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,12 +30,19 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
@@ -59,6 +67,20 @@ public class AdministrationController extends DeboxController {
             return renderStatus(404);
         }
         return renderJSON(getSyncData());
+    }
+    
+    public JacksonRenderJsonImpl upload(UploadFile test) throws IOException {
+        final HashMap<String, Object> metaData = new HashMap<>();
+        if (test != null) {
+            metaData.put("name", test.getName());
+            metaData.put("size", test.getSize());
+            metaData.put("url", test.getFile().getAbsolutePath());
+        }
+
+        final HashMap<String, Object> result = new HashMap<>();
+        result.put(null, new Object[]{metaData});
+        logger.error(result + "");
+        return new JacksonRenderJsonImpl(result);
     }
 
     public Render synchronize(String mode, boolean forceCheckDates) {

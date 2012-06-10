@@ -365,9 +365,8 @@ $(document).ready(function() {
             var tab = this.params["tab"];
             if (tab) {
                 tab = tab.substr(1);
-                if (tab == "synchronization") {
-                    loadAdministrationTab("synchronization");
-                
+                if (tab == "synchronization" || tab == "upload") {
+                    loadAdministrationTab(tab);
                 } else {
                     ajax({
                         url: tab,

@@ -69,6 +69,10 @@ var fr = {
             downloadable: "Téléchargeable",
             not_downloadable: "N'est pas téléchargeable"
         },
+        upload: {
+            title: "Ajouter des photos",
+            tab: "Ajout de photos"
+        },
         sync: {
             title: "Synchroniser les répertoires",
             tab: "Synchronisation des répertoires",

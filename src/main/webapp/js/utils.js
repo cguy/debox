@@ -533,6 +533,10 @@ function afterAdministrationTabLoading(id, data) {
             prepareDynatree(data.albums, tokens[tokenIndex].albums, treeChildren, null);
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
+    } else if (id == "upload") {
+        $.getScript("static/js/lib/fu/locale.js");
+        $.getScript("static/js/lib/fu/main.js", function() {console.log("loadedd")});
+    console.log(id);
     }
 }
 
