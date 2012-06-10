@@ -119,7 +119,7 @@ public class AdministrationController extends DeboxController {
             return renderJSON(
                     "username", username,
                     "configuration", ApplicationContext.getInstance().getConfiguration().get(),
-                    "albums", albumDao.getAlbums(),
+                    "albums", albumDao.getAllAlbums(),
                     "tokens", tokenDao.getAll(),
                     "sync", sync);
         }
@@ -127,7 +127,7 @@ public class AdministrationController extends DeboxController {
         return renderJSON(
                 "username", username,
                 "configuration", ApplicationContext.getInstance().getConfiguration().get(),
-                "albums", albumDao.getAlbums(),
+                "albums", albumDao.getAllAlbums(),
                 "tokens", tokenDao.getAll());
     }
 

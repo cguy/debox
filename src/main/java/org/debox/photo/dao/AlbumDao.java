@@ -195,7 +195,7 @@ public class AlbumDao {
         return result;
     }
     
-     public List<Album> getAlbums() throws SQLException {
+     public List<Album> getAllAlbums() throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
         List<Album> result = executeListQueryStatement(statement, null);
@@ -337,7 +337,8 @@ public class AlbumDao {
         result.setPublic(resultSet.getBoolean(9));
         result.setSubAlbumsCount(resultSet.getInt(10));
         
-        String url = "album/" + result.getId() + "/cover";
+        // deploy/ is present because of a bug in WebMotion 2.2
+        String url = "deploy/album/" + result.getId() + "-cover.jpg";
         if (token != null) {
             url += "?token=" + token;
         }

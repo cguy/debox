@@ -129,8 +129,9 @@ public class PhotoDao {
         result.setRelativePath(resultSet.getString(4));
         result.setAlbumId(resultSet.getString(5));
         
-        String thumbnail = "thumbnail/" + result.getId();
-        String url = "photo/" + result.getId();
+        // deploy/ is present because of a bug in WebMotion 2.2
+        String thumbnail = "deploy/thumbnail/" + result.getId() + ".jpg";
+        String url = "deploy/photo/" + result.getId() + ".jpg";
         
         if (token != null) {
             thumbnail += "?token=" + token;

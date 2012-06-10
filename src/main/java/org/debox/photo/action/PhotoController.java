@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
@@ -44,6 +45,8 @@ public class PhotoController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
     
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
+        photoId = StringUtils.substringBeforeLast(photoId, ".jpg");
+        
         Photo photo;
         if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);
@@ -70,6 +73,8 @@ public class PhotoController extends DeboxController {
     }
 
     public Render getPhotoStream(String token, String photoId) throws IOException, SQLException {
+        photoId = StringUtils.substringBeforeLast(photoId, ".jpg");       
+        
         Photo photo;
         if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);

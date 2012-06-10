@@ -90,7 +90,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             photos.clear();
             
             // Get existing photos & albums from DB
-            List<Album> existingAlbums = albumDao.getAlbums();
+            List<Album> existingAlbums = albumDao.getAllAlbums();
             for (Album existing : existingAlbums) {
                 albums.put(existing, Boolean.FALSE);
             }

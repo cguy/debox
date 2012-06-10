@@ -4,6 +4,8 @@ package.filters=filter
 package.actions=action
 package.views=WEB-INF/
 
+#server.static.autodetect=false # Disable static resources (any resource with an extension in its name) detection
+
 [filters]
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
@@ -63,18 +65,18 @@ POST        /token/{id}                         TokenController.editToken
 DELETE      /token/{id}                         TokenController.deleteToken
 
 # -----------------------------------------------------------------------------------------------
+# MEDIA - STREAMS
+# -----------------------------------------------------------------------------------------------
+GET   /album/{albumId:.+-cover\.jpg}            AlbumController.getAlbumCover
+POST  /album/{albumId}/cover                    AlbumController.setAlbumCover
+GET   /thumbnail/{photoId:.+\.jpg}              PhotoController.getThumbnail
+GET   /photo/{photoId:.+\.jpg}                  PhotoController.getPhotoStream
+
+# -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
 GET         /albums                             AlbumController.getAlbums
 GET         /album/{id}                         AlbumController.getAlbum
-
-# -----------------------------------------------------------------------------------------------
-# MEDIA - STREAMS
-# -----------------------------------------------------------------------------------------------
-GET   /album/{albumId}/cover                    AlbumController.getAlbumCover
-POST  /album/{albumId}/cover                    AlbumController.setAlbumCover
-GET   /thumbnail/{photoId}                      PhotoController.getThumbnail
-GET   /photo/{photoId}                          PhotoController.getPhotoStream
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DOWNLOADS

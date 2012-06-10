@@ -118,16 +118,13 @@ public class AlbumController extends DeboxController {
     }
 
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
+        albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
+        
         Photo photo;
         if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = albumDao.getAlbumCover(albumId);
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
-        }
-
-        if (photo == null) {
-            String missingImagePath = getContext().getServletContext().getRealPath("img/folder.png");
-            return renderStream(new FileInputStream(missingImagePath), "image/png");
         }
         
         Album album = albumDao.getAlbum(albumId);
