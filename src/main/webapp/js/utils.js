@@ -276,6 +276,13 @@ function loadAlbum(data, callback) {
                 }
             });
         });
+        $("select#visibility").change(function() {
+            if ($(this).val() == "false") {
+                $("#authorizedTokensGroup").removeClass("hide")
+            } else {
+                $("#authorizedTokensGroup").addClass("hide")
+            }
+        });
         if (callback && $.isFunction(callback)) {
             callback();
         }
@@ -298,6 +305,7 @@ function loadAlbum(data, callback) {
             });
         }
     );
+    $(".chzn-select").chosen(); 
 }
 
 function manageRegenerationProgress(data) {

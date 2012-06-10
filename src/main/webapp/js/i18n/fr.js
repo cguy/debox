@@ -139,6 +139,8 @@ var fr = {
                 modify: "Modifier l'album",
                 album_name: "Nom de l'album",
                 album_visibility: "Visibilité de l'album",
+                album_authorized_tokens: "Accès visiteurs",
+                album_authorized_tokens_placeholder: "Sélectionnez les accès visiteur",
                 download: "Téléchargement",
                 download_description: "Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.",
                 actions: "Actions",

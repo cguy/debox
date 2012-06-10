@@ -156,6 +156,8 @@ public class AlbumDao {
             statement.setBoolean(11, album.isPublic());
             statement.setInt(12, album.getPhotosCount());
             statement.setBoolean(13, album.isDownloadable());
+            statement.setTimestamp(14, new Timestamp(album.getBeginDate().getTime()));
+            statement.setTimestamp(15, new Timestamp(album.getEndDate().getTime()));
             statement.executeUpdate();
 
         } finally {

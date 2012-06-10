@@ -189,7 +189,7 @@ h1 small {
 
 #edit_album.visible {
     visibility: visible;
-    height: 335px;
+    height: auto;
 }
 
 #edit_album.visible + hr {

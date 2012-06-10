@@ -39,6 +39,18 @@
                         </select>
                     </div>
                 </div>
+                <div class="control-group{{#album.public}} hide{{/album.public}}" id="authorizedTokensGroup">
+                    <label class="control-label" for="authorizedTokens">{{i18n.album.admin.edit.album_authorized_tokens}}</label>
+                    <div class="controls">
+                        <select name="authorizedTokens" id="authorizedTokens" 
+                                data-placeholder="{{i18n.album.admin.edit.album_authorized_tokens_placeholder}}"
+                                class="chzn-select" multiple>
+                            {{#tokens}}
+                            <option value="{{id}}" {{#albums}}selected{{/albums}}>{{label}}</option>
+                            {{/tokens}}
+                        </select>
+                    </div>
+                </div>
                 <div class="control-group">
                     <label class="control-label" for="downloadable">{{i18n.album.admin.edit.download}}</label>
                     <div class="controls">

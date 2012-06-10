@@ -35,11 +35,13 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.Token;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.SessionUtils;
@@ -57,6 +59,7 @@ public class AlbumController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
+    protected static TokenDao tokenDao = new TokenDao();
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
@@ -69,8 +72,11 @@ public class AlbumController extends DeboxController {
     public Render getAlbum(String token, String id) throws IOException, SQLException {
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
         Album album;
+        List<Token> tokens = null;
         if (authenticated) {
             album = albumDao.getAlbum(id);
+            tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
+            
         } else {
             album = albumDao.getVisibleAlbum(token, id);
         }
@@ -82,20 +88,23 @@ public class AlbumController extends DeboxController {
         List<Photo> photos = photoDao.getPhotos(id, token);
         Album parent = albumDao.getAlbum(album.getParentId());
         
-        return renderJSON("album", album, "albumParent", parent, "subAlbums", subAlbums, "photos", photos, "regeneration", getRegenerationData());
+        return renderJSON("album", album, "albumParent", parent,
+                "subAlbums", subAlbums, "photos", photos,
+                "regeneration", getRegenerationData(), "tokens", tokens);
     }
     
-    public Render editAlbum(String albumId, String name, String visibility, boolean downloadable) throws SQLException, IOException {
+    public Render editAlbum(String albumId, String name, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-
         album.setName(name);
         album.setPublic(Boolean.parseBoolean(visibility));
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
+        tokenDao.updateTokensForAlbum(album.getId(), authorizedTokens);
+        
         return getAlbum(null, album.getId());
     }
 
