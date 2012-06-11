@@ -74,7 +74,7 @@ public class AlbumController extends DeboxController {
         Album album;
         List<Token> tokens = null;
         if (authenticated) {
-            album = albumDao.getAlbum(id);
+            album = albumDao.getAlbum(id, token, true);
             tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
             
         } else {
@@ -86,7 +86,7 @@ public class AlbumController extends DeboxController {
         
         List<Album> subAlbums = albumDao.getVisibleAlbums(token, album.getId(), authenticated);
         List<Photo> photos = photoDao.getPhotos(id, token);
-        Album parent = albumDao.getAlbum(album.getParentId());
+        Album parent = albumDao.getAlbum(album.getParentId(), token, authenticated);
         
         return renderJSON("album", album, "albumParent", parent,
                 "subAlbums", subAlbums, "photos", photos,
@@ -94,7 +94,7 @@ public class AlbumController extends DeboxController {
     }
     
     public Render editAlbum(String albumId, String name, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
-        Album album = albumDao.getAlbum(albumId);
+        Album album = albumDao.getAlbum(albumId, null, true);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
@@ -160,13 +160,14 @@ public class AlbumController extends DeboxController {
         albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
         
         Photo photo;
-        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+        boolean accessGranted = SessionUtils.isLogged(SecurityUtils.getSubject());
+        if (accessGranted) {
             photo = albumDao.getAlbumCover(albumId);
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
         }
         
-        Album album = albumDao.getAlbum(albumId);
+        Album album = albumDao.getAlbum(albumId, token, accessGranted);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
@@ -190,7 +191,7 @@ public class AlbumController extends DeboxController {
         Album album;
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
         if (authenticated) {
-            album = albumDao.getAlbum(albumId);
+            album = albumDao.getAlbum(albumId, token, true);
         } else {
             album = albumDao.getVisibleAlbum(token, albumId);
         }
@@ -217,7 +218,7 @@ public class AlbumController extends DeboxController {
     public Render regenerateThumbnails(String albumId) throws SQLException {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
 
-        Album album = albumDao.getAlbum(albumId);
+        Album album = albumDao.getAlbum(albumId, null, true);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }

@@ -147,7 +147,7 @@ public class TokenDao {
                     result.setLabel(label);
                 }
                 if (albumId != null) {
-                    Album album = albumDao.getAlbum(albumId);
+                    Album album = albumDao.getAlbum(albumId, null, true);
                     result.getAlbums().add(album);
                 }
             }

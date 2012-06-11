@@ -176,7 +176,7 @@ public class AdministrationController extends DeboxController {
     public Render handleThumbnailsArchive(String albumId, UploadFile file) {
         Album album = null;
         try {
-            album = albumDao.getAlbum(albumId);
+            album = albumDao.getAlbum(albumId, null, true);
         } catch (SQLException ex) {
             logger.error("Unable to get album from database", ex);
         }
