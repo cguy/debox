@@ -225,7 +225,6 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 existing = true;
             } else if (currentRelativePath.equals(currentPath.getParent().toString())) {
                 parent = current;
-                break;
             }
         }
         //in any case, set the photo count to 0
@@ -260,8 +259,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
 
         // Increment photos count for parents, and search first parent
         Album album = null;
+        String currentPath = StringUtils.substringAfter(path.toString(), this.source.toString());
         for (Album current : albums.keySet()) {
-            String currentPath = StringUtils.substringAfter(path.toString(), this.source.toString());
             if (currentPath.startsWith(current.getRelativePath())) {
                 current.setPhotosCount(current.getPhotosCount() + 1);
                 String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
