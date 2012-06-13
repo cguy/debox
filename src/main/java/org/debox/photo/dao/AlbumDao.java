@@ -77,7 +77,6 @@ public class AlbumDao {
             + "    AND ("
             + "        token_id = ?"
             + "        OR public = 1"
-            + "        OR ?"
             + "    )"
             + "ORDER BY begin_date";
     
