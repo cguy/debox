@@ -34,7 +34,7 @@ public class Album implements Comparable<Album> {
     protected Date endDate;
     protected int photosCount;
     protected String relativePath;
-    protected Album parent;
+    protected String parentId;
     protected String coverUrl;
     protected boolean isPublic;
     protected boolean downloadable;
@@ -48,19 +48,12 @@ public class Album implements Comparable<Album> {
         this.subAlbumsCount = subAlbumsCount;
     }
     
-    public Album getParent() {
-        return this.parent;
-    }
-
     public String getParentId() {
-        if (this.parent == null) {
-            return null;
-        }
-        return this.parent.getId();
+        return parentId;
     }
 
-    public void setParent(Album parent) {
-        this.parent = parent;
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
     
     public boolean isDownloadable() {
@@ -158,21 +151,11 @@ public class Album implements Comparable<Album> {
     }
     
     public boolean hasParent() {
-        return this.parent != null;
+        return this.parentId != null;
     }
     
     public boolean isSubAlbum(Album target) {
-        if (target == null || !this.hasParent()) {
-            return false;
-        }
-        
-        Album current = this.getParent();
-        boolean result = target.equals(current);
-        while (!result && current.hasParent()) {
-            current = current.getParent();
-            result = current.equals(target);
-        } 
-        return result;
+        return target != null && this.getRelativePath().startsWith(target.getRelativePath());
     }
     
 }

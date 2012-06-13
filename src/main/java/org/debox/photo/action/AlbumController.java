@@ -71,14 +71,10 @@ public class AlbumController extends DeboxController {
 
     public Render getAlbum(String token, String id) throws IOException, SQLException {
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        Album album;
         List<Token> tokens = null;
+        Album album = albumDao.getVisibleAlbum(token, id, authenticated);
         if (authenticated) {
-            album = albumDao.getAlbum(id, token, true);
             tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
-            
-        } else {
-            album = albumDao.getVisibleAlbum(token, id);
         }
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -86,7 +82,7 @@ public class AlbumController extends DeboxController {
         
         List<Album> subAlbums = albumDao.getVisibleAlbums(token, album.getId(), authenticated);
         List<Photo> photos = photoDao.getPhotos(id, token);
-        Album parent = albumDao.getAlbum(album.getParentId(), token, authenticated);
+        Album parent = albumDao.getAlbum(album.getParentId());
         
         return renderJSON("album", album, "albumParent", parent,
                 "subAlbums", subAlbums, "photos", photos,
@@ -94,7 +90,7 @@ public class AlbumController extends DeboxController {
     }
     
     public Render editAlbum(String albumId, String name, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
-        Album album = albumDao.getAlbum(albumId, null, true);
+        Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
@@ -103,8 +99,6 @@ public class AlbumController extends DeboxController {
         album.setDownloadable(downloadable);
 
         albumDao.save(album);
-        
-//        tokenDao.updateTokensForAlbum(album.getId(), authorizedTokens);
         
         if (authorizedTokens != null) {
             List<Token> tokens = tokenDao.getAll();
@@ -121,10 +115,10 @@ public class AlbumController extends DeboxController {
         return getAlbum(null, album.getId());
     }
     
-    protected void addParentAlbumsToToken(Album album, Token token) {
+    protected void addParentAlbumsToToken(Album album, Token token) throws SQLException {
         if (album != null && !token.getAlbums().contains(album)) {
             token.getAlbums().add(album);
-            addParentAlbumsToToken(album.getParent(), token);
+            addParentAlbumsToToken(albumDao.getAlbum(album.getParentId()), token);
         }
     }
     
@@ -160,14 +154,13 @@ public class AlbumController extends DeboxController {
         albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
         
         Photo photo;
-        boolean accessGranted = SessionUtils.isLogged(SecurityUtils.getSubject());
-        if (accessGranted) {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
             photo = albumDao.getAlbumCover(albumId);
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
         }
         
-        Album album = albumDao.getAlbum(albumId, token, accessGranted);
+        Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
@@ -190,11 +183,7 @@ public class AlbumController extends DeboxController {
     public Render download(String token, String albumId, boolean resized) throws SQLException {
         Album album;
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        if (authenticated) {
-            album = albumDao.getAlbum(albumId, token, true);
-        } else {
-            album = albumDao.getVisibleAlbum(token, albumId);
-        }
+        album = albumDao.getVisibleAlbum(token, albumId, authenticated);
         
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -218,7 +207,7 @@ public class AlbumController extends DeboxController {
     public Render regenerateThumbnails(String albumId) throws SQLException {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
 
-        Album album = albumDao.getAlbum(albumId, null, true);
+        Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }

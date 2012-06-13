@@ -85,7 +85,7 @@ public class TokenController extends DeboxController {
                     // Convert String list to Album list
                     List<Album> albumsToIgnore = new ArrayList<>(ignore.size());
                     for (String toIgnoreAlbumId : ignore) {
-                        albumsToIgnore.add(albumDao.getAlbum(toIgnoreAlbumId, null, false));
+                        albumsToIgnore.add(albumDao.getAlbum(toIgnoreAlbumId));
                     }
                     
                     // Keep old visible subAlbums if their parent has to be ignored
@@ -99,7 +99,7 @@ public class TokenController extends DeboxController {
                 }
                 
                 for (String albumId : albums) {
-                    Album album = albumDao.getAlbum(albumId, null, false);
+                    Album album = albumDao.getAlbum(albumId);
                     token.getAlbums().add(album);
                 }
             }

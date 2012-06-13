@@ -229,7 +229,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         }
         //in any case, set the photo count to 0
         if (!existing && parent != null) {
-            album.setParent(parent);
+            album.setParentId(parent.getId());
         }
 
         albums.put(album, Boolean.TRUE);
@@ -258,13 +258,10 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
 
         // Increment photos count for parents, and search first parent
         Album album = null;
-        String currentPath = StringUtils.substringAfter(path.toString(), this.source.toString());
         for (Album current : albums.keySet()) {
-            if (currentPath.startsWith(current.getRelativePath())) {
-                String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
-                if (currentPathParent.equals(current.getRelativePath())) {
-                    album = current;
-                }
+            String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
+            if (currentPathParent.equals(current.getRelativePath())) {
+                album = current;
             }
         }
         

@@ -22,7 +22,6 @@ package org.debox.photo.action;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,12 +29,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
@@ -176,7 +169,7 @@ public class AdministrationController extends DeboxController {
     public Render handleThumbnailsArchive(String albumId, UploadFile file) {
         Album album = null;
         try {
-            album = albumDao.getAlbum(albumId, null, true);
+            album = albumDao.getAlbum(albumId);
         } catch (SQLException ex) {
             logger.error("Unable to get album from database", ex);
         }
