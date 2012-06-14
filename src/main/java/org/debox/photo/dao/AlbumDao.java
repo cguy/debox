@@ -46,7 +46,7 @@ public class AlbumDao {
 
     protected static String SQL_COMPUTED_PHOTOS_COUNT_PART = ""
             + "(SELECT SUM(c) FROM albums a1, "
-            + "(SELECT a2.relative_path, COUNT(DISTINCT p.id) c FROM photos p LEFT JOIN albums a2 ON p.album_id = a2.id "
+            + "(SELECT a2.relative_path, a2.photos_count c FROM albums a2 "
             +    "LEFT JOIN albums_tokens at ON a2.id = at.album_id WHERE at.token_id = ? OR a2.public = 1 OR ? GROUP BY a2.id) rc"
             + " WHERE rc.relative_path LIKE CONCAT(a.relative_path, '%') AND a1.id = a.id GROUP BY a.id) total_photos_count";
 
