@@ -78,11 +78,6 @@ body > .container-fluid {
     font-weight: bold;
 }
 
-h2.page-header {
-    margin: 0 0 15px 0;
-    padding-bottom: 0;
-}
-
 h1.page-header {
     background-color: #f5f5f5;
     padding: 20px 20px 5px;
@@ -96,6 +91,15 @@ h1.page-header a {
 h1.page-header a:hover {
     color: #005580;
     text-decoration: none;
+}
+
+h2.page-header {
+    margin: 0 0 15px 0;
+    padding-bottom: 0;
+}
+
+h3 {
+    margin: 10px 0 15px 0;
 }
 
 .topbar .btn {
@@ -282,4 +286,8 @@ p.footer {
 .footer {
     margin: 10px;
     text-align: center;
+}
+
+#upload .chzn-single {
+    margin-bottom: 10px;
 }

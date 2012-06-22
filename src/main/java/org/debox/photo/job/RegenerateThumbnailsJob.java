@@ -20,28 +20,18 @@
  */
 package org.debox.photo.job;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
-import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.img.ImageUtils;
 import org.debox.photo.util.StringUtils;
-import org.debox.photo.util.img.AlbumDateReader;
 import org.debox.photo.util.img.ThumbnailGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

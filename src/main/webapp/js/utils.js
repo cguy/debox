@@ -534,9 +534,24 @@ function afterAdministrationTabLoading(id, data) {
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
     } else if (id == "upload") {
-        $.getScript("static/js/lib/fu/locale.js");
-        $.getScript("static/js/lib/fu/main.js", function() {console.log("loadedd")});
-    console.log(id);
+        $('#fileupload').fileupload();
+
+        // Demo settings:
+        $('#fileupload').fileupload('option', {
+            maxFileSize: 20000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+            process: [
+            {
+                action: 'load',
+                fileTypes: /^image\/(gif|jpeg|png)$/,
+                maxFileSize: 20000000 // 20MB
+            },
+            {
+                action: 'save'
+            }
+            ]
+        });
+        $(".chzn-select").chosen({no_results_text: "No results matched"});
     }
 }
 

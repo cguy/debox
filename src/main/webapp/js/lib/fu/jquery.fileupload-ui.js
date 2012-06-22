@@ -38,7 +38,6 @@
         // Register as an anonymous AMD module:
         define([
             'jquery',
-            'tmpl',
             'load-image',
             './jquery.fileupload-fp'
         ], factory);
@@ -46,11 +45,10 @@
         // Browser globals:
         factory(
             window.jQuery,
-            window.tmpl,
             window.loadImage
         );
     }
-}(function ($, tmpl, loadImage) {
+}(function ($, loadImage) {
     'use strict';
 
     // The UI version extends the FP (file processing) version or the basic
@@ -87,9 +85,9 @@
             // to always display preview images as img elements:
             previewAsCanvas: true,
             // The ID of the upload template:
-            uploadTemplateId: 'template-upload',
+            uploadTemplateId: 'administration.upload.uploadrow',
             // The ID of the download template:
-            downloadTemplateId: 'template-download',
+            downloadTemplateId: 'administration.upload.downloadrow',
             // The container for the list of files. If undefined, it is set to
             // an element with class "files" inside of the widget element:
             filesContainer: undefined,
@@ -162,7 +160,6 @@
                     template;
                 if (data.context) {
                     data.context.each(function (index) {
-                        console.log(data.result);
                         var file = ($.isArray(data.result) &&
                                 data.result[index]) || {error: 'emptyResult'};
                         if (file.error) {
@@ -349,12 +346,12 @@
                 return '';
             }
             if (bytes >= 1000000000) {
-                return (bytes / 1000000000).toFixed(2) + ' GB';
+                return (bytes / 1000000000).toFixed(2) + ' Go';
             }
             if (bytes >= 1000000) {
-                return (bytes / 1000000).toFixed(2) + ' MB';
+                return (bytes / 1000000).toFixed(2) + ' Mo';
             }
-            return (bytes / 1000).toFixed(2) + ' KB';
+            return (bytes / 1000).toFixed(2) + ' Ko';
         },
 
         _formatBitrate: function (bits) {
@@ -439,14 +436,19 @@
             return valid;
         },
 
-        _renderTemplate: function (func, files) {
-            if (!func) {
+        _renderTemplate: function (template, files) {
+            if (!template) {
                 return $();
             }
-            var result = func({
+            
+            for (var i = 0 ; i < files.length ; i++) {
+                files[i].strSize = this._formatFileSize(files[i].size);
+            }
+            
+            var result = template.render({
                 files: files,
-                formatFileSize: this._formatFileSize,
-                options: this.options
+                options: this.options,
+                i18n: lang 
             });
             if (result instanceof $) {
                 return result;
@@ -666,13 +668,11 @@
             options.templatesContainer = document.createElement(
                 options.filesContainer.prop('nodeName')
             );
-            if (tmpl) {
-                if (options.uploadTemplateId) {
-                    options.uploadTemplate = tmpl(options.uploadTemplateId);
-                }
-                if (options.downloadTemplateId) {
-                    options.downloadTemplate = tmpl(options.downloadTemplateId);
-                }
+            if (options.uploadTemplateId) {
+                options.uploadTemplate = templates[options.uploadTemplateId];
+            }
+            if (options.downloadTemplateId) {
+                options.downloadTemplate = templates[options.downloadTemplateId];
             }
         },
 

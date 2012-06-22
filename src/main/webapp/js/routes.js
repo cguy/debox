@@ -365,11 +365,15 @@ $(document).ready(function() {
             var tab = this.params["tab"];
             if (tab) {
                 tab = tab.substr(1);
-                if (tab == "synchronization" || tab == "upload") {
+                if (tab == "synchronization") {
                     loadAdministrationTab(tab);
                 } else {
+                    var route = tab;
+                    if (tab == "upload") {
+                        route = "albums";
+                    }
                     ajax({
-                        url: tab,
+                        url: route,
                         success: function(data) {
                             loadAdministrationTab(tab, data);
                         }

@@ -71,7 +71,23 @@ var fr = {
         },
         upload: {
             title: "Ajouter des photos",
-            tab: "Ajout de photos"
+            tab: "Ajout de photos",
+            add: "Ajouter des photos",
+            action: "Commencer le chargement des photos",
+            "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
+            "photos": "Ajouter vos photos dans l'album choisi",
+            "start": "Commenter le chargement",
+            cancel: "Annuler",
+            "errors": {
+                "maxFileSize": "File is too big",
+                "minFileSize": "File is too small",
+                "acceptFileTypes": "Filetype not allowed",
+                "maxNumberOfFiles": "Max number of files exceeded",
+                "uploadedBytes": "Uploaded bytes exceed file size",
+                "emptyResult": "Empty file upload result"
+            },
+            "error": "Une erreur est survenue",
+            remove: "Supprimer"
         },
         sync: {
             title: "Synchroniser les répertoires",

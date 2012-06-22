@@ -23,8 +23,10 @@ package org.debox.photo.action;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +40,7 @@ import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
+import org.debox.photo.util.img.ImageUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
 import org.debux.webmotion.server.call.UploadFile;
 import org.debux.webmotion.server.render.Render;
@@ -62,18 +65,44 @@ public class AdministrationController extends DeboxController {
         return renderJSON(getSyncData());
     }
     
-    public JacksonRenderJsonImpl upload(UploadFile test) throws IOException {
+    public Render upload(UploadFile photo, String albumId) throws IOException, SQLException {
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album identifier " + albumId + " is not corresponding with any existing album.");
+        }
+        
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        
+        String basePath = configuration.get(Configuration.Key.SOURCE_PATH);
+        Path targetFile = Paths.get(basePath + album.getRelativePath(), photo.getName());
+        Path originalFile = Paths.get(photo.getFile().getAbsolutePath());
+        
+        logger.info("Copy {} to {}", originalFile, targetFile);
+        Files.copy(originalFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        
+        Photo addedPhoto = new Photo();
+        addedPhoto.setAlbumId(albumId);
+        addedPhoto.setName(photo.getName());
+        addedPhoto.setDate(ImageUtils.getShootingDate(targetFile));
+        addedPhoto.setId(StringUtils.randomUUID());
+        addedPhoto.setRelativePath(album.getRelativePath());
+        
+        photoDao.save(addedPhoto);
+        
+        Photo result = photoDao.getPhoto(addedPhoto.getId());
+        
         final HashMap<String, Object> metaData = new HashMap<>();
-        if (test != null) {
-            metaData.put("name", test.getName());
-            metaData.put("size", test.getSize());
-            metaData.put("url", test.getFile().getAbsolutePath());
+        if (photo != null) {
+            metaData.put("name", photo.getName());
+            metaData.put("size", photo.getSize());
+            metaData.put("url", result.getUrl());
+            metaData.put("thumbnail_url", result.getThumbnailUrl());
         }
 
-        final HashMap<String, Object> result = new HashMap<>();
-        result.put(null, new Object[]{metaData});
-        logger.error(result + "");
-        return new JacksonRenderJsonImpl(result);
+        HashMap<String, Object> resultMetadata = new HashMap<>();
+        resultMetadata.put(null, new Object[]{metaData});
+        
+        return new JacksonRenderJsonImpl(resultMetadata);
     }
 
     public Render synchronize(String mode, boolean forceCheckDates) {

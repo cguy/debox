@@ -172,6 +172,30 @@ public class PhotoDao {
             JdbcUtils.closeConnection(connection);
         }
     }
+
+    public void save(Photo photo) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_CREATE_PHOTO);
+            String id = photo.getId();
+            if (id == null) {
+                id = StringUtils.randomUUID();
+            }
+            statement.setString(1, id);
+            statement.setString(2, photo.getName());
+            statement.setTimestamp(3, new Timestamp(photo.getDate().getTime()));
+            statement.setString(4, photo.getRelativePath());
+            statement.setString(5, photo.getAlbumId());
+            statement.setString(6, photo.getAlbumId());
+            statement.setString(7, photo.getRelativePath());
+            statement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
     
     public void delete(List<Photo> photos) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();

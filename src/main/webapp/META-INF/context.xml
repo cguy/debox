@@ -19,4 +19,4 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
   -->
-<Context antiJARLocking="true" path=""/>
+<Context antiJARLocking="true" path="/photo"/>

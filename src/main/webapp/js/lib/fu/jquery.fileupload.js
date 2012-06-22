@@ -396,7 +396,6 @@
         },
 
         _initIframeSettings: function (options) {
-            console.log("iframesettings")
             // Setting the dataType to iframe enables the iframe transport:
             options.dataType = 'iframe ' + (options.dataType || '');
             // The iframe transport accepts a serialized array as form data:
@@ -602,7 +601,6 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            console.log("result="+result);
             if (!this._isXHRUpload(options)) {
                 // Create a progress event for each iframe load:
                 this._onProgress($.Event('progress', {
