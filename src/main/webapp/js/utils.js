@@ -591,6 +591,7 @@ function afterAdministrationTabLoading(id, data) {
             persist: false,
             imagePath: "/skin-vista",
             checkbox: true, // Show checkboxes.
+            classNames: {checkbox: "dynatree-radio"},
             selectMode: 1, // 1:single, 2:multi, 3:multi-hier
             fx: {
                 height: "toggle", 
