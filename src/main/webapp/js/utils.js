@@ -191,6 +191,8 @@ function loadAlbum(data, callback) {
     data.album.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
     data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
     
+    data.album.photos = data.photos;
+    
     loadTemplate("album", data, null, function() {
         onBodyScroll();
         manageRegenerationProgress(data);

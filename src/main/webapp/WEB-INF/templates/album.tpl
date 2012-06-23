@@ -65,8 +65,8 @@
     {{#photos.length}}
         {{#subAlbums.length}}
             <h2>{{photos.length}} 
-                {{#hasSeveralPhotos}}{{i18n.common.photos}}{{/hasSeveralPhotos}}
-                {{^hasSeveralPhotos}}{{i18n.common.photo}}{{/hasSeveralPhotos}}
+                {{#album.hasSeveralPhotos}}{{i18n.common.photos}}{{/album.hasSeveralPhotos}}
+                {{^album.hasSeveralPhotos}}{{i18n.common.photo}}{{/album.hasSeveralPhotos}}
             </h2>{{/subAlbums.length}}
         {{> photo.thumbnails}}
     {{/photos.length}}
