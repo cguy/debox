@@ -89,6 +89,9 @@ public class AdministrationController extends DeboxController {
         
         photoDao.save(addedPhoto);
         
+        album.setPhotosCount(album.getPhotosCount() + 1);
+        albumDao.save(album);
+        
         if (createThumbnails) {
             ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);
             ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.LARGE);
