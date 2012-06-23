@@ -474,7 +474,7 @@ function initDynatree(id, children) {
                     node.setLazyNodeStatus(DTNodeStatus_Ok);
                     node.addChild(childrenObject);
                 },
-                error : function(xhr) {
+                error : function(data) {
                     node.setLazyNodeStatus(DTNodeStatus_Error, {
                         tooltip: data.faultDetails,
                         info: data.faultString
@@ -534,9 +534,74 @@ function afterAdministrationTabLoading(id, data) {
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
     } else if (id == "upload") {
-        $('#fileupload').fileupload();
 
-        // Demo settings:
+        var albums = [];
+        for (var i = 0 ; i < data.albums.length ; i++) {
+            var current = data.albums[i];
+            var p = {
+                title: current.name, 
+                key: current.id, 
+                isFolder: true,
+                select: false,
+                isLazy : !!current['subAlbumsCount']
+            };
+            albums.push(p);
+        }
+        
+        $(".dynatree").dynatree({
+            onSelect: function(checked, node) {
+                $("#albumId").val("");
+                if (checked) {
+                    $("#albumId").val(node.data.key);
+                    $(".mandatory.alert").slideUp(500);
+                }
+            },
+            onLazyRead : function(node) {
+                $.ajax({
+                    url: "albums?parentId=" + node.data.key,
+                    success : function(data) {
+                    
+                        var albums = data.albums;
+                        var childrenObject = [];
+                        for (var i = 0 ; i < albums.length ; i++) {
+                            var currentAlbum = albums[i];
+                            var currentChild = {
+                                title: currentAlbum.name, 
+                                key: currentAlbum.id, 
+                                isFolder: true,
+                                select: false,
+                                isLazy : !!currentAlbum['subAlbumsCount']
+                            };
+                        
+                            childrenObject.push(currentChild);
+                        }
+                    
+                        node.setLazyNodeStatus(DTNodeStatus_Ok);
+                        node.addChild(childrenObject);
+                    },
+                    error : function(xhr) {
+                        node.setLazyNodeStatus(DTNodeStatus_Error, {
+                            tooltip: data.faultDetails,
+                            info: data.faultString
+                        });
+                    }
+                });
+            },
+            autoCollapse: false,
+            persist: false,
+            imagePath: "/skin-vista",
+            checkbox: true, // Show checkboxes.
+            selectMode: 1, // 1:single, 2:multi, 3:multi-hier
+            fx: {
+                height: "toggle", 
+                duration: 200
+            },
+            noLink: true,
+            children: albums,
+            debugLevel: 0
+        });
+        
+        $('#fileupload').fileupload();
         $('#fileupload').fileupload('option', {
             maxFileSize: 20000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
@@ -551,7 +616,12 @@ function afterAdministrationTabLoading(id, data) {
             }
             ]
         });
-        $(".chzn-select").chosen({no_results_text: "No results matched"});
+        $('#fileupload').bind('fileuploadsubmit', function (e, data) {
+            if (!$("#albumId").val()) {
+                $(".mandatory.hide").effect("pulsate", {times:3}, 500);
+                e.preventDefault();
+            }
+        });
     }
 }
 

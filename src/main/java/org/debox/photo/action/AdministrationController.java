@@ -26,7 +26,6 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +39,7 @@ import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
+import org.debox.photo.util.img.ImageHandler;
 import org.debox.photo.util.img.ImageUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
 import org.debux.webmotion.server.call.UploadFile;
@@ -65,7 +65,7 @@ public class AdministrationController extends DeboxController {
         return renderJSON(getSyncData());
     }
     
-    public Render upload(UploadFile photo, String albumId) throws IOException, SQLException {
+    public Render upload(UploadFile photo, String albumId, boolean createThumbnails) throws IOException, SQLException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album identifier " + albumId + " is not corresponding with any existing album.");
@@ -77,8 +77,8 @@ public class AdministrationController extends DeboxController {
         Path targetFile = Paths.get(basePath + album.getRelativePath(), photo.getName());
         Path originalFile = Paths.get(photo.getFile().getAbsolutePath());
         
-        logger.info("Copy {} to {}", originalFile, targetFile);
-        Files.copy(originalFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        logger.debug("Copy {} to {}", originalFile, targetFile);
+        Files.copy(originalFile, targetFile);
         
         Photo addedPhoto = new Photo();
         addedPhoto.setAlbumId(albumId);
@@ -88,6 +88,11 @@ public class AdministrationController extends DeboxController {
         addedPhoto.setRelativePath(album.getRelativePath());
         
         photoDao.save(addedPhoto);
+        
+        if (createThumbnails) {
+            ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);
+            ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.LARGE);
+        }
         
         Photo result = photoDao.getPhoto(addedPhoto.getId());
         

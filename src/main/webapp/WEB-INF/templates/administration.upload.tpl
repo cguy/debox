@@ -2,12 +2,10 @@
     <h2 class="page-header">{{i18n.administration.upload.title}}</h2>
 
     <h3>{{i18n.administration.upload.album}}</h3>
-    <select name="albumId" data-placeholder="{{i18n.administration.upload.album.choose}}" class="chzn-select chzn-single">
-        {{#albums}}
-        <option value="{{id}}">{{name}}</option>
-        {{/albums}}
-    </select>
-
+    <div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.mandatory}}</div>
+    <div class="dynatree"></div>
+    <input type="hidden" name="albumId" id="albumId" />
+    
     <h3>{{i18n.administration.upload.photos}}</h3>
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
     <div class="row fileupload-buttonbar">

@@ -288,6 +288,15 @@ p.footer {
     text-align: center;
 }
 
-#upload .chzn-single {
-    margin-bottom: 10px;
+#upload .dynatree-container {
+    border: none;
 }
+
+#upload table td {
+    vertical-align: middle;
+}
+
+#upload table img {
+    max-width: 50px;
+}
+

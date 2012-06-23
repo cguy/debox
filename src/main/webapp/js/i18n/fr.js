@@ -21,6 +21,7 @@
 var fr = {
     common: {
         warning: "Attention",
+        mandatory: "Obligatoire",
         loading : "Chargement en cours ...",
         back2home: "Retour à l'accueil",
         photo: "photo",
@@ -73,6 +74,7 @@ var fr = {
             title: "Ajouter des photos",
             tab: "Ajout de photos",
             add: "Ajouter des photos",
+            mandatory: "Veuillez choisir l'album dans lequel vous voulez ajouter vos photos.",
             action: "Commencer le chargement des photos",
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
             "photos": "Ajouter vos photos dans l'album choisi",
@@ -87,7 +89,7 @@ var fr = {
                 "emptyResult": "Empty file upload result"
             },
             "error": "Une erreur est survenue",
-            remove: "Supprimer"
+            close: "Fermer"
         },
         sync: {
             title: "Synchroniser les répertoires",

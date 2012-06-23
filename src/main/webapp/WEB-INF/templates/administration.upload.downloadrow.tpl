@@ -10,19 +10,19 @@ pouet
         {{^error}}
             <td class="preview">
             {{#thumbnail_url}}
-                <a href="{{url}}" title="{{name}}" rel="gallery" download="{{name}}"><img src="{{thumbnail_url}}"></a>
+                <img src="{{thumbnail_url}}">
             {{/thumbnail_url}}
             </td>
             <td class="name">
-                <a href="{{url}}" title="{{name}}" rel="{{thumbnail_url}}gallery" download="{{name}}">{{name}}</a>
+                {{name}}
             </td>
             <td class="size"><span>{{strSize}}</span></td>
             <td colspan="2"></td>
         {{/error}}
         <td class="delete">
-            <button class="btn btn-danger" data-type="{{delete_type}}" data-url="{{delete_url}}">
+            <button class="btn">
                 <i class="icon-trash icon-white"></i>
-                <span>{{i18n.administration.upload.remove}}</span>
+                <span>{{i18n.administration.upload.close}}</span>
             </button>
         </td>
     </tr>

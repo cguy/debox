@@ -371,6 +371,8 @@ $(document).ready(function() {
                     var route = tab;
                     if (tab == "upload") {
                         route = "albums";
+                    } else if (tab == "albums") {
+                        route = "albums?criteria=all";
                     }
                     ajax({
                         url: route,
