@@ -253,7 +253,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.5.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -262,7 +262,7 @@
             
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.2</version>
+                <version>2.3.2</version>
                 <configuration>
                     <tagBase>https://svn.debux.org/debox/${project.name}/tags</tagBase>
                 </configuration>
@@ -272,7 +272,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.0</version>
+                <version>1.1</version>
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>false</addSvnKeyWords>
