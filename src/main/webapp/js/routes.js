@@ -287,15 +287,14 @@ $(document).ready(function() {
                 url: "token/reinit/" + id,
                 type: "post",
                 success: function(data) {
-                    console.log("#/token/reinit " + data.id)
                     $("#" + id).attr("id", data.id);
                     $("#" + data.id + " .access_link a").attr("href", data.id + "#/");
                     $("#" + data.id + " .access_link .alert-success").show();
-//                    if ($("#administration_tokens").find("tbody tr").length == 0) {
-//                        $("#administration_tokens").addClass("hide");
-//                        $("#tokens p.alert-warning").removeClass("hide");
-//                    }
+                    
+                    var form = $("#" + data.id + " .album-access-form");
+                    form.attr("action", form.attr("action").replace(id, data.id));
                     $("#modal-token-reinit").modal("hide");
+                    loadFunctions("tokens");
                 },
                 error : function(xhr) {
                     $("#modal-token-reinit input[type=submit]").button('reset');
