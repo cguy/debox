@@ -14,10 +14,14 @@
             <div class="albums-access hide" name="albums"></div>
         </form>
     </td>
-    <td><a href="{{id}}#/"><i class="icon icon-share"></i>&nbsp;{{i18n.administration.tokens.link}}</a></td>
+    <td class="access_link">
+        <a href="{{id}}#/"><i class="icon icon-share"></i>&nbsp;{{i18n.administration.tokens.link}}</a>
+        <div class="alert alert-success hide">{{i18n.administration.tokens.reinit.success}}</div>
+    </td>
     <td>
         <span>
             <button class="btn btn-info edit"><i class="icon-pencil icon-white"></i>&nbsp;{{i18n.common.modify}}</button>
+            <button href="#modal-token-reinit" data-toggle="modal" class="btn btn-warning reinit"><i class="icon-refresh icon-white"></i>&nbsp;{{i18n.administration.tokens.reinit.label}}</button>
             <button href="#modal-token-delete" data-toggle="modal" class="btn btn-danger delete"><i class="icon-remove icon-white"></i>&nbsp;{{i18n.common.delete}}</button>
         </span>
     </td>

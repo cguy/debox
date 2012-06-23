@@ -281,10 +281,42 @@ $(document).ready(function() {
             return false;
         });
         
+        this.post('#/token/reinit', function() {
+            var id = $("#modal-token-reinit input[type=hidden]").val();
+            $.ajax({
+                url: "token/reinit/" + id,
+                type: "post",
+                success: function(data) {
+                    console.log("#/token/reinit " + data.id)
+                    $("#" + id).attr("id", data.id);
+                    $("#" + data.id + " .access_link a").attr("href", data.id + "#/");
+                    $("#" + data.id + " .access_link .alert-success").show();
+//                    if ($("#administration_tokens").find("tbody tr").length == 0) {
+//                        $("#administration_tokens").addClass("hide");
+//                        $("#tokens p.alert-warning").removeClass("hide");
+//                    }
+                    $("#modal-token-reinit").modal("hide");
+                },
+                error : function(xhr) {
+                    $("#modal-token-reinit input[type=submit]").button('reset');
+                    $("#modal-token-reinit p:first-of-type").addClass("alert alert-error");
+                    console.log(lang.administration.tokens.reinit.error)
+                    var errorMessage;
+                    if (xhr.status == 404) {
+                        errorMessage = lang.administration.tokens.reinit.error404
+                    } else {
+                        errorMessage = lang.administration.tokens.reinit.error
+                    }
+                    $("#modal-token-reinit p:first-of-type").html(errorMessage);
+                }
+            });
+            return false;
+        });
+        
         this.post('#/token/:token', function() {
             var token = this.params["token"];
-            $("#" + token + " .alert-success").hide();
-            $("#" + token + " .alert-error").hide();
+            $("#" + token + " .albums .alert-success").hide();
+            $("#" + token + " .albums .alert-error").hide();
             
             var tree = $("#" + token + " .album-access-form .albums-access").dynatree("getTree");
             
@@ -316,11 +348,11 @@ $(document).ready(function() {
                     $("#" + data.id + " .access_label").text(data.label);
                     $("#" + data.id + " .album-access-form .albums-access").hide();
                     $("#" + data.id + " .album-access-form button.btn").show();
-                    $("#" + data.id + " .alert-success").show();
+                    $("#" + data.id + " .albums .alert-success").show();
                     $("#" + data.id + " .album-access-form span").hide();
                 },
                 error : function() {
-                    $("#" + token + " .alert-error").show();
+                    $("#" + token + " .albums .alert-error").show();
                 }
             });
             return false;

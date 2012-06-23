@@ -113,4 +113,21 @@ public class TokenController extends DeboxController {
         tokenDao.delete(id);
         return renderStatus(HttpURLConnection.HTTP_OK);
     }
+    
+    public Render reinitToken(String id) throws SQLException {
+        Token token = tokenDao.getById(id);
+        if (token == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+        }
+        
+        Token newToken = new Token();
+        newToken.setLabel(token.getLabel());
+        newToken.setAlbums(token.getAlbums());
+        newToken.setId(StringUtils.randomUUID());
+        
+        tokenDao.save(newToken);
+        tokenDao.delete(id);
+        
+        return renderJSON(newToken);
+    }
 }

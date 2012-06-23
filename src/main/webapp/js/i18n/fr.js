@@ -131,6 +131,16 @@ var fr = {
             "delete": {
                 title: "Supprimer un accès visiteur",
                 message: "Êtes-vous sûr de vouloir supprimer l'accès visiteur"
+            },
+            reinit: {
+                label: "Réinitialiser",
+                label_in_progress: "Réinitialisation en cours",
+                title: "Réinitialiser un accès visiteur",
+                message: "Êtes-vous sûr de vouloir Réinitialiser l'accès visiteur",
+                description: "Un nouveau lien sera généré, interdisant l'accès à ceux qui utilisent le lien précédent. Le nouveau lien donnera accès aux mêmes albums que l'ancien.",
+                success: "L'accès a été réinitialisé avec succès.",
+                error404: "L'accès que essayez de réinitialiser n'existe pas.",
+                error: "Erreur pendant la réinitialisation de l'accès, veuillez réessayer ultérieurement."
             }
         },
         account: {

@@ -6,7 +6,7 @@
             <th>{{i18n.administration.tokens.label}}</th>
             <th>{{i18n.administration.tokens.albums}}</th>
             <th style="width:120px;">{{i18n.administration.tokens.link2share}}</th>
-            <th style="width:185px;">{{i18n.administration.tokens.actions}}</th>
+            <th>{{i18n.administration.tokens.actions}}</th>
         </tr>
     </thead>
     <tbody>
@@ -62,6 +62,26 @@
     <div class="modal-footer">
         <input type="hidden" name="id" />
         <input type="submit" class="btn btn-danger" data-loading-text="{{i18n.common.deletion_in_progress}}" value="{{i18n.common.delete}}" />
+        <button type="reset" class="btn">{{i18n.common.cancel}}</button>
+    </div>
+</form>
+
+{{! ========================================================== }}
+{{! POPUP MODAL - REINIT A TOKEN (VISITORS ACCESS)             }}
+{{! ========================================================== }}
+<form id="modal-token-reinit" class="modal hide fade form-horizontal" action="#/token/reinit" method="post">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>{{i18n.administration.tokens.reinit.title}}</h3>
+    </div>
+    <div class="modal-body">
+        <p></p>
+        <p>{{i18n.administration.tokens.reinit.message}} <strong></strong>?</p>
+        <p>{{i18n.administration.tokens.reinit.description}}</p>
+    </div>
+    <div class="modal-footer">
+        <input type="hidden" name="id" />
+        <input type="submit" class="btn btn-warning" data-loading-text="{{i18n.administration.tokens.reinit.label_in_progress}}" value="{{i18n.administration.tokens.reinit.label}}" />
         <button type="reset" class="btn">{{i18n.common.cancel}}</button>
     </div>
 </form>

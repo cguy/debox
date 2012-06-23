@@ -690,6 +690,15 @@ function loadTokensTabFunctions() {
         $("#modal-token-delete input[type=hidden]").val(id);
         $("#modal-token-delete p strong").text(name);
     });
+    
+    $("#administration_tokens button.reinit").unbind('click');
+    $("#administration_tokens button.reinit").click(function() {
+        var id = $(this).parents("tr").attr("id");
+        $("#" + id + " .access_link .alert-success").hide();
+        var name = $(this).parents("tr").find(".access_label").text();
+        $("#modal-token-reinit input[type=hidden]").val(id);
+        $("#modal-token-reinit p strong").text(name);
+    });
 }
 
 function handleAdmin() {

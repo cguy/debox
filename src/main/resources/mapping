@@ -63,6 +63,7 @@ PUT         /token                              TokenController.createToken
 GET         /token/{id}                         TokenController.getToken
 POST        /token                              TokenController.editToken
 POST        /token/{id}                         TokenController.editToken
+POST        /token/reinit/{id}                  TokenController.reinitToken
 DELETE      /token/{id}                         TokenController.deleteToken
 
 # -----------------------------------------------------------------------------------------------
