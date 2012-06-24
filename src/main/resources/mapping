@@ -4,8 +4,6 @@ package.filters=filter
 package.actions=action
 package.views=WEB-INF/
 
-#server.static.autodetect=false # Disable static resources (any resource with an extension in its name) detection
-
 [filters]
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
@@ -34,9 +32,9 @@ GET         /uploadProgress                         AdministrationFilter.checkUs
 GET         /configuration                      ConfigurationController.getConfiguration
 POST        /configuration                      ConfigurationController.editConfiguration
 GET         /administration/sync                AdministrationController.getSyncProgress
-POST        /administration/sync                AdministrationController.synchronize                forceCheckDates=false
+POST        /administration/sync                AdministrationController.synchronize                    forceCheckDates=false
 DELETE      /administration/sync                AdministrationController.cancelSynchronization
-*           /administration/upload              AdministrationController.upload                     createThumbnails=false
+POST        /administration/upload              AdministrationController.upload                         createThumbnails=true
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER
@@ -49,11 +47,12 @@ DELETE      /session                            AccountController.logout
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-POST        /album/{albumId}                    AlbumController.editAlbum                           downloadable=false
-POST        /uploadThumbnails                   AdministrationController.handleThumbnailsArchive
-GET         /uploadProgress                     AdministrationController.getUploadProgress
+POST        /albums                                 AlbumController.createAlbum
+POST        /album/{albumId}                        AlbumController.editAlbum                           downloadable=false
 POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
 GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerationProgress
+POST        /uploadThumbnails                       AdministrationController.handleThumbnailsArchive
+GET         /uploadProgress                         AdministrationController.getUploadProgress
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - TOKENS

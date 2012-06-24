@@ -20,6 +20,7 @@
  */
 package org.debox.photo.action;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
@@ -45,6 +45,7 @@ import org.debox.photo.model.Token;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.util.SessionUtils;
+import org.debox.photo.util.StringUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
@@ -62,6 +63,44 @@ public class AlbumController extends DeboxController {
     protected static TokenDao tokenDao = new TokenDao();
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    
+    public Render createAlbum(String albumName, String parentId) throws SQLException {
+        Album album = new Album();
+        album.setId(StringUtils.randomUUID());
+        album.setBeginDate(new Date());
+        album.setEndDate(new Date());
+        album.setName(albumName);
+        album.setPublic(false);
+        album.setPhotosCount(0);
+        album.setDownloadable(false);
+        
+        if (StringUtils.isEmpty(parentId)) {
+            album.setRelativePath(parentId);
+            album.setRelativePath(File.separatorChar + album.getName());
+            
+        } else {
+            Album parent = albumDao.getAlbum(parentId);
+            if (parent == null) {
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is not any album with id " + parentId);
+            }
+            album.setParentId(parentId);
+            album.setRelativePath(parent.getRelativePath() + File.separatorChar + album.getName());
+        }
+        
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        String[] paths = {configuration.get(Configuration.Key.SOURCE_PATH), configuration.get(Configuration.Key.TARGET_PATH)};
+        for (String path : paths) {
+            File targetDirectory = new File(path + album.getRelativePath());
+            if (targetDirectory.exists()) {
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "A directory is already existing at path " + album.getRelativePath());
+            } else if (!targetDirectory.mkdir()) {
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Error during directory creation (" + album.getRelativePath() + ")");
+            }
+        }
+        
+        albumDao.save(album);
+        return renderJSON(album);
+    }
 
     public Render getAlbums(String parentId, String token, String criteria) throws SQLException {
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());

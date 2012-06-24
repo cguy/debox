@@ -66,6 +66,7 @@ public class AdministrationController extends DeboxController {
     }
     
     public Render upload(UploadFile photo, String albumId, boolean createThumbnails) throws IOException, SQLException {
+        // Get existing album
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album identifier " + albumId + " is not corresponding with any existing album.");
@@ -87,10 +88,7 @@ public class AdministrationController extends DeboxController {
         addedPhoto.setId(StringUtils.randomUUID());
         addedPhoto.setRelativePath(album.getRelativePath());
         
-        photoDao.save(addedPhoto);
-        
-        album.setPhotosCount(album.getPhotosCount() + 1);
-        albumDao.save(album);
+        photoDao.save(addedPhoto); // Handle photo count increment for album
         
         if (createThumbnails) {
             ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);

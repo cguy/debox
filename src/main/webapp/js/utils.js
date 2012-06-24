@@ -536,6 +536,9 @@ function afterAdministrationTabLoading(id, data) {
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
     } else if (id == "upload") {
+        
+        $("#fileupload input").attr("disabled", true);
+        $("#fileupload .btn").addClass("disabled");
 
         var albums = [];
         for (var i = 0 ; i < data.albums.length ; i++) {
@@ -552,10 +555,18 @@ function afterAdministrationTabLoading(id, data) {
         
         $(".dynatree").dynatree({
             onSelect: function(checked, node) {
-                $("#albumId").val("");
+                $("#albumId, #parentId").val("");
+                
+                var div = $(this)[0].divTree;
+                var isAlbumCreation = $(div).hasClass("parentId");
+                
                 if (checked) {
-                    $("#albumId").val(node.data.key);
-                    $(".mandatory.alert").slideUp(500);
+                    if (isAlbumCreation) {
+                        $("#parentId").val(node.data.key);
+                        $("#parentMandatory").slideUp(500);
+                    } else {
+                        setTargetAlbum(node.data.key, node.data.title);
+                    }
                 }
             },
             onLazyRead : function(node) {
@@ -593,7 +604,9 @@ function afterAdministrationTabLoading(id, data) {
             persist: false,
             imagePath: "/skin-vista",
             checkbox: true, // Show checkboxes.
-            classNames: {checkbox: "dynatree-radio"},
+            classNames: {
+                checkbox: "dynatree-radio"
+            },
             selectMode: 1, // 1:single, 2:multi, 3:multi-hier
             fx: {
                 height: "toggle", 
@@ -619,12 +632,70 @@ function afterAdministrationTabLoading(id, data) {
             }
             ]
         });
-        $('#fileupload').bind('fileuploadsubmit', function (e, data) {
-            if (!$("#albumId").val()) {
-                $(".mandatory.hide").effect("pulsate", {times:3}, 500);
-                e.preventDefault();
+        
+        $("#createNewAlbum").submit(function(event) {
+            // Note : album name is mandatory, but handled by HTML5 required attribute (modern browser)
+            // Never let default behavior, we handle form submit
+            event.preventDefault();
+
+            $("#creationError").slideUp(500);
+
+            var isSubAlbum = false;
+            var data = $(this).serializeArray();
+            for (var i = 0 ; i < data.length ; i++) {
+                if (data[i].name == "parent") {
+                    isSubAlbum = data[i].value == "true";
+                }
+            }
+            
+            if (isSubAlbum && !$("#parentId").val()) {
+                $("#parentMandatory").effect("pulsate", {times:3}, 500);
+                return;
+            }
+            
+            $.ajax({
+                url: "albums",
+                type: "post",
+                data: data,
+                success: function(data) {
+                    setTargetAlbum(data.id, data.name);
+                },
+                error: function() {
+                    $("#creationError").slideDown(500);
+                }
+            });
+            
+        });
+        
+        $("input[name=parent]").change(function() {
+            if ($(this).val() == "true") {
+                $(".dynatree.parentId").slideDown(500);
+            } else {
+                $(".dynatree.parentId").slideUp(500, function() {
+                    $(".dynatree.parentId").dynatree('getTree').reload();
+                });
+                $("#parentMandatory").slideUp(500);
             }
         });
+        
+        function setTargetAlbum(id, name) {
+            $("#albumId").val(id);
+            $("#targetAlbum strong").text(name);
+            $("#targetAlbum").slideDown(500);
+            $("#fileupload input").removeAttr("disabled");
+            $("#fileupload .btn").removeClass("disabled");
+        }
+        
+//        $(".accordion-toggle.createNewAlbum").click(function(){
+//            $("#albumId").val("");
+//            $(".dynatree.albumId").dynatree("getTree").reload();
+//        });
+//        
+//        $(".accordion-toggle.existingAlbum").click(function(){
+//            $("#albumName").val("");
+//            $("#parentId").val("");
+//            $(".dynatree.parentId").dynatree("getTree").reload();
+//        });
     }
 }
 

@@ -21,6 +21,7 @@
 var fr = {
     common: {
         warning: "Attention",
+        error: "Erreur",
         mandatory: "Obligatoire",
         loading : "Chargement en cours ...",
         back2home: "Retour à l'accueil",
@@ -74,10 +75,11 @@ var fr = {
             title: "Ajouter des photos",
             tab: "Ajout de photos",
             add: "Ajouter des photos",
-            mandatory: "Veuillez choisir l'album dans lequel vous voulez ajouter vos photos.",
+            mandatory: "Veuillez choisir ou créer l'album dans lequel vous voulez ajouter vos photos.",
             action: "Commencer le chargement des photos",
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
-            "photos": "Ajouter vos photos dans l'album choisi",
+            "photos": "Ajoutez vos photos",
+            targetDirectory : "Les photos seront ajoutées à l'album : ",
             "start": "Commenter le chargement",
             cancel: "Annuler",
             "errors": {
@@ -89,7 +91,9 @@ var fr = {
                 "emptyResult": "Empty file upload result"
             },
             "error": "Une erreur est survenue",
-            close: "Fermer"
+            close: "Fermer",
+            "existingAlbum": "Je veux ajouter des photos dans un album existant",
+            "newAlbum": "Je veux créer un nouvel album"
         },
         sync: {
             title: "Synchroniser les répertoires",

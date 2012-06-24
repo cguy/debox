@@ -39,6 +39,7 @@ public class PhotoDao {
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
     protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?";
+    protected static String SQL_INCREMENT_PHOTO_COUNT = "UPDATE albums SET photos_count = photos_count + 1 WHERE id = ?";
     
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
     protected static String SQL_GET_ALL = "SELECT id, name, date, relative_path, album_id FROM photos";
@@ -176,6 +177,7 @@ public class PhotoDao {
     public void save(Photo photo) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
+        PreparedStatement albumStatement = null;
         try {
             statement = connection.prepareStatement(SQL_CREATE_PHOTO);
             String id = photo.getId();
@@ -190,8 +192,12 @@ public class PhotoDao {
             statement.setString(6, photo.getAlbumId());
             statement.setString(7, photo.getRelativePath());
             statement.executeUpdate();
-
+            
+            albumStatement = connection.prepareStatement(SQL_INCREMENT_PHOTO_COUNT);
+            albumStatement.setString(1, photo.getAlbumId());
+            albumStatement.executeUpdate();
         } finally {
+            JdbcUtils.closeStatement(albumStatement);
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }

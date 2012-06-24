@@ -292,6 +292,18 @@ p.footer {
     border: none;
 }
 
+#upload form {
+    margin: 0;
+}
+
+#upload form .control-group:first-of-type {
+    margin-top: 10px;
+}
+
+#upload .form-actions {
+    margin: 0;
+}
+
 #upload table td {
     vertical-align: middle;
 }
