@@ -328,8 +328,13 @@ public class AlbumDao {
         statement.setString(1, albumId);
         Photo result = PhotoDao.executeSingleQueryStatement(statement, null);
         if (result == null) {
-            setAlbumCover(albumId, null);
-            return getAlbumCover(albumId);
+            Album album = getAlbum(albumId);
+            if (album.getPhotosCount() == 0) {
+                return null;
+            } else {
+                setAlbumCover(albumId, null);
+                return getAlbumCover(albumId);
+            }
         }
         return result;
     }

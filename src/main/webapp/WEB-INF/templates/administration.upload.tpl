@@ -11,12 +11,12 @@
         </div>
         <div id="existingAlbum" class="accordion-body collapse in">
             <div class="accordion-inner">
-                {{#albums}}
+                {{#albums.length}}
                 <div class="dynatree albumId"></div>
-                {{/albums}}
-                {{^albums}}
+                {{/albums.length}}
+                {{^albums.length}}
                 <div class="alert" style="margin-bottom: 0;">Aucun album n'a été créé pour le moment.</div>
-                {{/albums}}
+                {{/albums.length}}
             </div>
         </div>
     </div>

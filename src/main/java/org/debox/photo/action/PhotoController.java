@@ -53,9 +53,8 @@ public class PhotoController extends DeboxController {
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
         }
-
         if (photo == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
         }
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;

@@ -92,9 +92,9 @@ public class AlbumController extends DeboxController {
         for (String path : paths) {
             File targetDirectory = new File(path + album.getRelativePath());
             if (targetDirectory.exists()) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "A directory is already existing at path " + album.getRelativePath());
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "A directory is already existing at path " + targetDirectory.getAbsolutePath());
             } else if (!targetDirectory.mkdir()) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Error during directory creation (" + album.getRelativePath() + ")");
+                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Error during directory creation (" + targetDirectory.getAbsolutePath() + ")");
             }
         }
         
@@ -208,6 +208,8 @@ public class AlbumController extends DeboxController {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+        } else if (photo == null) {
+            return renderRedirect("/img/default_album.png");
         }
         
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();

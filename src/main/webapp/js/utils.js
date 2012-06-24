@@ -109,9 +109,13 @@ function computeUrl(url) {
     if (location.pathname != "/") {
         var token = location.pathname.substr(location.pathname.lastIndexOf("/") + 1, location.pathname.length - 1);
         var separator = url.indexOf("?") == -1 ? "?" : "&";
-        return url + separator + "token=" + token;
+        if (token) {
+            return url + separator + "token=" + token;
+        } else {
+            return url;
+        }
     }
-    return url;
+    return url;    
 }
 
 function editTitle(title) {
@@ -641,10 +645,10 @@ function afterAdministrationTabLoading(id, data) {
             $("#creationError").slideUp(500);
 
             var isSubAlbum = false;
-            var data = $(this).serializeArray();
-            for (var i = 0 ; i < data.length ; i++) {
-                if (data[i].name == "parent") {
-                    isSubAlbum = data[i].value == "true";
+            var formData = $(this).serializeArray();
+            for (var i = 0 ; i < formData.length ; i++) {
+                if (formData[i].name == "parent") {
+                    isSubAlbum = formData[i].value == "true";
                 }
             }
             
@@ -656,9 +660,25 @@ function afterAdministrationTabLoading(id, data) {
             $.ajax({
                 url: "albums",
                 type: "post",
-                data: data,
+                data: formData,
                 success: function(data) {
                     setTargetAlbum(data.id, data.name);
+                    
+                    var item = {
+                        title: data.name, 
+                        key: data.id, 
+                        isFolder: true,
+                        select: false,
+                        isLazy : !!data['subAlbumsCount']
+                    };
+                    
+                    for (var treeContainerIndex = 0 ; treeContainerIndex < $(".dynatree").length ; treeContainerIndex++) {
+                        var currentTree = $($(".dynatree")[treeContainerIndex]);
+                        if (!isSubAlbum) {
+                            currentTree.dynatree("getTree").getRoot().addChild(item);
+                        }
+                        currentTree.dynatree("getTree").reload();
+                    }
                 },
                 error: function() {
                     $("#creationError").slideDown(500);
@@ -685,17 +705,6 @@ function afterAdministrationTabLoading(id, data) {
             $("#fileupload input").removeAttr("disabled");
             $("#fileupload .btn").removeClass("disabled");
         }
-        
-//        $(".accordion-toggle.createNewAlbum").click(function(){
-//            $("#albumId").val("");
-//            $(".dynatree.albumId").dynatree("getTree").reload();
-//        });
-//        
-//        $(".accordion-toggle.existingAlbum").click(function(){
-//            $("#albumName").val("");
-//            $("#parentId").val("");
-//            $(".dynatree.parentId").dynatree("getTree").reload();
-//        });
     }
 }
 
