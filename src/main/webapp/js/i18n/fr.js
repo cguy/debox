@@ -80,7 +80,7 @@ var fr = {
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
             "photos": "Ajoutez vos photos",
             targetDirectory : "Les photos seront ajoutées à l'album : ",
-            "start": "Commenter le chargement",
+            "start": "Commencer le chargement",
             cancel: "Annuler",
             "errors": {
                 "maxFileSize": "File is too big",
