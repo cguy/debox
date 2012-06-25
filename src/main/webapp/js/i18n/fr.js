@@ -83,12 +83,12 @@ var fr = {
             "start": "Commencer le chargement",
             cancel: "Annuler",
             "errors": {
-                "maxFileSize": "File is too big",
-                "minFileSize": "File is too small",
-                "acceptFileTypes": "Filetype not allowed",
-                "maxNumberOfFiles": "Max number of files exceeded",
-                "uploadedBytes": "Uploaded bytes exceed file size",
-                "emptyResult": "Empty file upload result"
+                "maxFileSize": "Le fichier est trop gros",
+                "minFileSize": "Le fichier est trop petit",
+                "acceptFileTypes": "Ce type de fichier n'est pas accepté",
+                "maxNumberOfFiles": "Vous avez dépassé le nombre de fichiers autorisé",
+                "uploadedBytes": "Le nombre d'octets envoyés dépasse la taille du fichier",
+                "emptyResult": "Fichier vide"
             },
             "error": "Une erreur est survenue",
             close: "Fermer",
