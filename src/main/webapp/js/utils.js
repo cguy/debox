@@ -674,10 +674,16 @@ function afterAdministrationTabLoading(id, data) {
                     
                     for (var treeContainerIndex = 0 ; treeContainerIndex < $(".dynatree").length ; treeContainerIndex++) {
                         var currentTree = $($(".dynatree")[treeContainerIndex]);
+                        var parentNode;
                         if (!isSubAlbum) {
-                            currentTree.dynatree("getTree").getRoot().addChild(item);
+                            parentNode = currentTree.dynatree("getTree").getRoot();
+                        } else {
+                            parentNode = currentTree.dynatree("getTree").getNodeByKey($("#parentId").val());
+                            parentNode.data.isLazy = true;
                         }
-                        currentTree.dynatree("getTree").reload();
+                        parentNode.addChild(item);
+                        parentNode.reloadChildren();
+                        parentNode.render();
                     }
                 },
                 error: function() {
