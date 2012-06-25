@@ -15,7 +15,7 @@
                 <div class="dynatree albumId"></div>
                 {{/albums.length}}
                 {{^albums.length}}
-                <div class="alert" style="margin-bottom: 0;">Aucun album n'a été créé pour le moment.</div>
+                <div class="alert" style="margin-bottom: 0;">{{i18n.common.no_album}}</div>
                 {{/albums.length}}
             </div>
         </div>
@@ -28,25 +28,25 @@
         </div>
         <form id="createNewAlbum" class="accordion-body collapse form-horizontal" action="" method="post">
             <div class="accordion-inner">
-                <div id="creationError" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.error}}</span> Une erreur est survenue pendant la création de l'album.</div>
+                <div id="creationError" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.error}}</span> {{i18n.administration.upload.errors.albumCreation}}</div>
                 <div class="control-group">
-                    <label class="control-label" for="albumName">Nom de l'album :</label>
+                    <label class="control-label" for="albumName">{{i18n.administration.upload.form.albumName}}</label>
                     <div class="controls">
                         <input type="text" class="input-xlarge" id="albumName" name="albumName" required placeholder="Veuillez entrer le nom du nouvel album">
                     </div>
                 </div>
                 <div class="control-group">
-                    <label class="control-label" for="noParent">Sous-album :</label>
+                    <label class="control-label" for="noParent">{{i18n.administration.upload.form.subAlbum}}</label>
                     <div class="controls">
                         <label class="radio">
                             <input id="noParent" type="radio" name="parent" value="false" checked>
-                            L'album ne sera pas un sous-album, il sera accessible directement dans la liste des albums.
+                            {{i18n.administration.upload.form.parent.false}}
                         </label>
                         <label class="radio">
                             <input type="radio" name="parent" value="true">
-                            L'album sera un sous-album, choisissez l'album qui contiendra ce sous-album.
+                            {{i18n.administration.upload.form.parent.true}}
                         </label>
-                        <div id="parentMandatory" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.mandatory}}</span> Pour que l'album créé soit un sous-album, vous devez spécifier l'album qui contiendra ce sous-album.</div>
+                        <div id="parentMandatory" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.form.parent.warning}}</div>
                         <div class="dynatree parentId hide"></div>
                         <input type="hidden" name="parentId" id="parentId" />
                     </div>

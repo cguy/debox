@@ -83,12 +83,22 @@ var fr = {
             "start": "Commencer le chargement",
             cancel: "Annuler",
             "errors": {
+                "albumCreation": "Une erreur est survenue pendant la création de l'album.",
                 "maxFileSize": "Le fichier est trop gros",
                 "minFileSize": "Le fichier est trop petit",
                 "acceptFileTypes": "Ce type de fichier n'est pas accepté",
                 "maxNumberOfFiles": "Vous avez dépassé le nombre de fichiers autorisé",
                 "uploadedBytes": "Le nombre d'octets envoyés dépasse la taille du fichier",
                 "emptyResult": "Fichier vide"
+            },
+            "form": {
+                "albumName": "Nom de l'album :",
+                "subAlbum": "Sous-album :",
+                "parent": {
+                    "false": "L'album ne sera pas un sous-album, il sera accessible directement dans la liste des albums.",
+                    "true": "L'album sera un sous-album, choisissez l'album qui contiendra ce sous-album.",
+                    "error": "Pour que l'album créé soit un sous-album, vous devez spécifier l'album qui contiendra ce sous-album."
+                }
             },
             "error": "Une erreur est survenue",
             close: "Fermer",
