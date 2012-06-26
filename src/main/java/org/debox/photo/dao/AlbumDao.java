@@ -55,7 +55,7 @@ public class AlbumDao {
     protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id is null ORDER BY begin_date";
     protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = ""
             + "SELECT DISTINCT"
-            + "    id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
+            + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
             + "FROM"
             + "    albums a LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
