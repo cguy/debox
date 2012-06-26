@@ -78,6 +78,15 @@
     height: 180px;
 }
 
+.thumbnails > li > .thumbnail > i {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    text-decoration: none;
+    color: white;
+    background: rgba(12,27,30,0.75);
+}
+
 .thumbnails > li > .thumbnail {
     position: absolute;
     display: inline-block;

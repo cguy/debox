@@ -34,6 +34,7 @@ var fr = {
         modify: "Modifier",
         "delete": "Supprimer",
         deletion_in_progress: "Suppression en cours...",
+        creation_in_progress: "Création en cours...",
         modification_in_progress: "Modification en cours...",
         no_album: "Aucun album n'a été créé pour le moment !"
     },
@@ -75,13 +76,13 @@ var fr = {
             title: "Ajouter des photos",
             tab: "Ajout de photos",
             add: "Ajouter des photos",
+            createAlbum: "Creer un album",
             mandatory: "Veuillez choisir ou créer l'album dans lequel vous voulez ajouter vos photos.",
             action: "Commencer le chargement des photos",
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
             "photos": "Ajoutez vos photos",
             targetDirectory : "Les photos seront ajoutées à l'album : ",
             "start": "Commencer le chargement",
-            cancel: "Annuler",
             "errors": {
                 "albumCreation": "Une erreur est survenue pendant la création de l'album.",
                 "maxFileSize": "Le fichier est trop gros",
@@ -92,7 +93,9 @@ var fr = {
                 "emptyResult": "Fichier vide"
             },
             "form": {
+                title: "Création d'un album",
                 "albumName": "Nom de l'album :",
+                namePlaceHolder: "Veuillez entrer le nom du nouvel album",
                 "subAlbum": "Sous-album :",
                 "parent": {
                     "false": "L'album ne sera pas un sous-album, il sera accessible directement dans la liste des albums.",
@@ -101,7 +104,6 @@ var fr = {
                 }
             },
             "error": "Une erreur est survenue",
-            close: "Fermer",
             "existingAlbum": "Je veux ajouter des photos dans un album existant",
             "newAlbum": "Je veux créer un nouvel album"
         },

@@ -47,6 +47,7 @@ $(document).ready(function() {
                             var album = data.subAlbums[i];
                             createAlbum(album);
                         }
+                        data.album.photos = data.photos;
                         data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
                         loadTemplate("album", data, null, function() { 
                             editTitle($("a.brand").text() + " - " + data.album.name);
@@ -71,10 +72,9 @@ $(document).ready(function() {
                 var slideshowData = [];
                 var photos = $(".photos a.thumbnail");
                 for (var i = 0 ; i < photos.length ; i++) {
-                    var span = $(photos[i]).find("span");
                     slideshowData.push({
                         "id" : "/album/" + this.params['album'] + "/" + photos[i].id,
-                        "url" : span.text(),
+                        "url" : $(photos[i]).attr("fullScreenUrl"),
                         "caption" : $(photos[i]).attr("title")
                     });
                 }
@@ -232,6 +232,48 @@ $(document).ready(function() {
                     } else {
                         $("#synchronization form p.error").text("Erreur de communication avec le serveur.");
                     }
+                }
+            });
+            return false;
+        });
+        
+        this.put('#/album', function() {
+            // Note : album name is mandatory, but handled by HTML5 required attribute (modern browser)
+            // Never let default behavior, we handle form submit
+            $("#creationError").slideUp(500);
+
+            var parentId = null;
+            var formData = $("#modal-createNewAlbum").serializeArray();
+            var params = "";
+            for (var k in formData) {
+                var param = formData[k];
+                params += param.name + "=" + param.value + "&";
+                if (param.name == "parentId") {
+                    parentId = param.value;
+                }
+            }
+            $.ajax({
+                url: "album?" + params,
+                type: "put",
+                success: function(data) {
+                    setTargetAlbum(data.id, data.name);
+                    
+                    var item = {
+                        title: data.name, 
+                        key: data.id, 
+                        isFolder: true,
+                        activate: true,
+                        focus: true,
+                        isLazy : !!data['subAlbumsCount']
+                    };
+                    
+                    updateAlbumTreeAfterCreation(parentId, item);
+                    updateParentTreeAfterCreation(parentId, item);
+                    
+                    $("#modal-createNewAlbum").modal("hide");
+                },
+                error: function() {
+                    $("#creationError").slideDown(500);
                 }
             });
             return false;

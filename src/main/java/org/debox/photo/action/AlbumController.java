@@ -65,6 +65,9 @@ public class AlbumController extends DeboxController {
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
     
     public Render createAlbum(String albumName, String parentId) throws SQLException {
+        if (StringUtils.isEmpty(albumName)) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The name of the album is mandatory.");
+        }
         Album album = new Album();
         album.setId(StringUtils.randomUUID());
         album.setBeginDate(new Date());

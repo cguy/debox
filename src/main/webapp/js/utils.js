@@ -539,8 +539,8 @@ function afterAdministrationTabLoading(id, data) {
             prepareDynatree(data.albums, tokens[tokenIndex].albums, treeChildren, null);
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
-    } else if (id == "upload") {
         
+    } else if (id == "upload") {
         $("#fileupload input").attr("disabled", true);
         $("#fileupload .btn").addClass("disabled");
 
@@ -557,22 +557,15 @@ function afterAdministrationTabLoading(id, data) {
             albums.push(p);
         }
         
-        $(".dynatree").dynatree({
-            onSelect: function(checked, node) {
-                $("#albumId, #parentId").val("");
-                
-                var div = $(this)[0].divTree;
-                var isAlbumCreation = $(div).hasClass("parentId");
-                
-                if (checked) {
-                    if (isAlbumCreation) {
-                        $("#parentId").val(node.data.key);
-                        $("#parentMandatory").slideUp(500);
-                    } else {
-                        setTargetAlbum(node.data.key, node.data.title);
-                    }
-                }
-            },
+        var root = {
+            title: lang.home.title, 
+            key: "", 
+            isFolder: true,
+            select: true,
+            children: albums
+        };
+        
+        var dynatreeInit = {
             onLazyRead : function(node) {
                 $.ajax({
                     url: "albums?parentId=" + node.data.key,
@@ -617,9 +610,32 @@ function afterAdministrationTabLoading(id, data) {
                 duration: 200
             },
             noLink: true,
-            children: albums,
             debugLevel: 0
-        });
+        };
+        
+        var albumIdDynatreeInit = $.extend({
+            children: albums,
+            onSelect: function(checked, node) {
+                $("#albumId").val("");
+                if (checked) {
+                    setTargetAlbum(node.data.key, node.data.title);
+                }
+            }
+        }, dynatreeInit);
+        var parentIdDynatreeInit = $.extend({
+            children: root,
+            onSelect: function(checked, node) {
+                $("#parentId").val("");
+                if (checked) {
+                    $("#parentId").val(node.data.key);
+                    $("#parentMandatory").slideUp(500);
+                }
+            }
+        
+        }, dynatreeInit);
+        
+        $(".dynatree.albumId").dynatree(albumIdDynatreeInit);
+        $(".dynatree.parentId").dynatree(parentIdDynatreeInit);
         
         $('#fileupload').fileupload();
         $('#fileupload').fileupload('option', {
@@ -637,62 +653,6 @@ function afterAdministrationTabLoading(id, data) {
             ]
         });
         
-        $("#createNewAlbum").submit(function(event) {
-            // Note : album name is mandatory, but handled by HTML5 required attribute (modern browser)
-            // Never let default behavior, we handle form submit
-            event.preventDefault();
-
-            $("#creationError").slideUp(500);
-
-            var isSubAlbum = false;
-            var formData = $(this).serializeArray();
-            for (var i = 0 ; i < formData.length ; i++) {
-                if (formData[i].name == "parent") {
-                    isSubAlbum = formData[i].value == "true";
-                }
-            }
-            
-            if (isSubAlbum && !$("#parentId").val()) {
-                $("#parentMandatory").effect("pulsate", {times:3}, 500);
-                return;
-            }
-            
-            $.ajax({
-                url: "albums",
-                type: "post",
-                data: formData,
-                success: function(data) {
-                    setTargetAlbum(data.id, data.name);
-                    
-                    var item = {
-                        title: data.name, 
-                        key: data.id, 
-                        isFolder: true,
-                        select: false,
-                        isLazy : !!data['subAlbumsCount']
-                    };
-                    
-                    for (var treeContainerIndex = 0 ; treeContainerIndex < $(".dynatree").length ; treeContainerIndex++) {
-                        var currentTree = $($(".dynatree")[treeContainerIndex]);
-                        var parentNode;
-                        if (!isSubAlbum) {
-                            parentNode = currentTree.dynatree("getTree").getRoot();
-                        } else {
-                            parentNode = currentTree.dynatree("getTree").getNodeByKey($("#parentId").val());
-                            parentNode.data.isLazy = true;
-                        }
-                        parentNode.addChild(item);
-                        parentNode.reloadChildren();
-                        parentNode.render();
-                    }
-                },
-                error: function() {
-                    $("#creationError").slideDown(500);
-                }
-            });
-            
-        });
-        
         $("input[name=parent]").change(function() {
             if ($(this).val() == "true") {
                 $(".dynatree.parentId").slideDown(500);
@@ -703,15 +663,41 @@ function afterAdministrationTabLoading(id, data) {
                 $("#parentMandatory").slideUp(500);
             }
         });
-        
-        function setTargetAlbum(id, name) {
-            $("#albumId").val(id);
-            $("#targetAlbum strong").text(name);
-            $("#targetAlbum").slideDown(500);
-            $("#fileupload input").removeAttr("disabled");
-            $("#fileupload .btn").removeClass("disabled");
-        }
     }
+}
+
+function setTargetAlbum(id, name) {
+    $("#albumId").val(id);
+    $("#targetAlbum strong").text(name);
+    $("#targetAlbum").slideDown(500);
+    $("#fileupload input").removeAttr("disabled");
+    $("#fileupload .btn").removeClass("disabled");
+}
+
+function updateAlbumTreeAfterCreation(parentId, item) {
+    var tree = $(".dynatree.albumId");
+    item.select = true;
+    var parentNode;
+    if (!parentId) {
+        parentNode = tree.dynatree("getTree").getRoot();
+        parentNode.addChild(item);
+    } else {
+        parentNode = tree.dynatree("getTree").getNodeByKey(parentId);
+        parentNode.addChild(item);
+        parentNode.reloadChildren();
+    }
+    parentNode.data.select = false;
+    parentNode.render();
+}
+
+function updateParentTreeAfterCreation(parentId, item) {
+    var tree = $(".dynatree.parentId");
+    var parentNode = tree.dynatree("getTree").getNodeByKey(parentId);
+    parentNode.addChild(item);
+    if (parentId) {
+        parentNode.reloadChildren();
+    }
+    parentNode.render();
 }
 
 function loadFunctions(partId) {

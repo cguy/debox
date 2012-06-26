@@ -47,7 +47,7 @@ DELETE      /session                            AccountController.logout
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-POST        /albums                                 AlbumController.createAlbum
+PUT         /album                                  AlbumController.createAlbum
 POST        /album/{albumId}                        AlbumController.editAlbum                           downloadable=false
 POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
 GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerationProgress
