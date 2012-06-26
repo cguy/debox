@@ -18,7 +18,7 @@
     </small>
 </h1>
 {{#album.description}}
-<div class=".album_description">
+<div class="album_description">
     {{album.description}}
 </div>
 <hr />
