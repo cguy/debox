@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
 CREATE TABLE IF NOT EXISTS `albums` (
     `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
     `begin_date` DATETIME,
     `end_date` DATETIME,
     `photos_count` INTEGER NOT NULL,

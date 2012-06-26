@@ -184,6 +184,7 @@ var fr = {
                 close_notif_zone: "Fermer la zone de modification",
                 modify: "Modifier l'album",
                 album_name: "Nom de l'album",
+                album_description: "Description de l'album",
                 album_visibility: "Visibilité de l'album",
                 album_authorized_tokens: "Accès visiteurs",
                 album_authorized_tokens_placeholder: "Sélectionnez les accès visiteur",

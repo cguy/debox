@@ -40,7 +40,7 @@ public class AlbumDao {
     
     protected static final PhotoDao PHOTO_DAO = new PhotoDao();
     
-    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, public = ?, photos_count = ?, downloadable = ?, begin_date = ?, end_date = ?";
+    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL) ON DUPLICATE KEY UPDATE name = ?, description = ?, public = ?, photos_count = ?, downloadable = ?, begin_date = ?, end_date = ?";
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
 
@@ -50,9 +50,9 @@ public class AlbumDao {
             +    "LEFT JOIN albums_tokens at ON a2.id = at.album_id WHERE at.token_id = ? OR a2.public = 1 OR ? GROUP BY a2.id) rc"
             + " WHERE rc.relative_path LIKE CONCAT(a.relative_path, '%') AND a1.id = a.id GROUP BY a.id) total_photos_count";
 
-    protected static String SQL_GET_ALBUMS = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a ORDER BY begin_date";
+    protected static String SQL_GET_ALBUMS = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a ORDER BY begin_date";
     
-    protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id is null ORDER BY begin_date";
+    protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id is null ORDER BY begin_date";
     protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = ""
             + "SELECT DISTINCT"
             + "    id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
@@ -66,10 +66,10 @@ public class AlbumDao {
             + "    )"
             + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id = ?  ORDER BY begin_date";
+    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id = ?  ORDER BY begin_date";
     protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = ""
             + "SELECT DISTINCT"
-            + "    id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
+            + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
             + "FROM"
             + "    albums a LEFT JOIN albums_tokens ON id = album_id "
             + "WHERE"
@@ -80,8 +80,8 @@ public class AlbumDao {
             + "    )"
             + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE id = ?";
-    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
+    protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE id = ?";
+    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
             + "        token_id = ? OR public = 1 OR ?"
             + "    )";
     
@@ -112,19 +112,21 @@ public class AlbumDao {
             for (Album album : albums) {
                 statement.setString(1, album.getId());
                 statement.setString(2, album.getName());
-                statement.setTimestamp(3, new Timestamp(album.getBeginDate().getTime()));
-                statement.setTimestamp(4, new Timestamp(album.getEndDate().getTime()));
-                statement.setInt(5, album.getPhotosCount());
-                statement.setBoolean(6, album.isDownloadable());
-                statement.setString(7, album.getRelativePath());
-                statement.setString(8, album.getParentId());
-                statement.setBoolean(9, album.isPublic());
-                statement.setString(10, album.getName());
-                statement.setBoolean(11, album.isPublic());
-                statement.setInt(12, album.getPhotosCount());
-                statement.setBoolean(13, album.isDownloadable());
-                statement.setTimestamp(14, new Timestamp(album.getBeginDate().getTime()));
-                statement.setTimestamp(15, new Timestamp(album.getEndDate().getTime()));
+                statement.setString(3, album.getDescription());
+                statement.setTimestamp(4, new Timestamp(album.getBeginDate().getTime()));
+                statement.setTimestamp(5, new Timestamp(album.getEndDate().getTime()));
+                statement.setInt(6, album.getPhotosCount());
+                statement.setBoolean(7, album.isDownloadable());
+                statement.setString(8, album.getRelativePath());
+                statement.setString(9, album.getParentId());
+                statement.setBoolean(10, album.isPublic());
+                statement.setString(11, album.getName());
+                statement.setString(12, album.getDescription());
+                statement.setBoolean(13, album.isPublic());
+                statement.setInt(14, album.getPhotosCount());
+                statement.setBoolean(15, album.isDownloadable());
+                statement.setTimestamp(16, new Timestamp(album.getBeginDate().getTime()));
+                statement.setTimestamp(17, new Timestamp(album.getEndDate().getTime()));
                 statement.addBatch();
             }
 
@@ -151,19 +153,21 @@ public class AlbumDao {
             statement = connection.prepareStatement(SQL_CREATE_ALBUM);
             statement.setString(1, id);
             statement.setString(2, album.getName());
-            statement.setTimestamp(3, new Timestamp(album.getBeginDate().getTime()));
-            statement.setTimestamp(4, new Timestamp(album.getEndDate().getTime()));
-            statement.setInt(5, album.getPhotosCount());
-            statement.setBoolean(6, album.isDownloadable());
-            statement.setString(7, album.getRelativePath());
-            statement.setString(8, album.getParentId());
-            statement.setBoolean(9, album.isPublic());
-            statement.setString(10, album.getName());
-            statement.setBoolean(11, album.isPublic());
-            statement.setInt(12, album.getPhotosCount());
-            statement.setBoolean(13, album.isDownloadable());
-            statement.setTimestamp(14, new Timestamp(album.getBeginDate().getTime()));
-            statement.setTimestamp(15, new Timestamp(album.getEndDate().getTime()));
+            statement.setString(3, album.getDescription());
+            statement.setTimestamp(4, new Timestamp(album.getBeginDate().getTime()));
+            statement.setTimestamp(5, new Timestamp(album.getEndDate().getTime()));
+            statement.setInt(6, album.getPhotosCount());
+            statement.setBoolean(7, album.isDownloadable());
+            statement.setString(8, album.getRelativePath());
+            statement.setString(9, album.getParentId());
+            statement.setBoolean(10, album.isPublic());
+            statement.setString(11, album.getName());
+            statement.setString(12, album.getDescription());
+            statement.setBoolean(13, album.isPublic());
+            statement.setInt(14, album.getPhotosCount());
+            statement.setBoolean(15, album.isDownloadable());
+            statement.setTimestamp(16, new Timestamp(album.getBeginDate().getTime()));
+            statement.setTimestamp(17, new Timestamp(album.getEndDate().getTime()));
             statement.executeUpdate();
 
         } finally {
@@ -352,14 +356,15 @@ public class AlbumDao {
         Album result = new Album();
         result.setId(resultSet.getString(1));
         result.setName(resultSet.getString(2));
-        result.setBeginDate(resultSet.getTimestamp(3));
-        result.setEndDate(resultSet.getTimestamp(4));
-        result.setPhotosCount(resultSet.getInt(5));
-        result.setDownloadable(resultSet.getBoolean(6));
-        result.setRelativePath(resultSet.getString(7));
-        result.setParentId(resultSet.getString(8));
-        result.setPublic(resultSet.getBoolean(9));
-        result.setSubAlbumsCount(resultSet.getInt(10));
+        result.setDescription(resultSet.getString(3));
+        result.setBeginDate(resultSet.getTimestamp(4));
+        result.setEndDate(resultSet.getTimestamp(5));
+        result.setPhotosCount(resultSet.getInt(6));
+        result.setDownloadable(resultSet.getBoolean(7));
+        result.setRelativePath(resultSet.getString(8));
+        result.setParentId(resultSet.getString(9));
+        result.setPublic(resultSet.getBoolean(10));
+        result.setSubAlbumsCount(resultSet.getInt(11));
         
         // deploy/ is present because of a bug in WebMotion 2.2
         String url = "deploy/album/" + result.getId() + "-cover.jpg";

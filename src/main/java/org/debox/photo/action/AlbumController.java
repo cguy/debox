@@ -134,12 +134,13 @@ public class AlbumController extends DeboxController {
                 "regeneration", getRegenerationData(), "tokens", tokens);
     }
     
-    public Render editAlbum(String albumId, String name, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
+    public Render editAlbum(String albumId, String name, String description, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
         album.setName(name);
+        album.setDescription(description);
         album.setPublic(Boolean.parseBoolean(visibility));
         album.setDownloadable(downloadable);
 

@@ -31,6 +31,12 @@
                     </div>
                 </div>
                 <div class="control-group">
+                    <label class="control-label" for="name">{{i18n.album.admin.edit.album_description}}</label>
+                    <div class="controls">
+                        <textarea class="input-large" id="description" name="description">{{album.description}}</textarea>
+                    </div>
+                </div>
+                <div class="control-group">
                     <label class="control-label" for="visibility">{{i18n.album.admin.edit.album_visibility}}</label>
                     <div class="controls">
                         <select name="visibility" id="visibility">

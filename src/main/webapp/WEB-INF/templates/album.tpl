@@ -8,7 +8,7 @@
         {{^album.hasSeveralTotalPhotos}}
             {{i18n.common.photo}}
         {{/album.hasSeveralTotalPhotos}}
-        
+
         {{#album.isInterval}}
             {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
         {{/album.isInterval}}
@@ -17,6 +17,12 @@
         {{/album.isInterval}}
     </small>
 </h1>
+{{#album.description}}
+<div class="album_descripion">
+    {{album.description}}
+</div>
+<hr style="clear:both;"/>
+{{/album.description}}
 
 <div class="btn-toolbar" style="margin-top: 18px;">
     <div class="btn-group">
