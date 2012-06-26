@@ -18,10 +18,10 @@
     </small>
 </h1>
 {{#album.description}}
-<div class="album_descripion">
+<div class=".album_description">
     {{album.description}}
 </div>
-<hr style="clear:both;"/>
+<hr />
 {{/album.description}}
 
 <div class="btn-toolbar" style="margin-top: 18px;">
