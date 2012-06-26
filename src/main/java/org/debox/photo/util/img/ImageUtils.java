@@ -156,6 +156,7 @@ public class ImageUtils {
         }
 
         operation = ImageUtils.rotate(operation, orientation);
+        operation.profile(sourcePath);
         operation.addImage(targetPath);
         cmd.run(operation);
 
