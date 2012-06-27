@@ -22,7 +22,7 @@ pouet
         <td class="delete">
             <button class="btn">
                 <i class="icon-trash icon-white"></i>
-                <span>{{i18n.administration.upload.close}}</span>
+                <span>{{i18n.common.close}}</span>
             </button>
         </td>
     </tr>

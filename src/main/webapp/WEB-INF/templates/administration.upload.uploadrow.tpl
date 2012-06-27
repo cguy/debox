@@ -25,7 +25,7 @@ pouet
     <td class="cancel">
         <button class="btn btn-warning">
             <i class="icon-ban-circle icon-white"></i>
-            <span>{{i18n.administration.upload.cancel}}</span>
+            <span>{{i18n.common.cancel}}</span>
         </button>
     </td>
     {{/file.error}}

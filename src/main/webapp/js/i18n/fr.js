@@ -22,6 +22,7 @@ var fr = {
     common: {
         warning: "Attention",
         error: "Erreur",
+        close: "Fermer",
         mandatory: "Obligatoire",
         loading : "Chargement en cours ...",
         back2home: "Retour à l'accueil",
