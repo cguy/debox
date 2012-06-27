@@ -292,7 +292,7 @@ p.footer {
     border: none;
 }
 
-#upload form {
+#upload #fileupload {
     margin: 0;
 }
 

@@ -252,11 +252,21 @@ $(document).ready(function() {
                     parentId = param.value;
                 }
             }
+            var parentNode = $(".dynatree.parentId").dynatree("getTree").getNodeByKey(parentId);
+            var parentPath = "";
+            parentNode.visitParents(function(node) {
+                if (!node.data.key) {
+                    return false;
+                }
+                parentPath = "/" + node.data.key + parentPath;
+                return true;
+
+            }, true);
+            
             $.ajax({
                 url: "album?" + params,
                 type: "put",
                 success: function(data) {
-                    setTargetAlbum(data.id, data.name);
                     
                     var item = {
                         title: data.name, 
@@ -267,9 +277,10 @@ $(document).ready(function() {
                         isLazy : !!data['subAlbumsCount']
                     };
                     
-                    updateAlbumTreeAfterCreation(parentId, item);
-                    updateParentTreeAfterCreation(parentId, item);
-                    
+                    updateAlbumTreeAfterAlbumCreation(parentPath, item);
+                    updateParentTreeAfterAlbumCreation(parentId, item);
+
+                    $("#modal-createNewAlbum #albumName").val("");
                     $("#modal-createNewAlbum").modal("hide");
                 },
                 error: function() {

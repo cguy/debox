@@ -60,7 +60,9 @@
         <h3>{{i18n.administration.upload.form.title}}</h3>
     </div>
     <div class="modal-body">
-        <div id="creationError" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.error}}</span> {{i18n.administration.upload.errors.albumCreation}}</div>
+        <div id="creationError" class="alert alert-danger hide">
+            <span class="label label-important">{{i18n.common.error}}</span> {{i18n.administration.upload.errors.albumCreation}}
+        </div>
         <div class="control-group">
             <label class="control-label" for="albumName">{{i18n.administration.upload.form.albumName}}</label>
             <div class="controls">
@@ -70,7 +72,6 @@
         <div class="control-group">
             <label class="control-label">{{i18n.administration.upload.form.subAlbum}}</label>
             <div class="controls">
-                <div id="parentMandatory" class="alert alert-danger hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.form.parent.warning}}</div>
                 <div class="dynatree parentId"></div>
                 <input type="hidden" name="parentId" id="parentId" />
             </div>

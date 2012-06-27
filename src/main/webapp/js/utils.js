@@ -562,34 +562,46 @@ function afterAdministrationTabLoading(id, data) {
             key: "", 
             isFolder: true,
             select: true,
+            activate: true,
             children: albums
         };
         
         var dynatreeInit = {
             onLazyRead : function(node) {
+                node.removeChildren(false, true);
+                node.setLazyNodeStatus(DTNodeStatus_Loading);
+                var eventType = "nodeLoaded.dynatree." + node.tree.$tree.attr("id") + "." + node.data.key;
                 $.ajax({
                     url: "albums?parentId=" + node.data.key,
                     success : function(data) {
-                    
+                        var prevPhase = node.tree.phase;
+                        node.tree.phase = "init";
+
                         var albums = data.albums;
                         var childrenObject = [];
                         for (var i = 0 ; i < albums.length ; i++) {
                             var currentAlbum = albums[i];
                             var currentChild = {
-                                title: currentAlbum.name, 
-                                key: currentAlbum.id, 
+                                title: currentAlbum.name,
+                                key: currentAlbum.id,
                                 isFolder: true,
-                                select: false,
                                 isLazy : !!currentAlbum['subAlbumsCount']
                             };
-                        
+                            console.log("add " + currentAlbum.id)
                             childrenObject.push(currentChild);
                         }
-                    
+                        node.addChild(childrenObject, null);
+                        node.tree.phase = "postInit";
+
+                        //fire event nodeLoaded
+                        node.tree.$tree.trigger(eventType, [node, true]);
+                        node.tree.phase = prevPhase;
                         node.setLazyNodeStatus(DTNodeStatus_Ok);
-                        node.addChild(childrenObject);
                     },
+                    
                     error : function(xhr) {
+                            console.log("error ")
+                        node.tree.$tree.trigger(eventType, [node, false]);
                         node.setLazyNodeStatus(DTNodeStatus_Error, {
                             tooltip: data.faultDetails,
                             info: data.faultString
@@ -628,7 +640,6 @@ function afterAdministrationTabLoading(id, data) {
                 $("#parentId").val("");
                 if (checked) {
                     $("#parentId").val(node.data.key);
-                    $("#parentMandatory").slideUp(500);
                 }
             }
         
@@ -653,16 +664,6 @@ function afterAdministrationTabLoading(id, data) {
             ]
         });
         
-        $("input[name=parent]").change(function() {
-            if ($(this).val() == "true") {
-                $(".dynatree.parentId").slideDown(500);
-            } else {
-                $(".dynatree.parentId").slideUp(500, function() {
-                    $(".dynatree.parentId").dynatree('getTree').reload();
-                });
-                $("#parentMandatory").slideUp(500);
-            }
-        });
     }
 }
 
@@ -674,30 +675,56 @@ function setTargetAlbum(id, name) {
     $("#fileupload .btn").removeClass("disabled");
 }
 
-function updateAlbumTreeAfterCreation(parentId, item) {
-    var tree = $(".dynatree.albumId");
-    item.select = true;
-    var parentNode;
-    if (!parentId) {
-        parentNode = tree.dynatree("getTree").getRoot();
+function updateAlbumTreeAfterAlbumCreation(parentPath, item) {
+    var tree = $(".dynatree.albumId").dynatree("getTree");
+    tree.visit(function(node) {
+        if (node.isLazy()) {
+            node.resetLazy();
+        } else {
+            node.expand(false);
+        }
+        node.select(false);
+    });
+    // if the new album is added to the root
+    if (!parentPath) {
+        var parentNode = tree.getRoot();
         parentNode.addChild(item);
+        tree.selectKey(item.key);
+        
     } else {
-        parentNode = tree.dynatree("getTree").getNodeByKey(parentId);
-        parentNode.addChild(item);
-        parentNode.reloadChildren();
+        // set the lazyness of the parent album if it is an root album
+        var segments = parentPath.split(tree.options.keyPathSeparator);
+        var parentId = null;
+        if (segments.length == 1) {
+            parentId = segments[0];
+
+        } else if (segments.length == 2 && segments[0] == "") {
+            parentId = segments[1];
+        }
+        if (parentId) {
+            tree.getNodeByKey(parentId).data.isLazy = true;
+        }
+
+        // show and select the newly created album
+        tree.loadKeyPath(parentPath + "/" + item.key, function(node, status) {
+            if (status == "ok") {
+                // 'node' is the end node of our path.
+                node.makeVisible();
+                node.select();
+            }
+        });
     }
-    parentNode.data.select = false;
-    parentNode.render();
 }
 
-function updateParentTreeAfterCreation(parentId, item) {
-    var tree = $(".dynatree.parentId");
-    var parentNode = tree.dynatree("getTree").getNodeByKey(parentId);
-    parentNode.addChild(item);
-    if (parentId) {
-        parentNode.reloadChildren();
-    }
-    parentNode.render();
+function updateParentTreeAfterAlbumCreation(parentId, item) {
+    var tree = $(".dynatree.parentId").dynatree("getTree");
+    // add the newly created album to its parent
+    tree.getNodeByKey(parentId).addChild(item);
+    // select the root
+    tree.selectKey("");
+    tree.visit(function(node) {
+        node.expand(false);
+    });
 }
 
 function loadFunctions(partId) {
