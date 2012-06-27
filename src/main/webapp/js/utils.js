@@ -628,12 +628,14 @@ function afterAdministrationTabLoading(id, data) {
         var albumIdDynatreeInit = $.extend({
             children: albums,
             onSelect: function(checked, node) {
-                $("#albumId").val("");
                 if (checked) {
                     setTargetAlbum(node.data.key, node.data.title);
+                } else {
+                    resetTargetAlbum();
                 }
             }
         }, dynatreeInit);
+        
         var parentIdDynatreeInit = $.extend({
             children: root,
             onSelect: function(checked, node) {
@@ -673,6 +675,14 @@ function setTargetAlbum(id, name) {
     $("#targetAlbum").slideDown(500);
     $("#fileupload input").removeAttr("disabled");
     $("#fileupload .btn").removeClass("disabled");
+}
+
+function resetTargetAlbum() {
+    $("#albumId").val("");
+    $("#targetAlbum strong").text("");
+    $("#targetAlbum").slideUp(500);
+    $("#fileupload input").attr("disabled", true);
+    $("#fileupload .btn").addClass("disabled");
 }
 
 function updateAlbumTreeAfterAlbumCreation(parentPath, item) {
