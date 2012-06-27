@@ -524,6 +524,10 @@ function preprocessAdministrationTabLoading(id, data) {
             var album = data.albums[i];
             album = createAlbum(album);
         }
+    } else if (id == "tokens") {
+        for (i = 0 ; i < data.tokens.length ; i++) {
+            data.tokens[i].url = window.location.origin + window.location.pathname + data.tokens[i].id;
+        }
     }
 }
 
@@ -810,6 +814,22 @@ function loadTokensTabFunctions() {
         var name = $(this).parents("tr").find(".access_label").text();
         $("#modal-token-reinit input[type=hidden]").val(id);
         $("#modal-token-reinit p strong").text(name);
+    });
+    
+    $(".accessShare").unbind('click');
+    $(".accessShare").click(function() {
+        $(this).select();
+    });
+    
+    $(".accessShare").unbind('keydown');
+    $(".accessShare").keydown(function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+    });
+
+    $(".accessShare").unbind('change');
+    $(".accessShare").change(function() {
+        $(this).val($(this).attr("data-original"));
     });
 }
 

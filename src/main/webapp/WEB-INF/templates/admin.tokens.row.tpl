@@ -15,7 +15,7 @@
         </form>
     </td>
     <td class="access_link">
-        <a href="{{id}}#/"><i class="icon icon-share"></i>&nbsp;{{i18n.administration.tokens.link}}</a>
+        <input type="text" class="accessShare" data-original="{{url}}" value="{{url}}" />
         <div class="alert alert-success hide">{{i18n.administration.tokens.reinit.success}}</div>
     </td>
     <td>

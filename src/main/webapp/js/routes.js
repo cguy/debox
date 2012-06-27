@@ -322,6 +322,7 @@ $(document).ready(function() {
                     prepareDynatree(allAlbums, [], treeChildren, null);
                     
                     data.i18n = lang;
+                    data.url = window.location.origin + window.location.pathname + data.id;
                     var html = templates["admin.tokens.row"].render(data, templates);
                     $("#administration_tokens tbody").append(html);
                     
