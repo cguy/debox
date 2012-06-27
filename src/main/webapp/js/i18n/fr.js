@@ -77,7 +77,7 @@ var fr = {
             title: "Ajouter des photos",
             tab: "Ajout de photos",
             add: "Ajouter des photos",
-            createAlbum: "Creer un album",
+            createAlbum: "Creer un nouvel album",
             mandatory: "Veuillez choisir ou créer l'album dans lequel vous voulez ajouter vos photos.",
             action: "Commencer le chargement des photos",
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
