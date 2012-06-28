@@ -823,8 +823,10 @@ function loadTokensTabFunctions() {
     
     $(".accessShare").unbind('keydown');
     $(".accessShare").keydown(function(event) {
-        event.stopPropagation();
-        event.preventDefault();
+        // do nothing if the user did not press ctrl+c
+        if (!event.ctrlKey || event.which != 67) {
+            event.preventDefault();
+        }
     });
 
     $(".accessShare").unbind('change');
