@@ -110,23 +110,7 @@ public class AlbumDao {
         try {
             statement = connection.prepareStatement(SQL_CREATE_ALBUM);
             for (Album album : albums) {
-                statement.setString(1, album.getId());
-                statement.setString(2, album.getName());
-                statement.setString(3, album.getDescription());
-                statement.setTimestamp(4, new Timestamp(album.getBeginDate().getTime()));
-                statement.setTimestamp(5, new Timestamp(album.getEndDate().getTime()));
-                statement.setInt(6, album.getPhotosCount());
-                statement.setBoolean(7, album.isDownloadable());
-                statement.setString(8, album.getRelativePath());
-                statement.setString(9, album.getParentId());
-                statement.setBoolean(10, album.isPublic());
-                statement.setString(11, album.getName());
-                statement.setString(12, album.getDescription());
-                statement.setBoolean(13, album.isPublic());
-                statement.setInt(14, album.getPhotosCount());
-                statement.setBoolean(15, album.isDownloadable());
-                statement.setTimestamp(16, new Timestamp(album.getBeginDate().getTime()));
-                statement.setTimestamp(17, new Timestamp(album.getEndDate().getTime()));
+                statement = prepareAlbumSaveStatement(statement, album);
                 statement.addBatch();
             }
 
@@ -145,35 +129,48 @@ public class AlbumDao {
         Connection connection = DatabaseUtils.getConnection();
         String id = album.getId();
         if (id == null) {
-            id = StringUtils.randomUUID();
+            album.setId(StringUtils.randomUUID());
         }
-
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(SQL_CREATE_ALBUM);
-            statement.setString(1, id);
-            statement.setString(2, album.getName());
-            statement.setString(3, album.getDescription());
-            statement.setTimestamp(4, new Timestamp(album.getBeginDate().getTime()));
-            statement.setTimestamp(5, new Timestamp(album.getEndDate().getTime()));
-            statement.setInt(6, album.getPhotosCount());
-            statement.setBoolean(7, album.isDownloadable());
-            statement.setString(8, album.getRelativePath());
-            statement.setString(9, album.getParentId());
-            statement.setBoolean(10, album.isPublic());
-            statement.setString(11, album.getName());
-            statement.setString(12, album.getDescription());
-            statement.setBoolean(13, album.isPublic());
-            statement.setInt(14, album.getPhotosCount());
-            statement.setBoolean(15, album.isDownloadable());
-            statement.setTimestamp(16, new Timestamp(album.getBeginDate().getTime()));
-            statement.setTimestamp(17, new Timestamp(album.getEndDate().getTime()));
+            statement = prepareAlbumSaveStatement(statement, album);
             statement.executeUpdate();
 
         } finally {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
+    }
+    
+    protected PreparedStatement prepareAlbumSaveStatement(PreparedStatement statement, Album album) throws SQLException {
+        statement.setString(1, album.getId());
+        statement.setString(2, album.getName());
+        statement.setString(3, album.getDescription());
+        Timestamp beginTimestamp = null;
+        Timestamp endTimestamp = null;
+        if (album.getBeginDate() != null) {
+            beginTimestamp = new Timestamp(album.getBeginDate().getTime());
+        }
+        if (album.getEndDate() != null) {
+            endTimestamp = new Timestamp(album.getEndDate().getTime());
+        }
+        statement.setTimestamp(4, beginTimestamp);
+        statement.setTimestamp(5, endTimestamp);
+        statement.setInt(6, album.getPhotosCount());
+        statement.setBoolean(7, album.isDownloadable());
+        statement.setString(8, album.getRelativePath());
+        statement.setString(9, album.getParentId());
+        statement.setBoolean(10, album.isPublic());
+        statement.setString(11, album.getName());
+        statement.setString(12, album.getDescription());
+        statement.setBoolean(13, album.isPublic());
+        statement.setInt(14, album.getPhotosCount());
+        statement.setBoolean(15, album.isDownloadable());
+        statement.setTimestamp(16, beginTimestamp);
+        statement.setTimestamp(17, endTimestamp);
+
+        return statement;
     }
     
     public void delete(Album album) throws SQLException {

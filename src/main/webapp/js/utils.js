@@ -185,12 +185,21 @@ function loadAlbum(data, callback) {
         }
     }
                     
-    var beginDate = new Date(data.album.beginDate).at("0:00am");
-    var endDate = new Date(data.album.endDate).at("0:00am");
+    var beginDate = null;
+    if (data.album.beginDate) {
+        beginDate = new Date(data.album.beginDate).at("0:00am");
+        data.album.beginDate = beginDate.toString("dd MMMM yyyy");
+    }
                     
-    data.album.isInterval = !beginDate.equals(endDate);
-    data.album.beginDate = beginDate.toString("dd MMMM yyyy");
-    data.album.endDate = endDate.toString("dd MMMM yyyy");
+    var endDate = null;
+    if (data.album.endDate) {
+        endDate = new Date(data.album.endDate).at("0:00am");
+        data.album.endDate = endDate.toString("dd MMMM yyyy");
+    }
+    
+    if (beginDate && endDate) {
+        data.album.isInterval = !beginDate.equals(endDate);
+    }
                     
     data.album.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
     data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
