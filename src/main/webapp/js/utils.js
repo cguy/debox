@@ -526,7 +526,7 @@ function preprocessAdministrationTabLoading(id, data) {
         }
     } else if (id == "tokens") {
         for (i = 0 ; i < data.tokens.length ; i++) {
-            data.tokens[i].url = window.location.origin + window.location.pathname + data.tokens[i].id;
+            data.tokens[i].url = window.location.protocol + "//" + window.location.host + window.location.pathname + data.tokens[i].id;
         }
     }
 }
