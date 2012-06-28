@@ -85,6 +85,8 @@ public class AlbumDao {
             + "        token_id = ? OR public = 1 OR ?"
             + "    )";
     
+    protected static String SQL_GET_ALBUM_BY_RELATIVE_PATH = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE relative_path = ?";
+    
     protected static String SQL_GET_CHILDREN_ID = "SELECT id from albums WHERE parent_id = ?";
     
     protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
@@ -207,7 +209,15 @@ public class AlbumDao {
         return result;
     }
     
-     public List<Album> getAllAlbums() throws SQLException {
+    public Album getAlbumByPath(String path) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_RELATIVE_PATH);
+        statement.setString(1, path);
+        Album result = executeSingleQueryStatement(statement, null);
+        return result;
+    }
+   
+    public List<Album> getAllAlbums() throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
         List<Album> result = executeListQueryStatement(statement, null);

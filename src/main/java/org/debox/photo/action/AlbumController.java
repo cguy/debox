@@ -90,6 +90,12 @@ public class AlbumController extends DeboxController {
         
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String[] paths = {configuration.get(Configuration.Key.SOURCE_PATH), configuration.get(Configuration.Key.TARGET_PATH)};
+        
+        Album existingAtPath = albumDao.getAlbumByPath(album.getRelativePath());
+        if (existingAtPath != null) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is already an album at path (" + album.getRelativePath() + ")");
+        }
+        
         for (String path : paths) {
             File targetDirectory = new File(path + album.getRelativePath());
             if (!targetDirectory.exists() && !targetDirectory.mkdir()) {
@@ -112,7 +118,7 @@ public class AlbumController extends DeboxController {
         }  
         return renderJSON("albums", albums);
     }
-
+    
     public Render getAlbum(String token, String id) throws IOException, SQLException {
         boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
         List<Token> tokens = null;

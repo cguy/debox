@@ -34,7 +34,7 @@ POST        /configuration                      ConfigurationController.editConf
 GET         /administration/sync                AdministrationController.getSyncProgress
 POST        /administration/sync                AdministrationController.synchronize                    forceCheckDates=false
 DELETE      /administration/sync                AdministrationController.cancelSynchronization
-POST        /administration/upload              AdministrationController.upload                         createThumbnails=true
+POST        /administration/upload              AdministrationController.upload
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER

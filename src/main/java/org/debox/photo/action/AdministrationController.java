@@ -65,7 +65,7 @@ public class AdministrationController extends DeboxController {
         return renderJSON(getSyncData());
     }
     
-    public Render upload(UploadFile photo, String albumId, boolean createThumbnails) throws IOException, SQLException {
+    public Render upload(UploadFile photo, String albumId) throws IOException, SQLException {
         // Get existing album
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
@@ -79,7 +79,7 @@ public class AdministrationController extends DeboxController {
         Path originalFile = Paths.get(photo.getFile().getAbsolutePath());
         
         logger.debug("Copy {} to {}", originalFile, targetFile);
-        Files.copy(originalFile, targetFile);
+        Files.move(originalFile, targetFile);
         
         Photo addedPhoto = new Photo();
         addedPhoto.setAlbumId(albumId);
@@ -90,12 +90,24 @@ public class AdministrationController extends DeboxController {
         
         photoDao.save(addedPhoto); // Handle photo count increment for album
         
-        if (createThumbnails) {
-            ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);
-            ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.LARGE);
-        }
+        ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);
+        ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.LARGE);
         
         Photo result = photoDao.getPhoto(addedPhoto.getId());
+        Date date = ImageUtils.getShootingDate(targetFile);
+        album = albumDao.getAlbum(albumId); // Get refreshed version on the album modified in photoDao.save method
+        boolean edited = false;
+        if (album.getBeginDate() == null || album.getBeginDate().after(date)) {
+            album.setBeginDate(date);
+            edited = true;
+        }
+        if (album.getEndDate() == null || album.getEndDate().before(date)) {
+            album.setEndDate(date);
+            edited = true;
+        }
+        if (edited) {
+            albumDao.save(album);
+        }
         
         final HashMap<String, Object> metaData = new HashMap<>();
         if (photo != null) {

@@ -678,7 +678,6 @@ function afterAdministrationTabLoading(id, data) {
             }
             ]
         });
-        
     }
 }
 
@@ -699,6 +698,7 @@ function resetTargetAlbum() {
 }
 
 function updateAlbumTreeAfterAlbumCreation(parentPath, item) {
+    $(".alert.noAlbums").slideUp(500);
     var tree = $(".dynatree.albumId").dynatree("getTree");
     tree.visit(function(node) {
         if (node.isLazy()) {

@@ -2,12 +2,10 @@
 <h3>{{i18n.administration.upload.album}}</h3>
 <div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.mandatory}}</div>
 
-{{#albums.length}}
-<div class="dynatree albumId"></div>
-{{/albums.length}}
 {{^albums.length}}
-<div class="alert" style="margin-bottom: 0;">{{i18n.common.no_album}}</div>
+<div class="alert noAlbums" style="margin-bottom: 0;">{{i18n.common.no_album}}</div>
 {{/albums.length}}
+<div class="dynatree albumId"></div>
 
 <a class="btn btn-primary" href="#modal-createNewAlbum" data-toggle="modal">{{i18n.administration.upload.createAlbum}}</a>
 
