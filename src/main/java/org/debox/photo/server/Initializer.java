@@ -21,7 +21,9 @@
 package org.debox.photo.server;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -44,6 +46,7 @@ public class Initializer implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        logger.info("Initializing web context");
         try {
             UserDao userDao = new UserDao();
             int userCount = userDao.getUsersCount();
@@ -66,15 +69,23 @@ public class Initializer implements ServletContextListener {
         } catch (SQLException ex) {
             logger.error("Unable to access database", ex);
         }
+        logger.info("Initialized web context");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
+        try {
+            Connection connection = DatabaseUtils.getConnection();
+            connection.close();
+        } catch (SQLException ex) {
+            logger.error("Error handling database connection", ex);
+        }
         ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
         if (dataSource != null) {
             dataSource.close();
         }
+        logger.info("Destroyed web context");
     }
 
 }

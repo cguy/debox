@@ -42,7 +42,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
     /**
-     * Default permissions for created directories and files, corresponding with 755 digit value.
+     * Default permissions for created directories and files, corresponding with 775 digit value.
      */
     public static final FileAttribute PERMISSIONS = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
     
@@ -103,36 +103,4 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
-    public static void unzipArchiveToDirectory(String archivePath, String targetPathStr) throws IOException {
-        Path targetPath = Paths.get(targetPathStr);
-
-        ZipFile zipfile = new ZipFile(archivePath);
-        for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {
-
-            ZipEntry entry = (ZipEntry) e.nextElement();
-            if (entry.isDirectory()) {
-                Path currentPath = Paths.get(targetPath.toString(), entry.getName());
-                if (!Files.exists(currentPath)) {
-                    logger.debug("Creating... " + currentPath);
-                    createDirectories(targetPath);
-                }
-                continue;
-            }
-
-            Path outputPath = Paths.get(targetPath.toString(), entry.getName());
-            if (!Files.exists(outputPath.getParent())) {
-                logger.debug("Creating... " + outputPath.getParent());
-                createDirectories(outputPath.getParent());
-            }
-
-            logger.debug("Extracting: " + entry);
-            try (
-                    BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-                    FileOutputStream fos = new FileOutputStream(outputPath.toFile());
-                    BufferedOutputStream outputStream = new BufferedOutputStream(fos)) {
-
-                IOUtils.copy(inputStream, outputStream);
-            }
-        }
-    }
 }

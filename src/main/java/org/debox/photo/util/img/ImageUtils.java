@@ -28,6 +28,7 @@ import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.debox.photo.job.im4java.StringOutputConsumer;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
@@ -100,8 +101,8 @@ public class ImageUtils {
         cmd.run(op);
 
         String strResult = output.getOutput();
-        String strWidth = org.apache.commons.lang3.StringUtils.substringBefore(strResult, " ");
-        String strheight = org.apache.commons.lang3.StringUtils.substringAfter(strResult, " ");
+        String strWidth = StringUtils.substringBefore(strResult, " ");
+        String strheight = StringUtils.substringAfter(strResult, " ");
 
         int[] result = new int[2];
         result[0] = Integer.valueOf(strWidth);
