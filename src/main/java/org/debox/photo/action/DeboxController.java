@@ -105,7 +105,7 @@ public class DeboxController extends WebMotionController {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
         
-        return new RenderStatus(HttpURLConnection.HTTP_OK);
+        return new RenderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     protected RenderStatus handleLastModifiedHeader(Album album) {
@@ -130,7 +130,7 @@ public class DeboxController extends WebMotionController {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
                 
-        return new RenderStatus(HttpURLConnection.HTTP_OK);
+        return new RenderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
 }

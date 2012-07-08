@@ -30,7 +30,10 @@ function loadTemplates(callback) {
                 templates[name] = Hogan.compile(template);
             });
             templatesLoaded = true;
-            initHeader(data.config.title, data.config.username);
+            
+            initHeader(data.config.title, data.config.username, data.config.isAdmin);
+            loadTemplate("login.popup", data, "#authentication-form");
+            
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
                 var id = templatesToLoad[i].id;
                 var model = templatesToLoad[i].data;
@@ -84,7 +87,13 @@ function ajax(object) {
     if (!object.error) {
         object.error = function(xhr) {
             var status = xhr.status;
-            if (status == 404) {
+            if (status == 500) {
+                var data = $.parseJSON(xhr.responseText);
+                if (data && data.error == "ThirdPartyError") {
+                    window.location = data.url;
+                }
+                
+            } else if (status == 404) {
                 loadTemplate(status);
             } else if (status == 403) {
                 loadTemplate(status);
@@ -122,12 +131,15 @@ function editTitle(title) {
     document.title = title;
 }
 
-function initHeader(title, username) {
+function initHeader(title, username, isAdmin) {
     editTitle(title + " - Accueil");
-    loadTemplate("header", {
+    
+    var data = {
         "title": title, 
-        "username" : username
-    }, ".navbar .container-fluid", headerTemplateLoaded);
+        "username" : username,
+        "isAdmin": isAdmin
+    }
+    loadTemplate("header", data, ".navbar .container-fluid", headerTemplateLoaded);
 }
 
 function hideModal() {
@@ -553,6 +565,12 @@ function afterAdministrationTabLoading(id, data) {
             initDynatree(tokens[tokenIndex].id, treeChildren);
         }
         
+        $("a.delete-third-party-account").click(function() {
+            var id = $(this).parents("tr").attr("id");
+            console.log(id);
+            $("#delete-third-party-account .third-party-account-id").val(id);
+        });
+        
     } else if (id == "upload") {
         $("#fileupload input").attr("disabled", true);
         $("#fileupload .btn").addClass("disabled");
@@ -844,6 +862,7 @@ function loadTokensTabFunctions() {
     });
 }
 
+var syncTimeout = null;
 function handleAdmin() {
     $("#cancel-sync").click(function() {
         $.ajax({

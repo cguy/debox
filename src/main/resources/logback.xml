@@ -18,9 +18,13 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
-  -->
+-->
 
 <configuration>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/${artifactId}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -38,6 +42,16 @@
             <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <logger name="*" level="info"/>
+    <logger name="com.mchange" level="info"/>
+    <logger name="org.apache.commons" level="info"/>
+    <logger name="org.apache.catalina" level="info"/>
+    <logger name="org.apache.tomcat" level="info"/>
+    <logger name="org.hibernate" level="error"/>
+    <logger name="org.apache.jasper" level="error"/>
+    <logger name="org.debux.webmotion" level="error"/>
+    <logger name="org.debox" level="debug"/>
 
     <root level="${log.level}">
         <appender-ref ref="${log.appender}" />

@@ -6,35 +6,6 @@
 
         <title></title>
 
-        <script src="static/js/lib/jquery-1.7.2.min.js"></script>
-        <script src="static/js/lib/jquery-ui-1.8.21.custom.min.js"></script>
-        <script src="static/js/lib/jquery.dynatree.min.js"></script>
-        <script src="static/js/lib/jquery.rs.slideshow.js"></script>
-        <script src="static/js/lib/jwerty.js"></script>
-        <script src="static/js/lib/bootstrap.min.js"></script>
-        <script src="static/js/lib/sammy-0.7.1.min.js"></script>
-        <script src="static/js/lib/Hogan.js"></script>
-        <script src="static/js/lib/date-fr-FR.js"></script>
-        <script src="static/js/lib/chosen/chosen.jquery.min.js"></script>
-        <script src="static/js/lib/fu/load-image.min.js"></script>
-        <script src="static/js/lib/fu/jquery.fileupload.js"></script>
-        <script src="static/js/lib/fu/jquery.fileupload-fp.js"></script>
-        <script src="static/js/lib/fu/jquery.fileupload-ui.js"></script>
-        <script src="static/js/i18n/fr.js"></script>
-        <script src="static/js/model/album.js"></script>
-        <script src="static/js/slideshow.js"></script>
-        <script src="static/js/utils.js"></script>
-        <script type="text/javascript">
-            var lang = fr;
-            $(document).ready(function() {
-                // Load templates before enable application routing
-                loadTemplates();
-                $(".footer").html(lang.footer);
-                $("#loading").text(lang.common.loading);
-            });
-        </script>
-        <script src="static/js/routes.js"></script>
-
         <link rel="stylesheet" href="static/css/bootstrap.min.css" />
         <link rel="stylesheet" href="static/css/bootstrap-responsive.min.css" />
         <link rel="stylesheet" href="static/css/font-awesome.css" />
@@ -59,5 +30,57 @@
         </div>
         <p class="footer"></p>
         <div id="loading"></div>
+        <form id="authentication-form" class="modal fade hide form-horizontal" action="authenticate" method="post">
+            <!-- Fill in with loadTemplate("login.popup", data, "#authentication-form"); call -->
+        </form>
+        
+        <script src="static/js/lib/head.load-0.96.min.js"></script>
+        <script type="text/javascript">
+            head.js(
+                "static/js/lib/jquery-1.7.2.min.js",
+                "static/js/lib/jquery-ui-1.8.21.custom.min.js",
+                "static/js/lib/jquery.dynatree.min.js",
+                "static/js/lib/jquery.rs.slideshow.js",
+                "static/js/lib/jwerty.js",
+                "static/js/lib/bootstrap.min.js",
+                "static/js/lib/sammy-0.7.1.min.js",
+                "static/js/lib/Hogan.js",
+                "static/js/lib/date-fr-FR.js",
+                "static/js/lib/chosen/chosen.jquery.min.js",
+                "static/js/lib/fu/load-image.min.js",
+                "static/js/lib/fu/jquery.fileupload.js",
+                "static/js/lib/fu/jquery.fileupload-fp.js",
+                "static/js/lib/fu/jquery.fileupload-ui.js",
+                "static/js/i18n/fr.js",
+                "static/js/model/album.js",
+                "static/js/slideshow.js",
+                "static/js/utils.js",
+                function() {
+                    lang = fr;
+                    // Load templates before enable application routing
+                    loadTemplates();
+                    $(".footer").html(lang.footer);
+                    $("#loading").text(lang.common.loading);
+                    app = Sammy(function() {
+                        // Comment this line to enable SammyJS logging
+                        this.log = function() {}
+                    });
+                    var suffix = "?t=" + new Date().getTime();
+                    head.js(
+                        "static/js/routes/media-browsing.js" + suffix,
+                        "static/js/routes/administration.js" + suffix,
+                        "static/js/routes/administration/configuration.js" + suffix,
+                        "static/js/routes/administration/administrator-account.js" + suffix,
+                        "static/js/routes/administration/albums.js" + suffix,
+                        "static/js/routes/administration/photos-upload.js" + suffix,
+                        "static/js/routes/administration/synchronization.js" + suffix,
+                        "static/js/routes/administration/visitors-accesses.js" + suffix,
+                        function() {
+                            app.run("#/");
+                        }
+                    );
+                }
+            );
+        </script>
     </body>
 </html>

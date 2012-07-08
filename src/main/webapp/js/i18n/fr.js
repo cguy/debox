@@ -34,6 +34,7 @@ var fr = {
         validate: "Valider",
         modify: "Modifier",
         "delete": "Supprimer",
+        deletion: "Suppression",
         deletion_in_progress: "Suppression en cours...",
         creation_in_progress: "Création en cours...",
         modification_in_progress: "Modification en cours...",
@@ -77,7 +78,7 @@ var fr = {
             title: "Ajouter des photos",
             tab: "Ajout de photos",
             add: "Ajouter des photos",
-            createAlbum: "Creer un nouvel album",
+            createAlbum: "Créer un nouvel album",
             mandatory: "Veuillez choisir ou créer l'album dans lequel vous voulez ajouter vos photos.",
             action: "Commencer le chargement des photos",
             "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
@@ -127,6 +128,20 @@ var fr = {
         tokens: {
             title: "Gestion des accès visiteurs",
             tab: "Gestion des accès visiteurs",
+            
+            thirdparty : {
+                title: "Ajouter des comptes tiers pour gérer les accès de vos contacts",
+                provider : {
+                    name: "Nom du service",
+                    identifier: "Nom du compte",
+                    deletion: "Supprimer l'accès à ce compte",
+                    remove: {
+                        title: "Suppression de l'accès à un compte tiers",
+                        message: "Êtes-vous sûr de vouloir supprimer l'accès à ce compte ?"
+                    }
+                }
+            },
+            
             token_list: "Liste des accès visiteurs",
             label: "Libellé",
             albums: "Albums",
@@ -215,6 +230,8 @@ var fr = {
         administration: "Administration",
         disconnection: "Déconnexion",
         connection: "Connexion",
+        connection_others: "Vous pouvez également vous connecter avec votre compte :",
+        connection_in_progress: "Connexion en cours ...",
         username: "Nom d'utilisateur",
         password: "Mot de passe"
     },

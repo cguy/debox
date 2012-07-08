@@ -20,6 +20,8 @@
  */
 package org.debox.photo.action;
 
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,8 +35,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.model.Configuration;
-import org.debox.photo.model.User;
+import org.debox.photo.model.DeboxUser;
+import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -47,24 +51,41 @@ public class HomeController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
     
+    public static String getUsername() {
+        Subject subject = SecurityUtils.getSubject();
+        String username = null;
+        Object principal = subject.getPrincipal();
+        if (SessionUtils.isLogged(subject)) {
+            if (principal instanceof DeboxUser) {
+                DeboxUser user = (DeboxUser) principal;
+                username = user.getUsername();
+            } else if (principal instanceof ThirdPartyAccount) {
+                ThirdPartyAccount user = (ThirdPartyAccount) principal;
+                
+                FacebookClient client = new DefaultFacebookClient(user.getToken());
+                com.restfb.types.User me = client.fetchObject("me", com.restfb.types.User.class);
+                username = me.getFirstName() + " " + me.getLastName();
+            }
+        }
+        return username;
+    }
+    
     public Render renderTemplates() {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         
         Subject subject = SecurityUtils.getSubject();
-        String username = null;
-        if (SessionUtils.isLogged(subject)) {
-            User user = (User) subject.getPrincipal();
-            username = user.getUsername();
-        }
+        String username = getUsername();
         
-        Map<String, String> headerData = new HashMap<>(2);
+        Map<String, Object> headerData = new HashMap<>(2);
         headerData.put("title", title);
         headerData.put("username", username);
+        headerData.put("isAdmin", subject.hasRole("administrator"));
         
         Map<String, Object> result = new HashMap<>(2);
         result.put("config", headerData);
         result.put("templates", getTemplates());
+        result.put("providers", ServiceUtil.getAuthenticationUrls());
         
         return renderJSON(result);
     }
@@ -84,7 +105,7 @@ public class HomeController extends DeboxController {
                         
                         String filename = StringUtils.substringBeforeLast(child.getName(), ".");
                         String content = IOUtils.toString(fis, "UTF-8");
-                        if ((SessionUtils.isLogged(SecurityUtils.getSubject()) && filename.contains("admin")) || !filename.contains("admin")) {
+                        if ((SessionUtils.isAdministrator(SecurityUtils.getSubject()) && filename.startsWith("administration")) || !filename.startsWith("administration")) {
                             templates.put(filename, content);
                         } else {
                             templates.put(filename, "");

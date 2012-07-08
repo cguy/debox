@@ -23,9 +23,11 @@ package org.debox.photo.dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.User;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -44,15 +46,28 @@ public class AlbumDao {
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
 
-    protected static String SQL_COMPUTED_PHOTOS_COUNT_PART = ""
+    protected static final String SQL_COMPUTED_PHOTOS_COUNT_PART = ""
             + "(SELECT SUM(c) FROM albums a1, "
             + "(SELECT a2.relative_path, a2.photos_count c FROM albums a2 "
-            +    "LEFT JOIN albums_tokens at ON a2.id = at.album_id WHERE at.token_id = ? OR a2.public = 1 OR ? GROUP BY a2.id) rc"
+            +    "LEFT JOIN albums_tokens at ON a2.id = at.album_id WHERE at.token_id = ? OR a2.public = 1 GROUP BY a2.id) rc"
+            + " WHERE rc.relative_path LIKE CONCAT(a.relative_path, '%') AND a1.id = a.id GROUP BY a.id) total_photos_count";
+
+    protected static final String SQL_COMPUTED_PHOTOS_COUNT_PART_LOGGED = ""
+            + "(SELECT SUM(c) FROM albums a1, "
+            + "(SELECT a2.relative_path, a2.photos_count c FROM albums a2 "
+            +    "LEFT JOIN accounts_accesses aa ON a2.id = aa.album_id "
+            + "WHERE aa.user_id = ? GROUP BY a2.id) rc"
+            + " WHERE rc.relative_path LIKE CONCAT(a.relative_path, '%') AND a1.id = a.id GROUP BY a.id) total_photos_count";
+
+    protected static final String SQL_COMPUTED_PHOTOS_COUNT_PART_ADMIN = ""
+            + "(SELECT SUM(c) FROM albums a1, "
+            + "(SELECT a2.relative_path, a2.photos_count c FROM albums a2 GROUP BY a2.id) rc"
             + " WHERE rc.relative_path LIKE CONCAT(a.relative_path, '%') AND a1.id = a.id GROUP BY a.id) total_photos_count";
 
     protected static String SQL_GET_ALBUMS = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a ORDER BY begin_date";
     
-    protected static String SQL_GET_ROOT_ALBUMS = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id is null ORDER BY begin_date";
+    protected static String SQL_GET_ROOT_ALBUMS_FOR_ADMIN = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART_ADMIN +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id is null ORDER BY begin_date";
+    
     protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = ""
             + "SELECT DISTINCT"
             + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
@@ -66,7 +81,18 @@ public class AlbumDao {
             + "    )"
             + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id = ?  ORDER BY begin_date";
+    protected static String SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED = ""
+            + "SELECT"
+            + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART_LOGGED +  ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
+            + "FROM"
+            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "WHERE aa.user_id = ? "
+            + "ORDER BY begin_date";
+    
+    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id = ? ORDER BY begin_date";
+    
+    protected static String SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART_ADMIN + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE parent_id = ?  ORDER BY begin_date";
+    
     protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = ""
             + "SELECT DISTINCT"
             + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
@@ -80,10 +106,22 @@ public class AlbumDao {
             + "    )"
             + "ORDER BY begin_date";
     
+    protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED = ""
+            + "SELECT DISTINCT"
+            + "    id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART_LOGGED + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount "
+            + "FROM"
+            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "WHERE"
+            + "    parent_id = ? "
+            + "    OR public = 1 "
+            + "ORDER BY begin_date";
+    
     protected static String SQL_GET_ALBUM_BY_ID = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE id = ?";
     protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
-            + "        token_id = ? OR public = 1 OR ?"
+            + "        token_id = ? OR public = 1"
             + "    )";
+    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED = "SELECT id, name, description, begin_date, end_date, " + SQL_COMPUTED_PHOTOS_COUNT_PART_LOGGED + ", downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "WHERE id = ? OR public = 1";
     
     protected static String SQL_GET_ALBUM_BY_RELATIVE_PATH = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount FROM albums a WHERE relative_path = ?";
     
@@ -98,11 +136,16 @@ public class AlbumDao {
     protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
-            + "SELECT p.id, p.name, p.date, p.relative_path, p.album_id "
+            + "(SELECT p.id, p.name, p.date, p.relative_path, p.album_id "
             + "FROM photos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
-            + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)";
+            + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
+            + "(SELECT p.id, p.name, p.date, p.relative_path, p.album_id "
+            + "FROM photos p "
+            + "LEFT JOIN albums a ON a.cover = p.id "
+            + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
+            + "WHERE a.id = ?)";
     
     public void save(List<Album> albums) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
@@ -115,13 +158,9 @@ public class AlbumDao {
                 statement = prepareAlbumSaveStatement(statement, album);
                 statement.addBatch();
             }
-
             statement.executeBatch();
             connection.commit();
         } finally {
-            if (connection != null) {
-                connection.rollback();
-            }
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
@@ -189,14 +228,21 @@ public class AlbumDao {
         }
     }
     
+    public Album getVisibleAlbumForLoggedUser(String userId, String albumId) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED);
+        statement.setString(1, userId);
+        statement.setString(2, albumId);
+        Album result = executeSingleQueryStatement(statement, null);
+        return result;
+    }
+    
     public Album getVisibleAlbum(String token, String albumId, boolean grantedAccess) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID);
         statement.setString(1, token);
-        statement.setBoolean(2, grantedAccess);
-        statement.setString(3, albumId);
-        statement.setString(4, token);
-        statement.setBoolean(5, grantedAccess);
+        statement.setString(2, albumId);
+        statement.setString(3, token);
         Album result = executeSingleQueryStatement(statement, token);
         return result;
     }
@@ -223,35 +269,54 @@ public class AlbumDao {
         List<Album> result = executeListQueryStatement(statement, null);
         return result;
     }
-
-    public List<Album> getVisibleAlbums(String token, String parentId, boolean grantedAccess) throws SQLException {
+    
+    public List<Album> getAlbums(String parentId) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement;
-        if (parentId == null && grantedAccess) {
-            statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS);
-            statement.setString(1, token);
-            statement.setBoolean(2, grantedAccess);
+        if (parentId == null) {
+            statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS_FOR_ADMIN);
+        } else {
+            statement = connection.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR);
+            statement.setString(1, parentId);
+        }
 
-        } else if (parentId == null) {
+        List<Album> result = this.executeListQueryStatement(statement, null);
+        return result;
+    }
+
+    public List<Album> getVisibleAlbums(String token, String parentId) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement;
+        if (parentId == null) {
             statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS);
             statement.setString(1, token);
-            statement.setBoolean(2, grantedAccess);
-            statement.setString(3, token);
-
-        } else if (grantedAccess) {
-            statement = connection.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID);
-            statement.setString(1, token);
-            statement.setBoolean(2, grantedAccess);
-            statement.setString(3, parentId);
+            statement.setString(2, token);
 
         } else {
             statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
             statement.setString(1, token);
-            statement.setBoolean(2, grantedAccess);
-            statement.setString(3, parentId);
-            statement.setString(4, token);
+            statement.setString(2, parentId);
+            statement.setString(3, token);
         }
         List<Album> result = this.executeListQueryStatement(statement, token);
+        return result;
+    }
+
+    public List<Album> getVisibleAlbumsForLoggedUser(String parentId) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement;
+        String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
+        if (parentId == null) {
+            statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED);
+            statement.setString(1, id);
+            statement.setString(2, id);
+
+        } else {
+            statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED);
+            statement.setString(1, id);
+            statement.setString(2, parentId);
+        }
+        List<Album> result = this.executeListQueryStatement(statement, null);
         return result;
     }
 
@@ -351,10 +416,12 @@ public class AlbumDao {
     }
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
+        logger.debug("test ?");
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
         statement.setString(1, albumId);
         statement.setString(2, token);
+        statement.setString(3, albumId);
         Photo result = PhotoDao.executeSingleQueryStatement(statement, token);
         return result;
     }

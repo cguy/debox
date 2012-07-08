@@ -20,6 +20,8 @@
  */
 package org.debox.photo.action;
 
+import com.restfb.Connection;
+import com.restfb.DefaultFacebookClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +29,8 @@ import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,16 +38,23 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Contact;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.Provider;
+import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.model.Token;
+import org.debox.photo.model.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
+import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debox.photo.util.img.ImageHandler;
@@ -63,6 +74,7 @@ public class AlbumController extends DeboxController {
     protected static TokenDao tokenDao = new TokenDao();
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    protected UserDao userDao = new UserDao();
     
     public Render createAlbum(String albumName, String parentId) throws SQLException {
         if (StringUtils.isEmpty(albumName)) {
@@ -106,37 +118,89 @@ public class AlbumController extends DeboxController {
         albumDao.save(album);
         return renderJSON(album);
     }
+    
+    public List<Album> albums(String parentId, String token) throws SQLException {
+        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
+        List<Album> albums;
+        if (isAdministrator) {
+            albums = albumDao.getAlbums(parentId);
+        } else if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+            albums = albumDao.getVisibleAlbumsForLoggedUser(parentId);
+        } else {
+            albums = albumDao.getVisibleAlbums(token, parentId);
+        }
+        return albums;
+    }
 
     public Render getAlbums(String parentId, String token, String criteria) throws SQLException {
-        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        
+        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
         List<Album> albums;
-        if ("all".equals(criteria)) {
+        if (isAdministrator && "all".equals(criteria)) {
             albums = albumDao.getAllAlbums();
         } else {
-            albums = albumDao.getVisibleAlbums(token, parentId, authenticated);
-        }  
+            albums = albums(parentId, token);
+        }
         return renderJSON("albums", albums);
     }
-    
+
     public Render getAlbum(String token, String id) throws IOException, SQLException {
-        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        List<Token> tokens = null;
-        Album album = albumDao.getVisibleAlbum(token, id, authenticated);
-        if (authenticated) {
-            tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        
+        boolean isAdministrator = SessionUtils.isAdministrator(subject);
+        Album album;
+        if (!isAdministrator && SessionUtils.isLogged(subject)) {
+            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), id);
+        } else if (isAdministrator) {
+            album = albumDao.getAlbum(id);
+        } else {
+            album = albumDao.getVisibleAlbum(token, id, isAdministrator);
         }
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
+
+        List<Token> tokens = null;
+        List<Contact> contacts = null;
+        if (isAdministrator) {
+            tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
+            List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(user);
+            for (ThirdPartyAccount account : accounts) {
+                if (!account.getProviderId().equals("facebook")) {
+                    continue;
+                }
+                String thirdPartyToken = account.getToken();
+                if (thirdPartyToken != null) {
+                    DefaultFacebookClient client = new DefaultFacebookClient(thirdPartyToken);
+                    Connection<com.restfb.types.User> myFriends = client.fetchConnection("me/friends", com.restfb.types.User.class);
+                    contacts = convert(myFriends.getData());
+                    Collections.sort(contacts);
+                }
+            }
+        }
         
-        List<Album> subAlbums = albumDao.getVisibleAlbums(token, album.getId(), authenticated);
+        List<Album> subAlbums = this.albums(album.getId(), token);
         List<Photo> photos = photoDao.getPhotos(id, token);
         Album parent = albumDao.getAlbum(album.getParentId());
         
         return renderJSON("album", album, "albumParent", parent,
                 "subAlbums", subAlbums, "photos", photos,
-                "regeneration", getRegenerationData(), "tokens", tokens);
+                "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts);
+    }
+    
+    public List<Contact> convert(List<com.restfb.types.User> list) {
+        if (list == null) {
+            return null;
+        }
+        List<Contact> result = new ArrayList<>(list.size());
+        for (com.restfb.types.User user : list) {
+            Contact contact = new Contact();
+            contact.setId(user.getId());
+            contact.setProvider("facebook");
+            contact.setName(user.getName());
+            result.add(contact);
+        }
+        return result;
     }
     
     public Render editAlbum(String albumId, String name, String description, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException {
@@ -161,6 +225,25 @@ public class AlbumController extends DeboxController {
                 }
             }
             tokenDao.saveAll(tokens);
+            
+            List<ThirdPartyAccount> accounts = new ArrayList<>();
+            for (String thirdPartyId : authorizedTokens) {
+                String providerId = StringUtils.substringBefore(thirdPartyId, "-");
+                Provider provider = ServiceUtil.getProvider(providerId);
+                if (provider == null) {
+                    continue;
+                }
+                
+                String providerAccountId = StringUtils.substringAfter(thirdPartyId, "-");
+                
+                ThirdPartyAccount account = userDao.getUser(provider.getId(), providerAccountId);
+                if (account == null) {
+                    account = new ThirdPartyAccount(provider, providerAccountId, null);
+                    userDao.save(account);
+                }
+                accounts.add(account);
+            }
+            userDao.saveAccess(accounts, albumId);
         }
         
         return getAlbum(null, album.getId());
@@ -175,7 +258,7 @@ public class AlbumController extends DeboxController {
     
     protected void removeChildAlbumToToken(Album album, Token token) throws SQLException {
         if (album != null && token.getAlbums().contains(album)) {
-            List<Album> children = albumDao.getVisibleAlbums(null, album.getId(), true);
+            List<Album> children = albumDao.getAlbums(album.getId());
             for (Album child : children) {
                 removeChildAlbumToToken(child, token);
             }
@@ -198,14 +281,14 @@ public class AlbumController extends DeboxController {
         
         photoDao.savePhotoGenerationTime("a." + albumId, ThumbnailSize.SQUARE, new Date().getTime());
         albumDao.setAlbumCover(albumId, id);
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
         
         Photo photo;
-        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
             photo = albumDao.getAlbumCover(albumId);
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
@@ -235,13 +318,13 @@ public class AlbumController extends DeboxController {
 
     public Render download(String token, String albumId, boolean resized) throws SQLException {
         Album album;
-        boolean authenticated = SessionUtils.isLogged(SecurityUtils.getSubject());
-        album = albumDao.getVisibleAlbum(token, albumId, authenticated);
+        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
+        album = albumDao.getVisibleAlbum(token, albumId, isAdministrator);
         
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
 
-        } else if (!album.isDownloadable() && !authenticated) {
+        } else if (!album.isDownloadable() && !isAdministrator) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
@@ -291,7 +374,7 @@ public class AlbumController extends DeboxController {
             threadPool.execute(regenerateThumbnailsJob);
         }
 
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     public Render getRegenerationProgress() throws SQLException {

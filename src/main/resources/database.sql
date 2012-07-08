@@ -36,25 +36,48 @@ DROP TABLE IF EXISTS `roles`;
 DROP TABLE IF EXISTS `visibilities`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `configurations`;
+DROP TABLE IF EXISTS `thirdparty_accounts`;
 
 CREATE TABLE IF NOT EXISTS `configurations` (
     `key` VARCHAR(255) PRIMARY KEY,
     `value` VARCHAR(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `accounts` (
     `id` VARCHAR(32) PRIMARY KEY,
-    `username` VARCHAR(255) NOT NULL UNIQUE KEY,
-    `password` VARCHAR(255) NOT NULL,
-    `password_salt` varchar(255) NOT NULL
+    `username` VARCHAR(255) NOT NULL,
+    `password` VARCHAR(255),
+    `password_salt` varchar(255),
+    FOREIGN KEY (`id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `tokens` (
-    `id` VARCHAR(32) PRIMARY KEY,
-    `label` VARCHAR(255) NOT NULL
+CREATE TABLE IF NOT EXISTS `users` (
+    `id` VARCHAR(32) PRIMARY KEY
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `users_roles` (
+    `user_id` VARCHAR(32) NOT NULL,
+    `role_id` VARCHAR(32) NOT NULL,
+    PRIMARY KEY (`user_id`, `role_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `roles` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL UNIQUE KEY
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `thirdparty_accounts` (
+    `user_id` VARCHAR(32) NOT NULL,
+    `thirdparty_account_id` VARCHAR(255) NOT NULL,
+    `thirdparty_name` VARCHAR(255) NOT NULL,
+    `token` VARCHAR(255),
+    PRIMARY KEY (`user_id`, `thirdparty_name`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `tokens` (
     `id` VARCHAR(32) PRIMARY KEY,
     `label` VARCHAR(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
@@ -82,6 +105,14 @@ CREATE TABLE IF NOT EXISTS `albums_tokens` (
     PRIMARY KEY (`album_id`, `token_id`),
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `accounts_accesses` (
+    `user_id` VARCHAR(32),
+    `album_id` VARCHAR(32),
+    PRIMARY KEY (`user_id`, `album_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `photos` (

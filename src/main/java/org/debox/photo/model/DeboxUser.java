@@ -18,24 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.filter;
-
-import java.net.HttpURLConnection;
-import org.apache.shiro.SecurityUtils;
-import org.debox.photo.util.SessionUtils;
-import org.debux.webmotion.server.WebMotionFilter;
-import org.debux.webmotion.server.render.Render;
+package org.debox.photo.model;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AdministrationFilter extends WebMotionFilter {
-
-    public Render checkUserSession() {
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            doProcess();
-            return null;
-        }
-        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
+public class DeboxUser extends User {
+    
+    protected String username;
+    protected String password;
+    
+    public String getPassword() {
+        return password;
     }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
 }

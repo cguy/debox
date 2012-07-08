@@ -48,7 +48,7 @@ public class PhotoController extends DeboxController {
         photoId = StringUtils.substringBeforeLast(photoId, ".jpg");
         
         Photo photo;
-        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);
@@ -75,7 +75,7 @@ public class PhotoController extends DeboxController {
         photoId = StringUtils.substringBeforeLast(photoId, ".jpg");       
         
         Photo photo;
-        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
             photo = photoDao.getPhoto(photoId);
         } else {
             photo = photoDao.getVisiblePhoto(token, photoId);

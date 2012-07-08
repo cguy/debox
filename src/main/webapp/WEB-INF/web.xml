@@ -20,32 +20,31 @@
   #L%
   -->
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <!-- Shiro filter, for session management -->
+    <!-- Should be the first listener, configure jul to slf4j bridge -->
+    <listener>
+        <listener-class>org.debox.photo.server.SLF4JBridgeConfigurator</listener-class>
+    </listener>
+
+    <!-- Should be the second listener, configure shiro with database connection -->
     <listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
     </listener>
+
+    <!-- Should be the last listener, initialize the application context -->
+    <listener>
+        <listener-class>org.debox.photo.server.Initializer</listener-class>
+    </listener>
+    
+    <!-- Shiro filter, for session management -->
     <filter>
         <filter-name>ShiroFilter</filter-name>
         <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
     </filter>
+    
     <filter-mapping>
         <filter-name>ShiroFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <!-- JavaMelody, for monitoring -->
-    <!--    <filter>
-        <filter-name>monitoring</filter-name>
-        <filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
-    </filter>
-    
-    <filter-mapping>
-        <filter-name>monitoring</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    
-    <listener>
-        <listener-class>net.bull.javamelody.SessionListener</listener-class>
-    </listener>-->
     
     <!-- Not any jessionid in app urls -->
     <session-config>

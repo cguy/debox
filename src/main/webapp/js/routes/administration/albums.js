@@ -18,24 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.filter;
-
-import java.net.HttpURLConnection;
-import org.apache.shiro.SecurityUtils;
-import org.debox.photo.util.SessionUtils;
-import org.debux.webmotion.server.WebMotionFilter;
-import org.debux.webmotion.server.render.Render;
-
-/**
- * @author Corentin Guy <corentin.guy@debox.fr>
- */
-public class AdministrationFilter extends WebMotionFilter {
-
-    public Render checkUserSession() {
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            doProcess();
-            return null;
+app.post('#/album/:albumId', function() {
+    $("#alerts .edit.alert-success").fadeOut(250);
+    $("#alerts .edit.alert-danger").fadeOut(250);
+    $.ajax({
+        url: "album/" + this.params["albumId"],
+        type : "post",
+        data : $("#edit_album form").serializeArray(),
+        success: function(data) {
+            data.inEdition = true;
+            loadAlbum(data, function(){
+                $("#alerts .edit.alert-success").fadeIn(250);
+            });
+        },
+        error : function() {
+            $("#alerts .edit.alert-danger").fadeIn(250);
         }
-        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
-    }
-}
+    });
+    return false;
+});
+        

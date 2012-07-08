@@ -20,7 +20,6 @@
  */
 package org.debox.photo.action;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
@@ -30,14 +29,12 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
-import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
 import org.debox.photo.util.img.ImageHandler;
 import org.debox.photo.util.img.ImageUtils;
@@ -163,19 +160,20 @@ public class AdministrationController extends DeboxController {
             threadPool.execute(syncJob);
         }
 
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     public Render cancelSynchronization() {
         if (syncJob != null) {
             syncJob.abort();
-            return renderStatus(HttpURLConnection.HTTP_OK);
+            return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
         }
         return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Error during cancel.");
     }
 
     public Render getData() throws SQLException {
-        String username = ((User) SecurityUtils.getSubject().getPrincipal()).getUsername();
+        String username = HomeController.getUsername();
+        
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
@@ -193,6 +191,10 @@ public class AdministrationController extends DeboxController {
                 "tokens", tokenDao.getAll());
     }
 
+    public Render getUploadProgress(FileProgressListener listener) {
+        return renderJSON(listener);
+    }
+
     protected Map<String, Long> getSyncData() throws SQLException {
         long total = syncJob.getNumberToProcess();
         long current = syncJob.getNumberProcessed();
@@ -207,10 +209,6 @@ public class AdministrationController extends DeboxController {
             sync.put("percent", Double.valueOf(Math.floor(current * 100 / total)).longValue());
         }
         return sync;
-    }
-
-    public Render getUploadProgress(FileProgressListener listener) {
-        return renderJSON(listener);
     }
 
 }

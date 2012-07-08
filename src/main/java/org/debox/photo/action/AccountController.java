@@ -20,8 +20,10 @@
  */
 package org.debox.photo.action;
 
+import com.restfb.DefaultFacebookClient;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -29,9 +31,15 @@ import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.dao.UserDao;
+import org.debox.photo.dao.facebook.FacebookToken;
+import org.debox.photo.model.DeboxUser;
+import org.debox.photo.model.Provider;
+import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.User;
+import org.debox.photo.thirdparty.ServiceUtil;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
+import org.scribe.model.Verifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +63,57 @@ public class AccountController extends WebMotionController {
             logger.error(e.getMessage(), e);
             return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
         }
+        return renderRedirect("/");
+    }
+    
+    public Render handleFacebookCallback(String code) throws SQLException {
+        Verifier verifier = new Verifier(code);
+        FacebookToken facebookToken = new FacebookToken(verifier);
+        Subject subject = SecurityUtils.getSubject();
 
-        User user = (User) currentUser.getPrincipal();
-        return renderJSON(user.getUsername());
+        if (!subject.hasRole("administrator")) {
+            subject.login(facebookToken);
+            return renderRedirect("/");
+        }
+        
+        org.scribe.model.Token accessToken = ServiceUtil.getFacebookService().getAccessToken(null, facebookToken.getCode());
+        
+        DefaultFacebookClient client = new DefaultFacebookClient(accessToken.getToken());
+        com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+        
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        
+        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("facebook"), fbUser.getId(), accessToken.getToken());
+        thirdPartyAccount.setId(user.getId());
+        thirdPartyAccount.setUsername(fbUser.getName());
+        thirdPartyAccount.setAccountUrl(fbUser.getLink());
+        
+        new UserDao().save(thirdPartyAccount);
+
+        user.addThirdPartyAccount(thirdPartyAccount);
+        return renderRedirect("/#/administration/tokens");
+    }
+    
+    public Render deleteThirdPartyAccount(String id) throws SQLException {
+        String providerId = StringUtils.substringBefore(id, "-");
+        String providerAccountId = StringUtils.substringAfter(id, "-");
+        
+        Provider provider = ServiceUtil.getProvider(providerId);
+        if (provider == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        
+        ThirdPartyAccount account = userDao.getUser(providerId, providerAccountId);
+        if (account == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        
+        userDao.delete(account);
+        
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        user.removeThirdPartyAccount(account);
+        
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     public Render getLoggedUser() {
@@ -67,7 +123,7 @@ public class AccountController extends WebMotionController {
 
     public Render editCredentials(String userId, String username, String oldPassword, String password, String confirm) {
         try {
-            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            DeboxUser user = (DeboxUser) SecurityUtils.getSubject().getPrincipal();
             if (!user.getId().equals(userId)) {
                 return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
             }
@@ -85,7 +141,7 @@ public class AccountController extends WebMotionController {
             user.setUsername(username);
             user.setPassword(password);
 
-            userDao.save(user);
+            userDao.save(user, null);
 
             return renderJSON("username", username);
 
@@ -101,7 +157,7 @@ public class AccountController extends WebMotionController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderLastPage();
     }
     
 }

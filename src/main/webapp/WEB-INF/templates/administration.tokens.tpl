@@ -1,4 +1,35 @@
 <h2 class="page-header">{{i18n.administration.tokens.title}}</h2>
+
+<h3>{{i18n.administration.tokens.thirdparty.title}}</h3>
+{{#providers}}
+    {{#enabled}}<a href="{{url}}" class="btn btn-large {{id}}"><img src="static/img/{{id}}_logo.png"/>&nbsp;{{name}}</a>{{/enabled}}
+    {{^enabled}}<div class="btn btn-large {{id}} disabled"><img src="static/img/{{id}}_logo.png"/>&nbsp;{{name}}</div>{{/enabled}}
+{{/providers}}
+{{#accounts.length}}
+<h3></h3>
+<table id="thirdparty_accounts" class="table table-bordered table-striped">
+    <tr>
+        <th>{{i18n.administration.tokens.thirdparty.provider.name}}</th>
+        <th>{{i18n.administration.tokens.thirdparty.provider.identifier}}</th>
+        <th class="delete">{{i18n.common.deletion}}</th>
+    </tr>
+    {{#accounts}}
+    <tr id="{{provider.id}}-{{providerAccountId}}">
+        <td>
+            <img src="static/img/{{provider.id}}_logo.png"/>&nbsp;{{provider.name}}
+        </td>
+        <td>
+            <img src="{{avatarUrl}}" />
+            <a href="{{accountUrl}}">{{username}}</a>
+        </td>
+        <td class="delete">
+            <a href="#delete-third-party-account" class="btn btn-danger btn-small delete-third-party-account" data-toggle="modal">{{i18n.administration.tokens.thirdparty.provider.deletion}}</a>
+        </td>
+    </tr>
+    {{/accounts}}
+</table>
+{{/accounts.length}}
+
 <h3>{{i18n.administration.tokens.token_list}}</h3>
 <table id="administration_tokens" class="table table-striped table-bordered table-condensed{{^tokens}} hide{{/tokens}}">
     <thead>
@@ -11,7 +42,7 @@
     </thead>
     <tbody>
     {{#tokens}}
-        {{> admin.tokens.row}}
+        {{> administration.tokens.row}}
     {{/tokens}}
     </tbody>
 </table>
@@ -82,6 +113,24 @@
     <div class="modal-footer">
         <input type="hidden" name="id" />
         <input type="submit" class="btn btn-warning" data-loading-text="{{i18n.administration.tokens.reinit.label_in_progress}}" value="{{i18n.administration.tokens.reinit.label}}" />
+        <button type="reset" class="btn">{{i18n.common.cancel}}</button>
+    </div>
+</form>
+
+{{! ========================================================== }}
+{{! POPUP MODAL - DELETE A THIRD PARTY ACCOUNT                 }}
+{{! ========================================================== }}
+<form id="delete-third-party-account" class="modal hide fade form-horizontal" action="#/third-party-account" method="delete">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>{{i18n.administration.tokens.thirdparty.provider.remove.title}}</h3>
+    </div>
+    <div class="modal-body">
+        <p>{{i18n.administration.tokens.thirdparty.provider.remove.message}}</p>
+    </div>
+    <div class="modal-footer">
+        <input type="hidden" name="id" class="third-party-account-id" />
+        <input type="submit" class="btn btn-danger" data-loading-text="{{i18n.common.deletion_in_progress}}" value="{{i18n.common.delete}}" />
         <button type="reset" class="btn">{{i18n.common.cancel}}</button>
     </div>
 </form>

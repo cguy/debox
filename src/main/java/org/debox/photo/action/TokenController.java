@@ -26,10 +26,15 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.Token;
+import org.debox.photo.model.User;
+import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -43,6 +48,7 @@ public class TokenController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
+    protected UserDao userDao = new UserDao();
     
     public Render createToken(String label) throws SQLException, UnsupportedEncodingException {
         Token token = new Token();
@@ -54,7 +60,13 @@ public class TokenController extends DeboxController {
     }
     
     public Render getTokens() throws SQLException {
-        return renderJSON("tokens", tokenDao.getAll(), "albums", albumDao.getVisibleAlbums(null, null, true));
+        User principal = (User) SecurityUtils.getSubject().getPrincipal();
+        List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(principal);
+        return renderJSON(
+                "tokens", tokenDao.getAll(),
+                "albums", albumDao.getAlbums(null),
+                "providers", ServiceUtil.getAuthenticationUrls(),
+                "accounts", accounts);
     }
     
     public Render getToken(String id) throws SQLException {
@@ -64,7 +76,7 @@ public class TokenController extends DeboxController {
         }
         
         return renderJSON(
-                "albums", albumDao.getVisibleAlbums(null, null, true),
+                "albums", albumDao.getAlbums(null),
                 "token", token);
     }
     
@@ -111,7 +123,7 @@ public class TokenController extends DeboxController {
     
     public Render deleteToken(String id) throws SQLException {
         tokenDao.delete(id);
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     public Render reinitToken(String id) throws SQLException {

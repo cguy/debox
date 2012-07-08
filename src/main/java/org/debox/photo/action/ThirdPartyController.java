@@ -18,24 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.filter;
+package org.debox.photo.action;
 
-import java.net.HttpURLConnection;
-import org.apache.shiro.SecurityUtils;
-import org.debox.photo.util.SessionUtils;
-import org.debux.webmotion.server.WebMotionFilter;
+import org.debox.photo.thirdparty.ServiceUtil;
+import org.debux.webmotion.server.call.HttpContext.ErrorData;
 import org.debux.webmotion.server.render.Render;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AdministrationFilter extends WebMotionFilter {
-
-    public Render checkUserSession() {
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            doProcess();
-            return null;
-        }
-        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
+public class ThirdPartyController extends DeboxController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ThirdPartyController.class);
+    
+    public Render handleOAuthException(ErrorData errorData) {
+        logger.error(errorData.getMessage());
+        return renderJSON("error", "ThirdPartyError", "provider", "facebook", "url", ServiceUtil.getProvider("facebook").getUrl());
     }
+    
 }

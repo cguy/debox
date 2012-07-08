@@ -20,17 +20,25 @@
  */
 package org.debox.photo.dao;
 
+import com.restfb.DefaultFacebookClient;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
+import org.debox.photo.model.DeboxUser;
+import org.debox.photo.model.Role;
+import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.User;
+import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.DatabaseUtils;
+import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +52,98 @@ public class UserDao {
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
-    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
+    protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
+    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?)";
+    protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?)";
+    protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
+    protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
+    protected static String SQL_CREATE_ROLE = "INSERT INTO roles VALUES (?, ?)";
+    protected static String SQL_CREATE_USER_ROLE = "INSERT INTO users_roles VALUES (?, ?)";
+    protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
+            + "select ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token "
+            + "from thirdparty_accounts ta "
+            + "     LEFT JOIN users_roles ur ON ur.user_id = ta.user_id "
+            + "     LEFT JOIN roles r ON ur.role_id = r.id "
+            + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     
-    public int getUsersCount() throws SQLException {
-        int result = -1;
-        
-        Connection connection = null;
+    private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
+    private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?)";
+
+    public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
+        ThirdPartyAccount result = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-      
-            connection = DatabaseUtils.getConnection();
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(GET_USER_BY_THIRD_PARTY_ACCOUNT);
+            statement.setString(1, provider);
+            statement.setString(2, providerAccountId);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String userId = resultSet.getString("user_id");
+                String accountId = resultSet.getString("thirdparty_account_id");
+                String roleId = resultSet.getString("role_id");
+                String roleName = resultSet.getString("role_name");
+                String token = resultSet.getString("token");
+
+                Role role = new Role();
+                role.setId(roleId);
+                role.setName(roleName);
+
+                result = new ThirdPartyAccount();
+                result.setId(userId);
+                result.setProvider(ServiceUtil.getProvider(provider));
+                result.setProviderAccountId(accountId);
+                result.setToken(token);
+                result.setRole(role);
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
+        return result;
+    }
+
+    public int getRoleCount() throws SQLException {
+        int result = -1;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_GET_ROLE_COUNT);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                result = resultSet.getInt(1);
+            }
+
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
+        return result;
+    }
+
+    public void save(Role role) throws SQLException {
+        PreparedStatement statement = null;
+        try {
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_CREATE_ROLE);
+            statement.setString(1, role.getId());
+            statement.setString(2, role.getName());
+            statement.executeUpdate();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
+    }
+
+    public int getUsersCount() throws SQLException {
+        int result = -1;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_GET_USERS_COUNT);
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -64,34 +153,157 @@ public class UserDao {
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+        }
+        return result;
+    }
+
+    public void save(ThirdPartyAccount user) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        connection.setAutoCommit(false);
+
+        PreparedStatement userStatement = null;
+        PreparedStatement accountStatement = null;
+        PreparedStatement roleStatement = null;
+        try {
+            if (user.getId() == null) {
+                user.setId(StringUtils.randomUUID());
+
+                userStatement = connection.prepareStatement(SQL_CREATE_USER);
+                userStatement.setString(1, user.getId());
+                userStatement.executeUpdate();
+
+                Role role = user.getRole();
+                if (role != null) {
+                    roleStatement = connection.prepareStatement(SQL_CREATE_USER_ROLE);
+                    roleStatement.setString(1, user.getId());
+                    roleStatement.setString(2, role.getId());
+                    roleStatement.executeUpdate();
+                }
+            }
+
+            accountStatement = connection.prepareStatement(SQL_CREATE_USER_THIRD_PARTY);
+            accountStatement.setString(1, user.getId());
+            accountStatement.setString(2, user.getProviderAccountId());
+            accountStatement.setString(3, user.getProviderId());
+            accountStatement.setString(4, user.getToken());
+            accountStatement.setString(5, user.getToken());
+            accountStatement.executeUpdate();
+
+            connection.commit();
+
+        } catch (SQLException ex) {
+            logger.error("Unable to save user, reason:", ex);
+            connection.rollback();
+
+        } finally {
+            JdbcUtils.closeStatement(userStatement);
+            JdbcUtils.closeStatement(accountStatement);
+            JdbcUtils.closeStatement(roleStatement);
+            connection.setAutoCommit(true);
+        }
+    }
+
+    public void save(DeboxUser user, Role role) throws SQLException {
+        ByteSource salt = GENERATOR.nextBytes();
+        String hashedPassword = new Sha256Hash(user.getPassword(), salt.toBase64(), 1024).toBase64();
+
+        Connection connection = DatabaseUtils.getConnection();
+        connection.setAutoCommit(false);
+
+        PreparedStatement userStatement = null;
+        PreparedStatement userInfosStatement = null;
+        PreparedStatement roleStatement = null;
+        try {
+            userStatement = connection.prepareStatement(SQL_CREATE_USER);
+            userStatement.setString(1, user.getId());
+            userStatement.executeUpdate();
+
+            userInfosStatement = connection.prepareStatement(SQL_CREATE_USER_INFO);
+            userInfosStatement.setString(1, user.getId());
+            userInfosStatement.setString(2, user.getUsername());
+            userInfosStatement.setString(3, hashedPassword);
+            userInfosStatement.setString(4, salt.toBase64());
+            userInfosStatement.executeUpdate();
+
+            if (role != null) {
+                roleStatement = connection.prepareStatement(SQL_CREATE_USER_ROLE);
+                roleStatement.setString(1, user.getId());
+                roleStatement.setString(2, role.getId());
+                roleStatement.executeUpdate();
+            }
+
+            connection.commit();
+
+        } catch (SQLException ex) {
+            logger.error("Unable to save user, reason:", ex);
+            connection.rollback();
+
+        } finally {
+            JdbcUtils.closeStatement(userStatement);
+            JdbcUtils.closeStatement(userInfosStatement);
+            JdbcUtils.closeStatement(roleStatement);
+            connection.setAutoCommit(true);
+        }
+    }
+
+    public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException {
+        List<ThirdPartyAccount> result = new ArrayList<>();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_GET_USER_ACCESSES);
+            statement.setString(1, user.getId());
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                ThirdPartyAccount access = new ThirdPartyAccount(
+                        ServiceUtil.getProvider(rs.getString("provider")), 
+                        rs.getString("id"), 
+                        rs.getString("token"));
+                
+                DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
+                com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+                access.setUsername(fbUser.getName());
+                access.setAccountUrl(fbUser.getLink());
+
+                result.add(access);
+            }
+        } finally {
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(statement);
         }
 
         return result;
     }
 
-    public void save(User user) throws SQLException {
-        ByteSource salt = GENERATOR.nextBytes();
-        String hashedPassword = new Sha256Hash(user.getPassword(), salt.toBase64(), 1024).toBase64();
-
-        Connection connection = null;
+    public void delete(ThirdPartyAccount account) throws SQLException {
         PreparedStatement statement = null;
         try {
-            connection = DatabaseUtils.getConnection();
-            statement = connection.prepareStatement(SQL_CREATE_USER);
-            statement.setString(1, user.getId());
-            statement.setString(2, user.getUsername());
-            statement.setString(3, hashedPassword);
-            statement.setString(4, salt.toBase64());
-            statement.setString(5, user.getUsername());
-            statement.setString(6, hashedPassword);
-            statement.setString(7, salt.toBase64());
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_DELETE_THIRD_PARTY_ACCOUNT);
+            statement.setString(1, account.getId());
+            statement.setString(2, account.getProviderId());
+            statement.setString(3, account.getProviderAccountId());
             statement.executeUpdate();
-
         } finally {
             JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
         }
     }
-    
+
+    public void saveAccess(List<ThirdPartyAccount> accounts, String albumId) throws SQLException {
+        PreparedStatement statement = null;
+        try {
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_CREATE_THIRD_PARTY_ACCESS);
+            for (ThirdPartyAccount account : accounts) {
+                statement.setString(1, account.getId());
+                statement.setString(2, albumId);
+                statement.executeUpdate();
+            }
+            statement.executeBatch();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
+    }
 }

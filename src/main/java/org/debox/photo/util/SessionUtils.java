@@ -26,12 +26,21 @@ import org.apache.shiro.subject.Subject;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class SessionUtils {
+    
+    public static final String ADMIN_ROLE = "administrator";
 
     public static boolean isLogged(Subject subject) {
         if (subject == null) {
             return false;
         }
         return subject.isAuthenticated() || subject.isRemembered();
+    }
+
+    public static boolean isAdministrator(Subject subject) {
+        if (subject == null) {
+            return false;
+        }
+        return subject.hasRole(ADMIN_ROLE);
     }
     
 }

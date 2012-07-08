@@ -2,7 +2,11 @@
 package.base=org.debox.photo
 package.filters=filter
 package.actions=action
+package.errors=action
 package.views=WEB-INF/
+
+[errors]
+com.restfb.exception.FacebookOAuthException         ThirdPartyController.handleOAuthException
 
 [filters]
 # -----------------------------------------------------------------------------------------------
@@ -25,6 +29,8 @@ POST        /album                                  AdministrationFilter.checkUs
 POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
 GET         /uploadProgress                         AdministrationFilter.checkUserSession
 
+DELETE      /third-party-account/*                  AdministrationFilter.checkUserSession
+
 [actions]
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
@@ -42,7 +48,8 @@ POST        /administration/upload              AdministrationController.upload
 POST        /authenticate                       AccountController.authenticate
 GET         /account                            AccountController.getLoggedUser
 POST        /account/{userId}                   AccountController.editCredentials
-DELETE      /session                            AccountController.logout
+GET         /logout                             AccountController.logout
+DELETE      /third-party-account/{id}           AccountController.deleteThirdPartyAccount
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
@@ -89,6 +96,11 @@ GET /download/album/{albumId}                   AlbumController.download        
 # FRONTEND TEMPLATES
 # -----------------------------------------------------------------------------------------------
 GET   /tpl                                      HomeController.renderTemplates
+
+# -----------------------------------------------------------------------------------------------
+# FACEBOOK
+# -----------------------------------------------------------------------------------------------
+GET   /facebook                                 AccountController.handleFacebookCallback
 
 # -----------------------------------------------------------------------------------------------
 # HOME

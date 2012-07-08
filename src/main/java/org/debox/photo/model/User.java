@@ -21,15 +21,56 @@
 package org.debox.photo.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class User implements Serializable {
+public abstract class User implements Serializable {
 
     protected String id;
-    protected String username;
-    protected String password;
+    
+    protected Role role;
+    
+    protected List<ThirdPartyAccount> thirdPartyAccounts;
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+    
+    public List<ThirdPartyAccount> getThirdPartyAccounts() {
+        if (thirdPartyAccounts == null) {
+            thirdPartyAccounts = new ArrayList<>();
+        }
+        return thirdPartyAccounts;
+    }
+
+    public void setThirdPartyAccounts(List<ThirdPartyAccount> thirdPartyAccounts) {
+        this.thirdPartyAccounts = thirdPartyAccounts;
+    }
+    
+    public String getThirdPartyAccess(String provider) {
+        for (ThirdPartyAccount account : thirdPartyAccounts) {
+            if (provider.equals(account.getProviderId())) {
+                return account.getToken();
+            }
+        }
+        return null;
+    }
+    
+    public void addThirdPartyAccount(ThirdPartyAccount account) {
+        getThirdPartyAccounts().add(account);
+    }
+    
+    public void removeThirdPartyAccount(ThirdPartyAccount account) {
+        getThirdPartyAccounts().remove(account);
+    }
+
 
     public String getId() {
         return id;
@@ -39,20 +80,4 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
 }

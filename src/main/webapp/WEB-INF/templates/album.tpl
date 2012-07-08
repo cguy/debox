@@ -48,7 +48,7 @@
         </ul>
     </div>
     {{/album.downloadable}}{{/photos.length}}
-    {{> album.admin.edit}}
+    {{> administration.album.edit}}
 </div>
 
 <hr style="clear:both;" />
@@ -73,14 +73,13 @@
             {{/subAlbums}}
         </ul>
     {{/subAlbums.length}}
-
     {{#photos.length}}
         {{#subAlbums.length}}
             <h2>{{photos.length}} 
                 {{#album.hasSeveralPhotos}}{{i18n.common.photos}}{{/album.hasSeveralPhotos}}
                 {{^album.hasSeveralPhotos}}{{i18n.common.photo}}{{/album.hasSeveralPhotos}}
             </h2>{{/subAlbums.length}}
-        {{> photo.thumbnails}}
+        {{> album.photos}}
     {{/photos.length}}
 
     {{^subAlbums}}
@@ -90,7 +89,7 @@
     {{/subAlbums}}
 </div>
 <div id="cover-photos" class="hide">
-    {{> photo.thumbnails.admin}}
+    {{> administration.album.photos}}
 </div>
 
 <a id="top"></a>

@@ -23,13 +23,13 @@ package org.debox.photo.server;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.DeboxUser;
+import org.debox.photo.model.Role;
 import org.debox.photo.model.User;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-@WebListener
 public class Initializer implements ServletContextListener {
     
     private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
@@ -49,14 +48,23 @@ public class Initializer implements ServletContextListener {
         logger.info("Initializing web context");
         try {
             UserDao userDao = new UserDao();
+            int roleCount = userDao.getRoleCount();
             int userCount = userDao.getUsersCount();
+            
+            Role role = null;
+            if (roleCount == 0) {
+                role = new Role();
+                role.setId(StringUtils.randomUUID());
+                role.setName("administrator");
+                userDao.save(role);
+            }
+            
             if (userCount == 0) {
-                User admin = new User();
+                DeboxUser admin = new DeboxUser();
                 admin.setId(StringUtils.randomUUID());
                 admin.setUsername("admin");
                 admin.setPassword("password");
-                
-                userDao.save(admin);
+                userDao.save(admin, role);
             }
             
             ConfigurationDao configurationDao = new ConfigurationDao();
