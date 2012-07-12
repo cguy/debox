@@ -21,6 +21,7 @@
 package org.debox.photo.dao;
 
 import com.restfb.DefaultFacebookClient;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,6 +33,8 @@ import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.photo.model.DeboxUser;
 import org.debox.photo.model.Role;
 import org.debox.photo.model.ThirdPartyAccount;
@@ -39,6 +42,8 @@ import org.debox.photo.model.User;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
+import org.debox.util.HttpUtils;
+import org.scribe.exceptions.OAuthException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,7 +251,7 @@ public class UserDao {
         }
     }
 
-    public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException {
+    public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException, IOException {
         List<ThirdPartyAccount> result = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -256,16 +261,37 @@ public class UserDao {
             statement = connection.prepareStatement(SQL_GET_USER_ACCESSES);
             statement.setString(1, user.getId());
             rs = statement.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 ThirdPartyAccount access = new ThirdPartyAccount(
                         ServiceUtil.getProvider(rs.getString("provider")), 
                         rs.getString("id"), 
                         rs.getString("token"));
                 
-                DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
-                com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
-                access.setUsername(fbUser.getName());
-                access.setAccountUrl(fbUser.getLink());
+                if (access.getProviderId().equals("facebook")) {
+                    DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
+                    com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+                    access.setUsername(fbUser.getName());
+                    access.setAccountUrl(fbUser.getLink());
+                    
+                } else if (access.getProviderId().equals("google")) {
+                    String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode node = mapper.readTree(response);
+                    
+                    if (node.get("error") != null && node.get("error").get("code") != null) {
+                        if (node.get("error").get("code").asInt() == 401) {
+                            throw new OAuthException("google");
+                        }
+                        continue;
+                    }
+                    
+                    access.setUsername(node.get("name").asText());
+                    access.setAccountUrl(node.get("link").asText());
+                } else {
+                    continue;
+                }
+                
+                access.setId(user.getId());
 
                 result.add(access);
             }

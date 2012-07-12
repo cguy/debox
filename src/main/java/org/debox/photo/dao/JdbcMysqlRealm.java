@@ -20,11 +20,13 @@
  */
 package org.debox.photo.dao;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.logging.Level;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -93,7 +95,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
                 info.setCredentialsSalt(new SimpleByteSource(salt));
             }
 
-        } catch (SQLException e) {
+        } catch (IOException | SQLException e) {
             final String message = "There was a SQL error while authenticating user [" + username + "]";
             logger.error(message, e);
 

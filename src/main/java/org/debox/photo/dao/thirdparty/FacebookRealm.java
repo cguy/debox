@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.dao.facebook;
+package org.debox.photo.dao.thirdparty;
 
 import com.restfb.DefaultFacebookClient;
 import java.sql.Connection;
@@ -49,7 +49,7 @@ public class FacebookRealm extends JdbcMysqlRealm {
 
     @Override
     public boolean supports(AuthenticationToken token) {
-        if (token instanceof FacebookToken) {
+        if (token instanceof ThirdPartyTokenWrapper) {
             return true;
         }
         return false;
@@ -96,7 +96,7 @@ public class FacebookRealm extends JdbcMysqlRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         try {
-            FacebookToken facebookToken = (FacebookToken) token;
+            ThirdPartyTokenWrapper facebookToken = (ThirdPartyTokenWrapper) token;
 
             org.scribe.model.Token accessToken = ServiceUtil.getFacebookService().getAccessToken(null, facebookToken.getCode());
             DefaultFacebookClient client = new DefaultFacebookClient(accessToken.getToken());

@@ -18,18 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.dao.facebook;
+package org.debox.photo.dao.thirdparty;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.RememberMeAuthenticationToken;
 import org.scribe.model.Verifier;
 
-public class FacebookToken implements AuthenticationToken, RememberMeAuthenticationToken {
+public class ThirdPartyTokenWrapper implements AuthenticationToken, RememberMeAuthenticationToken {
 
     private static final long serialVersionUID = 1L;
     private Verifier code;
 
-    public FacebookToken(Verifier code) {
+    public ThirdPartyTokenWrapper(Verifier code) {
         this.code = code;
     }
 

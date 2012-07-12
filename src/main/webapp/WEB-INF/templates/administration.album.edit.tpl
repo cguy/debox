@@ -51,9 +51,9 @@
                         <select name="authorizedTokens" id="authorizedTokens" 
                                 data-placeholder="{{i18n.album.admin.edit.album_authorized_tokens_placeholder}}"
                                 class="chzn-select span4" multiple>
-                            <optgroup label="Amis Facebook">
+                            <optgroup label="Contacts sociaux">
                                 {{#contacts}}
-                                <option value="facebook-{{id}}" {{#albums}}selected{{/albums}}>{{name}}</option>
+                                <option value="{{provider.id}}-{{id}}" {{#albums}}selected{{/albums}}>{{name}} - {{provider.name}}</option>
                                 {{/contacts}}
                             </optgroup>
                             <optgroup label="Accès utilisateur">

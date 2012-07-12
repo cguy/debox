@@ -1,0 +1,283 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  #%L
+  debox-photos
+  %%
+  Copyright (C) 2012 Debox
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  #L%
+  -->
+
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:gContact='http://schemas.google.com/contact/2008' xmlns:batch='http://schemas.google.com/gdata/batch' xmlns:gd='http://schemas.google.com/g/2005'>
+    <id>contact@corentin-guy.fr</id>
+    <updated>2012-07-12T22:23:17.036Z</updated>
+    <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+    <title type='text'>Corentin Guy's Contacts</title>
+    <link rel='alternate' type='text/html' href='http://www.google.com/'/>
+    <link rel='http://schemas.google.com/g/2005#feed' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full'/>
+    <link rel='http://schemas.google.com/g/2005#post' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full'/>
+    <link rel='http://schemas.google.com/g/2005#batch' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/batch'/>
+    <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full?max-results=25'/>
+    <link rel='next' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full?start-index=26&amp;max-results=25'/>
+    <author>
+        <name>Corentin Guy</name>
+        <email>contact@corentin-guy.fr</email>
+    </author>
+    <generator version='1.0' uri='http://www.google.com/m8/feeds'>Contacts</generator>
+    <openSearch:totalResults>32</openSearch:totalResults>
+    <openSearch:startIndex>1</openSearch:startIndex>
+    <openSearch:itemsPerPage>25</openSearch:itemsPerPage>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/8e06a680c0fc418</id>
+        <updated>2012-07-07T17:15:41.834Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Benoît Cotinat</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/8e06a680c0fc418/rJDsri3OwEllqr5Omz4FEg'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/8e06a680c0fc418'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/8e06a680c0fc418'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/8e06a680c0fc418/1341681341834000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/be1f2338e1194b9</id>
+        <updated>2012-07-07T17:16:30.675Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Alban Ménager</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/be1f2338e1194b9/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/be1f2338e1194b9'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/be1f2338e1194b9/1341681390675000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/10e988e388b8968f</id>
+        <updated>2012-07-07T17:17:07.852Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Martin Durigneux</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/10e988e388b8968f/h1_AYMECATSmafq3rx1ekg'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/10e988e388b8968f'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/10e988e388b8968f'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/10e988e388b8968f/1341681427852001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/14fad9ef8ca1b87d</id>
+        <updated>2012-07-07T17:17:10.298Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Julien Labbé</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/14fad9ef8ca1b87d/8ODrC6dzuKlxnBI72QPdcw'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/14fad9ef8ca1b87d'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/14fad9ef8ca1b87d'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/14fad9ef8ca1b87d/1341681430298001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/19a2f1ac88ea6599</id>
+        <updated>2012-07-07T17:16:17.760Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Aline Jacquet</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/19a2f1ac88ea6599/Gz8oauS1IMtgxCHvCTbw5w'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/19a2f1ac88ea6599'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/19a2f1ac88ea6599'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/19a2f1ac88ea6599/1341681377760001'/>
+        <gd:email rel='http://schemas.google.com/g/2005#other' address='jacquet.aline@gmail.com' primary='true'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/1b3121000e52b54e</id>
+        <updated>2012-07-07T17:16:02.320Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Emmanuel PETIT</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/1b3121000e52b54e/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/1b3121000e52b54e'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/1b3121000e52b54e/1341681362320001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/1be69c588e5d4875</id>
+        <updated>2012-07-07T17:25:36.431Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Johan Voland</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/1be69c588e5d4875/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/1be69c588e5d4875'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/1be69c588e5d4875/1341681936431000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/2157186708fe1365</id>
+        <updated>2012-07-07T17:16:38.423Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Arnaud Thimel</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2157186708fe1365/tq5HQC3oHCA4l66jm3Zkpw'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2157186708fe1365'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2157186708fe1365'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2157186708fe1365/1341681398423001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/2ce2ee2309ab9687</id>
+        <updated>2011-12-18T15:28:22.022Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'></title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2ce2ee2309ab9687/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2ce2ee2309ab9687'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2ce2ee2309ab9687/1324222102022001'/>
+        <gd:email rel='http://schemas.google.com/g/2005#other' address='aline.jacquet@gmail.com'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/2e8fc8658f2a02c2</id>
+        <updated>2012-07-07T17:16:11.231Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Matthieu Renard</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2e8fc8658f2a02c2/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2e8fc8658f2a02c2'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2e8fc8658f2a02c2/1341681371231001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/2fe7c1f20d889852</id>
+        <updated>2012-07-07T17:15:35.794Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Florian</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2fe7c1f20d889852/1kG01Olbnz9YvnxsHkNUaQ'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/2fe7c1f20d889852'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2fe7c1f20d889852'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/2fe7c1f20d889852/1341681335794000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/33a80e4a8f5f984c</id>
+        <updated>2012-07-07T17:23:00.609Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>William Percheron</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/33a80e4a8f5f984c/92qeTdkYznWjluz5w-7nww'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/33a80e4a8f5f984c'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/33a80e4a8f5f984c'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/33a80e4a8f5f984c/1341681780609001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/376fcebd0cf4029c</id>
+        <updated>2012-07-07T17:15:38.044Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Vincent Vacher</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/376fcebd0cf4029c/Tdmr99is1MnmKpPm-49sEw'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/376fcebd0cf4029c'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/376fcebd0cf4029c'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/376fcebd0cf4029c/1341681338044001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/38f73b788a9cc017</id>
+        <updated>2012-07-07T17:17:03.541Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>François BOURLIEUX</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/38f73b788a9cc017/SpH0v5GdgSEKWqqJkeFrGA'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/38f73b788a9cc017'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/38f73b788a9cc017'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/38f73b788a9cc017/1341681423541000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/3d407a58094e4628</id>
+        <updated>2012-07-07T17:15:51.692Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Marie Michneau</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/3d407a58094e4628/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/3d407a58094e4628'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/3d407a58094e4628/1341681351692000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/40d7b4ca0f52d4c1</id>
+        <updated>2012-07-07T17:16:26.307Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Kevin MORIN</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/40d7b4ca0f52d4c1/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/40d7b4ca0f52d4c1'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/40d7b4ca0f52d4c1/1341681386307001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/44ac22258898b0d2</id>
+        <updated>2012-07-07T17:18:12.279Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Vivien</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/44ac22258898b0d2/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/44ac22258898b0d2'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/44ac22258898b0d2/1341681492279001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/492ca4a88a282d10</id>
+        <updated>2012-07-07T17:16:19.578Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Valentin Day</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/492ca4a88a282d10/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/492ca4a88a282d10'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/492ca4a88a282d10/1341681379578000'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/4b4b71828b0d559b</id>
+        <updated>2012-07-07T17:16:45.134Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Yann Barbarit</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4b4b71828b0d559b/8EWI2VaDVxueqARPZ5bcpg'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4b4b71828b0d559b'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4b4b71828b0d559b'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4b4b71828b0d559b/1341681405134001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/4bba02870be8df81</id>
+        <updated>2012-07-07T17:16:05.035Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Manuel Dujardin</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4bba02870be8df81/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4bba02870be8df81'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4bba02870be8df81/1341681365035001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/4cd3851b0d066fb6</id>
+        <updated>2012-07-07T17:16:09.154Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Loïc</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4cd3851b0d066fb6/zRkXs2t0G6RNmnH9GPNUTw'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4cd3851b0d066fb6'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4cd3851b0d066fb6'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4cd3851b0d066fb6/1341681369154001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/4d11537d0c35619f</id>
+        <updated>2012-07-07T17:15:58.011Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Vincent rocher</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4d11537d0c35619f/SNUuhE0ZwTP5j2ZOgBLhpg'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4d11537d0c35619f'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4d11537d0c35619f'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4d11537d0c35619f/1341681358011001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/4d7800b78c395966</id>
+        <updated>2012-07-07T17:17:12.831Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Colin BOULANGER</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4d7800b78c395966/s0TBeyVF0mr_vZsN-oHOWg'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/4d7800b78c395966'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4d7800b78c395966'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/4d7800b78c395966/1341681432831001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/5435ac478a373781</id>
+        <updated>2012-07-07T17:16:15.297Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Emmanuel Peudon</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/5435ac478a373781/hCy2ApphIUGLNQrN06HXnw'/>
+        <link rel='http://schemas.google.com/contacts/2008/rel#photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/5435ac478a373781'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/5435ac478a373781'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/5435ac478a373781/1341681375297001'/>
+    </entry>
+    <entry>
+        <id>http://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/base/546e72468e4be18b</id>
+        <updated>2012-07-07T17:16:13.248Z</updated>
+        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/contact/2008#contact'/>
+        <title type='text'>Sebastien Guilbaud</title>
+        <link rel='http://schemas.google.com/contacts/2008/rel#edit-photo' type='image/*' href='https://www.google.com/m8/feeds/photos/media/contact%40corentin-guy.fr/546e72468e4be18b/1B2M2Y8AsgTpgAmY7PhCfg'/>
+        <link rel='self' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/546e72468e4be18b'/>
+        <link rel='edit' type='application/atom+xml' href='https://www.google.com/m8/feeds/contacts/contact%40corentin-guy.fr/full/546e72468e4be18b/1341681373248000'/>
+    </entry>
+</feed>

@@ -89,6 +89,7 @@ function ajax(object) {
             var status = xhr.status;
             if (status == 500) {
                 var data = $.parseJSON(xhr.responseText);
+                console.log(data);
                 if (data && data.error == "ThirdPartyError") {
                     window.location = data.url;
                 }

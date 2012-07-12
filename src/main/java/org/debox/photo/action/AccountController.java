@@ -21,6 +21,8 @@
 package org.debox.photo.action;
 
 import com.restfb.DefaultFacebookClient;
+import com.sun.syndication.io.FeedException;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
@@ -30,13 +32,18 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.debox.connector.api.exception.ProviderException;
+import org.debox.model.OAuth2Token;
 import org.debox.photo.dao.UserDao;
-import org.debox.photo.dao.facebook.FacebookToken;
+import org.debox.photo.dao.thirdparty.ThirdPartyTokenWrapper;
 import org.debox.photo.model.DeboxUser;
 import org.debox.photo.model.Provider;
 import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.User;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.util.HttpUtils;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.scribe.model.Verifier;
@@ -68,26 +75,54 @@ public class AccountController extends WebMotionController {
     
     public Render handleFacebookCallback(String code) throws SQLException {
         Verifier verifier = new Verifier(code);
-        FacebookToken facebookToken = new FacebookToken(verifier);
+        ThirdPartyTokenWrapper tokenWrapper = new ThirdPartyTokenWrapper(verifier);
         Subject subject = SecurityUtils.getSubject();
 
         if (!subject.hasRole("administrator")) {
-            subject.login(facebookToken);
+            subject.login(tokenWrapper);
             return renderRedirect("/");
         }
         
-        org.scribe.model.Token accessToken = ServiceUtil.getFacebookService().getAccessToken(null, facebookToken.getCode());
+        org.scribe.model.Token token = ServiceUtil.getFacebookService().getAccessToken(null, tokenWrapper.getCode());
         
-        DefaultFacebookClient client = new DefaultFacebookClient(accessToken.getToken());
+        DefaultFacebookClient client = new DefaultFacebookClient(token.getToken());
         com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
         
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         
-        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("facebook"), fbUser.getId(), accessToken.getToken());
+        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("facebook"), fbUser.getId(), token.getToken());
         thirdPartyAccount.setId(user.getId());
         thirdPartyAccount.setUsername(fbUser.getName());
         thirdPartyAccount.setAccountUrl(fbUser.getLink());
         
+        new UserDao().save(thirdPartyAccount);
+
+        user.addThirdPartyAccount(thirdPartyAccount);
+        return renderRedirect("/#/administration/tokens");
+    }
+    
+    public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException, FeedException {
+        Verifier verifier = new Verifier(code);
+        ThirdPartyTokenWrapper tokenWrapper = new ThirdPartyTokenWrapper(verifier);
+        Subject subject = SecurityUtils.getSubject();
+
+        if (!subject.hasRole("administrator")) {
+            subject.login(tokenWrapper);
+            return renderRedirect("/");
+        }
+        
+        OAuth2Token token = ServiceUtil.getAuthenticationToken(code);
+        String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.getAccessToken());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(response);
+        
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+
+        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("google"), node.get("id").asText(), token.getAccessToken());
+        thirdPartyAccount.setId(user.getId());
+        thirdPartyAccount.setUsername(node.get("name").asText());
+        thirdPartyAccount.setAccountUrl(node.get("link").asText());
+
         new UserDao().save(thirdPartyAccount);
 
         user.addThirdPartyAccount(thirdPartyAccount);

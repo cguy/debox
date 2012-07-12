@@ -20,9 +20,14 @@
  */
 package org.debox.photo.thirdparty;
 
+import com.sun.syndication.io.FeedException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.debox.connector.api.exception.AuthenticationProviderException;
+import org.debox.model.OAuth2Token;
 import org.debox.photo.model.Provider;
+import org.debox.util.OAuth2Utils;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.oauth.OAuthService;
@@ -38,6 +43,20 @@ public class ServiceUtil {
                            .apiSecret("63156c3e0ce7328d5b03ae9650528e7b")
                            .callback("http://localhost:8080/photo/facebook")
                            .build();
+    
+    protected static final String AUTHENTICATION_URL = "https://accounts.google.com/o/oauth2/auth"
+            + "?client_id=%s"
+            + "&redirect_uri=%s"
+            + "&scope=%s"
+            + "&response_type=code";
+    
+    public static String getAuthenticationUrl() {
+        return String.format(AUTHENTICATION_URL, "155246083973.apps.googleusercontent.com", "http://localhost:8080/photo/google", "https%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email");
+    }
+    
+     public static OAuth2Token getAuthenticationToken(String code) throws IOException, IllegalArgumentException, FeedException, AuthenticationProviderException {
+        return OAuth2Utils.getAccessTokenFromCode("https://accounts.google.com/o/oauth2/token", "155246083973.apps.googleusercontent.com", "BQnD0XRGHzngap4vXKW3cR3L", "http://localhost:8080/photo/google", code);
+    }
     
     public static OAuthService getFacebookService() {
         return facebook; 
@@ -56,8 +75,10 @@ public class ServiceUtil {
             case "twitter":
                 result.setName("Twitter");
                 break;
-            case "gplus":
-                result.setName("Google +");
+            case "google":
+                result.setName("Google");
+                result.setUrl(getAuthenticationUrl());
+                result.setEnabled(true);
                 break;
             default:
                 return null;
@@ -69,7 +90,7 @@ public class ServiceUtil {
     public static List<Provider> getAuthenticationUrls() {
         List<Provider> result = new ArrayList<>();
         result.add(getProvider("facebook"));
-        result.add(getProvider("gplus"));
+        result.add(getProvider("google"));
         result.add(getProvider("twitter"));
         return result;
     }

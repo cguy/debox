@@ -7,6 +7,7 @@ package.views=WEB-INF/
 
 [errors]
 com.restfb.exception.FacebookOAuthException         ThirdPartyController.handleOAuthException
+org.scribe.exceptions.OAuthException                ThirdPartyController.handleOAuthException
 
 [filters]
 # -----------------------------------------------------------------------------------------------
@@ -98,9 +99,10 @@ GET /download/album/{albumId}                   AlbumController.download        
 GET   /tpl                                      HomeController.renderTemplates
 
 # -----------------------------------------------------------------------------------------------
-# FACEBOOK
+# THIRD-PARTY CALLBACKS
 # -----------------------------------------------------------------------------------------------
 GET   /facebook                                 AccountController.handleFacebookCallback
+GET   /google                                   AccountController.handleGoogleCallback
 
 # -----------------------------------------------------------------------------------------------
 # HOME

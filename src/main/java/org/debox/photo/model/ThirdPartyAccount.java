@@ -20,12 +20,20 @@
  */
 package org.debox.photo.model;
 
+import java.io.IOException;
 import java.util.Objects;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.debox.util.HttpUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class ThirdPartyAccount extends User {
+    
+    private static final Logger log = LoggerFactory.getLogger(ThirdPartyAccount.class);
     
     protected Provider provider;
     protected String providerAccountId;
@@ -61,7 +69,25 @@ public class ThirdPartyAccount extends User {
     }
 
     public String getAvatarUrl() {
-        return String.format("https://graph.facebook.com/%s/picture?return_ssl_resources=1&type=square", getProviderAccountId());
+        if (getProviderId().equals("facebook")) {
+            return String.format("https://graph.facebook.com/%s/picture?return_ssl_resources=1&type=square", getProviderAccountId());
+            
+        } else if (getProviderId().equals("google")) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String response = HttpUtils.getResponse(String.format("https://www.googleapis.com/plus/v1/people/%s?access_token=%s", getProviderAccountId(), getToken()));
+                log.debug(response);
+                
+                JsonNode node = mapper.readTree(response);
+                
+                return node.get("image").get("url").asText();
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        return null;
     }
 
     public String getUsername() {

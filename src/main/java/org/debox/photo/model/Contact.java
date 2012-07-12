@@ -20,13 +20,16 @@
  */
 package org.debox.photo.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class Contact implements Comparable<Contact> {
     
     protected String id;
-    protected String provider;
+    protected Provider provider;
     protected String name;
 
     public String getId() {
@@ -37,11 +40,11 @@ public class Contact implements Comparable<Contact> {
         this.id = id;
     }
 
-    public String getProvider() {
+    public Provider getProvider() {
         return provider;
     }
 
-    public void setProvider(String provider) {
+    public void setProvider(Provider provider) {
         this.provider = provider;
     }
 

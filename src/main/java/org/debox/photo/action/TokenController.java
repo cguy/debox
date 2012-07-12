@@ -20,6 +20,7 @@
  */
 package org.debox.photo.action;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
@@ -59,7 +60,7 @@ public class TokenController extends DeboxController {
         return renderJSON(token);
     }
     
-    public Render getTokens() throws SQLException {
+    public Render getTokens() throws SQLException, IOException {
         User principal = (User) SecurityUtils.getSubject().getPrincipal();
         List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(principal);
         return renderJSON(
