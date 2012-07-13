@@ -70,7 +70,6 @@ import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
 import org.jdom.Element;
-import org.jdom.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,6 +211,15 @@ public class AlbumController extends DeboxController {
                 }
             }
             Collections.sort(contacts);
+            
+            List<ThirdPartyAccount> authorized = userDao.getAuthorizedThirdPartyAccounts(album);
+            for (Contact contact : contacts) {
+                for (ThirdPartyAccount account : authorized) {
+                    if (contact.getProvider().getId().equals(account.getProviderId()) && contact.getId().equals(account.getProviderAccountId())) {
+                        contact.setAuthorized(true);
+                    }
+                }
+            }
         }
         
         List<Album> subAlbums = this.albums(album.getId(), token);
@@ -232,26 +240,22 @@ public class AlbumController extends DeboxController {
             contact.setName(entry.getTitle());
             contact.setProvider(ServiceUtil.getProvider("google"));
             
-            List<SyndLinkImpl> links = (List<SyndLinkImpl>) entry.getLinks();
-            for (SyndLinkImpl link : links) {
-                if ("edit".equals(link.getRel())) {
-                    String href = link.getHref();
-                    contact.setId(StringUtils.substringAfterLast(href, "/"));
-                }
-            }
-            if (StringUtils.isEmpty(contact.getName())) {
-                List<Element> elements = (List<Element>) entry.getForeignMarkup();
-                for (Element element : elements) {
-                    String prefix = element.getNamespacePrefix();
-                    String name = element.getName();
-                    if ("gd".equals(prefix) && "email".equals(name)) {
-                        contact.setName(element.getAttributeValue("address"));
-                        break;
+            List<Element> elements = (List<Element>) entry.getForeignMarkup();
+            for (Element element : elements) {
+                String prefix = element.getNamespacePrefix();
+                String name = element.getName();
+                if ("gd".equals(prefix) && "email".equals(name)) {
+                    String mail = element.getAttributeValue("address");
+                    contact.setId(mail);
+                    if (StringUtils.isEmpty(contact.getName())) {
+                        contact.setName(mail);
                     }
+                    break;
                 }
             }
-            
-            list.add(contact);
+            if (StringUtils.isNotEmpty(contact.getId())) {
+                list.add(contact);
+            }
         }
         return list;
     }

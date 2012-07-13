@@ -118,7 +118,7 @@ public class AccountController extends WebMotionController {
         
         User user = (User) SecurityUtils.getSubject().getPrincipal();
 
-        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("google"), node.get("id").asText(), token.getAccessToken());
+        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("google"), node.get("email").asText(), token.getAccessToken());
         thirdPartyAccount.setId(user.getId());
         thirdPartyAccount.setUsername(node.get("name").asText());
         thirdPartyAccount.setAccountUrl(node.get("link").asText());

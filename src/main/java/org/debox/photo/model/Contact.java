@@ -20,9 +20,6 @@
  */
 package org.debox.photo.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
@@ -31,7 +28,16 @@ public class Contact implements Comparable<Contact> {
     protected String id;
     protected Provider provider;
     protected String name;
+    protected boolean authorized;
 
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+    
     public String getId() {
         return id;
     }

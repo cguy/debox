@@ -35,6 +35,7 @@ import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.DeboxUser;
 import org.debox.photo.model.Role;
 import org.debox.photo.model.ThirdPartyAccount;
@@ -62,6 +63,7 @@ public class UserDao {
     protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?)";
     protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
     protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
+    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
     protected static String SQL_CREATE_ROLE = "INSERT INTO roles VALUES (?, ?)";
     protected static String SQL_CREATE_USER_ROLE = "INSERT INTO users_roles VALUES (?, ?)";
     protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
@@ -72,7 +74,7 @@ public class UserDao {
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
-    private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?)";
+    private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?) ON DUPLICATE KEY UPDATE album_id = ?";
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -262,45 +264,51 @@ public class UserDao {
             statement.setString(1, user.getId());
             rs = statement.executeQuery();
             while (rs.next()) {
-                ThirdPartyAccount access = new ThirdPartyAccount(
-                        ServiceUtil.getProvider(rs.getString("provider")), 
-                        rs.getString("id"), 
-                        rs.getString("token"));
-                
-                if (access.getProviderId().equals("facebook")) {
-                    DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
-                    com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
-                    access.setUsername(fbUser.getName());
-                    access.setAccountUrl(fbUser.getLink());
-                    
-                } else if (access.getProviderId().equals("google")) {
-                    String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode node = mapper.readTree(response);
-                    
-                    if (node.get("error") != null && node.get("error").get("code") != null) {
-                        if (node.get("error").get("code").asInt() == 401) {
-                            throw new OAuthException("google");
-                        }
-                        continue;
-                    }
-                    
-                    access.setUsername(node.get("name").asText());
-                    access.setAccountUrl(node.get("link").asText());
-                } else {
-                    continue;
+                ThirdPartyAccount access = convert(user.getId(), rs);
+                if (access != null) {
+                    result.add(access);
                 }
-                
-                access.setId(user.getId());
-
-                result.add(access);
             }
         } finally {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(statement);
         }
-
         return result;
+    }
+    
+    protected ThirdPartyAccount convert(String userId, ResultSet rs) throws SQLException, IOException {
+        ThirdPartyAccount access = new ThirdPartyAccount(
+                ServiceUtil.getProvider(rs.getString("provider")),
+                rs.getString("id"),
+                rs.getString("token"));
+
+        if (access.getProviderId().equals("facebook")) {
+            DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
+            com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+            access.setUsername(fbUser.getName());
+            access.setAccountUrl(fbUser.getLink());
+
+        } else if (access.getProviderId().equals("google")) {
+            String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(response);
+
+            if (node.get("error") != null && node.get("error").get("code") != null) {
+                if (node.get("error").get("code").asInt() == 401) {
+                    throw new OAuthException("google");
+                }
+                return null;
+            }
+
+            access.setUsername(node.get("name").asText());
+            access.setAccountUrl(node.get("link").asText());
+        } else {
+            return null;
+        }
+
+        access.setId(userId);
+
+        return access;
     }
 
     public void delete(ThirdPartyAccount account) throws SQLException {
@@ -325,6 +333,7 @@ public class UserDao {
             for (ThirdPartyAccount account : accounts) {
                 statement.setString(1, account.getId());
                 statement.setString(2, albumId);
+                statement.setString(3, albumId);
                 statement.executeUpdate();
             }
             statement.executeBatch();
@@ -332,4 +341,27 @@ public class UserDao {
             JdbcUtils.closeStatement(statement);
         }
     }
+
+    public List<ThirdPartyAccount> getAuthorizedThirdPartyAccounts(Album album) throws SQLException, IOException {
+        List<ThirdPartyAccount> result = new ArrayList<>();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            Connection connection = DatabaseUtils.getConnection();
+            statement = connection.prepareStatement(SQL_GET_AUTHORIZED_ACCOUNTS);
+            statement.setString(1, album.getId());
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                ThirdPartyAccount access = convert(rs.getString("user_id"), rs);
+                if (access != null) {
+                    result.add(access);
+                }
+            }
+        } finally {
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(statement);
+        }
+        return result;
+    }
+    
 }

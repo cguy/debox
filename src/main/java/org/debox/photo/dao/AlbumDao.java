@@ -416,7 +416,6 @@ public class AlbumDao {
     }
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
-        logger.debug("test ?");
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
         statement.setString(1, albumId);

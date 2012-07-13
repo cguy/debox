@@ -21,9 +21,13 @@
 package org.debox.photo.dao.thirdparty;
 
 import com.restfb.DefaultFacebookClient;
+import com.sun.syndication.io.FeedException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.logging.Level;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -33,15 +37,20 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.debox.connector.api.exception.AuthenticationProviderException;
+import org.debox.model.OAuth2Token;
 import org.debox.photo.dao.JdbcMysqlRealm;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.model.User;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FacebookRealm extends JdbcMysqlRealm {
+public class GoogleRealm extends JdbcMysqlRealm {
     
     private static final Logger logger = LoggerFactory.getLogger(FacebookRealm.class);
     
@@ -94,29 +103,32 @@ public class FacebookRealm extends JdbcMysqlRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         try {
-            ThirdPartyTokenWrapper facebookToken = (ThirdPartyTokenWrapper) token;
+            ThirdPartyTokenWrapper tokenWrapper = (ThirdPartyTokenWrapper) token;
 
-            org.scribe.model.Token accessToken = ServiceUtil.getFacebookService().getAccessToken(null, facebookToken.getCode());
-            DefaultFacebookClient client = new DefaultFacebookClient(accessToken.getToken());
-            com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
-            
-            ThirdPartyAccount account = userDao.getUser("facebook", fbUser.getId());
+            OAuth2Token oauthToken = ServiceUtil.getAuthenticationToken(tokenWrapper.getCode().getValue());
+            String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + oauthToken.getAccessToken());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(response);
+
+            String userId = node.get("email").asText();
+            ThirdPartyAccount account = userDao.getUser("google", userId);
             if (account == null) {
-                account = new ThirdPartyAccount(ServiceUtil.getProvider("facebook"), fbUser.getId(), accessToken.getToken());
+                account = new ThirdPartyAccount(ServiceUtil.getProvider("google"), userId, oauthToken.getAccessToken());
             } else {
-                account.setToken(accessToken.getToken());
+                account.setToken(oauthToken.getAccessToken());
             }
             userDao.save(account);
-            
-            account.setUsername(fbUser.getName());
-            account.setAccountUrl(fbUser.getLink());
+            account.setUsername(node.get("name").asText());
+            account.setAccountUrl(node.get("link").asText());
 
-            return new SimpleAuthenticationInfo(account, facebookToken.getCode(), this.getName());
-            
+            return new SimpleAuthenticationInfo(account, tokenWrapper.getCode(), this.getName());
+
+        } catch (IOException | IllegalArgumentException | FeedException | AuthenticationProviderException ex) {
+            logger.error("Unable to get auth token, reason:", ex);
         } catch (SQLException ex) {
             logger.error("Unable to access database, reason:", ex);
-            return null;
         }
+        return null;
     }
 
 }

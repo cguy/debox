@@ -53,7 +53,7 @@
                                 class="chzn-select span4" multiple>
                             <optgroup label="Contacts sociaux">
                                 {{#contacts}}
-                                <option value="{{provider.id}}-{{id}}" {{#albums}}selected{{/albums}}>{{name}} - {{provider.name}}</option>
+                                <option value="{{provider.id}}-{{id}}" {{#authorized}}selected{{/authorized}}>{{name}} - {{provider.name}}</option>
                                 {{/contacts}}
                             </optgroup>
                             <optgroup label="Accès utilisateur">
