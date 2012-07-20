@@ -80,8 +80,8 @@ public class UserDao {
         ThirdPartyAccount result = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
+        Connection connection = DatabaseUtils.getConnection();
         try {
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(GET_USER_BY_THIRD_PARTY_ACCOUNT);
             statement.setString(1, provider);
             statement.setString(2, providerAccountId);
@@ -107,6 +107,7 @@ public class UserDao {
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return result;
     }
@@ -115,9 +116,9 @@ public class UserDao {
         int result = -1;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
+        Connection connection = DatabaseUtils.getConnection();
+        
         try {
-
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_GET_ROLE_COUNT);
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -127,20 +128,23 @@ public class UserDao {
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return result;
     }
 
     public void save(Role role) throws SQLException {
         PreparedStatement statement = null;
+        Connection connection = DatabaseUtils.getConnection();
+        
         try {
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_CREATE_ROLE);
             statement.setString(1, role.getId());
             statement.setString(2, role.getName());
             statement.executeUpdate();
         } finally {
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
     }
 
@@ -207,6 +211,7 @@ public class UserDao {
             JdbcUtils.closeStatement(accountStatement);
             JdbcUtils.closeStatement(roleStatement);
             connection.setAutoCommit(true);
+            JdbcUtils.closeConnection(connection);
         }
     }
 
@@ -250,16 +255,17 @@ public class UserDao {
             JdbcUtils.closeStatement(userInfosStatement);
             JdbcUtils.closeStatement(roleStatement);
             connection.setAutoCommit(true);
+            JdbcUtils.closeConnection(connection);
         }
     }
 
     public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException, IOException {
+            Connection connection = DatabaseUtils.getConnection();
         List<ThirdPartyAccount> result = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
 
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_GET_USER_ACCESSES);
             statement.setString(1, user.getId());
             rs = statement.executeQuery();
@@ -272,6 +278,7 @@ public class UserDao {
         } finally {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return result;
     }
@@ -313,8 +320,8 @@ public class UserDao {
 
     public void delete(ThirdPartyAccount account) throws SQLException {
         PreparedStatement statement = null;
+        Connection connection = DatabaseUtils.getConnection();
         try {
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_DELETE_THIRD_PARTY_ACCOUNT);
             statement.setString(1, account.getId());
             statement.setString(2, account.getProviderId());
@@ -322,13 +329,14 @@ public class UserDao {
             statement.executeUpdate();
         } finally {
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
     }
 
     public void saveAccess(List<ThirdPartyAccount> accounts, String albumId) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = null;
         try {
-            Connection connection = DatabaseUtils.getConnection();
             statement = connection.prepareStatement(SQL_CREATE_THIRD_PARTY_ACCESS);
             for (ThirdPartyAccount account : accounts) {
                 statement.setString(1, account.getId());
@@ -339,6 +347,7 @@ public class UserDao {
             statement.executeBatch();
         } finally {
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
     }
 
@@ -346,8 +355,8 @@ public class UserDao {
         List<ThirdPartyAccount> result = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet rs = null;
-        try {
             Connection connection = DatabaseUtils.getConnection();
+        try {
             statement = connection.prepareStatement(SQL_GET_AUTHORIZED_ACCOUNTS);
             statement.setString(1, album.getId());
             rs = statement.executeQuery();
@@ -360,6 +369,7 @@ public class UserDao {
         } finally {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return result;
     }

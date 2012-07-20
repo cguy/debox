@@ -24,7 +24,5 @@ var app = Sammy(function() {
 });
 
 $(document).ready(function() {
-    
     app.run("#/");
-    
 });

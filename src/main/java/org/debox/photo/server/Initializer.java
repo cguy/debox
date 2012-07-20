@@ -83,12 +83,6 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
-        try {
-            Connection connection = DatabaseUtils.getConnection();
-            connection.close();
-        } catch (SQLException ex) {
-            logger.error("Error handling database connection", ex);
-        }
         ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
         if (dataSource != null) {
             dataSource.close();

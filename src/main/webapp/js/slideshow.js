@@ -134,13 +134,13 @@ function createBg() {
                 opacity: 0.3
             });
         }
-    );
+        );
 
     container.appendChild(elt);
     container.appendChild(close);
     return container;
 }
-            
+
 function fullscreen(index, data) {
     var elt = createBg();
     document.body.appendChild(elt);
@@ -167,6 +167,17 @@ function fullscreen(index, data) {
     $('#slideshow-div').rsfSlideshow(
         'goToSlide', index
     );
+        
+    var hammer = new Hammer($("#slideshow-div").get(0));
+    hammer.ondragend = function(ev) {
+        if(Math.abs(ev.distance) > 10) {
+            if(ev.direction == 'right') {
+                window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getPreviousSlideId");
+            } else if(ev.direction == 'left') {
+                window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getNextSlideId");
+            }
+        }
+    };
 }
 
 jwerty.key('←', function () {
