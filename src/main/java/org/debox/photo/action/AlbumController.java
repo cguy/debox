@@ -164,7 +164,7 @@ public class AlbumController extends DeboxController {
         } else if (isAdministrator) {
             album = albumDao.getAlbum(id);
         } else {
-            album = albumDao.getVisibleAlbum(token, id, isAdministrator);
+            album = albumDao.getVisibleAlbum(token, id);
         }
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -390,9 +390,18 @@ public class AlbumController extends DeboxController {
     }
 
     public Render download(String token, String albumId, boolean resized) throws SQLException {
+        Subject subject = SecurityUtils.getSubject();
+        boolean isAdministrator = SessionUtils.isAdministrator(subject);
+        
         Album album;
-        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
-        album = albumDao.getVisibleAlbum(token, albumId, isAdministrator);
+        if (!isAdministrator && SessionUtils.isLogged(subject)) {
+            User user = (User) subject.getPrincipal();
+            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), albumId);
+        } else if (isAdministrator) {
+            album = albumDao.getAlbum(albumId);
+        } else {
+            album = albumDao.getVisibleAlbum(token, albumId);
+        }
         
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);

@@ -56,8 +56,10 @@ import org.slf4j.LoggerFactory;
 public class AccountController extends WebMotionController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
+    
     protected static UserDao userDao = new UserDao();
-
+    protected static HomeController homeController = new HomeController();
+    
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -68,7 +70,6 @@ public class AccountController extends WebMotionController {
 
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
-            return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "");
         }
         return renderRedirect("/");
     }

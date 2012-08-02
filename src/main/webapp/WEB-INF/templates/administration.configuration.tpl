@@ -1,4 +1,4 @@
-<form  class="form-vertical" action="#/administration/configuration" method="post">
+<form id="overall-configuration" class="form-vertical" action="#/administration/configuration" method="post">
     <h2 class="page-header">{{i18n.administration.config.title}}</h2>
     <p class="alert hide"></p>
     <div class="control-group">
@@ -22,6 +22,83 @@
     <div class="form-actions">
         <input type="hidden" name="force" />
         <button type="button" class="btn btn-danger" data-loading-text="{{i18n.administration.processing}}">{{i18n.administration.config.save_and_sync}}</button>
+        <input type="submit" class="btn btn-primary" data-loading-text="{{i18n.administration.processing}}" value="{{i18n.administration.config.save}}" />
+    </div>
+</form>
+
+<form id="thirdparty-configuration" class="third-party form-vertical" action="#/administration/configuration/social" method="post">
+    <h2 class="page-header">Configuration des accès tiers</h2>
+    <p class="alert hide"></p>
+
+    <div class="control-group">
+        <div class="controls">
+            <label><input type="checkbox" class="thirdparty-activation" name="activated" {{#thirdPartyActivation}}checked{{/thirdPartyActivation}} />Activer la configuration des comptes tiers</label>
+        </div>
+    </div>
+
+    <div class="providers {{^thirdPartyActivation}}hide{{/thirdPartyActivation}}">
+        <h3>Facebook</h3>
+        <div class="control-group">
+            <label for="facebookApiKey">ID de l’application/Clé de l’API :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="facebookApiKey" name="facebook.apiKey" value="{{facebook.apiKey}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="facebookSecret">Clé secrète :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="facebookSecret" name="facebook.secret" value="{{facebook.secret}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="facebookCallbackURL">Adresse de callback :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="facebookCallbackURL" name="facebook.callbackURL" value="{{facebook.callbackURL}}" />
+            </div>
+        </div>
+
+        <h3>Google</h3>
+        <div class="control-group">
+            <label for="googleApiKey">ID Client :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="googleApiKey" name="google.apiKey" value="{{google.apiKey}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="googleSecret">Clé secrète :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="googleSecret" name="google.secret" value="{{google.secret}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="googleCallbackURL">Adresse de callback :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="googleCallbackURL" name="google.callbackURL" value="{{google.callbackURL}}" />
+            </div>
+        </div>
+
+        <h3>Twitter</h3>
+        <div class="control-group">
+            <label for="twitterApiKey">Consumer key :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="twitterApiKey" name="twitter.apiKey" value="{{twitter.apiKey}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="twitterSecret">Consumer secret :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="twitterSecret" name="twitter.secret" value="{{twitter.secret}}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="twitterCallbackURL">Adresse de callback :</label>
+            <div class="controls">
+                <input class="span5" type="text" id="twitterCallbackURL" name="twitter.callbackURL" value="{{twitter.callbackURL}}" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
         <input type="submit" class="btn btn-primary" data-loading-text="{{i18n.administration.processing}}" value="{{i18n.administration.config.save}}" />
     </div>
 </form>

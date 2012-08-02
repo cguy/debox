@@ -18,8 +18,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
+app.post('#/administration/configuration/social', function() {
+    var data = $("#thirdparty-configuration").serializeArray();
+    ajax({
+        url: "configuration/thirdparty",
+        type : "post",
+        data : data,
+        success: function() {
+            $("#thirdparty-configuration p").text("Configuration enregistrée avec succès !");
+            $("#thirdparty-configuration p").addClass("alert-success");
+            $("#thirdparty-configuration p").removeClass("hide");
+            $("#thirdparty-configuration input[type=submit]").button("reset");
+        },
+        error: function() {
+            $("#thirdparty-configuration p").text("Erreur durant l'enregistrement de la configuration.");
+            $("#thirdparty-configuration p").addClass("alert-danger");
+            $("#thirdparty-configuration p").removeClass("hide");
+            $("#thirdparty-configuration input[type=submit]").button("reset");
+        }
+    });
+});
+
 app.post('#/administration/configuration', function() {
-    var data = $("#configuration form").serializeArray();
+    var data = $("#overall-configuration").serializeArray();
     var force = false;
     for (var i = 0 ; i < data.length ; i++) {
         if (data[i].name == "force" && data[i].value == "true") {
@@ -30,9 +51,9 @@ app.post('#/administration/configuration', function() {
 
     var targetBtn;
     if (force) {
-        targetBtn = $("#configuration button");
+        targetBtn = $("#overall-configuration button");
     } else {
-        targetBtn = $("#configuration input[type=submit]");
+        targetBtn = $("#overall-configuration input[type=submit]");
     }
     targetBtn.button("loading");
 
@@ -51,14 +72,14 @@ app.post('#/administration/configuration', function() {
                 $("#synchronization form input[type=checkbox]").attr("checked", "checked");
                 $("#synchronization form").submit();
             }
-            $("#configuration p").text("Configuration enregistrée avec succès !");
-            $("#configuration p").addClass("alert-success");
-            $("#configuration p").removeClass("hide");
+            $("#overall-configuration p").text("Configuration enregistrée avec succès !");
+            $("#overall-configuration p").addClass("alert-success");
+            $("#overall-configuration p").removeClass("hide");
         },
         error: function() {
-            $("#configuration p").text("Erreur durant l'enregistrement de la configuration.");
-            $("#configuration p").addClass("alert-danger");
-            $("#configuration p").removeClass("hide");
+            $("#overall-configuration p").text("Erreur durant l'enregistrement de la configuration.");
+            $("#overall-configuration p").addClass("alert-danger");
+            $("#overall-configuration p").removeClass("hide");
             targetBtn.button("reset");
         }
     });

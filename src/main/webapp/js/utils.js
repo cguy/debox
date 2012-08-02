@@ -554,7 +554,16 @@ function preprocessAdministrationTabLoading(id, data) {
 }
 
 function afterAdministrationTabLoading(id, data) {
-    if (id == "tokens") {
+    if (id == "configuration") {
+        $(".thirdparty-activation").change(function() {
+            if($(this).attr("checked") == null) {
+                $(".providers").slideUp(500);
+            } else {
+                $(".providers").slideDown(500);
+            }
+        });
+        
+    } else if (id == "tokens") {
         allAlbums = data.albums;
         allTokens = data.tokens;
                         
@@ -568,7 +577,6 @@ function afterAdministrationTabLoading(id, data) {
         
         $("a.delete-third-party-account").click(function() {
             var id = $(this).parents("tr").attr("id");
-            console.log(id);
             $("#delete-third-party-account .third-party-account-id").val(id);
         });
         

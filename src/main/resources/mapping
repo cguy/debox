@@ -38,6 +38,8 @@ DELETE      /third-party-account/*                  AdministrationFilter.checkUs
 # -----------------------------------------------------------------------------------------------
 GET         /configuration                      ConfigurationController.getConfiguration
 POST        /configuration                      ConfigurationController.editConfiguration
+POST        /configuration/thirdparty           ConfigurationController.editThirdPartyConfiguration     activated=false
+
 GET         /administration/sync                AdministrationController.getSyncProgress
 POST        /administration/sync                AdministrationController.synchronize                    forceCheckDates=false
 DELETE      /administration/sync                AdministrationController.cancelSynchronization

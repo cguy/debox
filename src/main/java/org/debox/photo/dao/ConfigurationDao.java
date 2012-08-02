@@ -46,7 +46,7 @@ public class ConfigurationDao {
             statement = connection.prepareStatement(SQL_GET_CONFIGURATION);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                configuration.set(Configuration.Key.valueOf(resultSet.getString(1).toUpperCase()),resultSet.getString(2));
+                configuration.set(Configuration.Key.getById(resultSet.getString(1)),resultSet.getString(2));
             }
         } finally {
             JdbcUtils.closeStatement(statement);

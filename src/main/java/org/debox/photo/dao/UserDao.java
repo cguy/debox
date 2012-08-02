@@ -270,9 +270,13 @@ public class UserDao {
             statement.setString(1, user.getId());
             rs = statement.executeQuery();
             while (rs.next()) {
-                ThirdPartyAccount access = convert(user.getId(), rs);
-                if (access != null) {
-                    result.add(access);
+                try {
+                    ThirdPartyAccount access = convert(user.getId(), rs);
+                    if (access != null) {
+                        result.add(access);
+                    }
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage(), ex);
                 }
             }
         } finally {

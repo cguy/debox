@@ -31,7 +31,41 @@ public class Configuration {
     public static enum Key {
         SOURCE_PATH,
         TARGET_PATH,
-        TITLE
+        TITLE,
+        THIRDPARTY_ACTIVATION("thirdparty.activation"),
+        FACEBOOK_API_KEY("facebook.apiKey"),
+        FACEBOOK_SECRET("facebook.secret"),
+        FACEBOOK_CALLBACK_URL("facebook.callback.url"),
+        GOOGLE_API_KEY("google.apiKey"),
+        GOOGLE_SECRET("google.secret"),
+        GOOGLE_CALLBACK_URL("google.callback.url"),
+        TWITTER_API_KEY("twitter.apiKey"),
+        TWITTER_SECRET("twitter.secret"),
+        TWITTER_CALLBACK_URL("twitter.callback.url");
+        
+        protected String id;
+        
+        Key () {
+            this.id = this.name().toLowerCase();
+        }
+        
+        Key(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+        
+        public static Key getById(String id) {
+            for (Key key : Key.values()) {
+                if (id.equals(key.getId())) {
+                    return key;
+                }
+            }
+            return null;
+        }
+        
     }
 
     protected Map<String, String> data = new HashMap<>();
@@ -41,11 +75,11 @@ public class Configuration {
     }
     
     public String get(Key key) {
-        return data.get(key.name().toLowerCase());
+        return data.get(key.getId());
     }
     
     public void set(Key key, String value) {
-        data.put(key.name().toLowerCase(), value);
+        data.put(key.getId(), value);
     }
     
 }

@@ -190,7 +190,7 @@ h1 small {
     cursor: pointer;
 }
 
-#account form, #configuration form,  #synchronization form {
+#account form, #synchronization form {
     width: 500px;
     padding: 10px;
     border: 1px solid #ddd;
@@ -236,7 +236,7 @@ h1 small {
     height: auto;
 }
 
-#account form .form-actions, #configuration form .form-actions,  #synchronization form .form-actions, #edit_album form .form-actions {
+#account form .form-actions, #synchronization form .form-actions, #edit_album form .form-actions {
     margin-bottom: 0;
     text-align: right;
 }
@@ -246,7 +246,7 @@ h1 small {
     margin-right: 10px;
 }
 
-#configuration .form-vertical, #synchronization .form-vertical, #account form {
+#synchronization .form-vertical, #account form {
     max-width: 978px;
     margin: 0 auto;
 }

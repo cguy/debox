@@ -237,7 +237,7 @@ public class AlbumDao {
         return result;
     }
     
-    public Album getVisibleAlbum(String token, String albumId, boolean grantedAccess) throws SQLException {
+    public Album getVisibleAlbum(String token, String albumId) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID);
         statement.setString(1, token);
