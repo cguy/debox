@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
@@ -39,6 +40,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.DeboxUser;
+import org.debox.photo.model.Provider;
 import org.debox.photo.model.ThirdPartyAccount;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.thirdparty.ServiceUtil;
@@ -109,7 +111,9 @@ public class HomeController extends DeboxController {
         Map<String, Object> result = new HashMap<>(2);
         result.put("config", headerData);
         result.put("templates", getTemplates());
-        result.put("providers", ServiceUtil.getAuthenticationUrls());
+        List<Provider> providers = ServiceUtil.getAuthenticationUrls();
+        result.put("hasProviders", providers != null);
+        result.put("providers", providers);
         
         return renderJSON(result);
     }

@@ -54,9 +54,7 @@ import org.slf4j.LoggerFactory;
 public class UserDao {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
-    
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
-    
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
     protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?)";
@@ -72,7 +70,6 @@ public class UserDao {
             + "     LEFT JOIN users_roles ur ON ur.user_id = ta.user_id "
             + "     LEFT JOIN roles r ON ur.role_id = r.id "
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
-    
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?) ON DUPLICATE KEY UPDATE album_id = ?";
 
@@ -117,7 +114,7 @@ public class UserDao {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         Connection connection = DatabaseUtils.getConnection();
-        
+
         try {
             statement = connection.prepareStatement(SQL_GET_ROLE_COUNT);
             resultSet = statement.executeQuery();
@@ -136,7 +133,7 @@ public class UserDao {
     public void save(Role role) throws SQLException {
         PreparedStatement statement = null;
         Connection connection = DatabaseUtils.getConnection();
-        
+
         try {
             statement = connection.prepareStatement(SQL_CREATE_ROLE);
             statement.setString(1, role.getId());
@@ -260,7 +257,7 @@ public class UserDao {
     }
 
     public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException, IOException {
-            Connection connection = DatabaseUtils.getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         List<ThirdPartyAccount> result = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -286,38 +283,39 @@ public class UserDao {
         }
         return result;
     }
-    
+
     protected ThirdPartyAccount convert(String userId, ResultSet rs) throws SQLException, IOException {
         ThirdPartyAccount access = new ThirdPartyAccount(
                 ServiceUtil.getProvider(rs.getString("provider")),
                 rs.getString("id"),
                 rs.getString("token"));
+        access.setId(userId);
 
-        if (access.getProviderId().equals("facebook")) {
-            DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
-            com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
-            access.setUsername(fbUser.getName());
-            access.setAccountUrl(fbUser.getLink());
+        if (access.getToken() != null) {
+            if (access.getProviderId().equals("facebook")) {
+                DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
+                com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+                access.setUsername(fbUser.getName());
+                access.setAccountUrl(fbUser.getLink());
 
-        } else if (access.getProviderId().equals("google")) {
-            String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(response);
+            } else if (access.getProviderId().equals("google")) {
+                String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode node = mapper.readTree(response);
 
-            if (node.get("error") != null && node.get("error").get("code") != null) {
-                if (node.get("error").get("code").asInt() == 401) {
-                    throw new OAuthException("google");
+                if (node.get("error") != null && node.get("error").get("code") != null) {
+                    if (node.get("error").get("code").asInt() == 401) {
+                        throw new OAuthException("google");
+                    }
+                    return null;
                 }
+
+                access.setUsername(node.get("name").asText());
+                access.setAccountUrl(node.get("link").asText());
+            } else {
                 return null;
             }
-
-            access.setUsername(node.get("name").asText());
-            access.setAccountUrl(node.get("link").asText());
-        } else {
-            return null;
         }
-
-        access.setId(userId);
 
         return access;
     }
@@ -359,7 +357,7 @@ public class UserDao {
         List<ThirdPartyAccount> result = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet rs = null;
-            Connection connection = DatabaseUtils.getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         try {
             statement = connection.prepareStatement(SQL_GET_AUTHORIZED_ACCOUNTS);
             statement.setString(1, album.getId());
@@ -377,5 +375,4 @@ public class UserDao {
         }
         return result;
     }
-    
 }

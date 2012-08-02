@@ -119,6 +119,14 @@ public class ServiceUtil {
     }
 
     public static List<Provider> getAuthenticationUrls() {
+        ApplicationContext context = ApplicationContext.getInstance();
+        Configuration configuration = context.getConfiguration();
+        String activated = configuration.get(Configuration.Key.THIRDPARTY_ACTIVATION);
+        
+        if (!Boolean.parseBoolean(activated)) {
+            return null;
+        }
+        
         List<Provider> result = new ArrayList<>();
         result.add(getProvider("facebook"));
         result.add(getProvider("google"));

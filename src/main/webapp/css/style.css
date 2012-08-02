@@ -139,13 +139,26 @@ h1 small {
 
 #authentication-form .classic,
 #authentication-form .thirdparty {
-    float: left;
+    float: right;
 }
 
-#authentication-form .classic {
-    width: 420px;
+#authentication-form .modal-footer {
+    text-align: center;
+}
+
+#authentication-form .modal-body {
+    text-align: left;
+}
+
+.classic {
+    width: 741px;
     border-right: 1px solid #eee;
 }
+
+.thirdparty ~ .classic {
+    width: 420px;
+}
+
 #authentication-form .classic h3 {
     text-align: center;
 }
@@ -164,10 +177,6 @@ h1 small {
 
 #authentication-form .thirdparty .close {
     margin-right: 0px;
-}
-
-#authentication-form .modal-footer, #authentication-form .modal-body {
-    text-align: center;
 }
 
 #authentication-form .thirdparty .modal-body {

@@ -541,7 +541,10 @@ function loadAdministrationTab(id, data) {
 }
 
 function preprocessAdministrationTabLoading(id, data) {
-    if (id == "albums") {
+    if (id == "configuration") {
+        data.thirdPartyActivation = data.thirdPartyActivation == "true";
+        
+    } else if (id == "albums") {
         for (var i = 0 ; i < data.albums.length ; i++) {
             var album = data.albums[i];
             album = createAlbum(album);
