@@ -84,18 +84,16 @@
                             app.run("#/");
                         }
                     );
+                    /* Piwik */
+                    var pkBaseURL = "http://piwik.debux.org/";
+                    document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+                    try {
+                        var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 2);
+                        piwikTracker.trackPageView();
+                        piwikTracker.enableLinkTracking();
+                    } catch( err ) {}
                 }
             );
-                
-            /* Piwik */
-            var pkBaseURL = "http://piwik.debux.org/";
-            document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
-            </script><script type="text/javascript">
-            try {
-                var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 2);
-                piwikTracker.trackPageView();
-                piwikTracker.enableLinkTracking();
-            } catch( err ) {}
         </script>
     </body>
 </html>
