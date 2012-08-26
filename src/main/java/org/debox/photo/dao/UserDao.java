@@ -57,8 +57,8 @@ public class UserDao {
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
-    protected static String SQL_CREATE_USER = "INSERT INTO users VALUES (?)";
-    protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?)";
+    protected static String SQL_CREATE_USER = "INSERT IGNORE INTO users VALUES (?)";
+    protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
     protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
     protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
     protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
@@ -232,6 +232,9 @@ public class UserDao {
             userInfosStatement.setString(2, user.getUsername());
             userInfosStatement.setString(3, hashedPassword);
             userInfosStatement.setString(4, salt.toBase64());
+            userInfosStatement.setString(5, user.getUsername());
+            userInfosStatement.setString(6, hashedPassword);
+            userInfosStatement.setString(7, salt.toBase64());
             userInfosStatement.executeUpdate();
 
             if (role != null) {
@@ -246,6 +249,7 @@ public class UserDao {
         } catch (SQLException ex) {
             logger.error("Unable to save user, reason:", ex);
             connection.rollback();
+            throw ex;
 
         } finally {
             JdbcUtils.closeStatement(userStatement);

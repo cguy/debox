@@ -32,15 +32,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.debox.imaging.ImageUtils;
+import org.debox.imaging.gm.AlbumDateReader;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.StringUtils;
-import org.debox.photo.util.img.AlbumDateReader;
-import org.debox.photo.util.img.ImageUtils;
-import org.debox.photo.util.img.ThumbnailGenerator;
+import org.debox.imaging.gm.ThumbnailGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

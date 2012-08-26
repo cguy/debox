@@ -26,12 +26,12 @@ import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.debox.imaging.ImageUtils;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.SessionUtils;
-import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class PhotoController extends DeboxController {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.SQUARE);
             RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
             if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                 return status;
@@ -87,7 +87,7 @@ public class PhotoController extends DeboxController {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.LARGE);
+            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.LARGE);
             RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
             if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                 return status;

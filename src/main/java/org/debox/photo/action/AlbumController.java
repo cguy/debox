@@ -48,6 +48,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.connector.api.exception.AuthenticationProviderException;
 import org.debox.connector.google.CustomXMLReader;
+import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
@@ -66,7 +67,6 @@ import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
-import org.debox.photo.util.img.ImageHandler;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
 import org.jdom.Element;
@@ -377,7 +377,7 @@ public class AlbumController extends DeboxController {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageHandler.getInstance().getStream(configuration, photo, ThumbnailSize.SQUARE);
+            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.SQUARE);
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);

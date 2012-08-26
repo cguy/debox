@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
@@ -36,8 +37,6 @@ import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.StringUtils;
-import org.debox.photo.util.img.ImageHandler;
-import org.debox.photo.util.img.ImageUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
 import org.debux.webmotion.server.call.UploadFile;
 import org.debux.webmotion.server.render.Render;
@@ -87,8 +86,11 @@ public class AdministrationController extends DeboxController {
         
         photoDao.save(addedPhoto); // Handle photo count increment for album
         
-        ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.SQUARE);
-        ImageHandler.getInstance().generateThumbnail(configuration, addedPhoto, ThumbnailSize.LARGE);
+        String thumbnailPath = ImageUtils.getTargetPath(configuration.get(Configuration.Key.TARGET_PATH), addedPhoto, ThumbnailSize.LARGE);
+        ImageUtils.thumbnail(targetFile.toString(), thumbnailPath, ThumbnailSize.LARGE);
+        
+        thumbnailPath = ImageUtils.getTargetPath(configuration.get(Configuration.Key.TARGET_PATH), addedPhoto, ThumbnailSize.SQUARE);
+        ImageUtils.thumbnail(targetFile.toString(), thumbnailPath.toString(), ThumbnailSize.SQUARE);
         
         Photo result = photoDao.getPhoto(addedPhoto.getId());
         Date date = ImageUtils.getShootingDate(targetFile);
