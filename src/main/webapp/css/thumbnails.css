@@ -106,7 +106,7 @@
     
     background-color: #FEFEFE;
     border: 2px solid #FAFAFA;
-    box-shadow: 0 1px 2px rgba(34, 25, 25, 0.4);
+    box-shadow: 0 1px 4px rgba(34, 25, 25, 0.3);
 }
 
 .thumbnails > li > .thumbnail.cover {
@@ -122,10 +122,10 @@
     width:170px;
     height:170px;
     
-    -webkit-box-shadow: 0 0 25px rgba(86, 86, 86, 0.6);
-    -moz-box-shadow: 0 0 25px rgba(86, 86, 86, 0.6);
-    -o-box-shadow: 0 0 25px rgba(86, 86, 86, 0.6);
-    box-shadow: 0 0 25px rgba(86, 86, 86, 0.6);
+    -webkit-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
+    -moz-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
+    -o-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
+    box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
 }
 
 .thumbnails > li > .thumbnail > .picture {
