@@ -48,7 +48,7 @@ public class ServiceUtil {
         ApplicationContext context = ApplicationContext.getInstance();
         Configuration configuration = context.getConfiguration();
         String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
-        String callback = configuration.get(Configuration.Key.GOOGLE_SECRET);
+        String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
         String authenticationUrl = "https://accounts.google.com/o/oauth2/auth"
             + "?client_id=%s"
             + "&redirect_uri=%s"
@@ -65,7 +65,7 @@ public class ServiceUtil {
         ApplicationContext context = ApplicationContext.getInstance();
         Configuration configuration = context.getConfiguration();
         String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
-        String callback = configuration.get(Configuration.Key.GOOGLE_SECRET);
+        String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
         String secret = configuration.get(Configuration.Key.GOOGLE_SECRET);
         return OAuth2Utils.getAccessTokenFromCode("https://accounts.google.com/o/oauth2/token", apiKey, secret, callback, code);
     }
