@@ -1,6 +1,3 @@
-    <button class="btn pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-pencil"></i>&nbsp;{{i18n.album.admin.edit.modify_this}}</button>
-    <button class="btn btn-info pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.close_notif_zone}}</button>
-</div>
 
 <div id="edit_album" class="{{#inEdition}}visible{{/inEdition}}">
     <div id="regeneration-progress" class="alert alert-info hide">
@@ -22,7 +19,7 @@
     <div class="row">
         <div class="span6">
             <form class="form-horizontal" action="#/album/{{album.id}}" method="post">
-                <h2 class="page-header">{{i18n.album.admin.edit.modify}} <span>{{album.name}}</span></h2>
+                <h2>{{i18n.album.admin.edit.modify}}</h2>
                 <p></p>
                 <div class="control-group">
                     <label class="control-label" for="name">{{i18n.album.admin.edit.album_name}}</label>
@@ -78,9 +75,10 @@
             </form>
         </div>
         <div class="span6 actions">
-            <h2 class="page-header">{{i18n.album.admin.edit.actions}}</h2>
+            <h2>{{i18n.album.admin.edit.actions}}</h2>
             <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;{{i18n.album.admin.edit.choose_cover.button}}</button>
             <button class="btn btn-danger hide choose-cover-cancel"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.cancel_cover_choice}}</button>
             <button class="btn regenerate-thumbnails"><i class="icon-repeat"></i>&nbsp;{{i18n.album.admin.edit.regenerate_thumbnails}}</button>
         </div>
     </div>
+</div>

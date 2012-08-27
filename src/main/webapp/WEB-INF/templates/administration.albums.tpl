@@ -1,4 +1,4 @@
-<h2 class="page-header">{{i18n.administration.albums.title}}</h2>
+<h2>{{i18n.administration.albums.title}}</h2>
 
 {{#albums.length}}
 <ul class="thumbnails">

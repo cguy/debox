@@ -1,4 +1,4 @@
-<h2 class="page-header">{{i18n.administration.tokens.title}}</h2>
+<h2>{{i18n.administration.tokens.title}}</h2>
 
 <h3>{{i18n.administration.tokens.thirdparty.title}}</h3>
 {{#providers}}

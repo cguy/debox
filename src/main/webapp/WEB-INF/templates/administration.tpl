@@ -1,4 +1,4 @@
-<h1 class="page-header">{{i18n.administration.title}}</h1>
+<div class="page-header"><h1>{{i18n.administration.title}}</h1></div>
 
 <div id="administration">
     <div id="sync-progress" class="alert alert-info hide">

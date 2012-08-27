@@ -57,7 +57,7 @@
 /* ALL THUMBNAILS */
 /* ************** */
 .thumbnails {
-    margin: 0;
+    margin: 15px 0 0 0;
     list-style-type: none;
 }
 
@@ -67,16 +67,15 @@
 
 .thumbnails > li {
     display:inline-block;
-    margin: 6px;
     width: 150px;
     height: 150px;
     margin: 0 8px 15px;
 }
 
 .thumbnails.albums > li {
-    margin: 4px;
     width: 180px;
     height: 180px;
+    margin: 0 8px 15px;
 }
 
 .thumbnails > li > .thumbnail > i {
@@ -106,7 +105,7 @@
     
     background-color: #FEFEFE;
     border: 2px solid #FAFAFA;
-    box-shadow: 0 1px 4px rgba(34, 25, 25, 0.3);
+    box-shadow: 0 1px 4px rgba(34, 25, 25, 0.6);
 }
 
 .thumbnails > li > .thumbnail.cover {
@@ -126,6 +125,9 @@
     -moz-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
     -o-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
     box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
+    
+    background-color: #333;
+    border-color: #333;
 }
 
 .thumbnails > li > .thumbnail > .picture {

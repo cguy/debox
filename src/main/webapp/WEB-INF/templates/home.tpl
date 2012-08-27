@@ -1,4 +1,4 @@
-<h1 class="page-header">{{i18n.home.title}}</h1>
+<div class="page-header"><h1>{{i18n.home.title}}</h1></div>
 
 {{#albums.length}}
 <ul class="thumbnails albums">

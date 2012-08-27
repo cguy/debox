@@ -13,6 +13,13 @@
         <li><a href="#/administration"><i class="icon-cogs icon-white"></i>&nbsp;&nbsp;{{i18n.header.administration}}</a></li>
         {{/isAdmin}}
     </ul>
+    <ul class="nav pull-right about">
+        <li>
+            <a href="#/about" rel="tooltip" data-placement="bottom" title="{{i18n.about.tooltip}}">
+                <i class="icon-question-sign"></i>
+            </a>
+        </li>
+    </ul>
     <p class="navbar-text pull-right">
     {{#username}}
         <i class="icon-user icon-white"></i>&nbsp;&nbsp;<strong>{{username}}</strong> (<a href="logout">{{i18n.header.disconnection}}</a>)

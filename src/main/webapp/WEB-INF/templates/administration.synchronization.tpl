@@ -1,5 +1,5 @@
 <form class="form-vertical" action="#/administration/sync" method="post">
-    <h2 class="page-header">{{i18n.administration.sync.title}}</h2>
+    <h2>{{i18n.administration.sync.title}}</h2>
     <div class="control-group">
         <p class="error"></p>
         <div class="control-group">

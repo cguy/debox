@@ -76,12 +76,11 @@ app.post('#/token/reinit', function() {
         error : function(xhr) {
             $("#modal-token-reinit input[type=submit]").button('reset');
             $("#modal-token-reinit p:first-of-type").addClass("alert alert-error");
-            console.log(lang.administration.tokens.reinit.error)
             var errorMessage;
             if (xhr.status == 404) {
-                errorMessage = lang.administration.tokens.reinit.error404
+                errorMessage = lang.administration.tokens.reinit.error404;
             } else {
-                errorMessage = lang.administration.tokens.reinit.error
+                errorMessage = lang.administration.tokens.reinit.error;
             }
             $("#modal-token-reinit p:first-of-type").html(errorMessage);
         }

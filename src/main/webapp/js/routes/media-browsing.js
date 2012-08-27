@@ -18,9 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.before({except: null}, function() {
+app.before({
+    except: null
+}, function() {
     if (this.verb == "get") {
-        $("html, body").animate({scrollTop: 0}, 0);
+        $("html, body").animate({
+            scrollTop: 0
+        }, 0);
         if (this.path.indexOf("#/administration") == -1) {
             delete allAlbums;
             delete allTokens;
@@ -32,50 +36,56 @@ app.before({except: null}, function() {
     }
 });
 
-app.get('#/album/:album', function() {
-    if ($("h1").attr("id") == this.params['album'] && document.getElementById("fullscreenContainer") != null) {
-        return;
-    }
-            
-    ajax({
-        url: computeUrl("album/" + this.params['album']),
-        success: loadAlbum
-    });
-});
-        
 app.get('#/album/:album(/.*)?', function() {
     var photoId = this.params['splat'][0];
-    var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
+    if (photoId) {
+        photoId = photoId.substr(1);
+    }
+    var index = $(".photos a.thumbnail").index($("#" + photoId));
     if (index == -1) {
-        ajax({
-            url: computeUrl("album/" + this.params['album']),
-            success: function(data) {
-                createAlbum(data.album);
-                for (var i = 0 ; i < data.subAlbums.length ; i++) {
-                    var album = data.subAlbums[i];
-                    createAlbum(album);
+        
+        function onAlbumLoading() {
+            if (!photoId || photoId == "edition") {
+                $("#alerts .alert").hide();
+                
+                if (photoId == "edition") {
+                    $("#edit_album").addClass("visible");
+                    $(".edit-album").addClass("hide");
+                    $(".edit-album-cancel").removeClass("hide");
+                } else {
+                    $("#edit_album").removeClass("visible");
+                    $(".edit-album").removeClass("hide");
+                    $(".edit-album-cancel").addClass("hide");
                 }
-                data.album.photos = data.photos;
-                data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
-                loadTemplate("album", data, null, function() { 
-                    editTitle($("a.brand").text() + " - " + data.album.name);
-                    if (photoId.length > 1) {
-                        var index = $(".photos a.thumbnail").index($("#" + photoId.substr(1)));
-                        if (index != -1) {
-                            var slideshowData = [];
-                            for (var i = 0 ; i < data.photos.length ; i++) {
-                                slideshowData.push({
-                                    "id" : "/album/" + data.album.id + "/" + data.photos[i].id,
-                                    "url" : data.photos[i].url,
-                                    "caption" : data.photos[i].name
-                                });
-                            }
-                            fullscreen(index, slideshowData);
-                        }
+                hideAlbumChoose();
+                        
+            } else if (photoId.length > 1) {
+                var index = $(".photos a.thumbnail").index($("#" + photoId));
+                if (index != -1) {
+                    var slideshowData = [];
+                    for (var i = 0 ; i < data.photos.length ; i++) {
+                        slideshowData.push({
+                            "id" : "/album/" + data.album.id + "/" + data.photos[i].id,
+                            "url" : data.photos[i].url,
+                            "caption" : data.photos[i].name
+                        });
                     }
-                });
+                    fullscreen(index, slideshowData);
+                }
             }
-        });
+        }
+        
+        if ($("h1").attr("id") == this.params['album']) {
+            onAlbumLoading();
+        } else {
+            ajax({
+                url: computeUrl("album/" + this.params['album']),
+                success: function(data) {
+                    loadAlbum(data, onAlbumLoading);
+                }
+            });
+        }
+        
     } else if (document.getElementById("fullscreenContainer") == null) {
         var slideshowData = [];
         var photos = $(".photos a.thumbnail");
@@ -125,10 +135,18 @@ app.get('#_=_', function() {
 });
 
 /* ******************* */
+/* About page           */
+/* ******************* */
+app.get('#/about', function() {
+    editTitle($("a.brand").text() + " - " + fr.about.tooltip);
+    loadTemplate("about");
+});
+
+/* ******************* */
 /* Home page           */
 /* ******************* */
 app.get('#/', function() {
-    editTitle($("a.brand").text() + " - Accueil");
+    editTitle($("a.brand").text() + " - " + fr.home.title);
     ajax({
         url: computeUrl("albums"),
         success: function(data) {
@@ -139,4 +157,4 @@ app.get('#/', function() {
             loadTemplate("home", data);
         }
     });
-}); // End route
+});

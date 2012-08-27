@@ -1,5 +1,5 @@
 <form class="form-horizontal" action="#/account/{{id}}" method="post">
-    <h2 class="page-header">{{i18n.administration.account.title}}</h2>
+    <h2>{{i18n.administration.account.title}}</h2>
     <p class="hide"><a class="close">&times;</a></p>
     <div class="control-group">
         <label class="control-label" for="username">{{i18n.administration.account.username}}:</label>

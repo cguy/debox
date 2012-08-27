@@ -1,4 +1,4 @@
-<h2 class="page-header">{{i18n.administration.upload.title}}</h2>
+<h2>{{i18n.administration.upload.title}}</h2>
 <h3>{{i18n.administration.upload.album}}</h3>
 <div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.mandatory}}</div>
 

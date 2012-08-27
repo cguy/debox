@@ -1,5 +1,5 @@
 <form id="overall-configuration" class="form-vertical" action="#/administration/configuration" method="post">
-    <h2 class="page-header">{{i18n.administration.config.title}}</h2>
+    <h2>{{i18n.administration.config.title}}</h2>
     <p class="alert hide"></p>
     <div class="control-group">
         <label for="title">{{i18n.administration.config.galery_title}}</label>
@@ -27,7 +27,7 @@
 </form>
 
 <form id="thirdparty-configuration" class="third-party form-vertical" action="#/administration/configuration/social" method="post">
-    <h2 class="page-header">Configuration des accès tiers</h2>
+    <h2>Configuration des accès tiers</h2>
     <p class="alert hide"></p>
 
     <div class="control-group">

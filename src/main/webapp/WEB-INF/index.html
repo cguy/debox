@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="static/css/bootstrap-responsive.min.css" />
         
         <link rel="stylesheet" href="static/css/font-awesome.css" />
+        <link rel="stylesheet" href="static/css/font-awesome-ie7.css" />
         
         <link rel="stylesheet" href="static/css/style.css" />
         <link rel="stylesheet" href="static/css/thumbnails.css" />
@@ -22,7 +23,7 @@
         <!--[if lt IE 9]><link rel="stylesheet" href="static/css/style.ie.css" /><![endif]-->
     </head>
     <body onscroll="onBodyScroll()">
-        <div class="navbar navbar-fixed-top">
+        <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <!-- Fill in with loadTemplate("header", ...); call -->
@@ -32,7 +33,6 @@
         <div class="container-fluid">
             <!-- Fill in with loadTemplate(...); call -->
         </div>
-        <p class="footer"></p>
         <div id="loading"></div>
         <form id="authentication-form" class="modal fade hide form-horizontal" action="authenticate" method="post">
             <!-- Fill in with loadTemplate("login.popup", data, "#authentication-form"); call -->
@@ -64,7 +64,6 @@
                     lang = fr;
                     // Load templates before enable application routing
                     loadTemplates();
-                    $(".footer").html(lang.footer);
                     $("#loading").text(lang.common.loading);
                     app = Sammy(function() {
                         // Comment this line to enable SammyJS logging

@@ -40,6 +40,9 @@ var fr = {
         modification_in_progress: "Modification en cours...",
         no_album: "Aucun album n'a été créé pour le moment !"
     },
+    about : {
+        tooltip: "En savoir plus"
+    },
     error403: {
         title: "Authentification nécessaire",
         message: "Vous devez vous connecter pour accéder à la ressource demandée."

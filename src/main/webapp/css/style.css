@@ -76,7 +76,15 @@ hr {
 body > .container-fluid {
     min-height: 680px;
     overflow:auto;
-    padding: 0 10px;
+    padding: 0 15px;
+}
+
+.navbar .nav.about {
+    margin-right: 0;
+}
+
+.about a {
+    font-size: 22px;
 }
 
 .btn-primary {
@@ -105,20 +113,53 @@ body > .container-fluid {
     font-weight: bold;
 }
 
-h1.page-header {
-    padding: 20px 20px 5px;
-    margin: -10px -10px 10px -10px;
+.page-header {
+    height: 50px;
+    font-size: 30px;
+    padding: 5px 20px;
+    margin: 0 -15px;
     border-bottom-color: #ccc;
-    background-color: #fff;
+    background-color: #eee;
 }
 
-h1.page-header a {
+h1 {
+    font-size: 30px;
+    display: inline-block;
+    line-height: 35px;
     color: #333;
 }
 
-h1.page-header a:hover {
+.page-header > .dropdown {
+    display: inline-block;
+}
+
+.page-header > a, .page-header > .dropdown > a {
+    line-height: 52px;
+    color: #333;
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+}
+
+.page-header > .dropdown ul li a {
+    font-size: 13px;
+}
+
+.page-header > a.hide, .page-header > .dropdown.hide {
+    display: none;
+}
+
+.page-header > a.back {
+    margin-right: 10px;
+}
+
+.page-header a:hover {
     color: #005580;
     text-decoration: none;
+}
+
+.page-header a.pull-right {
+    margin-left: 15px;
 }
 
 h2.page-header {
@@ -135,7 +176,12 @@ h3 {
 }
 
 h1 small {
+    font-size: 20px;
     padding-left: 10px;
+}
+
+form {
+    background-color: #fff;
 }
 
 #authentication-form {
@@ -266,13 +312,6 @@ h1 small {
     margin: 0 auto;
 }
 
-p.footer {
-    margin-top: 3px;
-    text-align: center;
-    color: #888;
-    font-size: 11px;
-}
-
 #top {
     width: 64px;
     height: 64px;
@@ -365,6 +404,10 @@ p.footer {
     margin-bottom: 0px;
 }
 
+#administration {
+    margin-top: 15px;
+}
+
 #administration .access_label {
     width: 100px;
 }
@@ -397,11 +440,6 @@ p.footer {
     font-style: italic;
 }
 
-.footer {
-    margin: 10px;
-    text-align: center;
-}
-
 #upload .dynatree-container {
     border: none;
 }
@@ -431,9 +469,8 @@ p.footer {
 }
 
 .album_description {
-    padding: 5px 20px 0 20px;
-    font-style: italic;
+    padding: 10px 15px;
     font-size: 16px;
-    color: #999999;
+    color: #444;
 }
 
