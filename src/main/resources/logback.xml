@@ -48,6 +48,7 @@
     <logger name="org.apache.commons" level="info"/>
     <logger name="org.apache.catalina" level="info"/>
     <logger name="org.apache.tomcat" level="info"/>
+    <logger name="org.apache.shiro" level="warn"/>
     <logger name="org.hibernate" level="error"/>
     <logger name="org.apache.jasper" level="error"/>
     <logger name="org.debux.webmotion" level="error"/>

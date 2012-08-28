@@ -120,6 +120,18 @@ body > .container-fluid {
     margin: 0 -15px;
     border-bottom-color: #ccc;
     background-color: #eee;
+    padding-right: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.page-header * {
+    white-space: nowrap;
+    
+}
+
+.page-header + .alert {
+    margin-top: 20px;
 }
 
 h1 {
@@ -127,6 +139,16 @@ h1 {
     display: inline-block;
     line-height: 35px;
     color: #333;
+    background-color: #ff0000;
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+h1 > small {
+        white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .page-header > .dropdown {
@@ -150,6 +172,7 @@ h1 {
 }
 
 .page-header > a.back {
+    float: left;
     margin-right: 10px;
 }
 

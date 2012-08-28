@@ -366,7 +366,7 @@ public class AlbumController extends DeboxController {
         } else {
             photo = albumDao.getVisibleAlbumCover(token, albumId);
         }
-        
+
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");

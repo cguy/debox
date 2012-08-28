@@ -104,6 +104,7 @@ public class ImageUtils {
         FileInputStream fis;
 
         try {
+            log.debug(path);
             fis = new FileInputStream(path);
 
         } catch (IOException ex) {
