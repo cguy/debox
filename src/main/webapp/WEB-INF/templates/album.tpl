@@ -1,4 +1,4 @@
-<div class="page-header">
+<div class="page-header album">
     <a href="#/{{#albumParent}}album/{{albumParent.id}}{{/albumParent}}" data-placement="right" rel="tooltip" 
        {{#albumParent}}title="{{i18n.album.back2album}}: {{albumParent.name}}"{{/albumParent}}
        {{^albumParent}}title="{{i18n.album.back2albums}}"{{/albumParent}}
@@ -16,29 +16,29 @@
     </div>
      <h1 id="{{album.id}}">
         {{album.name}}
-        <small>
-            {{#album.photosCount}}
-            {{album.photosCount}}
-            {{#album.hasSeveralTotalPhotos}}
-            {{i18n.common.photos}}
-            {{/album.hasSeveralTotalPhotos}}
-            {{^album.hasSeveralTotalPhotos}}
-            {{i18n.common.photo}}
-            {{/album.hasSeveralTotalPhotos}}
-
-            {{#album.beginDate}}
-            {{#album.isInterval}}
-            {{#album.endDate}}
-            {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
-            {{/album.endDate}}
-            {{/album.isInterval}}
-            {{^album.isInterval}}
-            {{i18n.album.on_date}} {{album.beginDate}}
-            {{/album.isInterval}}
-            {{/album.beginDate}}
-            {{/album.photosCount}}
-        </small>
     </h1>
+    <div class="information">
+        {{#album.photosCount}}
+        {{album.photosCount}}
+        {{#album.hasSeveralTotalPhotos}}
+        {{i18n.common.photos}}
+        {{/album.hasSeveralTotalPhotos}}
+        {{^album.hasSeveralTotalPhotos}}
+        {{i18n.common.photo}}
+        {{/album.hasSeveralTotalPhotos}}
+
+        {{#album.beginDate}}
+        {{#album.isInterval}}
+        {{#album.endDate}}
+        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
+        {{/album.endDate}}
+        {{/album.isInterval}}
+        {{^album.isInterval}}
+        {{i18n.album.on_date}} {{album.beginDate}}
+        {{/album.isInterval}}
+        {{/album.beginDate}}
+        {{/album.photosCount}}
+    </div>
 </div>
 {{#album.description}}
 <div class="album_description">

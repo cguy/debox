@@ -120,14 +120,52 @@ body > .container-fluid {
     margin: 0 -15px;
     border-bottom-color: #ccc;
     background-color: #eee;
-    padding-right: 300px;
-    white-space: nowrap;
+}
+
+.page-header.album {
+    height: 70px;
+    font-size: 30px;
+    margin: 0 -15px;
+    padding: 5px 15px 0;
+    border-bottom-color: #ccc;
+    background-color: #eee;
+}
+
+.page-header.album > a.back {
+    position: absolute;
+    margin-top: 18px;
+    display: block;
+    width: 30px;
+    height: 30px;
+}
+
+.page-header.album > a.back > i {
+    height: 100%;
+    width: 100%;
+    line-height: 38px;
+    vertical-align: middle;
+}
+
+.page-header.album > h1 {
+    position: absolute;
+    margin: 3px 0 0 0;
+}
+
+.page-header.album > h1, .page-header.album > .information {
+    left: 60px;
+    right: 100px;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
-.page-header * {
-    white-space: nowrap;
-    
+
+.page-header.album > .information {
+    position: absolute;
+    margin: 43px 0 0 0;
+    color: #999;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
 }
 
 .page-header + .alert {
@@ -136,19 +174,8 @@ body > .container-fluid {
 
 h1 {
     font-size: 30px;
-    display: inline-block;
     line-height: 35px;
     color: #333;
-    background-color: #ff0000;
-    float: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-h1 > small {
-        white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .page-header > .dropdown {
@@ -156,7 +183,7 @@ h1 > small {
 }
 
 .page-header > a, .page-header > .dropdown > a {
-    line-height: 52px;
+    margin-top: 25px;
     color: #333;
     display: inline-block;
     width: 30px;
@@ -169,11 +196,6 @@ h1 > small {
 
 .page-header > a.hide, .page-header > .dropdown.hide {
     display: none;
-}
-
-.page-header > a.back {
-    float: left;
-    margin-right: 10px;
 }
 
 .page-header a:hover {
