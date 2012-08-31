@@ -303,7 +303,7 @@ form {
     border-radius: 5px;
 }
 
-#edit_album form {
+#edit_album #edit-album-form {
     width: auto;
     border-right: 1px solid #ddd;
     padding-right: 20px;

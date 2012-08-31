@@ -14,11 +14,12 @@
         <p class="hide cover alert alert-danger">{{i18n.album.admin.edit.choose_cover.error}}<span class="close">&times;</span></p>
         <p class="hide edit alert alert-success">{{i18n.album.admin.edit.success}}<span class="close">&times;</span></p>
         <p class="hide edit alert alert-danger">{{i18n.album.admin.edit.error}}<span class="close">&times;</span></p>
+        <p class="hide delete alert alert-danger">{{i18n.album.admin.delete.error}}<span class="close">&times;</span></p>
     </div>
-    
+
     <div class="row">
         <div class="span6">
-            <form class="form-horizontal" action="#/album/{{album.id}}" method="post">
+            <form id="edit-album-form" class="form-horizontal" action="#/album/{{album.id}}" method="post">
                 <h2>{{i18n.album.admin.edit.modify}}</h2>
                 <p></p>
                 <div class="control-group">
@@ -74,11 +75,26 @@
                 </div>
             </form>
         </div>
-        <div class="span6 actions">
+        <div class="span4 actions">
             <h2>{{i18n.album.admin.edit.actions}}</h2>
             <button class="btn choose-cover"><i class="icon-camera"></i>&nbsp;{{i18n.album.admin.edit.choose_cover.button}}</button>
             <button class="btn btn-danger hide choose-cover-cancel"><i class="icon-remove"></i>&nbsp;{{i18n.album.admin.edit.cancel_cover_choice}}</button>
             <button class="btn regenerate-thumbnails"><i class="icon-repeat"></i>&nbsp;{{i18n.album.admin.edit.regenerate_thumbnails}}</button>
+            <button class="btn btn-danger delete"><i class="icon-remove icon-white"></i>&nbsp;{{i18n.album.admin.delete.action}}</button>
         </div>
     </div>
+
+    <form id="delete-album-modal" class="modal fade hide" method="delete" action="#/album/{{album.id}}">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>{{i18n.album.admin.delete.confirm.title}}</h3>
+        </div>
+        <div class="modal-body">
+            <p>{{i18n.album.admin.delete.confirm.body}}</p>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" class="btn btn-danger" value="{{i18n.common.delete}}" />
+            <button type="button" class="btn" data-dismiss="modal">{{i18n.common.cancel}}</button>
+        </div>
+    </form>
 </div>

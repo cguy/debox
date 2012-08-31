@@ -18,9 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.before({
-    except: null
-}, function() {
+app.before({except: null}, function() {
     if (this.verb == "get") {
         $("html, body").animate({
             scrollTop: 0
@@ -73,6 +71,10 @@ app.get('#/album/:album(/.*)?', function() {
                     fullscreen(index, slideshowData);
                 }
             }
+            $(".delete").unbind("click");
+            $(".delete").click(function() {
+                $("#delete-album-modal").modal();
+            });
         }
         
         if ($("h1").attr("id") == this.params['album']) {

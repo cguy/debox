@@ -180,7 +180,6 @@ span.dynatree-expander:hover
 .dynatree-loading span.dynatree-expander  /* 'Loading' status overrides all others */
 {
 	background-position: 0 0;
-	background-image: url("loading.gif");
 }
 
 
@@ -280,12 +279,6 @@ span.dynatree-icon /* Default icon */
 }
 
 /* Status node icons */
-
-.dynatree-statusnode-wait span.dynatree-icon
-{
-	background-image: url("loading.gif");
-}
-
 .dynatree-statusnode-error span.dynatree-icon
 {
 	background-position: 0px -112px;

@@ -31,6 +31,7 @@ function loadTemplates(callback) {
             });
             templatesLoaded = true;
             
+            _config = data.config;
             initHeader(data.config.title, data.config.username, data.config.isAdmin);
             loadTemplate("login.popup", data, "#authentication-form");
             
@@ -50,6 +51,9 @@ function loadTemplates(callback) {
 }
 
 var _defaultSelector = "body > .container-fluid";
+var _config = {
+    isAdmin : false
+}
 function loadTemplate(templateId, data, selector, callback) {
     if (!templatesLoaded) {
         templatesToLoad.push({
@@ -64,6 +68,7 @@ function loadTemplate(templateId, data, selector, callback) {
     if (!data) {
         data = {};
     }
+    data.config = _config;
     data.i18n = lang;
     
     if (!templates[templateId]) {

@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.io.FileUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.connector.api.exception.AuthenticationProviderException;
@@ -127,6 +128,24 @@ public class AlbumController extends DeboxController {
         
         albumDao.save(album);
         return renderJSON(album);
+    }
+    
+    public Render deleteAlbum(String albumId) throws SQLException {
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any album with id " + albumId);
+        }
+        
+        Configuration conf = ApplicationContext.getInstance().getConfiguration();
+        String originalDirectory = conf.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath();
+        String workingDirectory = conf.get(Configuration.Key.TARGET_PATH) + album.getRelativePath();
+        
+        if (!FileUtils.deleteQuietly(new File(workingDirectory)) || !FileUtils.deleteQuietly(new File(originalDirectory))) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to delete directories from file system.");
+        }
+
+        albumDao.delete(album);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     public List<Album> albums(String parentId, String token) throws SQLException {

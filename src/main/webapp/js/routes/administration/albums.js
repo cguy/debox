@@ -37,4 +37,21 @@ app.post('#/album/:albumId', function() {
     });
     return false;
 });
+
+app.del('#/album/:albumId', function() {
+    var context = this;
+    ajax({
+        url: "album/" + this.params["albumId"],
+        type : "delete",
+        success: function() {
+            $("#delete-album-modal").modal("hide");
+            context.redirect("#/");
+        },
+        error : function() {
+            $("#delete-album-modal").modal("hide");
+            $("#alerts .delete.alert-danger").fadeIn(250);
+        }
+    });
+    return false;
+});
         

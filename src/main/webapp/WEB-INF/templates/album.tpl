@@ -4,9 +4,12 @@
        {{^albumParent}}title="{{i18n.album.back2albums}}"{{/albumParent}}
        class="back"><i class="icon-circle-arrow-left"></i></a>
 
+    {{#config.isAdmin}}
     <a href="#/album/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
     <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
+    {{/config.isAdmin}}
 
+    {{#photos.length}}{{#album.downloadable}}
     <div class="dropdown pull-right">
         <a href="#" data-placement="left" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
         <ul class="dropdown-menu">
@@ -14,6 +17,7 @@
             <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>
         </ul>
     </div>
+    {{/album.downloadable}}{{/photos.length}}
      <h1 id="{{album.id}}">
         {{album.name}}
     </h1>

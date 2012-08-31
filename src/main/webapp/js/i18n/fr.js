@@ -224,6 +224,14 @@ var fr = {
                 regenerate_thumbnails: "Regénérer les vignettes de cet album",
                 success: "L'album a été modifié avec succès.",
                 error: "Une erreur est survenue lors de la modification de l'album."
+            },
+            "delete" : {
+                action: "Supprimer l'album",
+                confirm : {
+                    title: "Confirmation",
+                    body: "Êtes-vous sûr / sure de vouloir supprimer cet album ?"
+                },
+                error: "Une erreur est survenue durant la suppression de l'album."
             }
         }
     },
