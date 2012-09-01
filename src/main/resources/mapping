@@ -62,7 +62,6 @@ POST        /album/{albumId}                        AlbumController.editAlbum   
 DELETE      /album/{albumId}                        AlbumController.deleteAlbum
 POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
 GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerationProgress
-POST        /uploadThumbnails                       AdministrationController.handleThumbnailsArchive
 GET         /uploadProgress                         AdministrationController.getUploadProgress
 
 # -----------------------------------------------------------------------------------------------
