@@ -24,7 +24,7 @@ PUT,POST    /token                                  AdministrationFilter.checkUs
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
-POST        /album                                  AdministrationFilter.checkUserSession
+POST,DELETE /album                                  AdministrationFilter.checkUserSession
 *           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
 
 POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
