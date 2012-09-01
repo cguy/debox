@@ -24,6 +24,7 @@ PUT,POST    /token                                  AdministrationFilter.checkUs
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
+POST,DELETE /photo/*                                AdministrationFilter.checkUserSession
 POST,DELETE /album                                  AdministrationFilter.checkUserSession
 *           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
 
@@ -53,6 +54,12 @@ GET         /account                            AccountController.getLoggedUser
 POST        /account/{userId}                   AccountController.editCredentials
 GET         /logout                             AccountController.logout
 DELETE      /third-party-account/{id}           AccountController.deleteThirdPartyAccount
+
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION - PHOTOS
+# -----------------------------------------------------------------------------------------------
+POST        /photo/{id}                         PhotoController.editPhoto
+DELETE      /photo/{id}                         PhotoController.deletePhoto
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS

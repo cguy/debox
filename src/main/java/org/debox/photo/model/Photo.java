@@ -30,13 +30,22 @@ import java.util.Objects;
 public class Photo implements Comparable<Photo> {
 
     protected String id;
-    protected String name;
+    protected String filename;
+    protected String title;
     protected String relativePath;
     protected String albumId;
     protected String thumbnailUrl;
     protected String url;
     protected Date date;
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
     public Date getDate() {
         return date;
     }
@@ -77,12 +86,12 @@ public class Photo implements Comparable<Photo> {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getRelativePath() {
@@ -100,7 +109,7 @@ public class Photo implements Comparable<Photo> {
         } 
         if (object instanceof Photo) {
             Photo photo = (Photo) object; 
-            return Objects.equals(this.relativePath + File.separatorChar + this.getName(), photo.getRelativePath() + File.separatorChar + photo.getName());
+            return Objects.equals(this.relativePath + File.separatorChar + this.getFilename(), photo.getRelativePath() + File.separatorChar + photo.getFilename());
         } 
         return false;
     }
@@ -112,7 +121,7 @@ public class Photo implements Comparable<Photo> {
 
     @Override
     public int compareTo(Photo photo) {
-        return this.getName().compareToIgnoreCase(photo.getName());
+        return this.getFilename().compareToIgnoreCase(photo.getFilename());
     }
     
 }

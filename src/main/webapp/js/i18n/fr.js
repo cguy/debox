@@ -235,7 +235,6 @@ var fr = {
             }
         }
     },
-    footer: "&COPY;&nbsp;Toutes les photos sont soumises au droit d'auteur. Il est interdit de les réutiliser sans l'accord explicite de leur auteur - Ce site Internet utilise le projet libre <a href='http://projects.debux.org/projects/debox-photos'>debox-photos</a>",
     header: {
         album_list: "Liste des albums",
         administration: "Administration",
@@ -250,10 +249,19 @@ var fr = {
         title: "Accueil"
     },
     photo: {
+        title: "Titre de la photo",
         thumbnails: {
             admin: {
                 cover_choice: "Choix d'une photo de couverture"
             }
+        },
+        "delete" : {
+            title: "Suppression de la photo",
+            confirm: "Êtes-vous sûr / sure de vouloir supprimer cette photo ?"
+        },
+        edit: {
+            title: "Modification d'une photo",
+            placeholder: "Veuillez rentrer le titre de la photo"
         }
     }
 };

@@ -91,7 +91,7 @@ public class DeboxController extends WebMotionController {
                     logger.error("Unable to access last modified property from file: " + strPath, ioe);
                 }
 
-                logger.warn("Get -1 value for photo " + photo.getName() + " and size " + size.name());
+                logger.warn("Get -1 value for photo " + photo.getFilename() + " and size " + size.name());
             }
 
             if (lastModified != -1) {

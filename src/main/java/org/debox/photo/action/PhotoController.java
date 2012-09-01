@@ -20,9 +20,12 @@
  */
 package org.debox.photo.action;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -43,6 +46,43 @@ import org.slf4j.LoggerFactory;
 public class PhotoController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
+    
+    public Render editPhoto(String id, String title) throws SQLException {
+        Photo photo = photoDao.getPhoto(id);
+        if (photo == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
+        }
+        if (StringUtils.isBlank(title)) {
+            title = photo.getFilename();
+        }
+        photo.setTitle(title);
+        photoDao.save(photo);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        
+    }
+    
+    public Render deletePhoto(String id) throws SQLException {
+        Photo photo = photoDao.getPhoto(id);
+        if (photo == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
+        }
+        
+        Configuration config = ApplicationContext.getInstance().getConfiguration();
+        String originalPath = config.get(Configuration.Key.SOURCE_PATH) + photo.getRelativePath() + File.separatorChar + photo.getFilename();
+        try {
+            for (ThumbnailSize size : ThumbnailSize.values()) {
+                String targetPath = ImageUtils.getTargetPath(config.get(Configuration.Key.TARGET_PATH), photo, size);
+                Files.deleteIfExists(Paths.get(targetPath));
+            }
+            Files.deleteIfExists(Paths.get(originalPath));
+            photoDao.delete(photo);
+            
+        } catch (IOException ex) {
+            logger.error("Unable to delete photo (original file: " + originalPath + ")", ex);
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "An error has occured during deletion");
+        }
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+    }
     
     public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
         photoId = StringUtils.substringBeforeLast(photoId, ".jpg");

@@ -38,7 +38,7 @@ public class GraphicsMagickImageUtils {
     public static final String JPEG_MIME_TYPE = "image/jpeg";
 
     public static String getTargetPath(String targetDirectory, Photo photo, ThumbnailSize size) {
-        return targetDirectory + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
+        return targetDirectory + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
     }
 
     public static int[] getSize(String path) throws IOException, InterruptedException, IM4JavaException {

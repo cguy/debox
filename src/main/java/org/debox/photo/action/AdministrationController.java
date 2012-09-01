@@ -79,7 +79,8 @@ public class AdministrationController extends DeboxController {
         
         Photo addedPhoto = new Photo();
         addedPhoto.setAlbumId(albumId);
-        addedPhoto.setName(photo.getName());
+        addedPhoto.setFilename(photo.getName());
+        addedPhoto.setTitle(photo.getName());
         addedPhoto.setDate(ImageUtils.getShootingDate(targetFile));
         addedPhoto.setId(StringUtils.randomUUID());
         addedPhoto.setRelativePath(album.getRelativePath());

@@ -38,20 +38,20 @@ public class PhotoDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
-    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?";
+    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?, title = ?";
     protected static String SQL_INCREMENT_PHOTO_COUNT = "UPDATE albums SET photos_count = photos_count + 1 WHERE id = ?";
     
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
-    protected static String SQL_GET_ALL = "SELECT id, name, date, relative_path, album_id FROM photos";
-    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE album_id = ? ORDER BY date";
-    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
+    protected static String SQL_GET_ALL = "SELECT id, filename, title, date, relative_path, album_id FROM photos";
+    protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT id, filename, title, date, relative_path, album_id FROM photos WHERE album_id = ? ORDER BY date";
+    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     
-    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, name, date, relative_path, album_id FROM photos WHERE id = ?";
+    protected static String SQL_GET_PHOTO_BY_ID = "SELECT id, filename, title, date, relative_path, album_id FROM photos WHERE id = ?";
     protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = ""
-            + "(SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
             + " UNION DISTINCT "
-            + "(SELECT p.id, p.name, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
-    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, name, date, relative_path, album_id FROM photos WHERE source_path = ?";
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
+    protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT id, filename, title, date, relative_path, album_id FROM photos WHERE source_path = ?";
 
     protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
     protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
@@ -128,10 +128,11 @@ public class PhotoDao {
     protected static Photo convertPhoto(ResultSet resultSet, String token) throws SQLException {
         Photo result = new Photo();
         result.setId(resultSet.getString(1));
-        result.setName(resultSet.getString(2));
-        result.setDate(resultSet.getTimestamp(3));
-        result.setRelativePath(resultSet.getString(4));
-        result.setAlbumId(resultSet.getString(5));
+        result.setFilename(resultSet.getString(2));
+        result.setTitle(resultSet.getString(3));
+        result.setDate(resultSet.getTimestamp(4));
+        result.setRelativePath(resultSet.getString(5));
+        result.setAlbumId(resultSet.getString(6));
         
         // deploy/ is present because of a bug in WebMotion 2.2
         String thumbnail = "deploy/thumbnail/" + result.getId() + ".jpg";
@@ -160,12 +161,14 @@ public class PhotoDao {
                     id = StringUtils.randomUUID();
                 }
                 statement.setString(1, id);
-                statement.setString(2, photo.getName());
-                statement.setTimestamp(3, new Timestamp(photo.getDate().getTime()));
-                statement.setString(4, photo.getRelativePath());
-                statement.setString(5, photo.getAlbumId());
+                statement.setString(2, photo.getFilename());
+                statement.setString(3, photo.getTitle());
+                statement.setTimestamp(4, new Timestamp(photo.getDate().getTime()));
+                statement.setString(5, photo.getRelativePath());
                 statement.setString(6, photo.getAlbumId());
-                statement.setString(7, photo.getRelativePath());
+                statement.setString(7, photo.getAlbumId());
+                statement.setString(8, photo.getRelativePath());
+                statement.setString(9, photo.getTitle());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -188,12 +191,14 @@ public class PhotoDao {
                 id = StringUtils.randomUUID();
             }
             statement.setString(1, id);
-            statement.setString(2, photo.getName());
-            statement.setTimestamp(3, new Timestamp(photo.getDate().getTime()));
-            statement.setString(4, photo.getRelativePath());
-            statement.setString(5, photo.getAlbumId());
+            statement.setString(2, photo.getFilename());
+            statement.setString(3, photo.getTitle());
+            statement.setTimestamp(4, new Timestamp(photo.getDate().getTime()));
+            statement.setString(5, photo.getRelativePath());
             statement.setString(6, photo.getAlbumId());
-            statement.setString(7, photo.getRelativePath());
+            statement.setString(7, photo.getAlbumId());
+            statement.setString(8, photo.getRelativePath());
+            statement.setString(9, photo.getTitle());
             statement.executeUpdate();
             
             albumStatement = connection.prepareStatement(SQL_INCREMENT_PHOTO_COUNT);
@@ -201,6 +206,19 @@ public class PhotoDao {
             albumStatement.executeUpdate();
         } finally {
             JdbcUtils.closeStatement(albumStatement);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
+    public void delete(Photo photo) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_DELETE_PHOTO);
+            statement.setString(1, photo.getId());
+            statement.executeUpdate();
+        } finally {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }

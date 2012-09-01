@@ -209,10 +209,9 @@ function hideAlbumChoose() {
     $("button.choose-cover-cancel").fadeOut(250, function() {
         $("button.choose-cover").fadeIn(250);
     });
-    $("#cover-photos").fadeOut(250, function() {
-        $('#cover-photos *[rel|=tooltip]').tooltip('hide');
-        $("#photos").fadeIn(250);
-    });
+    $("#cover-photos").addClass("hide");
+    $("#cover-photos *[rel|=tooltip]").tooltip('hide');
+    $("#photos-edition").removeClass("hide");
 }
 
 function loadAlbum(data, callback) {
@@ -274,34 +273,32 @@ function loadAlbum(data, callback) {
             $("button.choose-cover").fadeOut(250, function() {
                 $("button.choose-cover-cancel").fadeIn(250);
             });
-            $("#photos").fadeOut(250, function() {
-                $('#cover-photos *[rel|=tooltip]').tooltip('hide');
-                $("#cover-photos").fadeIn(250, function(){
-                    $(document.body).animate({
-                        scrollTop: $('#cover-photos').offset().top - 50
-                    }, 250);
-                });
-                $('#cover-photos .thumbnail').click(function() {
-                    var id;
-                    if ($(this).hasClass("thumbnail")) {
-                        id = $(this).attr("id");
-                    } else {
-                        id = $(this).parents(".thumbnail").attr("id");
+            $("#photos-edition").addClass("hide");
+            $('#cover-photos *[rel|=tooltip]').tooltip('hide');
+            $("#cover-photos").removeClass("hide");
+            $(document.body).animate({
+                scrollTop: $('#cover-photos').offset().top - 50
+            }, 250);
+            $('#cover-photos .thumbnail').click(function() {
+                var id;
+                if ($(this).hasClass("thumbnail")) {
+                    id = $(this).attr("data-id");
+                } else {
+                    id = $(this).parents(".thumbnail").attr("data-id");
+                }
+                ajax({
+                    url: "album/" + data.album.id + "/cover",
+                    type : "post",
+                    data : {
+                        objectId:id
+                    },
+                    success: function() {
+                        hideAlbumChoose();
+                        $("#alerts .cover.alert-success").fadeIn(250);
+                    },
+                    error: function() {
+                        $("#alerts .cover.alert-danger").fadeIn(250);
                     }
-                    ajax({
-                        url: "album/" + data.album.id + "/cover",
-                        type : "post",
-                        data : {
-                            objectId:id
-                        },
-                        success: function() {
-                            hideAlbumChoose();
-                            $("#alerts .cover.alert-success").fadeIn(250);
-                        },
-                        error: function() {
-                            $("#alerts .cover.alert-danger").fadeIn(250);
-                        }
-                    });
                 });
             });
         });

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.imaging.gm;
+package org.debox.imaging;
 
 import java.util.ArrayList;
 import java.util.List;

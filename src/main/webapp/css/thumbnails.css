@@ -53,6 +53,70 @@
     text-overflow: ellipsis;
 }
 
+#photos-edition .title {
+    display: inline-block;
+    bottom: 23px;
+    width: 130px;
+    padding: 5px;
+    -webkit-transition: color 0.25s ease;
+    -moz-transition: color 0.25s ease;
+    -ms-transition: color 0.25s ease;
+    -o-transition: color 0.25s ease;
+    transition: color 0.25s ease;
+    border-bottom: 1px solid #ccc;
+}
+
+#photos-edition .actions {
+    display: inline-block;
+    text-align: right;
+    padding: 5px 0;
+    bottom: 3px;
+    font-size: 20px;
+    width: 140px;
+    -webkit-transition: color 0.25s ease;
+    -moz-transition: color 0.25s ease;
+    -ms-transition: color 0.25s ease;
+    -o-transition: color 0.25s ease;
+    transition: color 0.25s ease;
+}
+
+#photos-edition .actions a {
+    color: #333;
+}
+
+#photos-edition .actions a:hover {
+    text-decoration: none;
+}
+
+#photos-edition .thumbnail:hover .actions a.edit-photo:hover {
+    color: #19c1e3;
+}
+
+#photos-edition .thumbnail:hover .actions a.delete-photo:hover {
+    color: #d14;
+}
+
+#photos-edition .thumbnail:hover .title, #photos-edition .thumbnail:hover .actions a {
+    color: #fefefe;
+}
+
+#photos-edition .thumbnails > li {
+    height: 205px;
+}
+
+#photos-edition .thumbnails > li > .thumbnail {
+    -webkit-transition: all 0.25s ease;
+    -moz-transition: all 0.25s ease;
+    -ms-transition: all 0.25s ease;
+    -o-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+    height: 192px;
+}
+
+#photos-edition .thumbnails > li > .thumbnail .picture {
+    height: 140px;
+}
+
 /* ************** */
 /* ALL THUMBNAILS */
 /* ************** */
@@ -114,13 +178,6 @@
 }
 
 .thumbnails > li > .thumbnail:hover {
-    z-index: 10;
-    
-    margin-top: -15px;
-    margin-left: -15px;
-    width:170px;
-    height:170px;
-    
     -webkit-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
     -moz-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
     -o-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
@@ -128,6 +185,15 @@
     
     background-color: #333;
     border-color: #333;
+}
+
+.thumbnails > li > a.thumbnail:hover {
+    z-index: 10;
+    
+    margin-top: -15px;
+    margin-left: -15px;
+    width:170px;
+    height:170px;
 }
 
 .thumbnails > li > .thumbnail > .picture {

@@ -87,8 +87,8 @@
     {{/photos}}
     {{/subAlbums}}
 </div>
-<div id="cover-photos" class="hide">
-    {{> administration.album.photos}}
-</div>
+
+{{> administration.album.cover}}
+{{> administration.album.photos}}
 
 <a id="top"></a>

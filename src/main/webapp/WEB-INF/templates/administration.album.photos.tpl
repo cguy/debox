@@ -1,26 +1,51 @@
-<h2>{{i18n.album.admin.edit.choose_cover.title}}</h2>
-{{#subAlbums.length}}
-    <h3>{{i18n.album.subalbums}}</h3>
-    <ul class="thumbnails albums">
-        {{#subAlbums}}
-        <li>
-            <div id="a.{{id}}" class="thumbnail cover" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-image:url('{{coverUrl}}')">
-                <span class="container"></span>
+<div id="photos-edition" class="hide">
+    {{#photos.length}}
+    <ul class="thumbnails photos">
+        {{#photos}}
+        <li class="span2">
+            <div data-id="{{id}}" class="thumbnail">
+                <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
+                <span class="title">{{title}}</span>
+                <span class="actions">
+                    <a href="#edit-photo" class="edit-photo"><i class="icon-edit"></i></a>
+                    <a href="#delete-photo" class="delete-photo"><i class="icon-remove"></i></a>
+                </span>
             </div>
         </li>
-        {{/subAlbums}}
+        {{/photos}}
     </ul>
-{{/subAlbums.length}}
+    {{/photos.length}}
+</div>
 
-{{#photos.length}}
-{{#subAlbums.length}}<h3>{{i18n.album.admin.edit.choose_cover.photos}}</h3>{{/subAlbums.length}}
-<ul class="thumbnails photos">
-    {{#photos}}
-    <li class="span2">
-        <div id="{{id}}" class="thumbnail" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-color:#ddd;background-image:url('{{thumbnailUrl}}')">
-            <span class="container"></span>
+<form id="edit-photo" class="modal fade hide form-horizontal" method="post">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{{i18n.photo.edit.title}}</h3>
+    </div>
+    <div class="modal-body">
+        <div class="control-group">
+            <label class="control-label" for="photoTitle">{{i18n.photo.title}}</label>
+            <div class="controls">
+                <input type="text" id="photoTitle" name="title" placeholder="{{i18n.photo.edit.placeholder}}">
+            </div>
         </div>
-    </li>
-    {{/photos}}
-</ul>
-{{/photos.length}}
+    </div>
+    <div class="modal-footer">
+        <input class="btn btn-primary" type="submit" value="{{i18n.common.validate}}"/>
+        <button class="btn" data-dismiss="modal" type="button">{{i18n.common.cancel}}</button>
+    </div>
+</form>
+
+<form id="delete-photo" class="modal fade hide" method="delete">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{{i18n.photo.delete.title}}</h3>
+    </div>
+    <div class="modal-body">
+        <p>{{i18n.photo.delete.confirm}}</p>
+    </div>
+    <div class="modal-footer">
+        <input class="btn btn-danger" type="submit" value="{{i18n.common.delete}}"/>
+        <button class="btn" data-dismiss="modal" type="button">{{i18n.common.cancel}}</button>
+    </div>
+</form>

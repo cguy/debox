@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.imaging.gm;
+package org.debox.imaging;
 
 import java.awt.image.ImagingOpException;
 import java.io.File;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.tuple.Pair;
-import org.debox.imaging.ImageUtils;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
 import org.slf4j.Logger;
@@ -56,20 +55,15 @@ public class ThumbnailGenerator implements Callable<Pair<String, FileInputStream
         Pair<String, FileInputStream> result = null;
 
         try {
-            String imagePath = sourcePath + photo.getRelativePath() + File.separatorChar + photo.getName();
-
-            // Read orientation from source
-            String orientation = ImageUtils.getOrientation(imagePath);
+            String imagePath = sourcePath + photo.getRelativePath() + File.separatorChar + photo.getFilename();
 
             // Sort thumbnails size (desc) to optimize image processing (use bigger image to create thumbnail, but not the huge original)
             Arrays.sort(sizes, new ThumbnailSize.Comparator());
             for (ThumbnailSize size : sizes) {
-                String photoTargetPath = targetPath + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
-//                ImageUtils.generateThumbnail(imagePath, photoTargetPath, size, orientation);
+                String photoTargetPath = targetPath + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
                 ImageUtils.thumbnail(imagePath, photoTargetPath, size);
 
                 imagePath = photoTargetPath;
-                orientation = null;
             }
 
             // If only one size was requested, we return the corresponding stream

@@ -117,7 +117,8 @@ CREATE TABLE IF NOT EXISTS `accounts_accesses` (
 
 CREATE TABLE IF NOT EXISTS `photos` (
     `id` VARCHAR(32) PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
+    `filename` VARCHAR(255) NOT NULL,
+    `title` VARCHAR(255),
     `date` DATETIME,
     `relative_path` TEXT NOT NULL,
     `album_id` VARCHAR(32),

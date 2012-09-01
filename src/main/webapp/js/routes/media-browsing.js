@@ -46,16 +46,23 @@ app.get('#/album/:album(/.*)?', function() {
             if (!photoId || photoId == "edition") {
                 $("#alerts .alert").hide();
                 
+                hideAlbumChoose();
                 if (photoId == "edition") {
                     $("#edit_album").addClass("visible");
                     $(".edit-album").addClass("hide");
                     $(".edit-album-cancel").removeClass("hide");
+                    
+                    $("#photos-edition").removeClass("hide");
+                    $("#photos").addClass("hide");
+                    
                 } else {
                     $("#edit_album").removeClass("visible");
                     $(".edit-album").removeClass("hide");
                     $(".edit-album-cancel").addClass("hide");
+                    
+                    $("#photos-edition").addClass("hide");
+                    $("#photos").removeClass("hide");
                 }
-                hideAlbumChoose();
                         
             } else if (photoId.length > 1) {
                 var index = $(".photos a.thumbnail").index($("#" + photoId));
@@ -71,9 +78,30 @@ app.get('#/album/:album(/.*)?', function() {
                     fullscreen(index, slideshowData);
                 }
             }
+            
+            // Album deletion binding
             $(".delete").unbind("click");
             $(".delete").click(function() {
                 $("#delete-album-modal").modal();
+            });
+            
+            $(".delete-photo").unbind("click");
+            $(".delete-photo").click(function() {
+                var photoId = $(this).parents("div").attr("data-id");
+                $("#delete-photo").attr("action", "#/photo/"+photoId);
+                $("#delete-photo").modal();
+                return false;
+            });
+            
+            $(".edit-photo").unbind("click");
+            $(".edit-photo").click(function() {
+                var photoId = $(this).parents("div").attr("data-id");
+                $("#edit-photo").attr("action", "#/photo/"+photoId);
+                
+                var refTitleNode = $(this).parents("div").children(".title");
+                $("#edit-photo #photoTitle").val(refTitleNode.text());
+                $("#edit-photo").modal();
+                return false;
             });
         }
         

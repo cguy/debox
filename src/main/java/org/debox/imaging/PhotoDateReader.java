@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.imaging.gm;
+package org.debox.imaging;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Date;
 import java.util.concurrent.RecursiveTask;
-import org.debox.imaging.ImageUtils;
 import org.debox.photo.model.Photo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +49,17 @@ public class PhotoDateReader extends RecursiveTask<Photo> {
 
     @Override
     protected Photo compute() {
-        String path = basePath + photo.getRelativePath() + File.separatorChar + photo.getName();
+        String path = basePath + photo.getRelativePath() + File.separatorChar + photo.getFilename();
         logger.debug("Get shooting date from photo: {}", path);
         Date date = ImageUtils.getShootingDate(Paths.get(path));
         if (date == null) {
-            Path p = Paths.get(path);
-            FileTime lastModifiedTime;
             try {
-                lastModifiedTime = Files.getLastModifiedTime(p);
+                Path p = Paths.get(path);
+                FileTime lastModifiedTime = Files.getLastModifiedTime(p);
                 date = new Date(lastModifiedTime.toMillis());
                 
             } catch (IOException eee) {
                 logger.error("Error while getting the last modification date of " + path, eee);
-                date = new Date();
             }
         }
         photo.setDate(date);

@@ -23,13 +23,9 @@ package org.debox.imaging;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,9 +37,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.imaging.gm.GraphicsMagickImageHandler;
+import org.debox.imaging.gm.ImageMagickDateReader;
 import org.debox.imaging.gm.StringOutputConsumer;
-import org.debox.imaging.gm.ThumbnailGenerator;
 import org.debox.imaging.imgscalr.ImgScalrImageHandler;
+import org.debox.imaging.metadataextractor.MetadataExtractorDateReader;
 import org.debox.imaging.thumbnailator.ThumbnailatorImageHandler;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Configuration;
@@ -86,10 +83,15 @@ public class ImageUtils {
         }, 1, 1, TimeUnit.MINUTES);
     }
     
-    protected static List<ImageHandler> implementations = new ArrayList(2){{
+    protected static List<ImageHandler> implementations = new ArrayList(3){{
         add(new ThumbnailatorImageHandler());
         add(new ImgScalrImageHandler());
         add(new GraphicsMagickImageHandler());
+    }};
+    
+    protected static List<DateReader> dateReaders = new ArrayList(2){{
+        add(new MetadataExtractorDateReader());
+        add(new ImageMagickDateReader());
     }};
     
     public void abort() {
@@ -104,7 +106,6 @@ public class ImageUtils {
         FileInputStream fis;
 
         try {
-            log.debug(path);
             fis = new FileInputStream(path);
 
         } catch (IOException ex) {
@@ -128,35 +129,24 @@ public class ImageUtils {
     }
 
     public static String getTargetPath(String targetDirectory, Photo photo, ThumbnailSize size) {
-        return targetDirectory + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getName();
+        return targetDirectory + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
     }
 
     public static Date getShootingDate(Path path) {
-        Date date = null;
-        try {
-            IMOperation op = new IMOperation();
-            op.format("%[exif:DateTimeOriginal]");
-            op.addImage(path.toString());
-
-            ImageCommand cmd = new IdentifyCmd();
-            StringOutputConsumer output = new StringOutputConsumer();
-            cmd.setOutputConsumer(output);
-            cmd.run(op);
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
-            String strDate = output.getOutput();
-            date = dateFormat.parse(strDate);
-
-        } catch (ParseException | IOException | InterruptedException | IM4JavaException ex) {
-            log.warn("Unable to get DateTime property for path \"" + path.toString() + "\", reason: " + ex.getMessage());
+        Date result = null;
+        for (DateReader dateReader : dateReaders) {
             try {
-                FileTime fileTime = Files.getLastModifiedTime(path);
-                date = new Date(fileTime.toMillis());
-            } catch (IOException ioe) {
-                log.warn("Unable to get last modified time property for path \"" + path.toString() + "\", reason: " + ioe.getMessage());
+                result = dateReader.getShootingDate(path);
+                if (result != null) {
+                    break;
+                }
+                log.warn("Unable to read original date in EXIF with " + dateReader.getClass().getCanonicalName() + " implementation (unknown reason)");
+                
+            } catch (Exception ex) {
+                log.warn("Unable to read original date in EXIF with " + dateReader.getClass().getCanonicalName() + " implementation, reason:", ex);
             }
         }
-        return date;
+        return result;
     }
 
     public static String getOrientation(String path) throws IOException, IM4JavaException, InterruptedException {
