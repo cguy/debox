@@ -326,7 +326,7 @@ function loadAlbum(data, callback) {
             }
         });
         if (callback && $.isFunction(callback)) {
-            callback();
+            callback(data);
         }
     });
     $("#top").click(function() {

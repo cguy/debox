@@ -39,10 +39,10 @@ app.get('#/album/:album(/.*)?', function() {
     if (photoId) {
         photoId = photoId.substr(1);
     }
-    var index = $(".photos a.thumbnail").index($("#" + photoId));
+    var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
     if (index == -1) {
         
-        function onAlbumLoading() {
+        function onAlbumLoading(data) {
             if (!photoId || photoId == "edition") {
                 $("#alerts .alert").hide();
                 
@@ -65,7 +65,7 @@ app.get('#/album/:album(/.*)?', function() {
                 }
                         
             } else if (photoId.length > 1) {
-                var index = $(".photos a.thumbnail").index($("#" + photoId));
+                var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
                 if (index != -1) {
                     var slideshowData = [];
                     for (var i = 0 ; i < data.photos.length ; i++) {
