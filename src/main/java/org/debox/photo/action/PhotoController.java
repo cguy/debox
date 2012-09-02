@@ -30,6 +30,8 @@ import java.sql.SQLException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
+import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.ThumbnailSize;
@@ -46,6 +48,8 @@ import org.slf4j.LoggerFactory;
 public class PhotoController extends DeboxController {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
+    
+    protected static AlbumDao albumDao = new AlbumDao();
     
     public Render editPhoto(String id, String title) throws SQLException {
         Photo photo = photoDao.getPhoto(id);
@@ -77,7 +81,15 @@ public class PhotoController extends DeboxController {
             Files.deleteIfExists(Paths.get(originalPath));
             photoDao.delete(photo);
             
-        } catch (IOException ex) {
+            Album album = albumDao.getAlbum(photo.getAlbumId());
+            while (album != null) {
+                album.setPhotosCount(album.getPhotosCount() - 1);
+                albumDao.save(album);
+                
+                album = albumDao.getAlbum(album.getParentId());
+            }
+            
+        } catch (SQLException | IOException ex) {
             logger.error("Unable to delete photo (original file: " + originalPath + ")", ex);
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "An error has occured during deletion");
         }

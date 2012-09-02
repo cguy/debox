@@ -38,7 +38,8 @@ var fr = {
         deletion_in_progress: "Suppression en cours...",
         creation_in_progress: "Création en cours...",
         modification_in_progress: "Modification en cours...",
-        no_album: "Aucun album n'a été créé pour le moment !"
+        no_album: "Aucun album n'a été créé pour le moment !",
+        noPhotos: "Aucune photo"
     },
     about : {
         tooltip: "En savoir plus"

@@ -23,24 +23,27 @@
     </h1>
     <div class="information">
         {{#album.photosCount}}
-        {{album.photosCount}}
-        {{#album.hasSeveralTotalPhotos}}
-        {{i18n.common.photos}}
-        {{/album.hasSeveralTotalPhotos}}
-        {{^album.hasSeveralTotalPhotos}}
-        {{i18n.common.photo}}
-        {{/album.hasSeveralTotalPhotos}}
+            {{album.photosCount}}
+            {{#album.hasSeveralTotalPhotos}}
+                {{i18n.common.photos}}
+            {{/album.hasSeveralTotalPhotos}}
+            {{^album.hasSeveralTotalPhotos}}
+                {{i18n.common.photo}}
+            {{/album.hasSeveralTotalPhotos}}
 
-        {{#album.beginDate}}
-        {{#album.isInterval}}
-        {{#album.endDate}}
-        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
-        {{/album.endDate}}
-        {{/album.isInterval}}
-        {{^album.isInterval}}
-        {{i18n.album.on_date}} {{album.beginDate}}
-        {{/album.isInterval}}
-        {{/album.beginDate}}
+            {{#album.beginDate}}
+                {{#album.isInterval}}
+                    {{#album.endDate}}
+                        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
+                    {{/album.endDate}}
+                {{/album.isInterval}}
+                {{^album.isInterval}}
+                    {{i18n.album.on_date}} {{album.beginDate}}
+                {{/album.isInterval}}
+            {{/album.beginDate}}
+        {{/album.photosCount}}
+        {{^album.photosCount}}
+            {{i18n.common.noPhotos}}
         {{/album.photosCount}}
     </div>
 </div>

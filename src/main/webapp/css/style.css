@@ -168,7 +168,7 @@ body > .container-fluid {
     line-height: 20px;
 }
 
-.page-header + .alert {
+.page-header + .alert, .page-header + div .alert {
     margin-top: 20px;
 }
 
