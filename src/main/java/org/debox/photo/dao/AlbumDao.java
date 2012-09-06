@@ -218,7 +218,6 @@ public class AlbumDao {
             rs = statement.executeQuery();
             while (rs.next()) {
                 result += rs.getInt(1);
-                logger.debug("result="+result);
             }
             
             JdbcUtils.closeResultSet(rs);

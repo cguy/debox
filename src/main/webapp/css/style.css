@@ -21,7 +21,7 @@
 body {
     padding-top: 40px;
     background-color: #fff;
-    background: url(http://subtlepatterns.com/patterns/snow.png);
+    background: url('../img/snow.png');
 }
 
 @media (max-width: 979px) {
@@ -81,6 +81,15 @@ body > .container-fluid {
 
 .navbar .nav.about {
     margin-right: 0;
+}
+
+.navbar a {
+    color: #999;
+}
+
+.navbar a:hover {
+    color: #fff;
+    text-decoration: none;
 }
 
 .about a {

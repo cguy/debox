@@ -41,6 +41,9 @@ var fr = {
         no_album: "Aucun album n'a été créé pour le moment !",
         noPhotos: "Aucune photo"
     },
+    account: {
+        creation: "Créer un compte"
+    },
     about : {
         tooltip: "En savoir plus"
     },

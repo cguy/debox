@@ -19,6 +19,13 @@
  * #L%
  */
 /* ******************* */
+/* Register            */
+/* ******************* */
+app.get("#/register", function() {
+    loadTemplate("register");
+});
+
+/* ******************* */
 /* Authentication      */
 /* ******************* */
 app.post('#/authenticate', function() {
