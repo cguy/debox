@@ -58,6 +58,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     
     protected Path source;
     protected Path target;
+    protected String ownerId;
     
     protected Map<Album, Boolean> albums = new LinkedHashMap<>();
     protected Map<Photo, Boolean> photos = new LinkedHashMap<>();
@@ -118,6 +119,14 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         }
     }
 
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+    
     public Path getSource() {
         return source;
     }
@@ -214,6 +223,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         album.setRelativePath(StringUtils.substringAfter(currentPath.toString(), this.source.toString()));
         album.setPublic(false);
         album.setDownloadable(false);
+        album.setOwnerId(ownerId);
 
         // Search for parent & for any already existing
         Album parent = null;

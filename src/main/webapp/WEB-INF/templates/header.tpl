@@ -10,7 +10,7 @@
     <ul class="nav">
         <li><a href="#/"><i class="icon-home"></i>&nbsp;&nbsp;{{i18n.header.album_list}}</a></li>
         {{#isAdmin}}
-        <li><a href="#/administration"><i class="icon-cogs"></i>&nbsp;&nbsp;{{i18n.header.administration}}</a></li>
+        <li><a href="#/administration"><i class="icon-cog"></i>&nbsp;&nbsp;{{i18n.header.administration}}</a></li>
         {{/isAdmin}}
     </ul>
     <ul class="nav pull-right about">

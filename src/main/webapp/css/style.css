@@ -87,6 +87,10 @@ body > .container-fluid {
     color: #999;
 }
 
+* a:focus { 
+    outline: none; 
+}
+
 .navbar a:hover {
     color: #fff;
     text-decoration: none;
@@ -123,19 +127,23 @@ body > .container-fluid {
 }
 
 .page-header {
+    position: fixed;
+    left:0;
+    right: 0;
     height: 50px;
     font-size: 30px;
     padding: 5px 20px;
     margin: 0 -15px;
     border-bottom-color: #ccc;
     background-color: #eee;
+    z-index: 1029;
+    margin-bottom: 100px;
 }
 
 .page-header.album {
     height: 70px;
     font-size: 30px;
-    margin: 0 -15px;
-    padding: 5px 15px 0;
+    padding: 5px 25px 0;
     border-bottom-color: #ccc;
     background-color: #eee;
 }
@@ -523,8 +531,122 @@ form {
 }
 
 .album_description {
+    margin-top: 10px;
     padding: 10px 15px;
     font-size: 16px;
     color: #444;
 }
 
+.page-header .comments.active {
+    color: #1573b6;
+}
+
+.page-header .comments .badge {
+    position: absolute;
+    margin-top: 12px;
+    margin-left: 15px;
+    background-color: #005580;
+}
+.page-header .comments.active .badge, .page-header .comments:hover .badge {
+    background-color: #333;
+}
+
+#album-content {
+    position: absolute;
+    margin-top: 80px;
+    right: 0;
+    -webkit-transition: right 0.75s ease;
+    -moz-transition: right 0.75s ease;
+    -ms-transition: right 0.75s ease;
+    -o-transition: right 0.75s ease;
+    transition: right 0.75s ease;
+}
+
+#album-content.comments {
+    right: 380px;
+}
+
+#album-comments {
+    width: 0;
+    background-color: #fff;
+    margin-top:0;
+    top: 116px;
+    right: 0;
+    bottom: 0;
+    margin-left: 20px;
+    position: fixed;
+    -webkit-transition: width 0.75s ease;
+    -moz-transition: width 0.75s ease;
+    -ms-transition: width 0.75s ease;
+    -o-transition: width 0.75s ease;
+    transition: width 0.75s ease;
+}
+
+#album-content.comments #album-comments {
+    width: 380px;
+    border-left: 1px solid #6e6652;
+}
+
+#album-comments form {
+    margin-top: 20px;
+}
+
+#album-comments .no-comments {
+    margin: 15px;
+}
+
+#album-comments .comment {
+    padding: 5px 10px 10px;
+}
+
+#album-comments .comment:nth-of-type(odd) {
+    background: rgba(200, 200, 200, 0.15);
+}
+
+#album-comments .comment:nth-of-type(even) {
+    background: rgba(230, 230, 255, 0.15);
+}
+
+#album-comments .comment .content {
+    margin-left: 42px;
+    font-size: 12px;
+}
+
+#album-comments .comment .author, 
+#album-comments .comment .date {
+    font-size: 11px;
+    line-height: 16px;
+    color: #888;
+}
+#album-comments .comment .date {
+    float: right;
+}
+
+#album-comments .comment .authorPicture {
+    float: left;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    background: url('../img/avatar_male_light_on_gray_32x32.png') 0 0 no-repeat;
+    background-size: cover;
+}
+
+#album-comments textarea {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 0;
+    -webkit-box-shadow: none;
+    -o-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    resize: none;
+    width: 368px;
+    height: 60px;
+    font-size: 12px;
+}
+
+#album-comments .form-actions {
+    margin: 0;
+    padding: 10px;
+    text-align: right;
+}

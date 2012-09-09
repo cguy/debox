@@ -202,6 +202,12 @@ var fr = {
         original_size: "Taille originale des photos",
         subalbums: "Sous-albums",
         no_photos: "Il n'y a aucune photo disponible pour cet album.",
+        comments: {
+            show: "Afficher les commentaires",
+            hide: "Cacher les commentaires",
+            placeholder: "Laissez un commentaire ...",
+            empty: "Aucun commentaire n'a encore été laissé sur cet album"
+        },
         admin: {
             title: "",
             edit: {

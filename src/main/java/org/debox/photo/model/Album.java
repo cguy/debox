@@ -39,7 +39,16 @@ public class Album implements Comparable<Album> {
     protected String coverUrl;
     protected boolean isPublic;
     protected boolean downloadable;
+    protected String ownerId;
     protected int subAlbumsCount;
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 
     public int getSubAlbumsCount() {
         return subAlbumsCount;

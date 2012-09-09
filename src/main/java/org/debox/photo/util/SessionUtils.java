@@ -21,6 +21,7 @@
 package org.debox.photo.util;
 
 import org.apache.shiro.subject.Subject;
+import org.debox.photo.model.User;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -28,6 +29,10 @@ import org.apache.shiro.subject.Subject;
 public class SessionUtils {
     
     public static final String ADMIN_ROLE = "administrator";
+    
+    public static User getUser(Subject subject) {
+        return (User) subject.getPrincipal();
+    }
 
     public static boolean isLogged(Subject subject) {
         if (subject == null) {

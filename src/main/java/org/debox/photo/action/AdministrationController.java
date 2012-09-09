@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
@@ -36,6 +37,7 @@ import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
 import org.debux.webmotion.server.call.UploadFile;
@@ -146,6 +148,7 @@ public class AdministrationController extends DeboxController {
         } else {
             if (syncJob == null) {
                 syncJob = new SyncJob(source, target, syncMode, forceCheckDates);
+                syncJob.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
 
             } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
                 logger.warn("Aborting sync between {} and {}", syncJob.getSource(), syncJob.getTarget());

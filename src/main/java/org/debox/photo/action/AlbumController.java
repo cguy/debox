@@ -97,6 +97,7 @@ public class AlbumController extends DeboxController {
         album.setPublic(false);
         album.setPhotosCount(0);
         album.setDownloadable(false);
+        album.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
         
         if (StringUtils.isEmpty(parentId)) {
             album.setRelativePath(parentId);

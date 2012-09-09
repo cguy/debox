@@ -94,6 +94,8 @@ CREATE TABLE IF NOT EXISTS `albums` (
     `parent_id` VARCHAR(32),
     `public` TINYINT(1) NOT NULL,
     `cover` VARCHAR(32),
+    `owner_id` VARCHAR(32) NOT NULL,
+    FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`parent_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`cover`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX USING BTREE (`relative_path`(255))
@@ -105,6 +107,14 @@ CREATE TABLE IF NOT EXISTS `albums_tokens` (
     PRIMARY KEY (`album_id`, `token_id`),
     FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `albums_comments` (
+    `comment_id` VARCHAR(32),
+    `album_id` VARCHAR(32),
+    PRIMARY KEY (`comment_id`),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `accounts_accesses` (
@@ -127,11 +137,28 @@ CREATE TABLE IF NOT EXISTS `photos` (
     INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `photos_comments` (
+    `comment_id` VARCHAR(32),
+    `photo_id` VARCHAR(32),
+    PRIMARY KEY (`comment_id`),
+    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS `photos_generation` (
     `id` VARCHAR(32) NOT NULL,
     `size` VARCHAR(255) NOT NULL,
     `time` TIMESTAMP NOT NULL,
     PRIMARY KEY (`id`, `size`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `comments` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `author_id` VARCHAR(32) NOT NULL,
+    `publish_time` TIMESTAMP NOT NULL DEFAULT NOW(),
+    `last_modification` TIMESTAMP,
+    `content` TEXT NOT NULL,
+    FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

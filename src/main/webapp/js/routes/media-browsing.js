@@ -34,6 +34,11 @@ app.before({except: null}, function() {
     }
 });
 
+app.post('#/album/:album/comments', function() {
+    var albumId = this.params['albumId'][0];
+    console.log(albumId);
+});
+
 app.get('#/album/:album(/.*)?', function() {
     var photoId = this.params['splat'][0];
     if (photoId) {
@@ -43,7 +48,7 @@ app.get('#/album/:album(/.*)?', function() {
     if (index == -1) {
         
         function onAlbumLoading(data) {
-            if (!photoId || photoId == "edition") {
+            if (!photoId || photoId == "edition" || photoId == "comments") {
                 $("#alerts .alert").hide();
                 
                 hideAlbumChoose();
@@ -63,7 +68,19 @@ app.get('#/album/:album(/.*)?', function() {
                     $("#photos-edition").addClass("hide");
                     $("#photos").removeClass("hide");
                 }
-                        
+                
+                var oldHref = $(".page-header .comments").attr("href");
+                if (photoId == "comments") {
+                    $("#album-content").addClass("comments");
+                    $(".page-header .comments").addClass("active");
+                    $(".page-header .comments").attr("href", oldHref.replace("/comments", ""));
+                    
+                } else {
+                    $(".page-header .comments").attr("href", oldHref + "/comments");
+                    $("#album-content").removeClass("comments");
+                    $(".page-header .comments").removeClass("active");
+                }
+                
             } else if (photoId.length > 1) {
                 var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
                 if (index != -1) {
