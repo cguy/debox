@@ -10,9 +10,9 @@
     {{/config.isAdmin}}
 
     <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
-        {{#album.comments.length}}
-            <span class="badge badge-info">{{album.comments.length}}</span>
-        {{/album.comments.length}}
+        {{#comments.length}}
+            <span class="badge badge-info">{{comments.length}}</span>
+        {{/comments.length}}
         <i class="icon-comment"></i>
     </a>
 
