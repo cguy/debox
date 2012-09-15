@@ -51,10 +51,12 @@ import org.debox.connector.api.exception.AuthenticationProviderException;
 import org.debox.connector.google.CustomXMLReader;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.dao.CommentDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.Comment;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Contact;
 import org.debox.photo.model.Photo;
@@ -82,6 +84,7 @@ public class AlbumController extends DeboxController {
     private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
+    protected static CommentDao commentDao = new CommentDao();
     protected static TokenDao tokenDao = new TokenDao();
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -179,7 +182,8 @@ public class AlbumController extends DeboxController {
         
         boolean isAdministrator = SessionUtils.isAdministrator(subject);
         Album album;
-        if (!isAdministrator && SessionUtils.isLogged(subject)) {
+        boolean isLogged = SessionUtils.isLogged(subject);
+        if (!isAdministrator && isLogged) {
             album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), id);
         } else if (isAdministrator) {
             album = albumDao.getAlbum(id);
@@ -245,10 +249,14 @@ public class AlbumController extends DeboxController {
         List<Album> subAlbums = this.albums(album.getId(), token);
         List<Photo> photos = photoDao.getPhotos(id, token);
         Album parent = albumDao.getAlbum(album.getParentId());
+        List<Comment> comments = null;
+        if (isAdministrator || isLogged) {
+            comments = commentDao.getByAlbum(album.getId());
+        }
         
         return renderJSON("album", album, "albumParent", parent,
                 "subAlbums", subAlbums, "photos", photos,
-                "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts);
+                "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts, "comments", comments);
     }
     
     private List<Contact> convert(Iterator<SyndEntry> contactsIterator) {

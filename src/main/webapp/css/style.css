@@ -22,6 +22,7 @@ body {
     padding-top: 40px;
     background-color: #fff;
     background: url('../img/snow.png');
+    min-width: 640px;
 }
 
 @media (max-width: 979px) {
@@ -31,6 +32,18 @@ body {
 
     .navbar-fixed-top {
         margin-bottom: 3px;
+    }
+}
+
+@media (max-width: 767px) {
+    .navbar-fixed-top, .navbar-fixed-bottom, .navbar-static-top {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    
+    .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 }
 
@@ -127,7 +140,6 @@ body > .container-fluid {
 }
 
 .page-header {
-    position: fixed;
     left:0;
     right: 0;
     height: 50px;
@@ -137,10 +149,10 @@ body > .container-fluid {
     border-bottom-color: #ccc;
     background-color: #eee;
     z-index: 1029;
-    margin-bottom: 100px;
 }
 
 .page-header.album {
+    position: fixed;
     height: 70px;
     font-size: 30px;
     padding: 5px 25px 0;
@@ -148,9 +160,28 @@ body > .container-fluid {
     background-color: #eee;
 }
 
+.page-header + .alert, .page-header + div > .alert {
+    margin-top: 20px;
+}
+
+.page-header.album + * {
+    margin-top: 80px;
+}
+
+@media (max-width: 979px) {
+    .page-header.album {
+        position: static;
+    }
+
+    .page-header.album + * {
+        margin-top: 0;
+    }
+}
+
 .page-header.album > a.back {
     position: absolute;
     margin-top: 18px;
+    margin-left: 5px;
     display: block;
     width: 30px;
     height: 30px;
@@ -165,11 +196,11 @@ body > .container-fluid {
 
 .page-header.album > h1 {
     position: absolute;
-    margin: 3px 0 0 0;
+    margin: 3px 20px 0 0;
 }
 
 .page-header.album > h1, .page-header.album > .information {
-    left: 60px;
+    left: 70px;
     right: 100px;
     overflow: hidden;
     white-space: nowrap;
@@ -183,10 +214,6 @@ body > .container-fluid {
     height: 20px;
     font-size: 20px;
     line-height: 20px;
-}
-
-.page-header + .alert, .page-header + div .alert {
-    margin-top: 20px;
 }
 
 h1 {
@@ -553,7 +580,7 @@ form {
 
 #album-content {
     position: absolute;
-    margin-top: 80px;
+    left: 0;
     right: 0;
     -webkit-transition: right 0.75s ease;
     -moz-transition: right 0.75s ease;
@@ -567,24 +594,23 @@ form {
 }
 
 #album-comments {
-    width: 0;
-    background-color: #fff;
-    margin-top:0;
-    top: 116px;
-    right: 0;
-    bottom: 0;
-    margin-left: 20px;
     position: fixed;
-    -webkit-transition: width 0.75s ease;
-    -moz-transition: width 0.75s ease;
-    -ms-transition: width 0.75s ease;
-    -o-transition: width 0.75s ease;
-    transition: width 0.75s ease;
+    top: 116px;
+    right: -381px;
+    bottom: 0;
+    margin: 0 0 0 20px;
+    width: 380px;
+    background-color: #fff;
+    -webkit-transition: right 0.75s ease;
+    -moz-transition: right 0.75s ease;
+    -ms-transition: right 0.75s ease;
+    -o-transition: right 0.75s ease;
+    transition: right 0.75s ease;
+    border-left: 1px solid #6e6652;
 }
 
 #album-content.comments #album-comments {
-    width: 380px;
-    border-left: 1px solid #6e6652;
+    right: 0;
 }
 
 #album-comments form {
@@ -596,7 +622,7 @@ form {
 }
 
 #album-comments .comment {
-    padding: 5px 10px 10px;
+    padding: 5px 10px;
 }
 
 #album-comments .comment:nth-of-type(odd) {

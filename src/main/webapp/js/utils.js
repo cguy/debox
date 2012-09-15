@@ -214,7 +214,13 @@ function hideAlbumChoose() {
     $("#photos-edition").removeClass("hide");
 }
 
+function loadComment(comment) {
+    comment.date = new Date(comment.date).toString("HH:mm:ss - dd MMMM yyyy");
+    return comment;
+}
+
 function loadAlbum(data, callback) {
+    // Process album
     createAlbum(data.album);
     var subAlbums = data.subAlbums;
     if (subAlbums) {
@@ -243,23 +249,19 @@ function loadAlbum(data, callback) {
     data.album.minDownloadUrl = computeUrl("download/album/" + data.album.id + "/min");
     data.album.downloadUrl = computeUrl("download/album/" + data.album.id);
     
+    // Process photos
     data.album.photos = data.photos;
+    
+    // Process comments
+    for (var i = 0 ; i < data.comments.length ; i++) {
+        data.comments[i] = loadComment(data.comments[i]);
+    }
     
     loadTemplate("album", data, null, function() {
         onBodyScroll();
         manageRegenerationProgress(data);
         editTitle($("a.brand").text() + " - " + data.album.name);
-        //        $(".edit-album, .edit-album-cancel").click(function() {
-        //            $("#alerts .alert").hide();
-        //            $("#edit_album").toggleClass("visible");
-        //            $(".edit-album").toggleClass("hide");
-        //            $(".edit-album-cancel").toggleClass("hide");
-        //            hideAlbumChoose();
-        //        });
-                        
         handleAlertsClose();
-                        
-        
                         
         $("button.choose-cover-cancel").click(function() {
             hideAlbumChoose();
@@ -348,10 +350,12 @@ function loadAlbum(data, callback) {
         }
         );
     $(".chzn-select").chosen(); 
+    
+    $("#album-comments").niceScroll({cursorcolor:"#00F"});
+    
 }
 
 function manageRegenerationProgress(data) {
-    console.log("manageRegenerationProgress : " + data.regeneration)
     if (data.regeneration) {
         $("#regeneration-progress").show();
         $("#regeneration-progress").addClass("alert-info");

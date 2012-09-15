@@ -33,7 +33,35 @@ public abstract class User implements Serializable {
     
     protected Role role;
     
+    protected String firstName;
+    protected String lastName;
+    protected String avatar;
+    
     protected List<ThirdPartyAccount> thirdPartyAccounts;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+    
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public Role getRole() {
         return role;

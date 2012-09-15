@@ -83,6 +83,11 @@ POST        /token/reinit/{id}                  TokenController.reinitToken
 DELETE      /token/{id}                         TokenController.deleteToken
 
 # -----------------------------------------------------------------------------------------------
+# MEDIA - COMMENTS
+# -----------------------------------------------------------------------------------------------
+POST  /album/{albumId}/comments                 CommentController.createAlbumComment
+
+# -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS
 # -----------------------------------------------------------------------------------------------
 GET   /album/{albumId:.+-cover\.jpg}            AlbumController.getAlbumCover

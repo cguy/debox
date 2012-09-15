@@ -9,7 +9,7 @@
     <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
     {{/config.isAdmin}}
 
-    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.comments.show}}" class="pull-right comments">
+    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
         {{#album.comments.length}}
             <span class="badge badge-info">{{album.comments.length}}</span>
         {{/album.comments.length}}
@@ -57,21 +57,16 @@
 
 <div id="album-content">
     <div id="album-comments">
-        {{^album.comments.length}}
+        {{^comments.length}}
             <div class="alert alert-heading no-comments">{{i18n.album.comments.empty}}</div>
-        {{/album.comments.length}}
-        {{#album.comments.length}}
-            {{#album.comments}}
-                <div class="comment">
-                    <div class="authorPicture" style="background-image: url('{{authorPicture}}')"></div>
-                    <div class="date">{{date}}</div>
-                    <div class="author">{{author}}</div>
-                    <div class="content">{{content}}</div>
-                </div>
-            {{/album.comments}}
-        {{/album.comments.length}}
+        {{/comments.length}}
+        {{#comments.length}}
+            {{#comments}}
+                {{> comment}}
+            {{/comments}}
+        {{/comments.length}}
         
-        <form method="post" action="#/album/{{album.id}}/comments">
+        <form id="new-album-comment" method="post" action="#/album/{{album.id}}/comments">
             <textarea name="content" required placeholder="{{i18n.album.comments.placeholder}}"></textarea>
             <div class="form-actions">
                 <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />

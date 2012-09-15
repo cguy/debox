@@ -35,8 +35,23 @@ app.before({except: null}, function() {
 });
 
 app.post('#/album/:album/comments', function() {
-    var albumId = this.params['albumId'][0];
-    console.log(albumId);
+    var albumId = this.params['album'];
+    ajax({
+        url: computeUrl("album/" + albumId + "/comments"),
+        data: $("#new-album-comment").serializeArray(),
+        type: "post",
+        success: function(data) {
+            if ($(".no-comments").length == 1) {
+                $(".no-comments").remove();
+            }
+            
+            data = loadComment(data);
+            
+            var html = templates["comment"].render(data);
+            $(html).insertBefore("#album-comments form");
+            $("#album-comments form textarea").val("");
+        }
+    });
 });
 
 app.get('#/album/:album(/.*)?', function() {
@@ -70,16 +85,21 @@ app.get('#/album/:album(/.*)?', function() {
                 }
                 
                 var oldHref = $(".page-header .comments").attr("href");
+                $('.page-header .comments').tooltip('destroy');
                 if (photoId == "comments") {
                     $("#album-content").addClass("comments");
                     $(".page-header .comments").addClass("active");
                     $(".page-header .comments").attr("href", oldHref.replace("/comments", ""));
                     
+                    $(".page-header .comments").attr("title", fr.album.comments.hide);
+                    
                 } else {
                     $(".page-header .comments").attr("href", oldHref + "/comments");
                     $("#album-content").removeClass("comments");
                     $(".page-header .comments").removeClass("active");
+                    $(".page-header .comments").attr("title", fr.album.comments.show);
                 }
+                $('.page-header .comments').tooltip();
                 
             } else if (photoId.length > 1) {
                 var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));

@@ -326,7 +326,12 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 if (entry.getValue()) {
                     albumsToSave.add(album);
                 } else {
-                    FileUtils.deleteDirectory(new File(this.target.toString() + album.getRelativePath()));
+                    String filePath = this.target.toString() + album.getRelativePath();
+                    try {
+                        FileUtils.deleteDirectory(new File(filePath));
+                    } catch (IOException ex) {
+                        logger.error("Unable to delete file {}", filePath);
+                    }
                     albumDao.delete(album);
                 }
             }

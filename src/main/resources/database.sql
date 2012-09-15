@@ -52,7 +52,10 @@ CREATE TABLE IF NOT EXISTS `accounts` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` VARCHAR(32) PRIMARY KEY
+    `id` VARCHAR(32) PRIMARY KEY,
+    `firstname` VARCHAR(50),
+    `lastname` VARCHAR(50),
+    `avatar` TEXT
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users_roles` (
@@ -73,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `thirdparty_accounts` (
     `thirdparty_account_id` VARCHAR(255) NOT NULL,
     `thirdparty_name` VARCHAR(255) NOT NULL,
     `token` VARCHAR(255),
+    `fullname` VARCHAR(50),
     PRIMARY KEY (`user_id`, `thirdparty_name`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;

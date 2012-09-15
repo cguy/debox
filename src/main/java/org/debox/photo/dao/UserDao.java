@@ -57,21 +57,24 @@ public class UserDao {
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
-    protected static String SQL_CREATE_USER = "INSERT IGNORE INTO users VALUES (?)";
+    protected static String SQL_CREATE_USER = "INSERT IGNORE INTO users (id) VALUES (?)";
     protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
     protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
-    protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
-    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
+    protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token, fullname FROM thirdparty_accounts WHERE user_id = ?";
+    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token, fullname FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
     protected static String SQL_CREATE_ROLE = "INSERT INTO roles VALUES (?, ?)";
     protected static String SQL_CREATE_USER_ROLE = "INSERT INTO users_roles VALUES (?, ?)";
     protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
-            + "select ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token "
+            + "select ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token, firstname, lastname "
             + "from thirdparty_accounts ta "
             + "     LEFT JOIN users_roles ur ON ur.user_id = ta.user_id "
-            + "     LEFT JOIN roles r ON ur.role_id = r.id "
+            + "     LEFT JOIN roles r ON ur.role_id = r.id"
+            + "     LEFT JOIN users u ON ta.user_id = u.id"
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?) ON DUPLICATE KEY UPDATE album_id = ?";
+    
+    private static String GET_USER = "SELECT * FROM users u INNER JOIN accounts a ON a.id = u.id WHERE u.id = ?";
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -89,6 +92,8 @@ public class UserDao {
                 String roleId = resultSet.getString("role_id");
                 String roleName = resultSet.getString("role_name");
                 String token = resultSet.getString("token");
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lasttname");
 
                 Role role = new Role();
                 role.setId(roleId);
@@ -100,6 +105,8 @@ public class UserDao {
                 result.setProviderAccountId(accountId);
                 result.setToken(token);
                 result.setRole(role);
+                result.setFirstName(firstname);
+                result.setLastName(lastname);
             }
         } finally {
             JdbcUtils.closeResultSet(resultSet);
@@ -301,6 +308,8 @@ public class UserDao {
                 com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
                 access.setUsername(fbUser.getName());
                 access.setAccountUrl(fbUser.getLink());
+                access.setFirstName(fbUser.getFirstName());
+                access.setLastName(fbUser.getLastName());
 
             } else if (access.getProviderId().equals("google")) {
                 String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
@@ -316,6 +325,8 @@ public class UserDao {
 
                 access.setUsername(node.get("name").asText());
                 access.setAccountUrl(node.get("link").asText());
+                access.setFirstName(node.get("given_name").asText());
+                access.setLastName(node.get("family_name").asText());
             } else {
                 return null;
             }
@@ -378,5 +389,31 @@ public class UserDao {
             JdbcUtils.closeConnection(connection);
         }
         return result;
+    }
+
+    public User getUser(String userId) throws SQLException {
+        DeboxUser user = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        Connection connection = DatabaseUtils.getConnection();
+        try {
+            statement = connection.prepareStatement(GET_USER);
+            statement.setString(1, userId);
+            
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                user = new DeboxUser();
+                user.setId(rs.getString("id"));
+                user.setFirstName(rs.getString("firstname"));
+                user.setLastName(rs.getString("lastname"));
+                user.setAvatar(rs.getString("avatar"));
+                user.setUsername(rs.getString("username"));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+        return user;
     }
 }

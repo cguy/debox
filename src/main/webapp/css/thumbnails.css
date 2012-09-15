@@ -126,7 +126,7 @@
 }
 
 .thumbnails.albums {
-    padding: 0 15px;
+    padding: 15px 0 0;
 }
 
 .thumbnails > li {
