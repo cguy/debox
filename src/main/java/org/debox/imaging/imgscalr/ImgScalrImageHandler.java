@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import org.debox.imaging.ImageHandler;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;

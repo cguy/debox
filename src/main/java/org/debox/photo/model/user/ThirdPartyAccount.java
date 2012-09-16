@@ -18,11 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
+package org.debox.photo.model.user;
 
 import java.util.Objects;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.debox.photo.model.Provider;
 import org.debox.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

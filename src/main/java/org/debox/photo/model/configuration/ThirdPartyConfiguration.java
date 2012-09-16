@@ -18,34 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
+package org.debox.photo.model.configuration;
+
+import org.debox.photo.model.Provider;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Contact implements Comparable<Contact> {
+public class ThirdPartyConfiguration {
     
-    protected String id;
     protected Provider provider;
-    protected String name;
-    protected boolean authorized;
+    protected String apiKey;
+    protected String secret;
+    protected String callbackURL;
 
-    public boolean isAuthorized() {
-        return authorized;
+    public ThirdPartyConfiguration() {
     }
 
-    public void setAuthorized(boolean authorized) {
-        this.authorized = authorized;
+    public ThirdPartyConfiguration(String apiKey, String secret, String callbackURL) {
+        this.apiKey = apiKey;
+        this.secret = secret;
+        this.callbackURL = callbackURL;
     }
     
-    public String getId() {
-        return id;
+    public String getCallbackURL() {
+        return callbackURL;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCallbackURL(String callbackURL) {
+        this.callbackURL = callbackURL;
     }
-
+    
     public Provider getProvider() {
         return provider;
     }
@@ -54,17 +57,20 @@ public class Contact implements Comparable<Contact> {
         this.provider = provider;
     }
 
-    public String getName() {
-        return name;
+    public String getApiKey() {
+        return apiKey;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
-    @Override
-    public int compareTo(Contact t) {
-        return this.name.compareTo(t.getName());
+    public String getSecret() {
+        return secret;
     }
 
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+    
 }

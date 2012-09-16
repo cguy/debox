@@ -18,11 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
+package org.debox.photo.model.user;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.debox.photo.model.Role;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>

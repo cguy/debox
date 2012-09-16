@@ -34,7 +34,7 @@ import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

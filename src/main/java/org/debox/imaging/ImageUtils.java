@@ -45,7 +45,7 @@ import org.debox.imaging.thumbnailator.ThumbnailatorImageHandler;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.IdentifyCmd;

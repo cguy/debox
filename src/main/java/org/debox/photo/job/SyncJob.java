@@ -20,6 +20,8 @@
  */
 package org.debox.photo.job;
 
+import org.debox.photo.model.configuration.ThumbnailSize;
+import org.debox.photo.model.configuration.SynchronizationMode;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;

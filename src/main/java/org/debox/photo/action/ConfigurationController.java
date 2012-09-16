@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.debox.photo.model.Configuration;
-import org.debox.photo.model.ThirdPartyConfiguration;
+import org.debox.photo.model.configuration.ThirdPartyConfiguration;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionController;

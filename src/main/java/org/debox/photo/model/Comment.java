@@ -20,6 +20,7 @@
  */
 package org.debox.photo.model;
 
+import org.debox.photo.model.user.User;
 import java.util.Date;
 
 /**

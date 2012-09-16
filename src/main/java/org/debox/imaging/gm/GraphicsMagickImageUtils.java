@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.im4java.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

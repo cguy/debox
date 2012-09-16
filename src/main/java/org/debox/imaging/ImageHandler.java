@@ -21,7 +21,7 @@
 package org.debox.imaging;
 
 import java.nio.file.Path;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>

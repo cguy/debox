@@ -31,7 +31,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.debox.imaging.ImageHandler;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

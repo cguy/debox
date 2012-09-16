@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
+package org.debox.photo.model.configuration;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>

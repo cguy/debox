@@ -26,18 +26,6 @@ USE `debox-photos`;
 
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `photos_generation`;
-DROP TABLE IF EXISTS `album_covers`;
-DROP TABLE IF EXISTS `photos`;
-DROP TABLE IF EXISTS `albums_tokens`;
-DROP TABLE IF EXISTS `tokens`;
-DROP TABLE IF EXISTS `albums`;
-DROP TABLE IF EXISTS `roles`;
-DROP TABLE IF EXISTS `visibilities`;
-DROP TABLE IF EXISTS `users`;
-DROP TABLE IF EXISTS `configurations`;
-DROP TABLE IF EXISTS `thirdparty_accounts`;
-
 CREATE TABLE IF NOT EXISTS `configurations` (
     `key` VARCHAR(255) PRIMARY KEY,
     `value` VARCHAR(255) NOT NULL
@@ -142,9 +130,8 @@ CREATE TABLE IF NOT EXISTS `photos` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `photos_comments` (
-    `comment_id` VARCHAR(32),
+    `comment_id` VARCHAR(32) PRIMARY KEY,
     `photo_id` VARCHAR(32),
-    PRIMARY KEY (`comment_id`),
     FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
@@ -163,6 +150,44 @@ CREATE TABLE IF NOT EXISTS `comments` (
     `last_modification` TIMESTAMP,
     `content` TEXT NOT NULL,
     FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `source_id` VARCHAR(32) NOT NULL,
+    `action_time` TIMESTAMP NOT NULL DEFAULT NOW(),
+    `message` VARCHAR(50) NOT NULL,
+    FOREIGN KEY (`source_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `notifications_albums` (
+    `notification_id` VARCHAR(32) PRIMARY KEY,
+    `album_id` VARCHAR(32) NOT NULL,
+    FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `notifications_photos` (
+    `notification_id` VARCHAR(32) PRIMARY KEY,
+    `photo_id` VARCHAR(32) NOT NULL,
+    FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `albums_notifications_subscriptions` (
+    `album_id` VARCHAR(32) NOT NULL,
+    `user_id` VARCHAR(32) NOT NULL,
+    PRIMARY KEY (`album_id`, `user_id`),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `photos_notifications_subscriptions` (
+    `photo_id` VARCHAR(32) NOT NULL,
+    `user_id` VARCHAR(32) NOT NULL,
+    PRIMARY KEY (`photo_id`, `user_id`),
+    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

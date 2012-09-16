@@ -23,7 +23,7 @@ package org.debox.photo.dao.thirdparty;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.debox.photo.model.ThirdPartyAccount;
+import org.debox.photo.model.user.ThirdPartyAccount;
 
 public class FacebookCredentialsMatcher implements CredentialsMatcher {
 

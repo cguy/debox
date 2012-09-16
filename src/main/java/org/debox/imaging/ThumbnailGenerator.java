@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.ThumbnailSize;
+import org.debox.photo.model.configuration.ThumbnailSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

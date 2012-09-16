@@ -27,7 +27,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
-import org.debox.photo.model.User;
+import org.debox.photo.model.user.User;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;

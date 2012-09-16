@@ -21,7 +21,7 @@
 package org.debox.photo.util;
 
 import org.apache.shiro.subject.Subject;
-import org.debox.photo.model.User;
+import org.debox.photo.model.user.User;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
