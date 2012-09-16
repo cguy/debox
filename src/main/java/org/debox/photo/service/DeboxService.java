@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class DeboxController extends WebMotionController {
+public class DeboxService extends WebMotionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeboxController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeboxService.class);
     protected static PhotoDao photoDao = new PhotoDao();
 
     @Override

@@ -38,7 +38,7 @@ import org.debux.webmotion.server.render.Render;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ConfigurationController extends WebMotionController {
+public class ConfigurationService extends WebMotionController {
 
     public Render getConfiguration() {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();

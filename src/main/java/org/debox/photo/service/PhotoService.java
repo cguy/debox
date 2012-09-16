@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class PhotoController extends DeboxController {
+public class PhotoService extends DeboxService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhotoService.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
     

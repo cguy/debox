@@ -53,12 +53,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AccountController extends WebMotionController {
+public class AccountService extends WebMotionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     
     protected static UserDao userDao = new UserDao();
-    protected static HomeController homeController = new HomeController();
+    protected static HomeService homeController = new HomeService();
     
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();

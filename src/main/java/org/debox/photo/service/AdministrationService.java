@@ -50,9 +50,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AdministrationController extends DeboxController {
+public class AdministrationService extends DeboxService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdministrationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdministrationService.class);
     protected SyncJob syncJob;
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
@@ -180,7 +180,7 @@ public class AdministrationController extends DeboxController {
     }
 
     public Render getData() throws SQLException {
-        String username = HomeController.getUsername();
+        String username = HomeService.getUsername();
         
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();

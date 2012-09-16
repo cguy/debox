@@ -79,9 +79,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AlbumController extends DeboxController {
+public class AlbumService extends DeboxService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlbumController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlbumService.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
     protected static CommentDao commentDao = new CommentDao();

@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ThirdPartyController extends DeboxController {
+public class ThirdPartyService extends DeboxService {
     
-    private static final Logger logger = LoggerFactory.getLogger(ThirdPartyController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThirdPartyService.class);
     
     public Render handleOAuthException(ErrorData errorData) {
         logger.error(errorData.getCause().getMessage());

@@ -54,9 +54,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class HomeController extends DeboxController {
+public class HomeService extends DeboxService {
 
-    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+    private static final Logger logger = LoggerFactory.getLogger(HomeService.class);
     
     public static String getUsername() {
         Subject subject = SecurityUtils.getSubject();

@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class TokenController extends DeboxController {
+public class TokenService extends DeboxService {
     
-    private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
     protected UserDao userDao = new UserDao();

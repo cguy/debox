@@ -35,7 +35,7 @@ import org.debux.webmotion.server.render.Render;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class CommentController extends DeboxController {
+public class CommentService extends DeboxService {
     
     protected static CommentDao commentDao = new CommentDao();
     
