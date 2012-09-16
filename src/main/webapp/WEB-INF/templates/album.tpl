@@ -74,12 +74,8 @@
         </form>
     </div>
 
-    <div class="album_description">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eros risus, lacinia ornare volutpat quis, lobortis luctus velit. Nam ornare tincidunt turpis quis tincidunt. Morbi hendrerit rutrum convallis. Quisque porta, lorem nec pellentesque porttitor, massa erat lacinia arcu, quis congue velit arcu bibendum mi. Maecenas in fermentum magna. Donec tempor iaculis nunc, ut blandit nulla pretium eu. Ut hendrerit sem eget arcu vehicula eleifend. Etiam tortor dui, volutpat a congue et, varius posuere enim. Suspendisse eu quam dui. Nam a justo sed dolor interdum dapibus sit amet mattis metus. Quisque faucibus, nunc sed congue posuere, dolor diam iaculis diam, et facilisis sapien ipsum ornare ligula. Nam porttitor scelerisque enim, at rutrum neque iaculis at.
-    </div>
     {{#album.description}}
     <div class="album_description">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eros risus, lacinia ornare volutpat quis, lobortis luctus velit. Nam ornare tincidunt turpis quis tincidunt. Morbi hendrerit rutrum convallis. Quisque porta, lorem nec pellentesque porttitor, massa erat lacinia arcu, quis congue velit arcu bibendum mi. Maecenas in fermentum magna. Donec tempor iaculis nunc, ut blandit nulla pretium eu. Ut hendrerit sem eget arcu vehicula eleifend. Etiam tortor dui, volutpat a congue et, varius posuere enim. Suspendisse eu quam dui. Nam a justo sed dolor interdum dapibus sit amet mattis metus. Quisque faucibus, nunc sed congue posuere, dolor diam iaculis diam, et facilisis sapien ipsum ornare ligula. Nam porttitor scelerisque enim, at rutrum neque iaculis at.
         {{album.description}}
     </div>
     {{/album.description}}

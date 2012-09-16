@@ -351,8 +351,21 @@ function loadAlbum(data, callback) {
         );
     $(".chzn-select").chosen(); 
     
-    $("#album-comments").niceScroll({cursorcolor:"#00F"});
+    $("#album-comments").mCustomScrollbar({
+        scrollInertia: 500,
+        mouseWheel: 50,
+        advanced:{
+            updateOnContentResize: true
+        }
+    });
     
+    // TODO remove timeout
+//    setTimeout(function() {
+//        $("#album-comments").niceScroll({
+//            cursorcolor:"rgba(0,0,0,.5)",
+//            autohide: "cursor"
+//        });
+//    }, 1000);
 }
 
 function manageRegenerationProgress(data) {

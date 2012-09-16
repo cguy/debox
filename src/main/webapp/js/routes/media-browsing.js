@@ -157,10 +157,11 @@ app.get('#/album/:album(/.*)?', function() {
         var slideshowData = [];
         var photos = $(".photos a.thumbnail");
         for (var i = 0 ; i < photos.length ; i++) {
+            var photo = $(photos[i]);
             slideshowData.push({
-                "id" : "/album/" + this.params['album'] + "/" + photos[i].id,
-                "url" : $(photos[i]).attr("fullScreenUrl"),
-                "caption" : $(photos[i]).attr("title")
+                "id" : "/album/" + this.params['album'] + "/" + photo.attr("data-id"),
+                "url" : photo.attr("fullScreenUrl"),
+                "caption" : photo.attr("title")
             });
         }
         fullscreen(index, slideshowData);
