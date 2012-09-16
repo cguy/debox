@@ -1,13 +1,13 @@
 [config]
 package.base=org.debox.photo
 package.filters=filter
-package.actions=action
-package.errors=action
+package.actions=service
+package.errors=service
 package.views=WEB-INF/
 
 [errors]
-com.restfb.exception.FacebookOAuthException         ThirdPartyController.handleOAuthException
-org.scribe.exceptions.OAuthException                ThirdPartyController.handleOAuthException
+com.restfb.exception.FacebookOAuthException         ThirdPartyService.handleOAuthException
+org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAuthException
 
 [filters]
 # -----------------------------------------------------------------------------------------------
@@ -37,86 +37,86 @@ DELETE      /third-party-account/*                  AdministrationFilter.checkUs
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------
-GET         /configuration                      ConfigurationController.getConfiguration
-POST        /configuration                      ConfigurationController.editConfiguration
-POST        /configuration/thirdparty           ConfigurationController.editThirdPartyConfiguration     activated=false
+GET         /configuration                      ConfigurationService.getConfiguration
+POST        /configuration                      ConfigurationService.editConfiguration
+POST        /configuration/thirdparty           ConfigurationService.editThirdPartyConfiguration     activated=false
 
-GET         /administration/sync                AdministrationController.getSyncProgress
-POST        /administration/sync                AdministrationController.synchronize                    forceCheckDates=false
-DELETE      /administration/sync                AdministrationController.cancelSynchronization
-POST        /administration/upload              AdministrationController.upload
+GET         /administration/sync                AdministrationService.getSyncProgress
+POST        /administration/sync                AdministrationService.synchronize                    forceCheckDates=false
+DELETE      /administration/sync                AdministrationService.cancelSynchronization
+POST        /administration/upload              AdministrationService.upload
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER
 # -----------------------------------------------------------------------------------------------
-POST        /authenticate                       AccountController.authenticate
-GET         /account                            AccountController.getLoggedUser
-POST        /account/{userId}                   AccountController.editCredentials
-GET         /logout                             AccountController.logout
-DELETE      /third-party-account/{id}           AccountController.deleteThirdPartyAccount
+POST        /authenticate                       AccountService.authenticate
+GET         /account                            AccountService.getLoggedUser
+POST        /account/{userId}                   AccountService.editCredentials
+GET         /logout                             AccountService.logout
+DELETE      /third-party-account/{id}           AccountService.deleteThirdPartyAccount
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - PHOTOS
 # -----------------------------------------------------------------------------------------------
-POST        /photo/{id}                         PhotoController.editPhoto
-DELETE      /photo/{id}                         PhotoController.deletePhoto
+POST        /photo/{id}                         PhotoService.editPhoto
+DELETE      /photo/{id}                         PhotoService.deletePhoto
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-PUT         /album                                  AlbumController.createAlbum
-POST        /album/{albumId}                        AlbumController.editAlbum                           downloadable=false
-DELETE      /album/{albumId}                        AlbumController.deleteAlbum
-POST        /album/{albumId}/regeneratethumbnails   AlbumController.regenerateThumbnails
-GET         /album/{albumId}/regeneratethumbnails   AlbumController.getRegenerationProgress
-GET         /uploadProgress                         AdministrationController.getUploadProgress
+PUT         /album                                  AlbumService.createAlbum
+POST        /album/{albumId}                        AlbumService.editAlbum                           downloadable=false
+DELETE      /album/{albumId}                        AlbumService.deleteAlbum
+POST        /album/{albumId}/regeneratethumbnails   AlbumService.regenerateThumbnails
+GET         /album/{albumId}/regeneratethumbnails   AlbumService.getRegenerationProgress
+GET         /uploadProgress                         AdministrationService.getUploadProgress
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - TOKENS
 # -----------------------------------------------------------------------------------------------
-GET         /tokens                             TokenController.getTokens
-PUT         /token                              TokenController.createToken
-GET         /token/{id}                         TokenController.getToken
-POST        /token                              TokenController.editToken
-POST        /token/{id}                         TokenController.editToken
-POST        /token/reinit/{id}                  TokenController.reinitToken
-DELETE      /token/{id}                         TokenController.deleteToken
+GET         /tokens                             TokenService.getTokens
+PUT         /token                              TokenService.createToken
+GET         /token/{id}                         TokenService.getToken
+POST        /token                              TokenService.editToken
+POST        /token/{id}                         TokenService.editToken
+POST        /token/reinit/{id}                  TokenService.reinitToken
+DELETE      /token/{id}                         TokenService.deleteToken
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - COMMENTS
 # -----------------------------------------------------------------------------------------------
-POST  /album/{albumId}/comments                 CommentController.createAlbumComment
+POST  /album/{albumId}/comments                 CommentService.createAlbumComment
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS
 # -----------------------------------------------------------------------------------------------
-GET   /album/{albumId:.+-cover\.jpg}            AlbumController.getAlbumCover
-POST  /album/{albumId}/cover                    AlbumController.setAlbumCover
-GET   /thumbnail/{photoId:.+\.jpg}              PhotoController.getThumbnail
-GET   /photo/{photoId:.+\.jpg}                  PhotoController.getPhotoStream
+GET   /album/{albumId:.+-cover\.jpg}            AlbumService.getAlbumCover
+POST  /album/{albumId}/cover                    AlbumService.setAlbumCover
+GET   /thumbnail/{photoId:.+\.jpg}              PhotoService.getThumbnail
+GET   /photo/{photoId:.+\.jpg}                  PhotoService.getPhotoStream
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
-GET         /albums                             AlbumController.getAlbums
-GET         /album/{id}                         AlbumController.getAlbum
+GET         /albums                             AlbumService.getAlbums
+GET         /album/{id}                         AlbumService.getAlbum
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DOWNLOADS
 # -----------------------------------------------------------------------------------------------
-GET /download/album/{albumId}/min               AlbumController.download        resized=true
-GET /download/album/{albumId}                   AlbumController.download        resized=false
+GET /download/album/{albumId}/min               AlbumService.download        resized=true
+GET /download/album/{albumId}                   AlbumService.download        resized=false
 
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES
 # -----------------------------------------------------------------------------------------------
-GET   /tpl                                      HomeController.renderTemplates
+GET   /tpl                                      HomeService.renderTemplates
 
 # -----------------------------------------------------------------------------------------------
 # THIRD-PARTY CALLBACKS
 # -----------------------------------------------------------------------------------------------
-GET   /facebook                                 AccountController.handleFacebookCallback
-GET   /google                                   AccountController.handleGoogleCallback
+GET   /facebook                                 AccountService.handleFacebookCallback
+GET   /google                                   AccountService.handleGoogleCallback
 
 # -----------------------------------------------------------------------------------------------
 # HOME

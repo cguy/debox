@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.action;
+package org.debox.photo.service;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
