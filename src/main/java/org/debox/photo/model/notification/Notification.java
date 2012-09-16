@@ -7,6 +7,12 @@ import org.debox.photo.model.user.User;
  */
 public abstract class Notification {
     
+    public static enum Type {
+        AVAILABILITY,
+        COMMENT,
+        LIKE
+    }
+    
     protected String id;
     protected User source;
     protected String message;
