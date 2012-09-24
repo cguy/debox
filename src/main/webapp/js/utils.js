@@ -219,7 +219,7 @@ function loadComment(comment) {
     return comment;
 }
 
-function loadAlbum(data, callback) {
+function loadAlbum(data, callback, mode) {
     // Process album
     createAlbum(data.album);
     var subAlbums = data.subAlbums;
@@ -328,7 +328,7 @@ function loadAlbum(data, callback) {
             }
         });
         if (callback && $.isFunction(callback)) {
-            callback(data);
+            callback(mode);
         }
     });
     $("#top").click(function() {
@@ -358,14 +358,72 @@ function loadAlbum(data, callback) {
             updateOnContentResize: true
         }
     });
-    
-    // TODO remove timeout
-//    setTimeout(function() {
-//        $("#album-comments").niceScroll({
-//            cursorcolor:"rgba(0,0,0,.5)",
-//            autohide: "cursor"
-//        });
-//    }, 1000);
+}
+
+function albumLoaded(mode) {
+    if (!mode || mode == "edition" || mode == "comments") {
+        $("#alerts .alert").hide();
+                
+        hideAlbumChoose();
+        if (mode == "edition") {
+            $("#edit_album").addClass("visible");
+            $(".edit-album").addClass("hide");
+            $(".edit-album-cancel").removeClass("hide");
+                    
+            $("#photos-edition").removeClass("hide");
+            $("#photos").addClass("hide");
+                    
+        } else {
+            $("#edit_album").removeClass("visible");
+            $(".edit-album").removeClass("hide");
+            $(".edit-album-cancel").addClass("hide");
+                    
+            $("#photos-edition").addClass("hide");
+            $("#photos").removeClass("hide");
+        }
+                
+        var oldHref = $(".page-header .comments").attr("href");
+        $('.page-header .comments').tooltip('destroy');
+        if (mode == "comments") {
+            $("#album-content").addClass("comments");
+            $(".page-header .comments").addClass("active");
+            $(".page-header .comments").attr("href", oldHref.replace("/comments", ""));
+                    
+            $(".page-header .comments").attr("title", fr.album.comments.hide);
+                    
+        } else {
+            $(".page-header .comments").attr("href", oldHref + "/comments");
+            $("#album-content").removeClass("comments");
+            $(".page-header .comments").removeClass("active");
+            $(".page-header .comments").attr("title", fr.album.comments.show);
+        }
+        $('.page-header .comments').tooltip();
+    }
+            
+    // Album deletion binding
+    $(".delete").unbind("click");
+    $(".delete").click(function() {
+        $("#delete-album-modal").modal();
+    });
+            
+    $(".delete-photo").unbind("click");
+    $(".delete-photo").click(function() {
+        var photoId = $(this).parents("div").attr("data-id");
+        $("#delete-photo").attr("action", "#/photo/"+photoId);
+        $("#delete-photo").modal();
+        return false;
+    });
+            
+    $(".edit-photo").unbind("click");
+    $(".edit-photo").click(function() {
+        var photoId = $(this).parents("div").attr("data-id");
+        $("#edit-photo").attr("action", "#/photo/"+photoId);
+                
+        var refTitleNode = $(this).parents("div").children(".title");
+        $("#edit-photo #photoTitle").val(refTitleNode.text());
+        $("#edit-photo").modal();
+        return false;
+    });
 }
 
 function manageRegenerationProgress(data) {

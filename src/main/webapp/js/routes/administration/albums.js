@@ -29,7 +29,7 @@ app.post('#/album/:albumId', function() {
             data.inEdition = true;
             loadAlbum(data, function(){
                 $("#alerts .edit.alert-success").fadeIn(250);
-            });
+            }, "edition");
         },
         error : function() {
             $("#alerts .edit.alert-danger").fadeIn(250);
