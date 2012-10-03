@@ -2,7 +2,13 @@
 <ul class="thumbnails photos {{#inEdition}}hide{{/inEdition}}">
     {{#photos}}
     <li class="span2">
-        <a data-id="{{id}}" data-title="{{title}}" class="thumbnail" href="#/album/{{albumId}}/{{id}}" fullScreenUrl="{{url}}">
+        <a class="thumbnail"
+           href="#/album/{{albumId}}/{{id}}"
+           data-id="{{id}}"
+           data-date="{{date}}"
+           data-title="{{title}}"
+           data-url="{{url}}"
+           data-thumbnail="{{thumbnailUrl}}">
             <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
         </a>
     </li>

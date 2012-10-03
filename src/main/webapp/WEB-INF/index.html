@@ -40,6 +40,7 @@
         
         <script src="static/js/lib/head.load-0.96.min.js"></script>
         <script type="text/javascript">
+            var suffix = "?t=" + new Date().getTime();
             head.js(
                 "static/js/lib/jquery-1.7.2.min.js",
                 "static/js/lib/jquery-ui-1.8.23.custom.min.js",
@@ -58,10 +59,10 @@
                 "static/js/lib/fu/jquery.fileupload.js",
                 "static/js/lib/fu/jquery.fileupload-fp.js",
                 "static/js/lib/fu/jquery.fileupload-ui.js",
-                "static/js/i18n/fr.js",
-                "static/js/model/album.js",
-                "static/js/slideshow.js",
-                "static/js/utils.js",
+                "static/js/i18n/fr.js" + suffix,
+                "static/js/model/album.js" + suffix,
+                "static/js/slideshow.js" + suffix,
+                "static/js/utils.js" + suffix,
                 function() {
                     lang = fr;
                     // Load templates before enable application routing
@@ -71,7 +72,6 @@
                         // Comment this line to enable SammyJS logging
                         this.log = function() {}
                     });
-                    var suffix = "?t=" + new Date().getTime();
                     head.js(
                         "static/js/routes/media-browsing.js" + suffix,
                         "static/js/routes/administration.js" + suffix,

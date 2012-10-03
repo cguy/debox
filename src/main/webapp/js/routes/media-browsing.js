@@ -97,15 +97,7 @@ app.get('#/album/([a-zA-Z0-9-_]*)(/.*)+', function() {
                 loadAlbum(data, function() {
                     albumLoaded();
                     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
-                    var slideshowData = [];
-                    for (var i = 0 ; i < data.photos.length ; i++) {
-                        slideshowData.push({
-                            "id" : "/album/" + data.album.id + "/" + data.photos[i].id,
-                            "url" : data.photos[i].url,
-                            "caption" : data.photos[i].name
-                        });
-                    }
-                    fullscreen(index, slideshowData);
+                    fullscreen(index, data.photos);
                 });
             }
         });
@@ -115,39 +107,17 @@ app.get('#/album/([a-zA-Z0-9-_]*)(/.*)+', function() {
         for (var i = 0 ; i < photos.length ; i++) {
             var photo = $(photos[i]);
             slideshowData.push({
-                "id" : "/album/" + albumId + "/" + photo.attr("data-id"),
-                "url" : photo.attr("fullScreenUrl"),
-                "caption" : photo.attr("data-title")
+                "date": photo.attr("data-date"),
+                "id" : photo.attr("data-id"),
+                "title" : photo.attr("data-title"),
+                "thumbnail": photo.attr("data-thumbnail"),
+                "url" : photo.attr("data-url")
             });
         }
         fullscreen(index, slideshowData);
                 
     } else {
-        var currentIndex = $('#slideshow-div').rsfSlideshow("currentSlideKey");
-        // We are displaying first photo and we want to see the previous one
-        if (currentIndex == 0 && index == $(".photos a.thumbnail").length - 1) {
-            $('#slideshow-div').rsfSlideshow(
-                'showSlide', index, "slideRight"
-                );
-                
-        // We are displaying last photo and we want to see the next one
-        } else if (index == 0 && currentIndex == $(".photos a.thumbnail").length - 1) {
-            $('#slideshow-div').rsfSlideshow(
-                'showSlide', index, "slideLeft"
-                );
-                        
-        // We want to see the next one
-        } else if (currentIndex < index) {
-            $('#slideshow-div').rsfSlideshow(
-                'showSlide', index, "slideLeft"
-                );
-                        
-        // We want to see the previous one
-        } else if (currentIndex > index) {
-            $('#slideshow-div').rsfSlideshow(
-                'showSlide', index, "slideRight"
-                );
-        }
+        s.gotoItem(photoId);
     }
 });
 
