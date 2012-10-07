@@ -272,6 +272,12 @@ var fr = {
         edit: {
             title: "Modification d'une photo",
             placeholder: "Veuillez rentrer le titre de la photo"
+        },
+        comments: {
+            show: "Afficher les commentaires",
+            hide: "Cacher les commentaires",
+            placeholder: "Laissez un commentaire ...",
+            empty: "Aucun commentaire n'a encore été laissé sur cette photo"
         }
     }
 };

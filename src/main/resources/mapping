@@ -86,6 +86,8 @@ DELETE      /token/{id}                         TokenService.deleteToken
 # MEDIA - COMMENTS
 # -----------------------------------------------------------------------------------------------
 POST  /album/{albumId}/comments                 CommentService.createAlbumComment
+POST  /photo/{photoId}/comments                 CommentService.createPhotoComment
+GET   /photo/{photoId}/comments                 CommentService.getPhotoComments
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS

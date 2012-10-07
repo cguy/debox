@@ -44,7 +44,8 @@ public class CommentDao {
     protected static String CREATE = "INSERT INTO comments (id, author_id, publish_time, content) VALUES (?, ?, ?, ?)";
     protected static String CREATE_ALBUM_LINK = "INSERT INTO albums_comments (comment_id, album_id) VALUES (?, ?)";
     protected static String CREATE_PHOTO_LINK = "INSERT INTO photos_comments (comment_id, photo_id) VALUES (?, ?)";
-    protected static String GET_BY_ALBUM = "SELECT * FROM comments c INNER JOIN albums_comments ac ON c.id = ac.comment_id WHERE ac.album_id = ?";
+    protected static String GET_BY_ALBUM = "SELECT * FROM comments c INNER JOIN albums_comments ac ON c.id = ac.comment_id WHERE ac.album_id = ? ORDER BY c.publish_time";
+    protected static String GET_BY_PHOTO = "SELECT * FROM comments c INNER JOIN photos_comments pc ON c.id = pc.comment_id WHERE pc.photo_id = ? ORDER BY c.publish_time";
 
     protected UserDao userDao = new UserDao();
     
@@ -75,13 +76,21 @@ public class CommentDao {
     }
     
     public List<Comment> getByAlbum(String albumId) throws SQLException {
+        return getByMedia(albumId, GET_BY_ALBUM);
+    }
+    
+    public List<Comment> getByPhoto(String photoId) throws SQLException {
+        return getByMedia(photoId, GET_BY_PHOTO);
+    }
+    
+    protected List<Comment> getByMedia(String mediaId, String query) throws SQLException {
         ResultSet rs = null;
         List<Comment> result = new ArrayList<>();
         try (
                 Connection c = DatabaseUtils.getConnection();
-                PreparedStatement stmt = c.prepareStatement(GET_BY_ALBUM)) {
+                PreparedStatement stmt = c.prepareStatement(query)) {
             
-            stmt.setString(1, albumId);
+            stmt.setString(1, mediaId);
             rs = stmt.executeQuery();
 
             while (rs.next()) {

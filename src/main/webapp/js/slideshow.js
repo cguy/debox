@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-$.getDocHeight = function(){
+$.getDocHeight = function() {
     return Math.max(
-        $(document).height(),
-        $(window).height(),
-        /* For opera: */
-        document.documentElement.clientHeight
-        );
+            $(document).height(),
+            $(window).height(),
+            /* For opera: */
+            document.documentElement.clientHeight
+            );
 };
 
 (function() {
@@ -33,22 +33,24 @@ $.getDocHeight = function(){
         isFullScreen: function() {
             return false;
         },
-        requestFullScreen: function() {},
-        cancelFullScreen: function() {},
+        requestFullScreen: function() {
+        },
+        cancelFullScreen: function() {
+        },
         fullScreenEventName: '',
         prefix: ''
     },
-    browserPrefixes = 'webkit moz o ms khtml'.split(' ');
+            browserPrefixes = 'webkit moz o ms khtml'.split(' ');
 
     // check for native support
     if (typeof document.cancelFullScreen != 'undefined') {
         fullScreenApi.supportsFullScreen = true;
     } else {
         // check for fullscreen support by vendor prefix
-        for (var i = 0, il = browserPrefixes.length; i < il; i++ ) {
+        for (var i = 0, il = browserPrefixes.length; i < il; i++) {
             fullScreenApi.prefix = browserPrefixes[i];
 
-            if (typeof document[fullScreenApi.prefix + 'CancelFullScreen' ] != 'undefined' ) {
+            if (typeof document[fullScreenApi.prefix + 'CancelFullScreen' ] != 'undefined') {
                 fullScreenApi.supportsFullScreen = true;
 
                 break;
@@ -87,7 +89,6 @@ $.getDocHeight = function(){
     // jQuery plugin
     if (typeof jQuery != 'undefined') {
         jQuery.fn.requestFullScreen = function() {
-
             return this.each(function() {
                 if (fullScreenApi.supportsFullScreen) {
                     fullScreenApi.requestFullScreen(this);
@@ -99,143 +100,61 @@ $.getDocHeight = function(){
     // export api
     window.fullScreenApi = fullScreenApi;
 })();
-            
-function exitFullscreen() {
+
+function exitFullscreen(dontChangeHash) {
     delete s;
     $(document.body).removeClass("fixed");
-    var elt = document.getElementById("fullscreenContainer");
-    document.body.removeChild(elt);
-    var controls = document.getElementById("rs-controls-slideshow-div");
-    if (controls) {
-        document.body.removeChild(controls);
+    document.body.removeChild(document.getElementById("fullscreenContainer"));
+    if (!dontChangeHash) {
+        location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
     }
-    location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
 }
-            
-function fullscreen(index, data) {
+
+function fullscreen(index, data, mode) {
     s = new Slideshow();
     s.setItems(data);
     s.setIndex(index);
     s.show();
-    return;
-    
-    var elt = createBg();
-    document.body.appendChild(elt);
-    $(document.body).addClass("fixed");
-    fullScreenApi.requestFullScreen(elt);
-
-    var hammer = new Hammer($("#slideshow-div").get(0));
-    hammer.ondragend = function(ev) {
-        if(Math.abs(ev.distance) > 10) {
-            if(ev.direction == 'right') {
-                window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getPreviousSlideId");
-            } else if(ev.direction == 'left') {
-                window.location.hash = "#" + $('#slideshow-div').rsfSlideshow("getNextSlideId");
-            }
-        }
-    };
+    s.setMode(mode);
 }
 
-jwerty.key('←', function () {
+jwerty.key('←', function() {
     if (document.getElementById("fullscreenContainer") != null) {
         window.location.hash = window.location.hash.replace(s.getCurrentId(), s.getId(s.getPreviousIndex()));
     }
 });
 
-jwerty.key('→', function () {
+jwerty.key('→', function() {
     if (document.getElementById("fullscreenContainer") != null) {
         window.location.hash = window.location.hash.replace(s.getCurrentId(), s.getId(s.getNextIndex()));
     }
 });
 
-jwerty.key('esc', function () {
+jwerty.key('esc', function() {
     if (document.getElementById("fullscreenContainer") != null) {
         exitFullscreen();
     }
 });
 
-function SlideshowItem() {
-    this.thumbnailUrl = null;
-    this.url = null;
-    this.comments = [];
-    this.date = null;
-    this.name = null;
-}
-
 function Slideshow() {
-    this.containerNode = null;
-    this.photosNode = null;
-    
+    // Please adjust with width and padding value
+    // from #slideshow-drawer entry in slideshow.css
+    this.DRAWER_MARGIN = 340;
+
     this.items = [];
     this.index = 0;
     this.configuration = {
-        "id" : "id",
-        "date" : "date",
-        "name" : "title",
-        "thumbnail" : "thumbnailUrl",
-        "url" : "url"
+        "id": "id",
+        "date": "date",
+        "name": "title",
+        "thumbnail": "thumbnailUrl",
+        "url": "url"
     };
-    
-    this.init = function() {
-        var container = document.createElement("div");
-        container.id = "fullscreenContainer";
-                
-        var elt = document.createElement("div");
-        elt.id = "fullscreenContainer_photos";
-    
-        var close = document.createElement("div");
-        close.id = "slideshow-close";
-        close.onclick = exitFullscreen;
-        $(close).animate({
-            opacity: 0.3
-        }, 0); /* Initial setup for IE < 9 */
-        $(close).hover(
-            function () {
-                $(this).css("cursor", "pointer");
-                $(this).animate({
-                    opacity: 1
-                });
-            },
-            function () {
-                $(this).css("cursor", "inherit");
-                $(this).animate({
-                    opacity: 0.3
-                });
-            }
-            );
-                
-        this.previousNode = document.createElement("a");
-        this.previousNode.id = "slideshow-previous";
-        $(this.previousNode).append('<i class="icon-chevron-left"></i>');
-        
-        this.nextNode = document.createElement("a");
-        this.nextNode.id = "slideshow-next";
-        $(this.nextNode ).append('<i class="icon-chevron-right"></i>');
-        
-        this.labelNode = document.createElement("div");
-        this.labelNode.id = "slideshow-label";
-        
-        var self = this;
-        this.labelNode.addEventListener("webkitTransitionEnd", function() {
-            $(this).text(self.items[self.index].name);
-            this.className = "";
-        });
 
-        container.appendChild(elt);
-        container.appendChild(close);
-        container.appendChild(this.previousNode);
-        container.appendChild(this.nextNode);
-        container.appendChild(this.labelNode);
-        
-        this.containerNode = container;
-        this.photosNode = elt;
-    }
-    this.init()
-    
     this.convert = function(old) {
         var c = this.configuration;
         var result = [old.length];
-        for (var i = 0 ; i < old.length ; i++) {
+        for (var i = 0; i < old.length; i++) {
             var oldItem = old[i];
             var item = {};
             for (var key in c) {
@@ -245,149 +164,265 @@ function Slideshow() {
         }
         return result;
     }
-    
+
     this.setIndex = function(index) {
         this.index = index;
-        
-        var prevIndex = this.getPreviousIndex(); 
+
+        var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
-        
-        this.photosNode.childNodes[prevIndex].className = "previous";
-        this.photosNode.childNodes[this.index].className = "";
-        this.photosNode.childNodes[nextIndex].className = "next";
-        
-        for (var i = 0 ; i < prevIndex && prevIndex != this.photosNode.childNodes.length - 1 ; i++) {
-            this.photosNode.childNodes[i].className = "undisplayed previous";
+
+        this.getPhotos()[prevIndex].className = "previous";
+        this.getPhotos()[this.index].className = "";
+        this.getPhotos()[nextIndex].className = "next";
+
+        for (var i = 0; i < prevIndex && prevIndex != this.getPhotos().length - 1; i++) {
+            this.getPhotos()[i].className = "undisplayed previous";
         }
-        for (i = nextIndex + 1 ; i < this.photosNode.childNodes.length - 1 ; i++) {
-            this.photosNode.childNodes[i].className = "undisplayed next";
+        for (i = nextIndex + 1; i < this.getPhotos().length - 1; i++) {
+            this.getPhotos()[i].className = "undisplayed next";
         }
-        $(this.labelNode).text(this.items[this.index].name);
+        $("#slideshow-label").text(this.items[this.index].name);
         this.refreshLinks();
     }
     
-    this.refreshLinks = function() {
-        var hash = window.location.hash;
-        $(this.previousNode).attr("href", hash.replace(this.getCurrentId(), this.getId(this.getPreviousIndex())));
-        $(this.nextNode).attr("href", hash.replace(this.getCurrentId(), this.getId(this.getNextIndex())));
+    this.getAlbumId = function() {
+        var hash = location.hash;
+        var prefix = "#/album/";
+        var prefixIndex = hash.indexOf(prefix) + prefix.length;
+        var albumId = hash.substring(prefixIndex, hash.indexOf("/", prefixIndex));
+        return albumId;
     }
     
+    this.getBasePath = function() {
+        return "#/album/" + this.getAlbumId() + "/" + this.items[this.index].id; 
+    }
+
+    this.refreshLinks = function() {
+        var hash = location.hash;
+        $("#slideshow-previous").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getPreviousIndex())));
+        $("#slideshow-next").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getNextIndex())));
+        
+        var path = this.getBasePath();
+        path += /\/comments$/.test(hash) ? "" : "/comments";
+        $("#slideshow-options .comments").attr("href", path);
+        $("#new-photo-comment").attr("action", location.hash);
+    }
+
     this.getCurrentId = function() {
         return this.items[this.index].id;
     }
-    
+
     this.getId = function(index) {
         return this.items[index].id;
     }
     
+    this.setLabel = function() {
+        $("#slideshow-label").text(this.items[this.index].name);
+        $("#slideshow-label").get(0).className = "";
+    }
+
     this.setItems = function(items) {
         this.items = this.convert(items);
-        for (var i = 0 ; i < this.items.length ; i++) {
-            var item = this.items[i];
-            var img = document.createElement("img");
-            img.id = item.id;
-            img.className = "undisplayed";
-            img.src = item.url;
-            this.photosNode.appendChild(img);
-        }
+        
+        var html = templates["slideshow"].render({data:this.items, i18n: fr}, templates);
+        $(document.body).append(html);
+        
+        var self = this;
+        addTransitionListener($("#slideshow-label").get(0), function() {self.setLabel()});
     }
-    
+
     this.setSize = function(id, w, h) {
         var index = this.getItemIndex(id);
         this.items[index].width = w;
         this.items[index].height = h;
     }
-    
+
     this.show = function() {
-        document.body.appendChild(this.containerNode);
         $(document.body).addClass("fixed");
-//        fullScreenApi.requestFullScreen(this.containerNode);
+        fullScreenApi.requestFullScreen($("#fullscreenContainer").get(0));
+        $("#slideshow-options .exit").attr("href", location.href.substring(0, location.href.lastIndexOf("/")));
+        $("#slideshow-options .exit").click(function() {
+            exitFullscreen(true);
+        });
     }
     
+    this.setMode = function(mode) {
+        if (!mode) {
+            this._hideDrawer();
+        } else if (mode == "/comments") {
+            this._showComments();
+        }
+    }
+    
+    this._showComments = function() {
+        this._displayDrawer();
+        $("#fullscreenContainer").addClass("comments");
+        this.refreshLinks();
+        this._loadComments();
+    }
+    
+    this._loadComments = function() {
+        var id = this.items[this.index].id;
+        ajax({
+            url: computeUrl("photo/" + id + "/comments"),
+            success: function(data) {
+                if (data.photoId != id) {
+                    return;
+                }
+                $("#slideshow-comments .comment").remove();
+                for (var i = 0 ; i < data.comments.length ; i++) {
+                    var comment = loadComment(data.comments[i]);
+                    var html = templates["comment"].render(comment);
+                    $(html).insertBefore("#slideshow-comments form");
+                    $("#slideshow-comments form textarea").val("");
+                }
+                console.log(data.comments.length)
+                if (data.comments.length == 0) {
+                    $("#slideshow-comments .no-comments").removeClass("hide");
+                } else {
+                    $("#slideshow-comments .no-comments").addClass("hide");
+                    $("#slideshow-comments").mCustomScrollbar({
+                        scrollInertia: 500,
+                        mouseWheel: 50,
+                        advanced:{
+                            updateOnContentResize: true
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    this._displayDrawer = function() {
+        $("#fullscreenContainer").addClass("drawer");
+        $("#slideshow-drawer").removeClass("hide");
+        this._resetMargin();
+        $("#slideshow-next").get(0).style.width = (this.getPhotosNode().clientWidth / 6 - this.DRAWER_MARGIN / 2)+"px";
+    }
+    
+    this._hideDrawer = function() {
+        $("#slideshow-drawer").addClass("hide");
+        $("#fullscreenContainer").removeClass("drawer");
+        $("#slideshow-next").get(0).style.width = "50%";
+        this.getPhotos()[this.index].style.right = "34%";
+        this.getPhotos()[this.index].style.maxWidth = "90%";
+        this.refreshLinks();
+    }
+    
+    this._resetMargin = function() {
+        var prevIndex = this.getPreviousIndex();
+        var nextIndex = this.getNextIndex();
+        
+        this.getPhotos()[this.index].style.right = (this.getPhotosNode().clientWidth * .34 + this.DRAWER_MARGIN)+"px";
+        this.getPhotos()[this.index].style.maxWidth = (this.getPhotosNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
+        this.getPhotos()[prevIndex].style.right = null;
+        this.getPhotos()[nextIndex].style.right = null;
+    }
+
     this.hide = function() {
-        document.body.removeChild(this.containerNode);
+        document.body.removeChild($("#fullscreenContainer"));
     }
     
+    this.getPhotosNode = function() {
+        return $("#fullscreenContainer_photos").get(0);
+    }
+    
+    this.getPhotos = function() {
+        return $("#fullscreenContainer_photos img");
+    }
+
     this.previous = function() {
-        var prevIndex = this.getPreviousIndex(); 
+        var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
         var newPreviousIndex = this.getPreviousIndex(prevIndex);
-        
-        var currentPhoto = this.photosNode.childNodes[this.index];
-        var previousPhoto = this.photosNode.childNodes[prevIndex];
-        var nextPhoto = this.photosNode.childNodes[nextIndex];
-        var newPreviousPhoto = this.photosNode.childNodes[newPreviousIndex];
-        
+
+        var currentPhoto = this.getPhotos()[this.index];
+        var previousPhoto = this.getPhotos()[prevIndex];
+        var nextPhoto = this.getPhotos()[nextIndex];
+        var newPreviousPhoto = this.getPhotos()[newPreviousIndex];
+
         nextPhoto.className = "next undisplayed";
         currentPhoto.className = "next";
         previousPhoto.className = ""
         newPreviousPhoto.className = "previous";
-        this.labelNode.className = "hide";
+        
+        if (!Modernizr.csstransitions) {
+            this.setLabel();
+        } else {
+            $("#slideshow-label").get(0).className = "hide";
+        }
         
         this.index = prevIndex;
+        this._resetMargin();
         this.refreshLinks();
     }
-    
+
     this.next = function() {
-        var prevIndex = this.getPreviousIndex(); 
+        var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
         var newNextIndex = this.getNextIndex(nextIndex);
-        
-        var currentPhoto = this.photosNode.childNodes[this.index];
-        var previousPhoto = this.photosNode.childNodes[prevIndex];
-        var nextPhoto = this.photosNode.childNodes[nextIndex];
-        var newNextPhoto = this.photosNode.childNodes[newNextIndex];
+
+        var currentPhoto = this.getPhotos()[this.index];
+        var previousPhoto = this.getPhotos()[prevIndex];
+        var nextPhoto = this.getPhotos()[nextIndex];
+        var newNextPhoto = this.getPhotos()[newNextIndex];
         
         previousPhoto.className = "previous undisplayed";
         currentPhoto.className = "previous";
         nextPhoto.className = ""
         newNextPhoto.className = "next";
-        this.labelNode.className = "hide";
         
+        if (!Modernizr.csstransitions) {
+            this.setLabel();
+        } else {
+            $("#slideshow-label").get(0).className = "hide";
+        }
+
         this.index = nextIndex;
+        this._resetMargin();
         this.refreshLinks();
     }
-    
+
     this.gotoItem = function(itemId) {
         var index = this.getItemIndex(itemId);
         if (this.isNextIndex(index)) {
             this.next();
         } else if (this.isPreviousIndex(index)) {
             this.previous();
-        } else {
+        } else if (this.index != index) {
             throw "Cannot switch to photo other than strict previous or following photo.";
         }
     }
-    
+
     this.getNextIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index == this.photosNode.childNodes.length - 1 ? 0 : index + 1
+        return index == this.getPhotos().length - 1 ? 0 : index + 1
     }
-    
+
     this.getPreviousIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index != 0 ? index-1 : this.photosNode.childNodes.length - 1
+        return index != 0 ? index - 1 : this.getPhotos().length - 1
     }
-    
+
     this.isNextIndex = function(index) {
-        return (this.index == this.photosNode.childNodes.length - 1 && index == 0)  || (this.index != this.photosNode.childNodes.length - 1 && index == this.index + 1);
+        return (this.index == this.getPhotos().length - 1 && index == 0) || (this.index != this.getPhotos().length - 1 && index == this.index + 1);
     }
-    
+
     this.isPreviousIndex = function(index) {
-        return (this.index != 0 && index == this.index-1) || (this.index == 0 && index == this.photosNode.childNodes.length - 1);
+        return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.getPhotos().length - 1);
     }
-    
+
     this.getItemIndex = function(itemId) {
-        for (var i = 0 ; i < this.items.length ; i++) {
+        for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].id == itemId) {
                 return i;
             }
         }
         throw "Unable to find index for item " + itemId;
     }
-    
+
 }

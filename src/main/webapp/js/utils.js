@@ -131,7 +131,11 @@ function ajax(object) {
     }
     $.ajax(object);
 }
-    
+
+function addTransitionListener(node, callback) {
+    $(node).bind("webkitTransitionEnd mozTransitionEnd oTransitionEnd msTransitionEnd transitionend", callback);
+}
+
 function computeUrl(url) {
     if (location.pathname != "/") {
         var token = location.pathname.substr(location.pathname.lastIndexOf("/") + 1, location.pathname.length - 1);

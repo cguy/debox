@@ -85,10 +85,9 @@ app.get('#/album/([a-zA-Z0-9-_]*)/edition', function() {
 });
 
 // Album alideshow
-app.get('#/album/([a-zA-Z0-9-_]*)(/.*)+', function() {
-    var albumId = this.params['splat'][0];
-    var photoId = this.params['splat'][1].substr(1);
-    
+function loadSlideshow(context, mode) {
+    var albumId = context.params['splat'][0];
+    var photoId = context.params['splat'][1];
     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
     if (index == -1) {
         ajax({
@@ -97,7 +96,7 @@ app.get('#/album/([a-zA-Z0-9-_]*)(/.*)+', function() {
                 loadAlbum(data, function() {
                     albumLoaded();
                     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
-                    fullscreen(index, data.photos);
+                    fullscreen(index, data.photos, mode);
                 });
             }
         });
@@ -114,11 +113,37 @@ app.get('#/album/([a-zA-Z0-9-_]*)(/.*)+', function() {
                 "url" : photo.attr("data-url")
             });
         }
-        fullscreen(index, slideshowData);
+        fullscreen(index, slideshowData, mode);
                 
     } else {
         s.gotoItem(photoId);
+        s.setMode(mode);
     }
+}
+
+app.get('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)', function() {
+    loadSlideshow(this);
+});
+
+app.get('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
+    loadSlideshow(this, "/comments");
+});
+
+app.post('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
+    var photoId = this.params['splat'][1];
+    ajax({
+        url: computeUrl("photo/" + photoId + "/comments"),
+        data: $("#new-photo-comment").serializeArray(),
+        type: "post",
+        success: function(data) {
+            $("#slideshow-comments .no-comments").addClass("hide");
+            data = loadComment(data);
+            var html = templates["comment"].render(data);
+            $(html).insertBefore("#slideshow-comments form");
+            $("#slideshow-comments form textarea").val("");
+            $("#slideshow-comments").mCustomScrollbar("update");
+        }
+    });
 });
 
 // Album loading (grid)

@@ -23,10 +23,8 @@ package org.debox.photo.service;
 import java.sql.SQLException;
 import java.util.Date;
 import org.apache.shiro.SecurityUtils;
-import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
 import org.debox.photo.model.Comment;
-import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
@@ -60,6 +58,10 @@ public class CommentService extends DeboxService {
         Comment comment = create(content);
         commentDao.savePhotoComment(photoId, comment);
         return renderJSON(comment);
+    }
+
+    public Render getPhotoComments(String photoId) throws SQLException {
+        return renderJSON("photoId", photoId, "comments", commentDao.getByPhoto(photoId));
     }
     
 }

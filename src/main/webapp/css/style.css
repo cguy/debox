@@ -25,6 +25,11 @@ body {
     min-width: 980px;
 }
 
+* {
+    /* Avoid ugly tapping behavior */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);  
+}
+
 .navbar {
     min-width: 980px;
 }
@@ -35,6 +40,10 @@ body.fixed {
     left:0;
     right: 0;
     bottom: 0;
+}
+
+body.fixed > .navbar, body.fixed > .container-fluid {
+    display: none;
 }
 
 hr {
@@ -595,38 +604,38 @@ form {
     margin-top: 20px;
 }
 
-#album-comments .no-comments {
+.no-comments {
     margin: 15px;
 }
 
-#album-comments .comment {
+.comment {
     padding: 5px 10px;
 }
 
-#album-comments .comment:nth-of-type(odd) {
+.comment:nth-of-type(odd) {
     background: rgba(200, 200, 200, 0.15);
 }
 
-#album-comments .comment:nth-of-type(even) {
+.comment:nth-of-type(even) {
     background: rgba(230, 230, 255, 0.15);
 }
 
-#album-comments .comment .content {
+.comment .content {
     margin-left: 42px;
     font-size: 12px;
 }
 
-#album-comments .comment .author, 
-#album-comments .comment .date {
+.comment .author, 
+.comment .date {
     font-size: 11px;
     line-height: 16px;
     color: #888;
 }
-#album-comments .comment .date {
+.comment .date {
     float: right;
 }
 
-#album-comments .comment .authorPicture {
+.comment .authorPicture {
     float: left;
     width: 32px;
     height: 32px;
@@ -635,7 +644,7 @@ form {
     background-size: cover;
 }
 
-#album-comments textarea {
+textarea {
     border: none;
     border-top: 1px solid #ccc;
     margin: 0;
@@ -649,7 +658,7 @@ form {
     font-size: 12px;
 }
 
-#album-comments .form-actions {
+.form-actions {
     margin: 0;
     padding: 10px;
     text-align: right;

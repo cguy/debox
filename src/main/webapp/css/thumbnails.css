@@ -126,7 +126,7 @@
 }
 
 .thumbnails.albums {
-    margin: 15px 0 0 0;
+    margin: 3px 0 0 0;
     padding: 15px 0 0;
 }
 
@@ -140,7 +140,7 @@
 .thumbnails.albums > li {
     width: 180px;
     height: 180px;
-    margin: 0 8px 15px;
+    margin: 12px;
 }
 
 .thumbnails > li > .thumbnail > i {
@@ -178,6 +178,11 @@
     height: 170px;
 }
 
+.thumbnails.albums > li > .thumbnail:hover {
+    width:200px;
+    height:200px;
+}
+
 .thumbnails > li > .thumbnail:hover {
     -webkit-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
     -moz-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
@@ -186,9 +191,7 @@
     
     background-color: #333;
     border-color: #333;
-}
-
-.thumbnails > li > a.thumbnail:hover {
+   
     z-index: 10;
     
     margin-top: -15px;
@@ -204,11 +207,6 @@
     height: 100%;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-}
-
-.thumbnails.albums > li > .thumbnail:hover {
-    width:200px;
-    height:200px;
 }
 
 .thumbnails.albums > li > .thumbnail.cover > .picture {
