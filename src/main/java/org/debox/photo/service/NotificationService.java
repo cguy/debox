@@ -18,23 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model.notification;
+package org.debox.photo.service;
 
-import org.debox.photo.model.Album;
+import org.debox.photo.model.Photo;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AlbumNotification extends Notification {
+public class NotificationService {
     
-    protected Album album;
-
-    public Album getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(Album album) {
-        this.album = album;
+    public void addSubscription(String userId, Photo photo) {
+        
     }
     
 }

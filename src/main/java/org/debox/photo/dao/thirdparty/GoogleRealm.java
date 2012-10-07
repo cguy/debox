@@ -51,9 +51,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GoogleRealm extends JdbcMysqlRealm {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(FacebookRealm.class);
-    
+
     @Override
     public boolean supports(AuthenticationToken token) {
         if (token instanceof ThirdPartyTokenWrapper) {
@@ -64,42 +64,44 @@ public class GoogleRealm extends JdbcMysqlRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-
-        //null usernames are invalid
         if (principals == null) {
             throw new AuthorizationException("PrincipalCollection method argument cannot be null.");
         }
-
-        User user = (User) getAvailablePrincipal(principals);
-        Connection conn = null;
-        Set<String> roleNames = null;
-        Set<String> permissions = null;
         try {
-            conn = dataSource.getConnection();
+            User user = (User) getAvailablePrincipal(principals);
+            Connection conn = null;
+            Set<String> roleNames = null;
+            Set<String> permissions = null;
+            try {
+                conn = dataSource.getConnection();
 
-            // Retrieve roles and permissions from database
-            roleNames = getRoleNamesForUser(conn, user.getId());
-            if (permissionsLookupEnabled) {
-                permissions = getPermissions(conn, user.getId(), roleNames);
+                // Retrieve roles and permissions from database
+                roleNames = getRoleNamesForUser(conn, user.getId());
+                if (permissionsLookupEnabled) {
+                    permissions = getPermissions(conn, user.getId(), roleNames);
+                }
+
+            } catch (SQLException e) {
+                final String message = "There was a SQL error while authorizing user [" + user.getId() + "]";
+                if (logger.isErrorEnabled()) {
+                    logger.error(message, e);
+                }
+
+                // Rethrow any SQL errors as an authorization exception
+                throw new AuthorizationException(message, e);
+            } finally {
+                JdbcUtils.closeConnection(conn);
             }
 
-        } catch (SQLException e) {
-            final String message = "There was a SQL error while authorizing user [" + user.getId() + "]";
-            if (logger.isErrorEnabled()) {
-                logger.error(message, e);
-            }
-
-            // Rethrow any SQL errors as an authorization exception
-            throw new AuthorizationException(message, e);
-        } finally {
-            JdbcUtils.closeConnection(conn);
+            SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roleNames);
+            info.setStringPermissions(permissions);
+            return info;
+        } catch (Exception ex) {
+            logger.error("Unable to get authorization info");
         }
-
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roleNames);
-        info.setStringPermissions(permissions);
-        return info;
+        return null;
     }
-    
+
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         try {
@@ -130,5 +132,4 @@ public class GoogleRealm extends JdbcMysqlRealm {
         }
         return null;
     }
-
 }

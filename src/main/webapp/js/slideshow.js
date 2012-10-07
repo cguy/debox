@@ -244,6 +244,13 @@ function Slideshow() {
         $("#slideshow-options .exit").click(function() {
             exitFullscreen(true);
         });
+        $("#slideshow-comments").mCustomScrollbar({
+            scrollInertia: 500,
+            mouseWheel: 50,
+            advanced:{
+                updateOnContentResize: true
+            }
+        });
     }
     
     this.setMode = function(mode) {
@@ -276,18 +283,11 @@ function Slideshow() {
                     $(html).insertBefore("#slideshow-comments form");
                     $("#slideshow-comments form textarea").val("");
                 }
-                console.log(data.comments.length)
                 if (data.comments.length == 0) {
                     $("#slideshow-comments .no-comments").removeClass("hide");
                 } else {
                     $("#slideshow-comments .no-comments").addClass("hide");
-                    $("#slideshow-comments").mCustomScrollbar({
-                        scrollInertia: 500,
-                        mouseWheel: 50,
-                        advanced:{
-                            updateOnContentResize: true
-                        }
-                    });
+                    $("#slideshow-comments").mCustomScrollbar("update");
                 }
             }
         });

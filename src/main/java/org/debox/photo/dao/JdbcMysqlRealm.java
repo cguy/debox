@@ -46,12 +46,10 @@ import org.slf4j.LoggerFactory;
 public class JdbcMysqlRealm extends JdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
-    
     protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, id from accounts where username = ?";
     protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur LEFT JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
-
     protected UserDao userDao = new UserDao();
-    
+
     public JdbcMysqlRealm() {
         this.setDataSource(DatabaseUtils.getDataSource());
         this.setAuthenticationQuery(SALTED_AUTHENTICATION_QUERY);
@@ -87,9 +85,9 @@ public class JdbcMysqlRealm extends JdbcRealm {
             user.setId(id);
             user.setUsername(username);
             user.setThirdPartyAccounts(userDao.getThirdPartyAccounts(user));
-            
+
             info = new SimpleAuthenticationInfo(user, password.toCharArray(), getName());
-            
+
             if (salt != null) {
                 info.setCredentialsSalt(new SimpleByteSource(salt));
             }
@@ -106,45 +104,48 @@ public class JdbcMysqlRealm extends JdbcRealm {
 
         return info;
     }
-    
+
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-
-        //null usernames are invalid
         if (principals == null) {
             throw new AuthorizationException("PrincipalCollection method argument cannot be null.");
         }
-
-        User user = (User) getAvailablePrincipal(principals);
-        Connection conn = null;
-        Set<String> roleNames = null;
-        Set<String> permissions = null;
         try {
-            conn = dataSource.getConnection();
 
-            // Retrieve roles and permissions from database
-            roleNames = getRoleNamesForUser(conn, user.getId());
-            if (permissionsLookupEnabled) {
-                permissions = getPermissions(conn, user.getId(), roleNames);
+            User user = (User) getAvailablePrincipal(principals);
+            Connection conn = null;
+            Set<String> roleNames = null;
+            Set<String> permissions = null;
+            try {
+                conn = dataSource.getConnection();
+
+                // Retrieve roles and permissions from database
+                roleNames = getRoleNamesForUser(conn, user.getId());
+                if (permissionsLookupEnabled) {
+                    permissions = getPermissions(conn, user.getId(), roleNames);
+                }
+
+            } catch (SQLException e) {
+                final String message = "There was a SQL error while authorizing user [" + user.getId() + "]";
+                if (logger.isErrorEnabled()) {
+                    logger.error(message, e);
+                }
+
+                // Rethrow any SQL errors as an authorization exception
+                throw new AuthorizationException(message, e);
+            } finally {
+                JdbcUtils.closeConnection(conn);
             }
 
-        } catch (SQLException e) {
-            final String message = "There was a SQL error while authorizing user [" + user.getId() + "]";
-            if (logger.isErrorEnabled()) {
-                logger.error(message, e);
-            }
-
-            // Rethrow any SQL errors as an authorization exception
-            throw new AuthorizationException(message, e);
-        } finally {
-            JdbcUtils.closeConnection(conn);
+            SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roleNames);
+            info.setStringPermissions(permissions);
+            return info;
+        } catch (Exception ex) {
+            logger.error("Unable to get authorization info");
         }
-
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roleNames);
-        info.setStringPermissions(permissions);
-        return info;
+        return null;
     }
-    
+
     private String[] getPasswordForUser(Connection conn, String username) throws SQLException {
         String[] result = new String[3];
         PreparedStatement ps = null;
@@ -178,5 +179,4 @@ public class JdbcMysqlRealm extends JdbcRealm {
 
         return result;
     }
-    
 }

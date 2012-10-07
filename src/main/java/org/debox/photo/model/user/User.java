@@ -23,6 +23,7 @@ package org.debox.photo.model.user;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.debox.photo.model.Role;
 
 /**
@@ -39,6 +40,25 @@ public abstract class User implements Serializable {
     protected String avatar;
     
     protected List<ThirdPartyAccount> thirdPartyAccounts;
+
+    protected Set<String> photosSubscriptions;
+    protected Set<String> albumssSubscriptions;
+
+    public Set<String> getPhotosSubscriptions() {
+        return photosSubscriptions;
+    }
+
+    public void setPhotosSubscriptions(Set<String> photosSubscriptions) {
+        this.photosSubscriptions = photosSubscriptions;
+    }
+
+    public Set<String> getAlbumssSubscriptions() {
+        return albumssSubscriptions;
+    }
+
+    public void setAlbumssSubscriptions(Set<String> albumssSubscriptions) {
+        this.albumssSubscriptions = albumssSubscriptions;
+    }
 
     public String getAvatar() {
         return avatar;
