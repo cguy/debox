@@ -59,22 +59,24 @@ public class UserDao {
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
     protected static String SQL_CREATE_USER = "INSERT IGNORE INTO users (id) VALUES (?)";
     protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
+    protected static String SQL_UPDATE_USER_INFO = "UPDATE users SET firstname = ?, lastname = ?, avatar = ? WHERE id = ?";
     protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
-    protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token, fullname FROM thirdparty_accounts WHERE user_id = ?";
-    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token, fullname FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
+    protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
+    protected static String SQL_GET_USER_ACCESSES_COUNT = "SELECT count(thirdparty_account_id) count FROM thirdparty_accounts WHERE user_id = ?";
+    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
     protected static String SQL_CREATE_ROLE = "INSERT INTO roles VALUES (?, ?)";
     protected static String SQL_CREATE_USER_ROLE = "INSERT INTO users_roles VALUES (?, ?)";
     protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
-            + "select ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token, firstname, lastname "
-            + "from thirdparty_accounts ta "
+            + "SELECT ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token, firstname, lastname, avatar "
+            + "FROM thirdparty_accounts ta "
             + "     LEFT JOIN users_roles ur ON ur.user_id = ta.user_id "
-            + "     LEFT JOIN roles r ON ur.role_id = r.id"
-            + "     LEFT JOIN users u ON ta.user_id = u.id"
+            + "     LEFT JOIN roles r ON ur.role_id = r.id "
+            + "     LEFT JOIN users u ON ta.user_id = u.id "
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?) ON DUPLICATE KEY UPDATE album_id = ?";
     
-    private static String GET_USER = "SELECT * FROM users u INNER JOIN accounts a ON a.id = u.id WHERE u.id = ?";
+    private static String GET_USER = "SELECT id, lastname, firstname, avatar FROM users u WHERE u.id = ?";
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -93,7 +95,8 @@ public class UserDao {
                 String roleName = resultSet.getString("role_name");
                 String token = resultSet.getString("token");
                 String firstname = resultSet.getString("firstname");
-                String lastname = resultSet.getString("lasttname");
+                String lastname = resultSet.getString("lastname");
+                String avatar = resultSet.getString("avatar");
 
                 Role role = new Role();
                 role.setId(roleId);
@@ -107,6 +110,7 @@ public class UserDao {
                 result.setRole(role);
                 result.setFirstName(firstname);
                 result.setLastName(lastname);
+                result.setAvatar(avatar);
             }
         } finally {
             JdbcUtils.closeResultSet(resultSet);
@@ -179,6 +183,9 @@ public class UserDao {
         PreparedStatement userStatement = null;
         PreparedStatement accountStatement = null;
         PreparedStatement roleStatement = null;
+        PreparedStatement accountsCountStatement;
+        PreparedStatement updateUserStatement;
+        ResultSet rs = null;
         try {
             if (user.getId() == null) {
                 user.setId(StringUtils.randomUUID());
@@ -203,6 +210,18 @@ public class UserDao {
             accountStatement.setString(4, user.getToken());
             accountStatement.setString(5, user.getToken());
             accountStatement.executeUpdate();
+            
+            accountsCountStatement = connection.prepareStatement(SQL_GET_USER_ACCESSES_COUNT);
+            accountsCountStatement.setString(1, user.getId());
+            rs = accountsCountStatement.executeQuery();
+            if (rs.next() && rs.getInt(1) == 1) {
+                updateUserStatement = connection.prepareStatement(SQL_UPDATE_USER_INFO);
+                updateUserStatement.setString(1, user.getFirstName());
+                updateUserStatement.setString(2, user.getLastName());
+                updateUserStatement.setString(3, user.getAvatarUrl());
+                updateUserStatement.setString(4, user.getId());
+                updateUserStatement.executeUpdate();
+            }
 
             connection.commit();
 
@@ -211,6 +230,7 @@ public class UserDao {
             connection.rollback();
 
         } finally {
+            JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(userStatement);
             JdbcUtils.closeStatement(accountStatement);
             JdbcUtils.closeStatement(roleStatement);
@@ -407,7 +427,6 @@ public class UserDao {
                 user.setFirstName(rs.getString("firstname"));
                 user.setLastName(rs.getString("lastname"));
                 user.setAvatar(rs.getString("avatar"));
-                user.setUsername(rs.getString("username"));
             }
         } finally {
             JdbcUtils.closeResultSet(rs);

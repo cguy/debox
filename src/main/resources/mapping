@@ -13,8 +13,9 @@ org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAut
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------
-GET,POST    /configuration                          AdministrationFilter.checkUserSession
+*           /*                                      HeaderFilter.setExpireHeader
 
+GET,POST    /configuration                          AdministrationFilter.checkUserSession
 GET         /account                                AdministrationFilter.checkUserSession
 POST        /account/*                              AdministrationFilter.checkUserSession
 
@@ -24,14 +25,19 @@ PUT,POST    /token                                  AdministrationFilter.checkUs
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
-POST,DELETE /photo/*                                AdministrationFilter.checkUserSession
+DELETE      /photo/*                                AdministrationFilter.checkUserSession
+GET,POST    /photo/*/comments                       AdministrationFilter.checkUserAuthentication
+
 POST,DELETE /album                                  AdministrationFilter.checkUserSession
-*           /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
+GET,POST    /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
+POST        /album/*/comments                       AdministrationFilter.checkUserAuthentication
 
 POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
 GET         /uploadProgress                         AdministrationFilter.checkUserSession
 
 DELETE      /third-party-account/*                  AdministrationFilter.checkUserSession
+
+DELETE      /comment/*                              AdministrationFilter.checkUserAuthentication
 
 [actions]
 # -----------------------------------------------------------------------------------------------
@@ -85,9 +91,10 @@ DELETE      /token/{id}                         TokenService.deleteToken
 # -----------------------------------------------------------------------------------------------
 # MEDIA - COMMENTS
 # -----------------------------------------------------------------------------------------------
-POST  /album/{albumId}/comments                 CommentService.createAlbumComment
-POST  /photo/{photoId}/comments                 CommentService.createPhotoComment
-GET   /photo/{photoId}/comments                 CommentService.getPhotoComments
+POST   /album/{albumId}/comments                 CommentService.createAlbumComment
+POST   /photo/{photoId}/comments                 CommentService.createPhotoComment
+GET    /photo/{photoId}/comments                 CommentService.getPhotoComments
+DELETE /comment/{commentId}                      CommentService.deleteComment
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS

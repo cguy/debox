@@ -96,7 +96,7 @@ public class ServiceUtil {
                     result.setUrl(getFacebookService().getAuthorizationUrl(null));
                     result.setEnabled(true);
                 } catch (IllegalArgumentException ex) {
-                    logger.warn("Facebook is unconfigured, cause: ", ex);
+                    logger.warn("Facebook is unconfigured, cause: {}", ex.getMessage());
                 }
                 break;
             case "twitter":
@@ -105,10 +105,10 @@ public class ServiceUtil {
             case "google":
                 result.setName("Google");
                 try {
-                   result.setUrl(getAuthenticationUrl());
+                    result.setUrl(getAuthenticationUrl());
                     result.setEnabled(true);
                 } catch (IllegalArgumentException ex) {
-                    logger.warn("Google is unconfigured, cause: ", ex);
+                    logger.warn("Google is unconfigured, cause: {}", ex.getMessage());
                 }
                 break;
             default:

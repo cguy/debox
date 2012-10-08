@@ -4,17 +4,17 @@
        {{^albumParent}}title="{{i18n.album.back2albums}}"{{/albumParent}}
        class="back"><i class="icon-circle-arrow-left"></i></a>
 
-    {{#config.isAdmin}}
+    {{#config.administrator}}
     <a href="#/album/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
     <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
-    {{/config.isAdmin}}
+    {{/config.administrator}}
 
+    {{#config.authenticated}}
     <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
-        {{#comments.length}}
-            <span class="badge badge-info">{{comments.length}}</span>
-        {{/comments.length}}
+        <span class="badge badge-info {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
         <i class="icon-comment"></i>
     </a>
+    {{/config.authenticated}}
 
     {{#photos.length}}{{#album.downloadable}}
     <div class="dropdown pull-right">
@@ -56,10 +56,9 @@
 </div>
 
 <div id="album-content">
+    {{#config.authenticated}}
     <div id="album-comments">
-        {{^comments.length}}
-            <div class="alert alert-heading no-comments">{{i18n.album.comments.empty}}</div>
-        {{/comments.length}}
+        <div class="alert alert-heading no-comments {{#comments.length}}hide{{/comments.length}}">{{i18n.comments.empty.album}}</div>
         {{#comments.length}}
             {{#comments}}
                 {{> comment}}
@@ -67,12 +66,13 @@
         {{/comments.length}}
         
         <form id="new-album-comment" method="post" action="#/album/{{album.id}}/comments">
-            <textarea name="content" required placeholder="{{i18n.album.comments.placeholder}}"></textarea>
+            <textarea name="content" required placeholder="{{i18n.comments.placeholder}}"></textarea>
             <div class="form-actions">
                 <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />
             </div>
         </form>
     </div>
+    {{/config.authenticated}}
 
     {{#album.description}}
     <div class="album_description">
@@ -123,3 +123,16 @@
 
 </div>
 <a id="top"></a>
+
+<form id="remove-comment" class="modal hide fade" action="#/albums/{{album.id}}/comments/" method="delete">
+    <div class="modal-header">
+        <h3>{{i18n.common.deletion}}</h3>
+    </div>
+    <div class="modal-body">
+        {{i18n.comments.confirm}}
+    </div>
+    <div class="modal-footer">
+        <input type="submit" class="btn btn-danger" data-loading-text="{{i18n.common.deletion_in_progress}}" value="{{i18n.common.delete}}" />
+        <button type="reset" class="btn" data-dismiss="modal">{{i18n.common.cancel}}</button>
+    </div>
+</form>

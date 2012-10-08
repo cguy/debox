@@ -143,11 +143,11 @@ body.fixed #fullscreenContainer {
     padding: 10px 20px;
     font-size: 12px;
     line-height: 15px;
-    -webkit-transition: bottom .25s ease;
-    -moz-transition: bottom .25s ease;
-    -ms-transition: bottom .25s ease;
-    -o-transition: bottom .25s ease;
-    transition: bottom .25s ease;
+    -webkit-transition: bottom .25s ease, right .5s ease;
+    -moz-transition: bottom .25s ease, right .5s ease;
+    -ms-transition: bottom .25s ease, right .5s ease;
+    -o-transition: bottom .25s ease, right .5s ease;
+    transition: bottom .25s ease, right .5s ease;
     background-color: #000;
     background-color: rgba(0,0,0,.8);
 }
@@ -172,6 +172,28 @@ body.fixed #fullscreenContainer {
     font-size: 26px;
 }
 
+body.fixed .tooltip {
+    z-index: 10000;
+}
+
+body.fixed .tooltip .tooltip-inner {
+    background-color: #fff;
+    color: #000;
+}
+
+body.fixed .tooltip.left .tooltip-arrow {
+    border-left-color: #fff;
+}
+
+body.fixed .drawer ~ .tooltip .tooltip-inner {
+    background-color: #000;
+    color: #fff;
+}
+
+body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
+    border-left-color: #000;
+}
+
 #slideshow-options a {
     display: inline-block;
     margin: 0 10px;
@@ -193,6 +215,11 @@ body.fixed #fullscreenContainer {
 .drawer.comments #slideshow-options a.comments
 {
     color: #333;
+}
+
+.drawer #slideshow-options a.comments:hover,
+#slideshow-options a.comments:hover{
+    color: #005580;
 }
 
 #slideshow-options a:first-of-type {

@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class AccountService extends WebMotionController {
+public class AccountService extends DeboxService {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     
@@ -95,8 +95,10 @@ public class AccountService extends WebMotionController {
         thirdPartyAccount.setId(user.getId());
         thirdPartyAccount.setUsername(fbUser.getName());
         thirdPartyAccount.setAccountUrl(fbUser.getLink());
+        thirdPartyAccount.setFirstName(fbUser.getFirstName());
+        thirdPartyAccount.setLastName(fbUser.getLastName());
         
-        new UserDao().save(thirdPartyAccount);
+        userDao.save(thirdPartyAccount);
 
         user.addThirdPartyAccount(thirdPartyAccount);
         return renderRedirect("/#/administration/tokens");
@@ -124,7 +126,7 @@ public class AccountService extends WebMotionController {
         thirdPartyAccount.setUsername(node.get("name").asText());
         thirdPartyAccount.setAccountUrl(node.get("link").asText());
 
-        new UserDao().save(thirdPartyAccount);
+        userDao.save(thirdPartyAccount);
 
         user.addThirdPartyAccount(thirdPartyAccount);
         return renderRedirect("/#/administration/tokens");

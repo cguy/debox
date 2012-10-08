@@ -202,12 +202,6 @@ var fr = {
         original_size: "Taille originale des photos",
         subalbums: "Sous-albums",
         no_photos: "Il n'y a aucune photo disponible pour cet album.",
-        comments: {
-            show: "Afficher les commentaires",
-            hide: "Cacher les commentaires",
-            placeholder: "Laissez un commentaire ...",
-            empty: "Aucun commentaire n'a encore été laissé sur cet album"
-        },
         admin: {
             title: "",
             edit: {
@@ -272,12 +266,20 @@ var fr = {
         edit: {
             title: "Modification d'une photo",
             placeholder: "Veuillez rentrer le titre de la photo"
-        },
-        comments: {
-            show: "Afficher les commentaires",
-            hide: "Cacher les commentaires",
-            placeholder: "Laissez un commentaire ...",
-            empty: "Aucun commentaire n'a encore été laissé sur cette photo"
         }
+    },
+    comments: {
+        show: "Afficher les commentaires",
+        hide: "Cacher les commentaires",
+        placeholder: "Laissez un commentaire ...",
+        remove: "Supprimer ce commentaire",
+        confirm: "Êtes-vous sûr de vouloir supprimer ce commentaire ?",
+        empty: {
+            album: "Aucun commentaire n'a encore été laissé sur cet album",
+            photo: "Aucun commentaire n'a encore été laissé sur cette photo"
+        }
+    },
+    slideshow: {
+        exit: "Quitter le diaporama"
     }
 };

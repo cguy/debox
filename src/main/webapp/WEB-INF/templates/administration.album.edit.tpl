@@ -18,7 +18,7 @@
     </div>
 
     <div class="row">
-        <div class="span6">
+        <div class="span8">
             <form id="edit-album-form" class="form-horizontal" action="#/album/{{album.id}}" method="post">
                 <h2>{{i18n.album.admin.edit.modify}}</h2>
                 <p></p>

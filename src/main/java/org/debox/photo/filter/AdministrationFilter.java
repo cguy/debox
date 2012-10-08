@@ -38,4 +38,13 @@ public class AdministrationFilter extends WebMotionFilter {
         }
         return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
     }
+
+    public Render checkUserAuthentication() {
+        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+            doProcess();
+            return null;
+        }
+        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
+    }
+    
 }

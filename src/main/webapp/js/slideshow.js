@@ -114,6 +114,7 @@ function fullscreen(index, data, mode) {
     s = new Slideshow();
     s.setItems(data);
     s.setIndex(index);
+    s._loadComments();
     s.show();
     s.setMode(mode);
 }
@@ -202,10 +203,22 @@ function Slideshow() {
         $("#slideshow-previous").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getPreviousIndex())));
         $("#slideshow-next").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getNextIndex())));
         
+        var isCommentsMode = /\/comments$/.test(hash);
         var path = this.getBasePath();
-        path += /\/comments$/.test(hash) ? "" : "/comments";
+        path += isCommentsMode ? "" : "/comments";
         $("#slideshow-options .comments").attr("href", path);
         $("#new-photo-comment").attr("action", location.hash);
+        
+        $("#slideshow-options > a[rel=tooltip]").tooltip('destroy');
+        $("#slideshow-options > a[rel=tooltip]").click(function() {
+            $(this).tooltip('hide');
+        });
+        if (isCommentsMode) {
+            $("#slideshow-options > a.comments").attr("title", fr.comments.hide);
+        } else {
+            $("#slideshow-options a.comments").attr("title", fr.comments.show);
+        }
+        $("#slideshow-options > a[rel=tooltip]").tooltip();
     }
 
     this.getCurrentId = function() {
@@ -224,7 +237,7 @@ function Slideshow() {
     this.setItems = function(items) {
         this.items = this.convert(items);
         
-        var html = templates["slideshow"].render({data:this.items, i18n: fr}, templates);
+        var html = templates["slideshow"].render({data:this.items, i18n: fr, config: _config}, templates);
         $(document.body).append(html);
         
         var self = this;
@@ -239,8 +252,11 @@ function Slideshow() {
 
     this.show = function() {
         $(document.body).addClass("fixed");
-        fullScreenApi.requestFullScreen($("#fullscreenContainer").get(0));
-        $("#slideshow-options .exit").attr("href", location.href.substring(0, location.href.lastIndexOf("/")));
+//        fullScreenApi.requestFullScreen($("#fullscreenContainer").get(0));
+        
+        var href = location.href;
+        href = href.substring(0, href.indexOf("/", href.indexOf("#/album/") + "#/album/".length));
+        $("#slideshow-options .exit").attr("href", href);
         $("#slideshow-options .exit").click(function() {
             exitFullscreen(true);
         });
@@ -269,6 +285,9 @@ function Slideshow() {
     }
     
     this._loadComments = function() {
+        if (!_config.authenticated) {
+            return;
+        }
         var id = this.items[this.index].id;
         ajax({
             url: computeUrl("photo/" + id + "/comments"),
@@ -285,10 +304,16 @@ function Slideshow() {
                 }
                 if (data.comments.length == 0) {
                     $("#slideshow-comments .no-comments").removeClass("hide");
+                    $("#slideshow-options .comments .badge").addClass("hide");
                 } else {
                     $("#slideshow-comments .no-comments").addClass("hide");
                     $("#slideshow-comments").mCustomScrollbar("update");
+                    $("#slideshow-options .comments .badge").removeClass("hide");
+                    $("#slideshow-options .comments .badge").text(data.comments.length);
                 }
+            },
+            error: function() {
+                
             }
         });
     }
@@ -392,6 +417,7 @@ function Slideshow() {
         } else if (this.index != index) {
             throw "Cannot switch to photo other than strict previous or following photo.";
         }
+        this._loadComments();
     }
 
     this.getNextIndex = function(index) {

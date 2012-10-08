@@ -68,7 +68,7 @@ public class AlbumDao {
             + "    id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
             + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
-            + "WHERE aa.user_id = ? "
+            + "WHERE aa.user_id = ? AND a.parent_id IS NULL "
             + "ORDER BY begin_date";
     
     protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE parent_id = ? ORDER BY begin_date";
@@ -126,7 +126,7 @@ public class AlbumDao {
             + "        token_id = ? OR public = 1"
             + "    )";
     protected static String SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
-            + "WHERE id = ? OR public = 1";
+            + "WHERE id = ? AND aa.user_id = ?";
     
     protected static String SQL_GET_ALBUM_BY_RELATIVE_PATH = "SELECT id, name, description, begin_date, end_date, photos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE relative_path = ?";
     
@@ -190,8 +190,8 @@ public class AlbumDao {
 
         try {
             statement = c.prepareStatement(SQL_GET_PHOTOS_COUNT_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, userId);
-            statement.setString(2, albumId);
+            statement.setString(1, albumId);
+            statement.setString(2, userId);
 
             rs = statement.executeQuery();
             while (rs.next()) {
@@ -234,10 +234,9 @@ public class AlbumDao {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(statement);
             
-            
             statement = c.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
-            statement.setString(1, token);
-            statement.setString(2, albumId);
+            statement.setString(1, albumId);
+            statement.setString(2, token);
 
             rs = statement.executeQuery();
             while (rs.next()) {
@@ -335,8 +334,8 @@ public class AlbumDao {
     public Album getVisibleAlbumForLoggedUser(String userId, String albumId) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED);
-        statement.setString(1, userId);
-        statement.setString(2, albumId);
+        statement.setString(1, albumId);
+        statement.setString(2, userId);
         Album result = executeSingleQueryStatement(statement, userId, false);
         return result;
     }
@@ -410,12 +409,11 @@ public class AlbumDao {
         if (parentId == null) {
             statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED);
             statement.setString(1, id);
-            statement.setString(2, id);
 
         } else {
             statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, id);
-            statement.setString(2, parentId);
+            statement.setString(1, parentId);
+            statement.setString(2, id);
         }
         List<Album> result = this.executeListQueryStatement(statement, id, false);
         return result;

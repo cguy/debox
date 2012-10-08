@@ -20,6 +20,7 @@
  */
 package org.debox.photo.service;
 
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.util.Date;
 import org.apache.shiro.SecurityUtils;
@@ -62,6 +63,18 @@ public class CommentService extends DeboxService {
 
     public Render getPhotoComments(String photoId) throws SQLException {
         return renderJSON("photoId", photoId, "comments", commentDao.getByPhoto(photoId));
+    }
+    
+    public Render deleteComment(String commentId) throws SQLException {
+        Comment comment = commentDao.getById(commentId);
+        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String ownerId = comment.getUser().getId();
+        if (!userId.equals(ownerId)) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not autorized to delete this comment.");
+        }
+        
+        commentDao.delete(commentId);
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
 }

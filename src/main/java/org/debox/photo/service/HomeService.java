@@ -31,7 +31,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -65,7 +64,7 @@ public class HomeService extends DeboxService {
         if (SessionUtils.isLogged(subject)) {
             if (principal instanceof DeboxUser) {
                 DeboxUser user = (DeboxUser) principal;
-                username = user.getUsername();
+                username = user.getFirstName() + " " + user.getLastName();
             } else if (principal instanceof ThirdPartyAccount) {
                 ThirdPartyAccount user = (ThirdPartyAccount) principal;
                 
@@ -105,8 +104,10 @@ public class HomeService extends DeboxService {
         
         Map<String, Object> headerData = new HashMap<>(2);
         headerData.put("title", title);
+        headerData.put("avatar", username);
         headerData.put("username", username);
-        headerData.put("isAdmin", subject.hasRole("administrator"));
+        headerData.put("administrator", subject.hasRole("administrator"));
+        headerData.put("authenticated", SessionUtils.isLogged(subject));
         
         Map<String, Object> result = new HashMap<>(2);
         result.put("config", headerData);

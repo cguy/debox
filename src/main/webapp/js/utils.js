@@ -32,7 +32,7 @@ function loadTemplates(callback) {
             templatesLoaded = true;
             
             _config = data.config;
-            initHeader(data.config.title, data.config.username, data.config.isAdmin);
+            initHeader(data.config);
             loadTemplate("login.popup", data, "#authentication-form");
             
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
@@ -52,7 +52,7 @@ function loadTemplates(callback) {
 
 var _defaultSelector = "body > .container-fluid";
 var _config = {
-    isAdmin : false
+    administrator : false
 }
 function loadTemplate(templateId, data, selector, callback) {
     if (!templatesLoaded) {
@@ -153,14 +153,8 @@ function editTitle(title) {
     document.title = title;
 }
 
-function initHeader(title, username, isAdmin) {
-    editTitle(title + " - Accueil");
-    
-    var data = {
-        "title": title, 
-        "username" : username,
-        "isAdmin": isAdmin
-    }
+function initHeader(data) {
+    editTitle(data.title + " - Accueil");
     loadTemplate("header", data, ".navbar .container-fluid", headerTemplateLoaded);
 }
 
@@ -219,7 +213,7 @@ function hideAlbumChoose() {
 }
 
 function loadComment(comment) {
-    comment.date = new Date(comment.date).toString("HH:mm:ss - dd MMMM yyyy");
+    comment.date = new Date(comment.date).toString("dd/MM:yyyy à HH:mm:ss");
     return comment;
 }
 
@@ -257,8 +251,10 @@ function loadAlbum(data, callback, mode) {
     data.album.photos = data.photos;
     
     // Process comments
-    for (var i = 0 ; i < data.comments.length ; i++) {
-        data.comments[i] = loadComment(data.comments[i]);
+    if (data.comments) {
+        for (var i = 0 ; i < data.comments.length ; i++) {
+            data.comments[i] = loadComment(data.comments[i]);
+        }
     }
     
     loadTemplate("album", data, null, function() {
@@ -393,13 +389,15 @@ function albumLoaded(mode) {
             $(".page-header .comments").addClass("active");
             $(".page-header .comments").attr("href", oldHref.replace("/comments", ""));
                     
-            $(".page-header .comments").attr("title", fr.album.comments.hide);
+            $(".page-header .comments").attr("title", fr.comments.hide);
                     
         } else {
-            $(".page-header .comments").attr("href", oldHref + "/comments");
+            if (!/\/comments$/.test(oldHref)) {
+                $(".page-header .comments").attr("href", oldHref + "/comments");
+            }
             $("#album-content").removeClass("comments");
             $(".page-header .comments").removeClass("active");
-            $(".page-header .comments").attr("title", fr.album.comments.show);
+            $(".page-header .comments").attr("title", fr.comments.show);
         }
         $('.page-header .comments').tooltip();
     }
@@ -417,7 +415,7 @@ function albumLoaded(mode) {
         $("#delete-photo").modal();
         return false;
     });
-            
+
     $(".edit-photo").unbind("click");
     $(".edit-photo").click(function() {
         var photoId = $(this).parents("div").attr("data-id");
@@ -426,6 +424,21 @@ function albumLoaded(mode) {
         var refTitleNode = $(this).parents("div").children(".title");
         $("#edit-photo #photoTitle").val(refTitleNode.text());
         $("#edit-photo").modal();
+        return false;
+    });
+    
+    bindAlbumCommentDeletion();
+}
+
+function bindAlbumCommentDeletion() {
+    $("#album-comments .comment .remove").tooltip("destroy");
+    $("#album-comments .comment .remove").tooltip();
+    $("#album-comments .comment .remove").unbind("click");
+    $("#album-comments .comment .remove").click(function() {
+        var commentId = $(this).parents(".comment").attr("id");
+        var oldUrl = $("#remove-comment").attr("action");
+        $("#remove-comment").attr("action", oldUrl.substring(0, oldUrl.lastIndexOf("/") + 1) + commentId);
+        $("#remove-comment").modal();
         return false;
     });
 }

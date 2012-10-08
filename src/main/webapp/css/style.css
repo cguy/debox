@@ -255,10 +255,6 @@ h1 small {
     padding-left: 10px;
 }
 
-form {
-    background-color: #fff;
-}
-
 #authentication-form {
     width: 741px;
     margin-left: -420px;
@@ -554,14 +550,16 @@ form {
     color: #1573b6;
 }
 
-.page-header .comments .badge {
+.comments .badge {
     position: absolute;
     margin-top: 12px;
     margin-left: 15px;
     background-color: #005580;
     line-height: 15px;
 }
-.page-header .comments.active .badge, .page-header .comments:hover .badge {
+
+.page-header .comments.active .badge, .page-header .comments:hover .badge,
+#slideshow-options .comments:hover .badge {
     background-color: #333;
 }
 
@@ -625,14 +623,26 @@ form {
     font-size: 12px;
 }
 
-.comment .author, 
+.comment .author,
+.comment .remove,
 .comment .date {
     font-size: 11px;
     line-height: 16px;
+    height: 16px;
     color: #888;
 }
-.comment .date {
+.comment .date,
+.comment .remove {
     float: right;
+}
+
+.comment .remove {
+    margin-right: 10px;
+}
+
+.comment .remove:hover {
+    color: #000;
+    text-decoration: none;
 }
 
 .comment .authorPicture {

@@ -113,6 +113,13 @@
     height: 192px;
 }
 
+#photos-edition .thumbnails > li > .thumbnail:hover {
+    width:140px;
+    height: 192px;
+    margin-top: 0;
+    margin-left: 0;
+}
+
 #photos-edition .thumbnails > li > .thumbnail .picture {
     height: 140px;
 }
@@ -121,7 +128,7 @@
 /* ALL THUMBNAILS */
 /* ************** */
 .thumbnails {
-    margin: 15px;
+    margin: 15px 12px;
     list-style-type: none;
 }
 

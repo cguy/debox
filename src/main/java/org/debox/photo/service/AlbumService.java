@@ -166,7 +166,8 @@ public class AlbumService extends DeboxService {
     }
 
     public Render getAlbums(String parentId, String token, String criteria) throws SQLException {
-        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
+        Subject subject = SecurityUtils.getSubject();
+        boolean isAdministrator = SessionUtils.isAdministrator(subject);
         List<Album> albums;
         if (isAdministrator && "all".equals(criteria)) {
             albums = albumDao.getAllAlbums();
@@ -327,27 +328,33 @@ public class AlbumService extends DeboxService {
             }
             tokenDao.saveAll(tokens);
             
-            List<ThirdPartyAccount> accounts = new ArrayList<>();
-            for (String thirdPartyId : authorizedTokens) {
-                String providerId = StringUtils.substringBefore(thirdPartyId, "-");
-                Provider provider = ServiceUtil.getProvider(providerId);
-                if (provider == null) {
-                    continue;
+            String parentId = album.getId();
+            while (parentId != null) {
+                List<ThirdPartyAccount> accounts = new ArrayList<>();
+                for (String thirdPartyId : authorizedTokens) {
+                    String providerId = StringUtils.substringBefore(thirdPartyId, "-");
+                    Provider provider = ServiceUtil.getProvider(providerId);
+                    if (provider == null) {
+                        continue;
+                    }
+
+                    String providerAccountId = StringUtils.substringAfter(thirdPartyId, "-");
+
+                    ThirdPartyAccount account = userDao.getUser(provider.getId(), providerAccountId);
+                    if (account == null) {
+                        account = new ThirdPartyAccount(provider, providerAccountId, null);
+                        userDao.save(account);
+                    }
+                    accounts.add(account);
                 }
+                userDao.saveAccess(accounts, parentId);
                 
-                String providerAccountId = StringUtils.substringAfter(thirdPartyId, "-");
-                
-                ThirdPartyAccount account = userDao.getUser(provider.getId(), providerAccountId);
-                if (account == null) {
-                    account = new ThirdPartyAccount(provider, providerAccountId, null);
-                    userDao.save(account);
-                }
-                accounts.add(account);
+                Album tmp = albumDao.getAlbum(parentId);
+                parentId = tmp.getParentId();
             }
-            userDao.saveAccess(accounts, albumId);
         }
         
-        return getAlbum(null, album.getId());
+        return getAlbum(null, albumId);
     }
     
     protected void addParentAlbumsToToken(Album album, Token token) throws SQLException {

@@ -41,15 +41,17 @@ app.post('#/album/:album/comments', function() {
         data: $("#new-album-comment").serializeArray(),
         type: "post",
         success: function(data) {
-            if ($(".no-comments").length == 1) {
-                $(".no-comments").remove();
+            if ($(".no-comments").length > 0) {
+                $(".no-comments").addClass("hide");
             }
-            
+            $(".page-header .comments .badge").removeClass("hide");
+            $(".page-header .comments .badge").text(parseInt($(".page-header .comments .badge").text(), 10) + 1);
             data = loadComment(data);
             
             var html = templates["comment"].render(data);
             $(html).insertBefore("#album-comments form");
             $("#album-comments form textarea").val("");
+            bindAlbumCommentDeletion();
         }
     });
 });
@@ -137,19 +139,53 @@ app.post('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
         type: "post",
         success: function(data) {
             $("#slideshow-comments .no-comments").addClass("hide");
+            $("#slideshow-options .comments .badge").removeClass("hide");
+            $("#slideshow-options .comments .badge").text(parseInt($("#slideshow-options .comments .badge").text(), 10) + 1);
             data = loadComment(data);
             var html = templates["comment"].render(data);
             $(html).insertBefore("#slideshow-comments form");
             $("#slideshow-comments form textarea").val("");
             $("#slideshow-comments").mCustomScrollbar("update");
+        },
+        error : function() {
+    
         }
     });
+});
+
+app.del('#/photos/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
+    deleteComment(this.params['splat'][1], $("#slideshow-options .comments .badge"), $("#slideshow-comments .no-comments"), $("#remove-comment"));
+});
+
+function deleteComment(id, badgeNode, emptyNode, modalNode) {
+    ajax({
+        url: "comment/" + id,
+        type: "delete",
+        success: function() {
+            $("#"+id).remove();
+            modalNode.modal("hide");
+            var count = parseInt(badgeNode.text(), 10) - 1;
+            badgeNode.text(count);
+            if (count == 0) {
+                badgeNode.addClass("hide");
+                emptyNode.removeClass("hide");
+            }
+        },
+        error : function() {
+            modalNode.modal("hide");
+        }
+    });
+}
+
+app.del('#/albums/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
+    deleteComment(this.params['splat'][1], $(".page-header .comments .badge"), $("#album-comments .no-comments"), $("#remove-comment"));
 });
 
 // Album loading (grid)
 app.get('#/album/([a-zA-Z0-9-_]*)', function() {
     var id = this.params['splat'][0];
     if ($("h1").attr("id") == id) {
+        $("#loading").addClass("hide");
         albumLoaded();
     } else {
         ajax({

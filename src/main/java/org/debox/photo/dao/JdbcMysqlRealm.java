@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class JdbcMysqlRealm extends JdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
-    protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, id from accounts where username = ?";
+    protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, a.id id, firstname, lastname, avatar from accounts a INNER JOIN users u on u.id = a.id where username = ?";
     protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur LEFT JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
     protected UserDao userDao = new UserDao();
 
@@ -76,6 +76,9 @@ public class JdbcMysqlRealm extends JdbcRealm {
             String password = queryResults[0];
             String salt = queryResults[1];
             String id = queryResults[2];
+            String firstname = queryResults[3];
+            String lastname = queryResults[4];
+            String avatar = queryResults[5];
 
             if (password == null) {
                 throw new UnknownAccountException("No account found for user [" + username + "]");
@@ -85,6 +88,9 @@ public class JdbcMysqlRealm extends JdbcRealm {
             user.setId(id);
             user.setUsername(username);
             user.setThirdPartyAccounts(userDao.getThirdPartyAccounts(user));
+            user.setFirstName(firstname);
+            user.setLastName(lastname);
+            user.setAvatar(avatar);
 
             info = new SimpleAuthenticationInfo(user, password.toCharArray(), getName());
 
@@ -147,7 +153,7 @@ public class JdbcMysqlRealm extends JdbcRealm {
     }
 
     private String[] getPasswordForUser(Connection conn, String username) throws SQLException {
-        String[] result = new String[3];
+        String[] result = new String[6];
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -166,10 +172,9 @@ public class JdbcMysqlRealm extends JdbcRealm {
                     throw new AuthenticationException("More than one user row found for user [" + username + "]. Usernames must be unique.");
                 }
 
-                result[0] = rs.getString(1);
-                result[1] = rs.getString(2);
-                result[2] = rs.getString(3);
-
+                for (int i = 0 ; i < result.length ; i++) {
+                    result[i] = rs.getString(i+1);
+                }
                 foundResult = true;
             }
         } finally {

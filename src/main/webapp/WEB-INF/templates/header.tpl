@@ -9,9 +9,9 @@
 <div class="nav-collapse">
     <ul class="nav">
         <li><a href="#/"><i class="icon-home"></i>&nbsp;&nbsp;{{i18n.header.album_list}}</a></li>
-        {{#isAdmin}}
+        {{#administrator}}
         <li><a href="#/administration"><i class="icon-cog"></i>&nbsp;&nbsp;{{i18n.header.administration}}</a></li>
-        {{/isAdmin}}
+        {{/administrator}}
     </ul>
     <ul class="nav pull-right about">
         <li>

@@ -31,6 +31,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
@@ -40,6 +43,9 @@ import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debux.webmotion.server.WebMotionController;
+import org.debux.webmotion.server.call.Call;
+import org.debux.webmotion.server.call.HttpContext;
+import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
@@ -104,10 +110,10 @@ public class DeboxService extends WebMotionController {
         } catch (SQLException ex) {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
-        
+
         return new RenderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
-    
+
     protected RenderStatus handleLastModifiedHeader(Album album) {
         try {
             String id = "a." + album.getId();
@@ -129,7 +135,7 @@ public class DeboxService extends WebMotionController {
         } catch (SQLException ex) {
             logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
         }
-                
+
         return new RenderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     

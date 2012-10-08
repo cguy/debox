@@ -52,6 +52,10 @@ public class PhotoService extends DeboxService {
     protected static AlbumDao albumDao = new AlbumDao();
     
     public Render editPhoto(String id, String title) throws SQLException {
+        // This test can't be put in mapping file
+        if (!SessionUtils.isLogged(SecurityUtils.getSubject())) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in.");
+        }
         Photo photo = photoDao.getPhoto(id);
         if (photo == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);

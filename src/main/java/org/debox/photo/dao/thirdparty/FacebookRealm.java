@@ -108,11 +108,13 @@ public class FacebookRealm extends JdbcMysqlRealm {
             } else {
                 account.setToken(accessToken.getToken());
             }
-            userDao.save(account);
 
             account.setUsername(fbUser.getName());
             account.setAccountUrl(fbUser.getLink());
+            account.setFirstName(fbUser.getFirstName());
+            account.setLastName(fbUser.getLastName());
 
+            userDao.save(account);
             return new SimpleAuthenticationInfo(account, facebookToken.getCode(), this.getName());
 
         } catch (SQLException ex) {

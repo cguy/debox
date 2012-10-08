@@ -46,6 +46,8 @@ public class CommentDao {
     protected static String CREATE_PHOTO_LINK = "INSERT INTO photos_comments (comment_id, photo_id) VALUES (?, ?)";
     protected static String GET_BY_ALBUM = "SELECT * FROM comments c INNER JOIN albums_comments ac ON c.id = ac.comment_id WHERE ac.album_id = ? ORDER BY c.publish_time";
     protected static String GET_BY_PHOTO = "SELECT * FROM comments c INNER JOIN photos_comments pc ON c.id = pc.comment_id WHERE pc.photo_id = ? ORDER BY c.publish_time";
+    protected static String GET_BY_ID = "SELECT * FROM comments WHERE id = ?";
+    protected static String DELETE = "DELETE FROM comments WHERE id = ?";
 
     protected UserDao userDao = new UserDao();
     
@@ -55,6 +57,10 @@ public class CommentDao {
 
     public void savePhotoComment(String photoId, Comment comment) throws SQLException {
         save(photoId, comment, CREATE_PHOTO_LINK);
+    }
+    
+    public Comment getById(String id) throws SQLException {
+        return get(id, GET_BY_ID).get(0);
     }
     
     protected void save(String mediaId, Comment comment, String joinQuery) throws SQLException {
@@ -76,14 +82,14 @@ public class CommentDao {
     }
     
     public List<Comment> getByAlbum(String albumId) throws SQLException {
-        return getByMedia(albumId, GET_BY_ALBUM);
+        return get(albumId, GET_BY_ALBUM);
     }
     
     public List<Comment> getByPhoto(String photoId) throws SQLException {
-        return getByMedia(photoId, GET_BY_PHOTO);
+        return get(photoId, GET_BY_PHOTO);
     }
     
-    protected List<Comment> getByMedia(String mediaId, String query) throws SQLException {
+    protected List<Comment> get(String mediaId, String query) throws SQLException {
         ResultSet rs = null;
         List<Comment> result = new ArrayList<>();
         try (
@@ -106,6 +112,16 @@ public class CommentDao {
             JdbcUtils.closeResultSet(rs);
         }
         return result;
+    }
+
+    public void delete(String commentId) throws SQLException {
+        try (
+                Connection c = DatabaseUtils.getConnection();
+                PreparedStatement stmt = c.prepareStatement(DELETE)) {
+            
+            stmt.setString(1, commentId);
+            stmt.executeUpdate();
+        }
     }
     
 }

@@ -8,10 +8,15 @@
     <a id="slideshow-next"><i class="icon-chevron-right"></i></a>
     <div id="slideshow-label"></div>
     <div id="slideshow-options">
-        <a class="details" href=""><i class="icon-picture"></i></a>
-        <a class="share" href=""><i class="icon-share"></i></a>
-        <a class="comments" href=""><i class="icon-comment"></i></a>
-        <a class="exit" href="#"><i class="icon-remove"></i></a>
+        <!--<a class="details" href=""><i class="icon-picture"></i></a>
+        <a class="share" href=""><i class="icon-share"></i></a>-->
+        {{#config.authenticated}}    
+        <a class="comments" data-placement="left" rel="tooltip" href="">
+            <span class="badge badge-info hide">0</span>
+            <i class="icon-comment"></i>
+        </a>
+        {{/config.authenticated}}    
+        <a class="exit" data-placement="left" rel="tooltip" title="{{i18n.slideshow.exit}}" href="#"><i class="icon-remove"></i></a>
     </div>
 
     <div id="slideshow-drawer" class="hide">
