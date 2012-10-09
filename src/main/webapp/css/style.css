@@ -636,7 +636,12 @@ h1 small {
     float: right;
 }
 
+.comment:hover .remove {
+    display:block;
+}
+
 .comment .remove {
+    display:none;
     margin-right: 10px;
 }
 

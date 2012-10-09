@@ -41,6 +41,7 @@ import org.debox.photo.model.Configuration;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Provider;
 import org.debox.photo.model.user.ThirdPartyAccount;
+import org.debox.photo.model.user.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
@@ -101,11 +102,17 @@ public class HomeService extends DeboxService {
         
         Subject subject = SecurityUtils.getSubject();
         String username = getUsername();
+        User user = SessionUtils.getUser(subject);
+        String userId = null;
+        if (user != null) {
+            userId = user.getId();
+        }
         
         Map<String, Object> headerData = new HashMap<>(2);
         headerData.put("title", title);
         headerData.put("avatar", username);
         headerData.put("username", username);
+        headerData.put("userId", userId);
         headerData.put("administrator", subject.hasRole("administrator"));
         headerData.put("authenticated", SessionUtils.isLogged(subject));
         

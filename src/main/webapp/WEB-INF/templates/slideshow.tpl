@@ -21,9 +21,9 @@
 
     <div id="slideshow-drawer" class="hide">
         <div id="slideshow-comments">
-            <div class="alert alert-heading no-comments">{{i18n.photo.comments.empty}}</div>
+            <div class="alert alert-heading no-comments">{{i18n.comments.empty.photo}}</div>
             <form id="new-photo-comment" method="post" action="">
-                <textarea name="content" required placeholder="{{i18n.photo.comments.placeholder}}"></textarea>
+                <textarea name="content" required placeholder="{{i18n.comments.placeholder}}"></textarea>
                 <div class="form-actions">
                     <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />
                 </div>
