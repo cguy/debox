@@ -124,7 +124,7 @@
 </div>
 <a id="top"></a>
 
-<form id="remove-comment" class="modal hide fade" action="#/albums/{{album.id}}/comments/" method="delete">
+<form id="remove-comment" class="modal hide fade" action="#/albums/{{album.id}}/comments/" data-action="#/albums/{{album.id}}/comments/" method="delete">
     <div class="modal-header">
         <h3>{{i18n.common.deletion}}</h3>
     </div>

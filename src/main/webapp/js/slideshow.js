@@ -311,6 +311,7 @@ function Slideshow() {
                     $("#slideshow-options .comments .badge").removeClass("hide");
                     $("#slideshow-options .comments .badge").text(data.comments.length);
                 }
+                bindPhotoCommentDeletion();
             },
             error: function() {
                 

@@ -439,8 +439,20 @@ function bindAlbumCommentDeletion() {
     $("#album-comments .comment .remove").unbind("click");
     $("#album-comments .comment .remove").click(function() {
         var commentId = $(this).parents(".comment").attr("id");
-        var oldUrl = $("#remove-comment").attr("action");
+        var oldUrl = $("#remove-comment").attr("data-action");
         $("#remove-comment").attr("action", oldUrl.substring(0, oldUrl.lastIndexOf("/") + 1) + commentId);
+        $("#remove-comment").modal();
+        return false;
+    });
+}
+
+function bindPhotoCommentDeletion() {
+    $("#slideshow-comments .comment .remove").tooltip("destroy");
+    $("#slideshow-comments .comment .remove").tooltip();
+    $("#slideshow-comments .comment .remove").unbind("click");
+    $("#slideshow-comments .comment .remove").click(function() {
+        var commentId = $(this).parents(".comment").attr("id");
+        $("#remove-comment").attr("action", "#/photos/" + s.items[s.index].id + "/comments/" + commentId);
         $("#remove-comment").modal();
         return false;
     });

@@ -43,7 +43,7 @@ body.fixed {
 }
 
 body.fixed > .navbar, body.fixed > .container-fluid {
-    display: none;
+    visibility: hidden;
 }
 
 hr {
@@ -325,7 +325,6 @@ h1 small {
 #account form, #synchronization form {
     width: 500px;
     padding: 10px;
-    border: 1px solid #ddd;
     border-radius: 5px;
 }
 
@@ -671,6 +670,18 @@ textarea {
     width: 368px;
     height: 60px;
     font-size: 12px;
+}
+
+#remove-comment {
+    visibility: visible;
+}
+
+.modal-backdrop {
+    z-index: 10000;
+}
+
+.modal {
+    z-index: 10001;
 }
 
 .form-actions {

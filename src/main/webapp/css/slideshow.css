@@ -166,7 +166,7 @@ body.fixed #fullscreenContainer {
 /* ********************************************* */
 #slideshow-options {
     position: absolute;
-    z-index: 1;
+    z-index: 1050;
     top: 15px;
     right: 15px;
     font-size: 26px;
@@ -235,6 +235,7 @@ body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
 /* ********************************************* */
 #slideshow-drawer {
     position: absolute;
+    z-index: 10;
     right: 0;
     top: 0;
     bottom: 0;
