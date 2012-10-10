@@ -328,8 +328,11 @@ public class AlbumService extends DeboxService {
             }
             tokenDao.saveAll(tokens);
             
-            String parentId = album.getId();
-            while (parentId != null) {
+            // TODO There is a bug here, the case where we unautorize 
+            // a thirdparty account for a parent album is not handled
+            // (children albums are not unautorized)
+            String currentAlbumId = album.getId();
+            while (currentAlbumId != null) {
                 List<ThirdPartyAccount> accounts = new ArrayList<>();
                 for (String thirdPartyId : authorizedTokens) {
                     String providerId = StringUtils.substringBefore(thirdPartyId, "-");
@@ -347,10 +350,10 @@ public class AlbumService extends DeboxService {
                     }
                     accounts.add(account);
                 }
-                userDao.saveAccess(accounts, parentId);
+                userDao.saveAccess(accounts, currentAlbumId);
                 
-                Album tmp = albumDao.getAlbum(parentId);
-                parentId = tmp.getParentId();
+                Album tmp = albumDao.getAlbum(currentAlbumId);
+                currentAlbumId = tmp.getParentId();
             }
         }
         
