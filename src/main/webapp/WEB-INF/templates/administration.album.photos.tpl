@@ -1,4 +1,4 @@
-<div id="photos-edition" class="hide">
+<div id="photos-edition" class="{{^inEdition}}hide{{/inEdition}}">
     {{#photos.length}}
     <ul class="thumbnails photos">
         {{#photos}}

@@ -20,8 +20,7 @@
 */
 body {
     padding-top: 40px;
-    background-color: #fff;
-    background: url('../img/snow.png');
+    background-color: #fefefe;
     min-width: 980px;
 }
 
@@ -55,30 +54,38 @@ hr {
     top:0;
     left: 50%;
 
-    width: 190px;
+    width: 180px;
     height: 30px;
     line-height: 30px;
 
     margin-left: -110px;
-    padding: 0 10px 0 20px; 
+    padding: 0 10px; 
 
     z-index: 1050; /* must be greater than 1030, navbar z-index */
 
-    background: url('../img/loader-screen.gif') 10px center no-repeat rgba(245, 245, 245, .5);
-
-    -webkit-border-bottom-right-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
-    -moz-border-radius-bottomright: 3px;
-    -moz-border-radius-bottomleft: 3px;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
 
     border: 1px solid #ccc;
+    border: 1px solid rgba(30,30,30,0.75);
     border-top: none;
 
     text-align: center;
     font-size: 14px;
     color: #fefefe;
+    
+    background: #45484d; /* Old browsers */
+    background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #45484d 0%,#000000 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
 }
 
 body > .container-fluid {
@@ -87,12 +94,62 @@ body > .container-fluid {
     padding: 0 15px;
 }
 
+.navbar .container-fluid {
+    padding-right: 0;
+}
+
 .navbar .nav.about {
     margin-right: 0;
 }
 
-.navbar a {
-    color: #999;
+.navbar-inverse .navbar-inner {
+    background-color: #1573B6; /* Old browsers */
+    background: -moz-linear-gradient(top, #19C1E3 0%, #1573B6 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#19C1E3), color-stop(100%,#1573B6)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #19C1E3 0%,#1573B6 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #19C1E3 0%,#1573B6 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #19C1E3 0%,#1573B6 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #19C1E3 0%,#1573B6 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#19C1E3', endColorstr='#1573B6',GradientType=0 ); /* IE6-9 */
+}
+
+.navbar-inverse, .navbar-inverse .brand, .navbar-inverse .nav > li > a {
+    color: #fefefe;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.navbar-inverse .nav > li > a:hover {
+    color: #dedede;
+}
+
+.navbar .nav.about > li > a {
+    padding: 10px 10px 10px 0;
+}
+
+.navbar-inverse .nav > li > a, .navbar-inverse p {
+    line-height: 18px;
+    padding-top: 12px;
+}
+
+.navbar i {
+    display: inline-block;
+    font-size: 18px;
+    width: 1.25em;
+    text-align: center;
+    vertical-align: -1px;
+    margin-right: 3px;
+}
+
+.navbar .brand {
+    background: url("../img/logo.png") 0 center no-repeat;
+    background-size: 38px 38px;
+    padding-left: 45px;
+    margin-left: 0;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
 }
 
 * a:focus { 
@@ -108,8 +165,8 @@ body > .container-fluid {
     font-size: 22px;
 }
 
-.btn-primary {
-    background-color: #6e6652;
+.btn-primary, .chzn-container .chzn-results .highlighted {
+    background-color: #006dcc;
     background-image: -moz-linear-gradient(top, #19c1e3, #1573b6);
     background-image: -ms-linear-gradient(top, #19c1e3, #1573b6);
     background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#19c1e3), to(#1573b6));
@@ -117,8 +174,9 @@ body > .container-fluid {
     background-image: -o-linear-gradient(top, #19c1e3, #1573b6);
     background-image: linear-gradient(top, #19c1e3, #1573b6);
     background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#19c1e3', endColorstr='#1573b6', GradientType=0);
-    border-color: #1573b6 rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'19c1e3, endColorstr='#'1573b6, GradientType=0);
+    border-color: #0044cc #0044cc #002a80;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
 
@@ -128,6 +186,11 @@ body > .container-fluid {
 .btn-primary.disabled,
 .btn-primary[disabled] {
     background-color: #1573b6;
+}
+
+.btn-primary:active,
+.btn-primary.active {
+    background-color: #003399 \9;
 }
 
 .bold {
@@ -142,8 +205,16 @@ body > .container-fluid {
     padding: 5px 20px;
     margin: 0 -15px;
     border-bottom-color: #ccc;
-    background-color: #eee;
     z-index: 1029;
+
+    background: rgb(255,255,255);
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(47%,rgba(246,246,246,1)), color-stop(100%,rgba(237,237,237,1)));
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 );
 }
 
 .page-header.album {
@@ -234,6 +305,7 @@ h1 {
 
 .page-header a:hover {
     color: #005580;
+    color: #1573B6;
     text-decoration: none;
 }
 
@@ -553,7 +625,7 @@ h1 small {
     position: absolute;
     margin-top: 12px;
     margin-left: 15px;
-    background-color: #005580;
+    background-color: #1573b6;
     line-height: 15px;
 }
 

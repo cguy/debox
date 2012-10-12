@@ -26,27 +26,24 @@
     z-index: 0;
 }
 
-.thumbnails.albums > li > .thumbnail.cover > .picture > .count {
-    background: rgb(12,27,30);
-    filter: alpha(opacity=100);
+.thumbnails > li > .thumbnail {
+    border: 2px solid #ccc;
 }
 
+.thumbnails.albums > li > .thumbnail.cover > .picture {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+}
+
+.thumbnails.albums > li > .thumbnail.cover > .picture > .count, 
 .thumbnails.albums > li > .thumbnail.cover > .picture > .title {
+    width: 160px;
     background: rgb(12,27,30);
     filter: alpha(opacity=100);
 }
 
-.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .title {
-    filter: alpha(opacity=0);
-}
-
+.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .title, 
 .thumbnails.albums > li > .thumbnail.cover:hover > .picture > .count {
     filter: alpha(opacity=0);
-}
-
-/* **** */
-/* HOME */
-/* **** */
-.dropdown-menu.dropdown-form .form-actions {
-    width: 202px;
 }

@@ -84,10 +84,6 @@ function loadTemplate(templateId, data, selector, callback) {
         callback();
     }
     
-    if (templateId != "header") {
-        setTimeout('$("#loading").addClass("hide");', 150);
-    }
-    
     if (selector == _defaultSelector) {
         $("body > .container-fluid *[rel=tooltip]").tooltip();
         $("body > .container-fluid a[rel=tooltip]").click(function() {
@@ -98,6 +94,10 @@ function loadTemplate(templateId, data, selector, callback) {
         $(".navbar a[rel=tooltip]").click(function() {
             $(this).tooltip('hide');
         });
+    }
+    
+    if (templateId != "header") {
+        setTimeout('$("#loading").addClass("hide");', 300);
     }
 }
 
@@ -129,6 +129,7 @@ function ajax(object) {
     if (!object.type || object.type == "get") {
         $("#loading").removeClass("hide");
     }
+    object.cache = false;
     $.ajax(object);
 }
 
@@ -382,7 +383,7 @@ function albumLoaded(mode) {
             $(".edit-album-cancel").addClass("hide");
                     
             $("#photos-edition").addClass("hide");
-            $("#photos").removeClass("hide");
+            $("#photos, .photos").removeClass("hide");
         }
                 
         var oldHref = $(".page-header .comments").attr("href");
@@ -410,7 +411,8 @@ function albumLoaded(mode) {
     $(".delete").click(function() {
         $("#delete-album-modal").modal();
     });
-            
+    
+    // Photo deletion binding
     $(".delete-photo").unbind("click");
     $(".delete-photo").click(function() {
         var photoId = $(this).parents("div").attr("data-id");
@@ -419,6 +421,7 @@ function albumLoaded(mode) {
         return false;
     });
 
+    // Photo edition binding
     $(".edit-photo").unbind("click");
     $(".edit-photo").click(function() {
         var photoId = $(this).parents("div").attr("data-id");

@@ -3,8 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="robots" content="noindex,nofollow,noarchive">
-
+        
         <title></title>
+        
+        <link rel="shortcut icon" type="image/png" href="img/logo.png" />
 
         <link rel="stylesheet" href="static/css/bootstrap.min.css" />
         <link rel="stylesheet" href="static/css/jquery.mCustomScrollbar.css" />
@@ -12,14 +14,16 @@
         <link rel="stylesheet" href="static/css/font-awesome.css" />
         <link rel="stylesheet" href="static/css/font-awesome-ie7.css" />
         
-        <link rel="stylesheet" href="static/css/style.css" />
-        <link rel="stylesheet" href="static/css/thumbnails.css" />
-        <link rel="stylesheet" href="static/css/slideshow.css" />
-        <link rel="stylesheet" href="static/css/administration/configuration.css" />
-        
         <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css" />
         <link rel="stylesheet" href="static/js/lib/skin-vista/ui.dynatree.css" />
         <link rel="stylesheet" href="static/js/lib/chosen/chosen.css" />
+        
+        <link rel="stylesheet" href="static/css/style.css" />
+        <link rel="stylesheet" href="static/css/black.css" />
+        <link rel="stylesheet" href="static/css/thumbnails.css" />
+        <link rel="stylesheet" href="static/css/slideshow.css" />
+        <link rel="stylesheet" href="static/css/administration/configuration.css" />
+        <!--[if IE 9]><link rel="stylesheet" href="static/css/style.ie9.css" /><![endif]-->
         <!--[if lt IE 9]><link rel="stylesheet" href="static/css/style.ie.css" /><![endif]-->
     </head>
     <body onscroll="onBodyScroll()">
@@ -70,7 +74,7 @@
                     $("#loading").text(lang.common.loading);
                     app = Sammy(function() {
                         // Comment this line to enable SammyJS logging
-//                        this.log = function() {}
+                        this.log = function() {}
                     });
                     head.js(
                         "static/js/routes/media-browsing.js" + suffix,

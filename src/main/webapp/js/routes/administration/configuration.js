@@ -65,7 +65,9 @@ app.post('#/administration/configuration', function() {
             targetBtn.button("reset");
             loadTemplate("header", {
                 "username" : $(".navbar-text.pull-right strong").html(), 
-                "title" : data.title
+                "title" : data.title,
+                "authenticated" : _config.authenticated,
+                "administrator" : _config.administrator
             }, ".navbar .container-fluid", headerTemplateLoaded);
 
             if (force) {
