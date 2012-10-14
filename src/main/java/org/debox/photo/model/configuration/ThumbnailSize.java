@@ -25,9 +25,9 @@ package org.debox.photo.model.configuration;
  */
 public enum ThumbnailSize {
     
-    SQUARE ("s_", 150, 150, true),
+    SQUARE ("s_", 190, 190, true),
     
-    LARGE ("l_", 1600, 1000);
+    LARGE ("l_", 1920, 1200);
     
     protected String prefix;
     protected int width;

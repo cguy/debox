@@ -20,13 +20,25 @@
 */
 body {
     padding-top: 40px;
-    background-color: #fefefe;
+    background: #f0f0f0;
     min-width: 980px;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 * {
     /* Avoid ugly tapping behavior */
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);  
+}
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    src: url('../font/sourcesanspro-light-webfont.eot');
+    src: url('../font/sourcesanspro-light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/sourcesanspro-light-webfont.woff') format('woff'),
+         url('../font/sourcesanspro-light-webfont.ttf') format('truetype'),
+         url('../font/sourcesanspro-light-webfont.svg#source_sans_pro_lightregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
 .navbar {
@@ -309,6 +321,10 @@ h1 {
     text-decoration: none;
 }
 
+h2 {
+    margin-left: 15px;
+}
+
 h2.page-header {
     margin: 0 0 15px 0;
     padding-bottom: 0;
@@ -455,14 +471,19 @@ h1 small {
 }
 
 #top {
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     position: fixed;
     bottom: 5px;
     right: 5px;
     background-image: url("../img/to-top-icone.png");
+    background-size: contain;
     display: none;
     z-index: 100000;
+}
+
+#top:hover {
+    cursor: pointer;
 }
 
 #tokens #thirdparty_accounts {

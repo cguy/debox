@@ -10,6 +10,7 @@
            data-url="{{url}}"
            data-thumbnail="{{thumbnailUrl}}">
             <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
+            <span class="filter"><i class="icon-plus-sign"></i></span>
         </a>
     </li>
     {{/photos}}

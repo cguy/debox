@@ -4,13 +4,19 @@
 <ul class="thumbnails albums">
     {{#albums}}
     <li>
-        <a class="thumbnail cover" href="#/album/{{id}}">
-            <span class="picture" style="background-image:url('{{coverUrl}}')">
-                <span class="title"><span>{{name}}</span></span>
+        <a class="thumbnail" href="#/album/{{id}}">
+            <span class="picture" style="background-image:url('{{coverUrl}}')"></span>
+            <span class="title" title="{{name}}"><span>{{name}}</span></span>
+            <span class="filter">
+                <i class="icon-plus-sign"></i>
+                <span class="date">
+                    <i class="icon-calendar"></i>
+                    {{beginDate}}
+                </span>
                 <span class="count">
-                    {{photosCount}}
-                    {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
-                    {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
+                    <i class="icon-picture"></i> {{photosCount}}
+                        {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
+                        {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
                 </span>
             </span>
         </a>

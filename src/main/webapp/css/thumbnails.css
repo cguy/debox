@@ -24,40 +24,43 @@
 #albums > .thumbnails > li {
     width: 300px;
     height: 75px;
-    margin: 10px;
+    margin: 15px 12px;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail {
     width: 300px;
-    height: 75px;
-    background-size: 75px 75px;
+    height: 80px;
+    background-size: 80px 80px;
     background-repeat: no-repeat;
     background-position: 5px 5px;
     color: #333;
-    background-color: #fefefe;
-    border-color: #ccc;
+    box-shadow: 0 1px 4px rgba(34, 25, 25, 0.4);
+    font-size: 12px;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail:hover {
-    margin: 0;
     text-decoration: none;
+    box-shadow: none;
+    border-color: #aaa;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail ul {
-    margin-left: 80px;
+    margin-left: 90px;
 }
 
 #albums > .thumbnails > li > .album.admin.thumbnail ul li {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 16px;
 }
 
 #photos-edition .title {
+    position: absolute;
     display: inline-block;
-    bottom: 23px;
+    bottom: 28px;
     width: 130px;
-    padding: 5px;
+    padding: 0 5px 5px 5px;
     -webkit-transition: color 0.25s ease;
     -moz-transition: color 0.25s ease;
     -ms-transition: color 0.25s ease;
@@ -67,10 +70,10 @@
 }
 
 #photos-edition .actions {
+    position: absolute;
     display: inline-block;
     text-align: right;
-    padding: 5px 0;
-    bottom: 3px;
+    bottom: 2px;
     font-size: 20px;
     width: 140px;
     -webkit-transition: color 0.25s ease;
@@ -88,11 +91,16 @@
     text-decoration: none;
 }
 
-#photos-edition .thumbnail:hover .actions a.edit-photo:hover {
+#photos-edition .thumbnail:hover {
+    background-color: #333;
+    border-color: #333;
+}
+
+#photos-edition .thumbnail .actions a.edit-photo:hover {
     color: #19c1e3;
 }
 
-#photos-edition .thumbnail:hover .actions a.delete-photo:hover {
+#photos-edition .thumbnail .actions a.delete-photo:hover {
     color: #d14;
 }
 
@@ -133,8 +141,8 @@
 }
 
 .thumbnails.albums {
-    margin: 3px 0 0 0;
-    padding: 15px 0 0;
+    margin: 0 0 0 0;
+    padding: 10px 0 0;
 }
 
 .thumbnails > li {
@@ -145,9 +153,9 @@
 }
 
 .thumbnails.albums > li {
-    width: 180px;
-    height: 180px;
-    margin: 12px;
+    width: 175px;
+    height: 175px;
+    margin: 12px 18px;
 }
 
 .thumbnails > li > .thumbnail > i {
@@ -159,88 +167,24 @@
     background: rgba(12,27,30,0.75);
 }
 
-.thumbnails > li > .thumbnail {
-    position: absolute;
-    display: inline-block;
-    -webkit-transition: all 0.1s ease;
-    -moz-transition: all 0.1s ease;
-    -ms-transition: all 0.1s ease;
-    -o-transition: all 0.1s ease;
-    transition: all 0.1s ease;
-    
-    width: 140px;
-    height: 140px;
-    padding: 5px;
-    
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    
-    background-color: #FEFEFE;
-    border: 2px solid #FAFAFA;
-    box-shadow: 0 1px 4px rgba(34, 25, 25, 0.6);
-}
-
-.thumbnails > li > .thumbnail.cover {
-    width: 170px;
-    height: 170px;
-}
-
-.thumbnails.albums > li > .thumbnail:hover {
-    width:180px;
-    height:180px;
-}
-
-.thumbnails > li > .thumbnail:hover {
-    -webkit-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
-    -moz-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
-    -o-box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
-    box-shadow: 0 0 10px rgba(34, 25, 25, 0.3);
-    
-    background-color: #333;
-    border-color: #333;
-   
-    z-index: 10;
-    
-    margin-top: -5px;
-    margin-left: -5px;
-    width:150px;
-    height:150px;
-}
-
 .thumbnails > li > .thumbnail > .picture {
+    position: absolute;
     z-index: 10; /* IE9 */
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 140px;
+    height: 140px;
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
 
-.thumbnails.albums > li > .thumbnail.cover > .picture {
-    position: absolute;
-    width: inherit;
-    height: inherit;
+.thumbnails.albums > li > .thumbnail > .picture {
+    background-size: 190px 190px;
+    background-position: 0 center;
+    width: 190px;
+    height: 145px;
 }
 
-.thumbnails.albums > li > .thumbnail.cover > .picture > .count {
-    position: absolute;
-    display: block;
-    bottom: 0px;
-    left: 0;
-    right:0;
-    padding-right: 5px;
-    padding-left: 5px;
-    height: 20px;
-    font-size: 12px;
-    line-height: 20px;
-    color: #ddd;
-    text-align: right;
-    background: rgba(12,27,30,0.75);
-    border-top: 1px solid #aaa;
-    opacity: 1;
-}
-
-.thumbnails.albums > li > .thumbnail.cover > .picture > .title {
+.thumbnails.albums > li > .thumbnail .title {
     position: absolute;
     display: block;
     top:0;
@@ -256,17 +200,119 @@
     opacity: 1;
 }
 
-.thumbnails.albums > li > .thumbnail.cover > .picture > .count, .thumbnails > li > .thumbnail.cover > .picture > .title {
+.thumbnails.albums > li {
+    width: 190px;
+    height: 190px;
+}
+
+.thumbnails > li > .thumbnail {
+    position: absolute;
+    display: inline-block;
+    
+    width: 140px;
+    height: 140px;
+    
+    padding: 5px;
+    
+    background-color: #FEFEFE;
+    border:none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.thumbnails.albums > li > .thumbnail {
+    width: 190px;
+    height: 190px;
+}    
+
+.thumbnails > li > .thumbnail > .filter {
+    background: #000;
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    z-index: 10;
+    opacity: 0;
+    
     -webkit-transition: opacity 0.25s ease;
     -moz-transition: opacity 0.25s ease;
+    -ms-transition: opacity 0.25s ease;
     -o-transition: opacity 0.25s ease;
     transition: opacity 0.25s ease;
 }
 
-.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .title {
-    opacity: 0;
+.thumbnails.albums > li > .thumbnail > .filter {
+    width: 190px;
+    height: 145px;
 }
 
-.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .count {
-    opacity: 0;
+.thumbnails > li > .thumbnail > .filter > i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -10px;
+    margin-left: -20px;
+    
+    color: #fefefe;
+    color: rgba(255,255,255,0.5);
+    font-size: 32px;
+}
+
+.thumbnails > li > .thumbnail > .filter .date {
+    position: absolute;
+    top: 5px;
+    left: 2px;
+    color: #fefefe;
+    font-size: 12px;
+}
+
+.thumbnails > li > .thumbnail > .filter .count {
+    right: 5px;
+    text-align: right;
+    position: absolute;
+    bottom: 0;
+    color: #fefefe;
+    font-size: 12px;
+}
+
+.thumbnails > li > .thumbnail > .filter span i {
+    font-size: 16px;
+}
+
+.thumbnails.albums > li > .thumbnail .title {
+    position: absolute;
+    top: auto;
+    bottom:0;
+    left: 0;
+    right:0;
+    
+    display: block;
+    line-height: 40px;
+    height: 40px;
+    max-height: 40px;
+    color: #4B4B4B;
+    background: #fff;
+    font-weight: normal;
+    opacity: 1;
+    border-left: 5px solid #fff;
+    border-right: 5px solid #fff;
+    -webkit-box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnails.albums > li > .thumbnail .title span {
+    color: #222;
+    font-weight: normal;
+    font-family: 'Source Sans Pro', 'Helvetica Neue',Helvetica,Arial,sans-serif;;
+    font-size: 16px;
+    max-height: 40px;
+    overflow: hidden;
+    line-height: 20px;
+    width: 100%;
+    vertical-align:middle;
+    display:inline-block;
+}
+
+.thumbnails > li > .thumbnail:hover .filter {
+    opacity: 0.8;
 }

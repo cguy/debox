@@ -29,5 +29,24 @@ function createAlbum(album) {
         return album.photosCount && album.photosCount > 1;
     }
     
+    var beginDate = null;
+    if (album.beginDate) {
+        beginDate = new Date(album.beginDate).at("0:00am");
+        album.beginDate = beginDate.toString("dd MMMM yyyy");
+    }
+                    
+    var endDate = null;
+    if (album.endDate) {
+        endDate = new Date(album.endDate).at("0:00am");
+        album.endDate = endDate.toString("dd MMMM yyyy");
+    }
+    
+    if (beginDate && endDate) {
+        album.isInterval = !beginDate.equals(endDate);
+    }
+                    
+    album.minDownloadUrl = computeUrl("download/album/" + album.id + "/min");
+    album.downloadUrl = computeUrl("download/album/" + album.id);
+    
     return album;
 }

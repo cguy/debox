@@ -4,9 +4,10 @@
 <ul class="thumbnails">
     {{#albums}}
     <li>
-        <a href="#/album/{{id}}" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
-            <ul class="unstyled" style="font-size:16px;">
-                <li><strong>{{name}}</strong></li>
+        <a href="#/album/{{id}}/edition" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
+            <ul class="unstyled">
+                <li title="{{name}}"><strong>{{name}}</strong></li>
+                <li>{{i18n.common.date}}: {{beginDate}}</li>
                 <li>{{i18n.administration.albums.photo_number}}: {{photosCount}}</li>
                 {{#downloadable}}
                 <li style="color:#2E9E32;">

@@ -21,7 +21,6 @@
 package org.debox.photo.server;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -30,7 +29,6 @@ import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Role;
-import org.debox.photo.model.user.User;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;

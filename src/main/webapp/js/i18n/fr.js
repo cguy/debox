@@ -39,7 +39,8 @@ var fr = {
         creation_in_progress: "Création en cours...",
         modification_in_progress: "Modification en cours...",
         no_album: "Aucun album n'a été créé pour le moment !",
-        noPhotos: "Aucune photo"
+        noPhotos: "Aucune photo",
+        date: "Date"
     },
     account: {
         creation: "Créer un compte"
