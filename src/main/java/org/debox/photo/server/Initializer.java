@@ -21,7 +21,11 @@
 package org.debox.photo.server;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.Set;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import org.debox.photo.dao.ConfigurationDao;
@@ -55,12 +59,17 @@ public class Initializer implements ServletContextListener {
                 role.setId(StringUtils.randomUUID());
                 role.setName("administrator");
                 userDao.save(role);
+                
+                role = new Role();
+                role.setId(StringUtils.randomUUID());
+                role.setName("user");
+                userDao.save(role);
             }
             
             if (userCount == 0) {
                 DeboxUser admin = new DeboxUser();
                 admin.setId(StringUtils.randomUUID());
-                admin.setUsername("admin");
+                admin.setUsername("corentin.guy@debox.fr");
                 admin.setPassword("password");
                 userDao.save(admin, role);
             }
@@ -85,6 +94,28 @@ public class Initializer implements ServletContextListener {
         if (dataSource != null) {
             dataSource.close();
         }
+        
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            try {
+                DriverManager.deregisterDriver(driver);
+            } catch (SQLException ex) {
+                logger.error("Unable to deregister driver {}, cause: {}", driver.getClass().getName(), ex.getMessage());
+            }
+        }
+        
+        // TODO Check this source code ...
+        Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+        Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
+        for(Thread t:threadArray) {
+            if(t.getName().contains("Abandoned connection cleanup thread")) {
+                synchronized(t) {
+                    t.stop(); //don't complain, it works
+                }
+            }
+        }
+        
         logger.info("Destroyed web context");
     }
 

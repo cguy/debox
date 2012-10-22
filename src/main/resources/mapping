@@ -55,6 +55,7 @@ POST        /administration/upload              AdministrationService.upload
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER
 # -----------------------------------------------------------------------------------------------
+POST        /register                           AccountService.register
 POST        /authenticate                       AccountService.authenticate
 GET         /account                            AccountService.getLoggedUser
 POST        /account/{userId}                   AccountService.editCredentials

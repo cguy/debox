@@ -40,10 +40,37 @@ var fr = {
         modification_in_progress: "Modification en cours...",
         no_album: "Aucun album n'a été créé pour le moment !",
         noPhotos: "Aucune photo",
-        date: "Date"
+        date: "Date",
+        mail: "Adresse e-mail",
+        firstname: "Prénom",
+        lastname: "Nom de famille",
+        password: "Mot de passe",
+        password_confirm: "Confirmation du mot de passe",
+        connection: "Connexion"
     },
-    account: {
-        creation: "Créer un compte"
+    registration : {
+        title: "Créer un compte",
+        subtitle: "Inscrivez-vous et créez votre photothèque",
+        providerPrefix: "M'inscrire avec mon compte ",
+        altChoice: "ou créez votre compte avec votre adresse e-mail",
+        placeholder: {
+            firstname: "Votre prénom",
+            lastname: "Votre nom de famille",
+            mail: "Veuillez saisir votre adresse e-mail",
+            password: "Veuillez saisir votre mot de passe"
+        },
+        finish: "Terminer la création de mon compte",
+        errors : {
+            internal: "Une erreur est survenue lors de l'enregistrement de votre compte, veuillez réessayer ou contacter le responsable du site.",
+            alreadyRegistered: "Impossible de finir votre inscription, l'adresse e-mail saisie est déjà utilisée.",
+        },
+        success: "Votre compte a bien été créé, vous pouvez d'ores et déjà accéder à <a href=\"#/account\">votre compte</a> ou commencer à <a href=\"#/administration/upload\">ajouter vos photos</a>."
+    },
+    signin : {
+        title: "Connexion à votre compte",
+        subtitle: "Connectez-vous et accéder à votre photothèque ou celle de vos amis",
+        providerPrefix: "Me connecter avec mon compte ",
+        altChoice: "ou connectez-vous avec vos identifiants"
     },
     about : {
         tooltip: "En savoir plus"
@@ -248,7 +275,8 @@ var fr = {
         connection_others: "Vous pouvez également vous connecter avec votre compte :",
         connection_in_progress: "Connexion en cours ...",
         username: "Nom d'utilisateur",
-        password: "Mot de passe"
+        password: "Mot de passe",
+        register: "Créer un compte"
     },
     home: {
         title: "Accueil"

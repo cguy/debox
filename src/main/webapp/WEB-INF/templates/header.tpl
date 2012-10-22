@@ -28,8 +28,8 @@
     {{/username}}
     {{^username}}
     <ul class="nav pull-right">
-        <li><a href="#authentication-form" data-toggle="modal"><i class="icon-signin"></i>{{i18n.header.connection}}</a></li>
-        <!--<li><a href="#/register"><i class="icon-user"></i>&nbsp;{{i18n.account.creation}}</a></li>-->
+        <li><a href="#/sign-in"><i class="icon-signin"></i>{{i18n.header.connection}}</a></li>
+        <li><a href="#/register"><i class="icon-user"></i>&nbsp;{{i18n.header.register}}</a></li>
     </ul>
     {{/username}}
 </div>

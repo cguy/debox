@@ -32,8 +32,8 @@ function loadTemplates(callback) {
             templatesLoaded = true;
             
             _config = data.config;
+            _config.providers = data.providers;
             initHeader(data.config);
-            loadTemplate("login.popup", data, "#authentication-form");
             
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
                 var id = templatesToLoad[i].id;
@@ -174,33 +174,6 @@ function resetModalForm() {
     $(this).find("p.alert-error").removeClass("alert alert-error");
     $(this).each(function(){
         this.reset();
-    });
-}
-
-function handleArchiveUpload() {
-    $.ajax({
-        type : "GET",
-        url: "uploadProgress",
-        success: function(progression){
-            if (!progression) {
-                setTimeout(handleArchiveUpload, 250);
-                return;
-            }
-            var bytesRead = progression.bytesRead;
-            var contentLength = progression.contentLength;
-            var percent = Math.floor(bytesRead * 100 / contentLength);
-            $("#upload-progress h3 span").html(percent + "&nbsp;%");
-            $("#upload-progress .bar").css("width", percent+"%");
-            if (!bytesRead || !contentLength || bytesRead != contentLength) {
-                $("#upload-progress").show();
-                setTimeout(handleArchiveUpload, 250);
-            } else {
-                $("#upload-progress").removeClass("alert-info");
-                $("#upload-progress").addClass("alert-success");
-                $("#upload-progress .progress").removeClass("progress-info active");
-                $("#upload-progress .progress").addClass("progress-success");
-            }
-        }
     });
 }
 

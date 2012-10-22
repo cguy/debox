@@ -57,8 +57,10 @@ public class UserDao {
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
-    protected static String SQL_CREATE_USER = "INSERT IGNORE INTO users (id) VALUES (?)";
-    protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
+    protected static String SQL_CREATE_USER = "INSERT INTO users (id) VALUES (?)";
+    protected static String SQL_CREATE_USER_NO_ERRORS = "INSERT IGNORE INTO users (id) VALUES (?)";
+    protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?)";
+    protected static String SQL_CREATE_USER_INFO_NO_ERRORS = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
     protected static String SQL_UPDATE_USER_INFO = "UPDATE users SET firstname = ?, lastname = ?, avatar = ? WHERE id = ?";
     protected static String SQL_CREATE_USER_THIRD_PARTY = "INSERT INTO thirdparty_accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE token = ?";
     protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
@@ -77,6 +79,7 @@ public class UserDao {
     private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?) ON DUPLICATE KEY UPDATE album_id = ?";
     
     private static String GET_USER = "SELECT id, lastname, firstname, avatar FROM users u WHERE u.id = ?";
+    private static String GET_ROLE = "SELECT id, name FROM roles WHERE name = ?";
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -190,7 +193,7 @@ public class UserDao {
             if (user.getId() == null) {
                 user.setId(StringUtils.randomUUID());
 
-                userStatement = connection.prepareStatement(SQL_CREATE_USER);
+                userStatement = connection.prepareStatement(SQL_CREATE_USER_NO_ERRORS);
                 userStatement.setString(1, user.getId());
                 userStatement.executeUpdate();
 
@@ -259,9 +262,6 @@ public class UserDao {
             userInfosStatement.setString(2, user.getUsername());
             userInfosStatement.setString(3, hashedPassword);
             userInfosStatement.setString(4, salt.toBase64());
-            userInfosStatement.setString(5, user.getUsername());
-            userInfosStatement.setString(6, hashedPassword);
-            userInfosStatement.setString(7, salt.toBase64());
             userInfosStatement.executeUpdate();
 
             if (role != null) {
@@ -282,6 +282,45 @@ public class UserDao {
             JdbcUtils.closeStatement(userStatement);
             JdbcUtils.closeStatement(userInfosStatement);
             JdbcUtils.closeStatement(roleStatement);
+            connection.setAutoCommit(true);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+
+    public void update(DeboxUser user) throws SQLException {
+        ByteSource salt = GENERATOR.nextBytes();
+        String hashedPassword = new Sha256Hash(user.getPassword(), salt.toBase64(), 1024).toBase64();
+
+        Connection connection = DatabaseUtils.getConnection();
+        connection.setAutoCommit(false);
+
+        PreparedStatement userStatement = null;
+        PreparedStatement userInfosStatement = null;
+        try {
+            userStatement = connection.prepareStatement(SQL_CREATE_USER_NO_ERRORS);
+            userStatement.setString(1, user.getId());
+            userStatement.executeUpdate();
+
+            userInfosStatement = connection.prepareStatement(SQL_CREATE_USER_INFO_NO_ERRORS);
+            userInfosStatement.setString(1, user.getId());
+            userInfosStatement.setString(2, user.getUsername());
+            userInfosStatement.setString(3, hashedPassword);
+            userInfosStatement.setString(4, salt.toBase64());
+            userInfosStatement.setString(5, user.getUsername());
+            userInfosStatement.setString(6, hashedPassword);
+            userInfosStatement.setString(7, salt.toBase64());
+            userInfosStatement.executeUpdate();
+
+            connection.commit();
+
+        } catch (SQLException ex) {
+            logger.error("Unable to save user, reason:", ex);
+            connection.rollback();
+            throw ex;
+
+        } finally {
+            JdbcUtils.closeStatement(userStatement);
+            JdbcUtils.closeStatement(userInfosStatement);
             connection.setAutoCommit(true);
             JdbcUtils.closeConnection(connection);
         }
@@ -435,4 +474,28 @@ public class UserDao {
         }
         return user;
     }
+
+    public Role getRole(String name) throws SQLException {
+        Role role = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        Connection connection = DatabaseUtils.getConnection();
+        try {
+            statement = connection.prepareStatement(GET_ROLE);
+            statement.setString(1, name);
+            
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                role = new Role();
+                role.setId(rs.getString("id"));
+                role.setName(rs.getString("name"));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+        return role;
+    }
+    
 }

@@ -22,7 +22,23 @@
 /* Register            */
 /* ******************* */
 app.get("#/register", function() {
-    loadTemplate("register");
+    if (_config.authenticated) {
+        this.reditect("#/");
+    } else {
+        loadTemplate("register", {
+            alreadyRegistered : typeof this.params.alreadyRegistered !== 'undefined',
+            error : typeof this.params.error !== 'undefined',
+            success : typeof this.params.success !== 'undefined'
+        });
+    }
+});
+
+app.get("#/sign-in", function() {
+    if (_config.authenticated) {
+        this.reditect("#/");
+    } else {
+        loadTemplate("register", {isSignIn: true});
+    }
 });
 
 /* ******************* */

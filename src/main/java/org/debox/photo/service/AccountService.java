@@ -25,7 +25,6 @@ import com.sun.syndication.io.FeedException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -40,11 +39,12 @@ import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.thirdparty.ThirdPartyTokenWrapper;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Provider;
+import org.debox.photo.model.Role;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.photo.util.StringUtils;
 import org.debox.util.HttpUtils;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
 import org.scribe.model.Verifier;
 import org.slf4j.Logger;
@@ -72,6 +72,29 @@ public class AccountService extends DeboxService {
             logger.error(e.getMessage(), e);
         }
         return renderRedirect("/");
+    }
+    
+    public Render register(String username, String password) throws SQLException {
+        DeboxUser user = new DeboxUser();
+        user.setId(StringUtils.randomUUID());
+        user.setUsername(username);
+        user.setPassword(password);
+        
+        Role role = userDao.getRole("user");
+        
+        try {
+            userDao.save(user, role);
+        } catch (SQLException ex) {
+            logger.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage());
+            if (ex.getErrorCode() == 1062) {
+                return renderRedirect("/#/register?alreadyRegistered");
+            } else {
+                return renderRedirect("/#/register?error");
+            }
+        }
+        
+        this.authenticate(username, password);
+        return renderRedirect("/#/register?success");
     }
     
     public Render handleFacebookCallback(String code) throws SQLException {
@@ -179,7 +202,7 @@ public class AccountService extends DeboxService {
             user.setUsername(username);
             user.setPassword(password);
 
-            userDao.save(user, null);
+            userDao.update(user);
 
             return renderJSON("username", username);
 

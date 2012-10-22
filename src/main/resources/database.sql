@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS `accounts` (
     `username` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255),
     `password_salt` varchar(255),
-    FOREIGN KEY (`id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (`id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE KEY (`username`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -170,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `notifications_photos` (
     `notification_id` VARCHAR(32) PRIMARY KEY,
     `photo_id` VARCHAR(32) NOT NULL,
     FOREIGN KEY (`notification_id`) REFERENCES `notifications`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `albums_notifications_subscriptions` (
