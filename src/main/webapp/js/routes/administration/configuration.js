@@ -71,8 +71,8 @@ app.post('#/administration/configuration', function() {
             }, ".navbar .container-fluid", headerTemplateLoaded);
 
             if (force) {
-                $("#synchronization form input[type=checkbox]").attr("checked", "checked");
-                $("#synchronization form").submit();
+                $("#synchronization input[type=checkbox]").attr("checked", "checked");
+                $("#synchronization").submit();
             }
             $("#overall-configuration p").text("Configuration enregistrée avec succès !");
             $("#overall-configuration p").addClass("alert-success");

@@ -9,10 +9,12 @@
             <span class="title" title="{{name}}"><span>{{name}}</span></span>
             <span class="filter">
                 <i class="icon-plus-sign"></i>
+                {{#beginDate}}
                 <span class="date">
                     <i class="icon-calendar"></i>
                     {{beginDate}}
                 </span>
+                {{/beginDate}}
                 <span class="count">
                     <i class="icon-picture"></i> {{photosCount}}
                         {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}

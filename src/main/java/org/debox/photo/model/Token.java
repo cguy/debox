@@ -22,6 +22,7 @@ package org.debox.photo.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.debox.photo.model.user.User;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -30,7 +31,16 @@ public class Token {
 
     protected String id;
     protected String label;
+    protected User owner;
     protected List<Album> albums = new ArrayList<>();
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
 
     public List<Album> getAlbums() {
         return albums;

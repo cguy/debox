@@ -26,9 +26,22 @@ USE `debox-photos`;
 
 SET FOREIGN_KEY_CHECKS=0;
 
+-- --------------------- --
+-- OVERALL CONFIGURATION --
+-- --------------------- --
 CREATE TABLE IF NOT EXISTS `configurations` (
     `key` VARCHAR(255) PRIMARY KEY,
     `value` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+-- ---------------- --
+-- USERS MANAGEMENT --
+-- ---------------- --
+CREATE TABLE IF NOT EXISTS `users` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `firstname` VARCHAR(50),
+    `lastname` VARCHAR(50),
+    `avatar` TEXT
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `accounts` (
@@ -40,11 +53,18 @@ CREATE TABLE IF NOT EXISTS `accounts` (
     UNIQUE KEY (`username`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `thirdparty_accounts` (
+    `user_id` VARCHAR(32) NOT NULL,
+    `thirdparty_account_id` VARCHAR(255) NOT NULL,
+    `thirdparty_name` VARCHAR(255) NOT NULL,
+    `token` VARCHAR(255),
+    PRIMARY KEY (`user_id`, `thirdparty_name`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `roles` (
     `id` VARCHAR(32) PRIMARY KEY,
-    `firstname` VARCHAR(50),
-    `lastname` VARCHAR(50),
-    `avatar` TEXT
+    `name` VARCHAR(255) NOT NULL UNIQUE KEY
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `users_roles` (
@@ -55,25 +75,36 @@ CREATE TABLE IF NOT EXISTS `users_roles` (
     FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `roles` (
-    `id` VARCHAR(32) PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL UNIQUE KEY
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `thirdparty_accounts` (
-    `user_id` VARCHAR(32) NOT NULL,
-    `thirdparty_account_id` VARCHAR(255) NOT NULL,
-    `thirdparty_name` VARCHAR(255) NOT NULL,
-    `token` VARCHAR(255),
-    PRIMARY KEY (`user_id`, `thirdparty_name`),
-    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+-- ------------------- --
+-- ACCESSES MANAGEMENT --
+-- ------------------- --
+CREATE TABLE IF NOT EXISTS `accounts_accesses` (
+    `user_id` VARCHAR(32),
+    `album_id` VARCHAR(32),
+    PRIMARY KEY (`user_id`, `album_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `tokens` (
     `id` VARCHAR(32) PRIMARY KEY,
-    `label` VARCHAR(255) NOT NULL
+    `label` VARCHAR(255) NOT NULL,
+    `owner_id` VARCHAR(32) NOT NULL,
+    FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+
+CREATE TABLE IF NOT EXISTS `albums_tokens` (
+    `album_id` VARCHAR(32),
+    `token_id` VARCHAR(32),
+    PRIMARY KEY (`album_id`, `token_id`),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+-- ------ --
+-- ALBUMS --
+-- ------ --
 CREATE TABLE IF NOT EXISTS `albums` (
     `id` VARCHAR(32) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
@@ -93,30 +124,9 @@ CREATE TABLE IF NOT EXISTS `albums` (
     INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `albums_tokens` (
-    `album_id` VARCHAR(32),
-    `token_id` VARCHAR(32),
-    PRIMARY KEY (`album_id`, `token_id`),
-    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `albums_comments` (
-    `comment_id` VARCHAR(32),
-    `album_id` VARCHAR(32),
-    PRIMARY KEY (`comment_id`),
-    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
-CREATE TABLE IF NOT EXISTS `accounts_accesses` (
-    `user_id` VARCHAR(32),
-    `album_id` VARCHAR(32),
-    PRIMARY KEY (`user_id`, `album_id`),
-    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
+-- ------ --
+-- PHOTOS --
+-- ------ --
 CREATE TABLE IF NOT EXISTS `photos` (
     `id` VARCHAR(32) PRIMARY KEY,
     `filename` VARCHAR(255) NOT NULL,
@@ -129,13 +139,6 @@ CREATE TABLE IF NOT EXISTS `photos` (
     INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS `photos_comments` (
-    `comment_id` VARCHAR(32) PRIMARY KEY,
-    `photo_id` VARCHAR(32),
-    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
-
 CREATE TABLE IF NOT EXISTS `photos_generation` (
     `id` VARCHAR(32) NOT NULL,
     `size` VARCHAR(255) NOT NULL,
@@ -143,6 +146,9 @@ CREATE TABLE IF NOT EXISTS `photos_generation` (
     PRIMARY KEY (`id`, `size`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+-- -------- --
+-- COMMENTS --
+-- -------- --
 CREATE TABLE IF NOT EXISTS `comments` (
     `id` VARCHAR(32) PRIMARY KEY,
     `author_id` VARCHAR(32) NOT NULL,
@@ -152,6 +158,24 @@ CREATE TABLE IF NOT EXISTS `comments` (
     FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `albums_comments` (
+    `comment_id` VARCHAR(32),
+    `album_id` VARCHAR(32),
+    PRIMARY KEY (`comment_id`),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `photos_comments` (
+    `comment_id` VARCHAR(32) PRIMARY KEY,
+    `photo_id` VARCHAR(32),
+    FOREIGN KEY (`photo_id`) REFERENCES `photos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+-- ------------- --
+-- NOTIFICATIONS --
+-- ------------- --
 CREATE TABLE IF NOT EXISTS `notifications` (
     `id` VARCHAR(32) PRIMARY KEY,
     `source_id` VARCHAR(32) NOT NULL,

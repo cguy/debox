@@ -64,6 +64,7 @@ var fr = {
             internal: "Une erreur est survenue lors de l'enregistrement de votre compte, veuillez réessayer ou contacter le responsable du site.",
             alreadyRegistered: "Impossible de finir votre inscription, l'adresse e-mail saisie est déjà utilisée.",
         },
+        note: "Note : votre prénom et votre nom ne sont utilisés que pour afficher votre identité sur des médias qui vont sont liés. Vous n'êtes pas obligé de saisir votre réelle identité, bien que ça soit conseillé pour que vos proches vous reconnaissent.",
         success: "Votre compte a bien été créé, vous pouvez d'ores et déjà accéder à <a href=\"#/account\">votre compte</a> ou commencer à <a href=\"#/administration/upload\">ajouter vos photos</a>."
     },
     signin : {
@@ -87,27 +88,27 @@ var fr = {
         title: "Erreur",
         message: "Une erreur interne au serveur est survenue."
     },
-    administration: {
-        title: "Administration",
-        processing: "Traitement en cours...",
-        config: {
-            title: "Configuration générale",
-            tab: "Configuration générale",
-            galery_title: "Titre de la galerie photos",
-            galery_title_placeholder: "Exemple : Galerie photos personnelle",
-            source_directory: "Répertoire source (contenant les photos au format original) ",
-            source_directory_placeholder: "Exemple : /home/user/photos/",
-            target_directory: "Répertoire de travail (qui contiendra notamment les vignettes des photos) ",
-            target_directory_placeholder: "Exemple : /home/user/thumbnails/",
-            save: "Enregistrer",
-            save_and_sync: "Enregistrer et synchroniser les répertoires"
-        },
+    account : {
+        title: "Mon compte",
         albums: {
             title: "Liste des albums",
-            tab: "Gestion des albums photos",
+            tab: "Mes albums photos",
             photo_number: "Nombre de photos ",
             downloadable: "Téléchargeable",
             not_downloadable: "N'est pas téléchargeable"
+        },
+        settings: {
+            tab: "Réglages",
+            title: "Réglages & paramètres",
+            hosting: {
+                title: "Stockage des photos"
+            },
+            albums: {
+                title: "Paramètres par défaut des albums"
+            },
+            photos: {
+                title: "Paramètres par défaut des photos"
+            }
         },
         upload: {
             title: "Ajouter des photos",
@@ -143,22 +144,6 @@ var fr = {
             "error": "Une erreur est survenue",
             "existingAlbum": "Je veux ajouter des photos dans un album existant",
             "newAlbum": "Je veux créer un nouvel album"
-        },
-        sync: {
-            title: "Synchroniser les répertoires",
-            tab: "Synchronisation des répertoires",
-            in_progress: "Synchronisation en cours",
-            cancel: "Annuler la synchronisation",
-            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
-            fastest: "Le plus rapide ",
-            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
-            normal: "Normal ",
-            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
-            longest: "Le plus long ",
-            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
-            force_check_dates: "Forcer la vérification des dates des photos existantes",
-            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
-            launch: "Lancer la synchronisation"
         },
         tokens: {
             title: "Gestion des accès visiteurs",
@@ -210,13 +195,53 @@ var fr = {
                 error: "Erreur pendant la réinitialisation de l'accès, veuillez réessayer ultérieurement."
             }
         },
-        account: {
-            title: "Modifier mes identifiants de connexion",
-            tab: "Gestion des identifiants de connexion",
-            username: "Nom d'utilisateur ",
-            old_password: "Ancien mot de passe ",
-            new_password: "Nouveau mot de passe ",
-            password_repeat: "Confirmation du nouveau mot de passe "
+        personaldata: {
+            tab: "Mes informations personnelles",
+            title: "Mes informations personnelles",
+            edit: "Modifier mon identité",
+            username: "Nom d'utilisateur :",
+            firstname: "Prénom :",
+            lastname: "Nom de famille :",
+            old_password: "Ancien mot de passe :",
+            new_password: "Nouveau mot de passe :",
+            passwordChange: "Modifier mon mot de passe",
+            accountDeletion: {
+                title: "Supprimer mon compte",
+                message: "Êtes-vous sûr / sure de vouloir supprimer votre compte ? Si vous supprimez votre compte, l'intégralité des informations qui vous sont liées seront également supprimées (photos, albums, commentaires, etc.)",
+                irreversible: "Attention, cette action est irréversible !"
+            }
+        }
+    },
+    administration: {
+        title: "Administration",
+        processing: "Traitement en cours...",
+        config: {
+            title: "Configuration générale",
+            tab: "Configuration générale",
+            galery_title: "Titre de la galerie photos",
+            galery_title_placeholder: "Exemple : Galerie photos personnelle",
+            source_directory: "Répertoire source (contenant les photos au format original) ",
+            source_directory_placeholder: "Exemple : /home/user/photos/",
+            target_directory: "Répertoire de travail (qui contiendra notamment les vignettes des photos) ",
+            target_directory_placeholder: "Exemple : /home/user/thumbnails/",
+            save: "Enregistrer",
+            save_and_sync: "Enregistrer et synchroniser les répertoires"
+        },
+        sync: {
+            title: "Synchroniser les répertoires",
+            tab: "Synchronisation des répertoires",
+            in_progress: "Synchronisation en cours",
+            cancel: "Annuler la synchronisation",
+            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
+            fastest: "Le plus rapide ",
+            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
+            normal: "Normal ",
+            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
+            longest: "Le plus long ",
+            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
+            force_check_dates: "Forcer la vérification des dates des photos existantes",
+            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
+            launch: "Lancer la synchronisation"
         }
     },
     album: {
@@ -270,6 +295,7 @@ var fr = {
     header: {
         album_list: "Liste des albums",
         administration: "Administration",
+        settings: "Mon compte",
         disconnection: "Déconnexion",
         connection: "Connexion",
         connection_others: "Vous pouvez également vous connecter avec votre compte :",

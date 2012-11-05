@@ -65,7 +65,12 @@ public class HomeService extends DeboxService {
         if (SessionUtils.isLogged(subject)) {
             if (principal instanceof DeboxUser) {
                 DeboxUser user = (DeboxUser) principal;
-                username = user.getFirstName() + " " + user.getLastName();
+                if (user.getFirstName() != null && user.getLastName() != null) {
+                    username = user.getFirstName() + " " + user.getLastName();
+                } else {
+                    username = user.getUsername();
+                }
+                
             } else if (principal instanceof ThirdPartyAccount) {
                 ThirdPartyAccount user = (ThirdPartyAccount) principal;
                 
@@ -108,9 +113,9 @@ public class HomeService extends DeboxService {
             userId = user.getId();
         }
         
-        Map<String, Object> headerData = new HashMap<>(2);
+        Map<String, Object> headerData = new HashMap<>(6);
         headerData.put("title", title);
-        headerData.put("avatar", username);
+        headerData.put("avatar", null);
         headerData.put("username", username);
         headerData.put("userId", userId);
         headerData.put("administrator", subject.hasRole("administrator"));

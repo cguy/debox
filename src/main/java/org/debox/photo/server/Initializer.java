@@ -57,12 +57,12 @@ public class Initializer implements ServletContextListener {
             if (roleCount == 0) {
                 role = new Role();
                 role.setId(StringUtils.randomUUID());
-                role.setName("administrator");
+                role.setName("user");
                 userDao.save(role);
-                
+
                 role = new Role();
                 role.setId(StringUtils.randomUUID());
-                role.setName("user");
+                role.setName("administrator");
                 userDao.save(role);
             }
             

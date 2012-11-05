@@ -5,7 +5,7 @@ pouet
     <td class="name"><span>{{name}}</span></td>
     <td class="size"><span>{{strSize}}</span></td>
     {{#file.error}}
-    <td class="error" colspan="2"><span class="label label-important">{{i18n.administration.upload.error}}</span> {{i18n.administration.upload.errors[file.error] || file.error}}</td>
+    <td class="error" colspan="2"><span class="label label-important">{{i18n.account.upload.error}}</span> {{i18n.account.upload.errors[file.error] || file.error}}</td>
     {{/file.error}}
     {{^file.error}}
     <td>
@@ -15,7 +15,7 @@ pouet
         {{^options.autoUpload}}
         <button class="btn btn-primary">
             <i class="icon-upload icon-white"></i>
-            <span>{{i18n.administration.upload.start}}</span>
+            <span>{{i18n.account.upload.start}}</span>
         </button>
         {{/options.autoUpload}}
     </td>

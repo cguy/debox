@@ -46,4 +46,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return result;
     }
     
+    public static boolean atLeastOneIsEmpty(String... strings) {
+        for (String string : strings) {
+            if (StringUtils.isNotEmpty(string)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
 }

@@ -36,6 +36,7 @@ import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.Token;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -55,16 +56,17 @@ public class TokenService extends DeboxService {
         Token token = new Token();
         token.setId(StringUtils.randomUUID());
         token.setLabel(URLDecoder.decode(label, "UTF-8"));
+        token.setOwner(SessionUtils.getUser(SecurityUtils.getSubject()));
         
         tokenDao.save(token);
         return renderJSON(token);
     }
     
     public Render getTokens() throws SQLException, IOException {
-        User principal = (User) SecurityUtils.getSubject().getPrincipal();
-        List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(principal);
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(user);
         return renderJSON(
-                "tokens", tokenDao.getAll(),
+                "tokens", tokenDao.getAll(user.getId()),
                 "albums", albumDao.getAlbums(null),
                 "providers", ServiceUtil.getAuthenticationUrls(),
                 "accounts", accounts);

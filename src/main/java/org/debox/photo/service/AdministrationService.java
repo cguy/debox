@@ -37,6 +37,7 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
+import org.debox.photo.model.user.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.SessionUtils;
@@ -113,16 +114,14 @@ public class AdministrationService extends DeboxService {
             albumDao.save(album);
         }
         
-        final HashMap<String, Object> metaData = new HashMap<>();
-        if (photo != null) {
-            metaData.put("name", photo.getName());
-            metaData.put("size", photo.getSize());
-            metaData.put("url", result.getUrl());
-            metaData.put("thumbnail_url", result.getThumbnailUrl());
-        }
+        HashMap<String, Object> metaData = new HashMap<>(4);
+        metaData.put("name", photo.getName());
+        metaData.put("size", photo.getSize());
+        metaData.put("url", result.getUrl());
+        metaData.put("thumbnail_url", result.getThumbnailUrl());
 
-        HashMap<String, Object> resultMetadata = new HashMap<>();
-        resultMetadata.put(null, new Object[]{metaData});
+        HashMap<String, Object> resultMetadata = new HashMap<>(1);
+        resultMetadata.put(null, metaData);
         
         return new JacksonRenderJsonImpl(resultMetadata);
     }
@@ -181,6 +180,7 @@ public class AdministrationService extends DeboxService {
 
     public Render getData() throws SQLException {
         String username = HomeService.getUsername();
+        User user = SessionUtils.getUser(SecurityUtils.getSubject());
         
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
@@ -188,7 +188,7 @@ public class AdministrationService extends DeboxService {
                     "username", username,
                     "configuration", ApplicationContext.getInstance().getConfiguration().get(),
                     "albums", albumDao.getAllAlbums(),
-                    "tokens", tokenDao.getAll(),
+                    "tokens", tokenDao.getAll(user.getId()),
                     "sync", sync);
         }
 
@@ -196,7 +196,7 @@ public class AdministrationService extends DeboxService {
                 "username", username,
                 "configuration", ApplicationContext.getInstance().getConfiguration().get(),
                 "albums", albumDao.getAllAlbums(),
-                "tokens", tokenDao.getAll());
+                "tokens", tokenDao.getAll(user.getId()));
     }
 
     public Render getUploadProgress(FileProgressListener listener) {

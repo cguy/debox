@@ -65,9 +65,9 @@
             // to always display preview images as img elements:
             previewAsCanvas: true,
             // The ID of the upload template:
-            uploadTemplateId: 'administration.upload.uploadrow',
+            uploadTemplateId: 'account.upload.uploadrow',
             // The ID of the download template:
-            downloadTemplateId: 'administration.upload.downloadrow',
+            downloadTemplateId: 'account.upload.downloadrow',
             // The container for the list of files. If undefined, it is set to
             // an element with class "files" inside of the widget element:
             filesContainer: undefined,

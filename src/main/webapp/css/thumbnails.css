@@ -21,13 +21,13 @@
 /* ************************* */
 /* ADMINISTRATION THUMBNAILS */
 /* ************************* */
-#albums > .thumbnails > li {
+.thumbnails.settings > li {
     width: 300px;
     height: 75px;
     margin: 15px 12px;
 }
 
-#albums > .thumbnails > li > .album.admin.thumbnail {
+.thumbnails.settings > li > .album.admin.thumbnail {
     width: 300px;
     height: 80px;
     background-size: 80px 80px;
@@ -38,17 +38,16 @@
     font-size: 12px;
 }
 
-#albums > .thumbnails > li > .album.admin.thumbnail:hover {
+.thumbnails.settings > li > .album.admin.thumbnail:hover {
     text-decoration: none;
-    box-shadow: none;
-    border-color: #aaa;
+    background-color: #f1f1f1;
 }
 
-#albums > .thumbnails > li > .album.admin.thumbnail ul {
+.thumbnails.settings > li > .album.admin.thumbnail ul {
     margin-left: 90px;
 }
 
-#albums > .thumbnails > li > .album.admin.thumbnail ul li {
+.thumbnails.settings > li > .album.admin.thumbnail ul li {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -57,8 +57,8 @@ public class AccountService extends DeboxService {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     
-    protected static UserDao userDao = new UserDao();
-    protected static HomeService homeController = new HomeService();
+    protected UserDao userDao = new UserDao();
+    protected HomeService homeController = new HomeService();
     
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
@@ -74,15 +74,20 @@ public class AccountService extends DeboxService {
         return renderRedirect("/");
     }
     
-    public Render register(String username, String password) throws SQLException {
+    public Render register(String username, String password, String firstname, String lastname) throws SQLException {
+        if (StringUtils.atLeastOneIsEmpty(username, password, firstname, lastname)) {
+            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, firstname and lastname are mandatory.");
+        }
+        
         DeboxUser user = new DeboxUser();
         user.setId(StringUtils.randomUUID());
         user.setUsername(username);
         user.setPassword(password);
-        
-        Role role = userDao.getRole("user");
+        user.setFirstName(firstname);
+        user.setLastName(lastname);
         
         try {
+            Role role = userDao.getRole("user");
             userDao.save(user, role);
         } catch (SQLException ex) {
             logger.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage());
@@ -182,11 +187,36 @@ public class AccountService extends DeboxService {
         return renderJSON(user);
     }
 
-    public Render editCredentials(String userId, String username, String oldPassword, String password, String confirm) {
+    public Render editPersonalData(String userId, String username, String firstname, String lastname) {
         try {
             DeboxUser user = (DeboxUser) SecurityUtils.getSubject().getPrincipal();
             if (!user.getId().equals(userId)) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
+            }
+            
+            if (StringUtils.atLeastOneIsEmpty(username, firstname, lastname)) {
+                return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, firstname and lastname are mandatory.");
+            }
+
+            user.setUsername(username);
+            user.setFirstName(firstname);
+            user.setLastName(lastname);
+
+            userDao.updateUserInfo(user);
+
+            return renderJSON("username", firstname + " " + lastname);
+
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+        }
+    }
+    
+    public Render editCredentials(String userId, String oldPassword, String password) {
+        try {
+            DeboxUser user = (DeboxUser) SecurityUtils.getSubject().getPrincipal();
+            if (!user.getId().equals(userId)) {
+                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
             }
 
             // Check current credentials
@@ -196,15 +226,13 @@ public class AccountService extends DeboxService {
 
             } catch (UnknownAccountException | IncorrectCredentialsException e) {
                 logger.info("Given credentials are wrong, reason: " + e.getMessage());
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+                return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "Given credentials are wrong");
             }
 
-            user.setUsername(username);
             user.setPassword(password);
-
             userDao.update(user);
 
-            return renderJSON("username", username);
+            return renderSuccess();
 
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
@@ -219,6 +247,25 @@ public class AccountService extends DeboxService {
             logger.error(e.getMessage(), e);
         }
         return renderLastPage();
+    }
+
+    public Render deleteAccount(String userId) {
+        try {
+            Subject subject = SecurityUtils.getSubject();
+            DeboxUser user = (DeboxUser) subject.getPrincipal();
+            if (!user.getId().equals(userId)) {
+                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
+            }
+
+            userDao.deleteUser(user);
+            SecurityUtils.getSecurityManager().logout(subject);
+
+            return renderRedirect("/");
+
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+            return renderRedirect("/#/account/" + userId + "/delete?error");
+        }
     }
     
 }

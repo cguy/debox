@@ -15,13 +15,15 @@ org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAut
 # -----------------------------------------------------------------------------------------------
 *           /*                                      HeaderFilter.setExpireHeader
 
-GET,POST    /configuration                          AdministrationFilter.checkUserSession
-GET         /account                                AdministrationFilter.checkUserSession
-POST        /account/*                              AdministrationFilter.checkUserSession
+GET,POST    /settings                               AdministrationFilter.checkUserAuthentication
 
-GET         /tokens                                 AdministrationFilter.checkUserSession
-PUT,POST    /token                                  AdministrationFilter.checkUserSession
-*           /token/*                                AdministrationFilter.checkUserSession
+GET,POST    /configuration                          AdministrationFilter.checkUserSession
+GET         /account                                AdministrationFilter.checkUserAuthentication
+POST        /account/*                              AdministrationFilter.checkUserAuthentication
+
+GET         /tokens                                 AdministrationFilter.checkUserAuthentication
+PUT,POST    /token                                  AdministrationFilter.checkUserAuthentication
+*           /token/*                                AdministrationFilter.checkUserAuthentication
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
@@ -58,9 +60,13 @@ POST        /administration/upload              AdministrationService.upload
 POST        /register                           AccountService.register
 POST        /authenticate                       AccountService.authenticate
 GET         /account                            AccountService.getLoggedUser
-POST        /account/{userId}                   AccountService.editCredentials
+POST        /account/{userId}/credentials       AccountService.editCredentials
+POST        /account/{userId}/delete            AccountService.deleteAccount
+POST        /account/{userId}                   AccountService.editPersonalData
 GET         /logout                             AccountService.logout
 DELETE      /third-party-account/{id}           AccountService.deleteThirdPartyAccount
+GET         /settings                           ConfigurationService.getUserSettings
+POST        /settings                           ConfigurationService.setUserSettings
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - PHOTOS

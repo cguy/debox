@@ -147,6 +147,12 @@
             <version>1.0</version>
         </dependency>
         
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.0</version>
+        </dependency>
+        
         <!-- debox-core -->
         <dependency>
             <groupId>org.debox</groupId>
@@ -161,6 +167,14 @@
                     <groupId>rome</groupId>
                     <artifactId>rome</artifactId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>flickrapi</artifactId>
+                    <groupId>com.aetrion.flickr</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         
@@ -168,14 +182,14 @@
         <dependency>
             <groupId>com.restfb</groupId>
             <artifactId>restfb</artifactId>
-            <version>1.6.9</version>
+            <version>1.6.11</version>
         </dependency>
         
         <!-- OAuth process -->
         <dependency>
             <groupId>org.scribe</groupId>
             <artifactId>scribe</artifactId>
-            <version>1.3.1</version>
+            <version>1.3.2</version>
         </dependency>
         
         <!-- Java EE 6 API -->
@@ -190,25 +204,26 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.2</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.2</version>
+            <scope>runtime</scope>
         </dependency>
         
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.2</version>
         </dependency>
         
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
             <scope>runtime</scope>
         </dependency>
         
@@ -216,11 +231,15 @@
         <dependency>
             <groupId>org.debux.webmotion</groupId>
             <artifactId>webmotion</artifactId>
-            <version>2.2</version>
+            <version>2.3.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>xstream</artifactId>
+                    <groupId>com.thoughtworks.xstream</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -232,11 +251,17 @@
             <version>3.1</version>
         </dependency>
         
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.1</version>
+        </dependency>
+        
         <!-- Base64 processing -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
+            <version>1.7</version>
         </dependency>
         
         <!-- Image processing -->
@@ -275,6 +300,7 @@
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-web</artifactId>
             <version>1.2.1</version>
+            <scope>runtime</scope>
         </dependency>
         
         <!-- Persistence -->
@@ -282,6 +308,7 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.21</version>
+            <scope>runtime</scope>
         </dependency>
         
         <dependency>
@@ -294,13 +321,13 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-lgpl</artifactId>
-            <version>1.9.8</version>
+            <version>1.9.10</version>
         </dependency>
         
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-lgpl</artifactId>
-            <version>1.9.8</version>
+            <version>1.9.10</version>
         </dependency>
         
     </dependencies>
@@ -346,7 +373,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.3</version>
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>false</addSvnKeyWords>

@@ -1,31 +1,31 @@
-<h2>{{i18n.administration.upload.title}}</h2>
-<h3>{{i18n.administration.upload.album}}</h3>
-<div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.administration.upload.mandatory}}</div>
+<h2>{{i18n.account.upload.title}}</h2>
+<h3>{{i18n.account.upload.album}}</h3>
+<div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.account.upload.mandatory}}</div>
 
 {{^albums.length}}
 <div class="alert noAlbums" style="margin-bottom: 0;">{{i18n.common.no_album}}</div>
 {{/albums.length}}
-<div class="dynatree albumId"></div>
+<div class="dynatree albumId {{^albums.length}}hide{{/albums.length}}"></div>
 
-<a class="btn btn-primary" href="#modal-createNewAlbum" data-toggle="modal">{{i18n.administration.upload.createAlbum}}</a>
+<a class="btn btn-primary" href="#modal-createNewAlbum" data-toggle="modal">{{i18n.account.upload.createAlbum}}</a>
 
 <form id="fileupload" action="administration/upload" method="POST" enctype="multipart/form-data" class="form-horizontal">
-    <h3>{{i18n.administration.upload.photos}}</h3>
+    <h3>{{i18n.account.upload.photos}}</h3>
     <input type="hidden" name="albumId" id="albumId" />
 
-    <p id="targetAlbum" class="hide alert alert-info">{{i18n.administration.upload.targetDirectory}}<strong></strong></p>
+    <p id="targetAlbum" class="hide alert alert-info">{{i18n.account.upload.targetDirectory}}<a href="" data-href="#/album/"></a></p>
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
     <div class="row fileupload-buttonbar">
         <div class="span7">
             <!-- The fileinput-button span is used to style the file input field as button -->
             <span class="btn btn-success fileinput-button">
                 <i class="icon-plus icon-white"></i>
-                <span>{{i18n.administration.upload.add}}</span>
+                <span>{{i18n.account.upload.add}}</span>
                 <input type="file" name="photo" multiple>
             </span>
             <button type="submit" class="btn btn-primary start">
                 <i class="icon-upload icon-white"></i>
-                <span>{{i18n.administration.upload.action}}</span>
+                <span>{{i18n.account.upload.action}}</span>
             </button>
             <button type="reset" class="btn btn-warning cancel">
                 <i class="icon-ban-circle icon-white"></i>
@@ -55,20 +55,20 @@
 <form id="modal-createNewAlbum" class="modal hide fade form-horizontal" action="#/album" method="put">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
-        <h3>{{i18n.administration.upload.form.title}}</h3>
+        <h3>{{i18n.account.upload.form.title}}</h3>
     </div>
     <div class="modal-body">
         <div id="creationError" class="alert alert-danger hide">
-            <span class="label label-important">{{i18n.common.error}}</span> {{i18n.administration.upload.errors.albumCreation}}
+            <span class="label label-important">{{i18n.common.error}}</span> {{i18n.account.upload.errors.albumCreation}}
         </div>
         <div class="control-group">
-            <label class="control-label" for="albumName">{{i18n.administration.upload.form.albumName}}</label>
+            <label class="control-label" for="albumName">{{i18n.account.upload.form.albumName}}</label>
             <div class="controls">
-                <input type="text" class="input-xlarge" id="albumName" name="albumName" required placeholder="{{i18n.administration.upload.form.namePlaceHolder}}">
+                <input type="text" class="input-xlarge" id="albumName" name="albumName" required placeholder="{{i18n.account.upload.form.namePlaceHolder}}">
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label">{{i18n.administration.upload.form.subAlbum}}</label>
+            <label class="control-label">{{i18n.account.upload.form.subAlbum}}</label>
             <div class="controls">
                 <div class="dynatree parentId"></div>
                 <input type="hidden" name="parentId" id="parentId" />

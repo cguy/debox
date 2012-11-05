@@ -58,9 +58,15 @@
         <input type="email" name="username" required placeholder="{{i18n.registration.placeholder.mail}}">
     </p>
     <p>
-    <p>
         <input type="password" name="password" required placeholder="{{i18n.registration.placeholder.password}}">
     </p>
+    {{^isSignIn}}
+    <p>
+        <input type="text" name="firstname" class="firstname" required placeholder="{{i18n.registration.placeholder.firstname}}">
+        <input type="text" name="lastname" class="lastname" required placeholder="{{i18n.registration.placeholder.lastname}}">
+    </p>
+    <p class="small">{{i18n.registration.note}}</p>
+    {{/isSignIn}}
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" value="{{#isSignIn}}{{i18n.common.connection}}{{/isSignIn}}{{^isSignIn}}{{i18n.registration.finish}}{{/isSignIn}}" />
     </div>

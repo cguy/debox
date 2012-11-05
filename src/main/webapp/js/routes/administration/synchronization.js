@@ -19,13 +19,13 @@
  * #L%
  */
 app.post('#/administration/sync', function() {
-    $("#synchronization form input[type=submit]").button("loading");
+    $("#synchronization input[type=submit]").button("loading");
     $.ajax({
         url: "administration/sync",
         type : "post",
-        data : $("#synchronization form").serializeArray(),
+        data : $("#synchronization").serializeArray(),
         success: function() {
-            $("#synchronization form input[type=submit]").button("reset");
+            $("#synchronization input[type=submit]").button("reset");
             manageSync({
                 sync:{
                     percent:0
@@ -33,12 +33,12 @@ app.post('#/administration/sync', function() {
             });
         },
         error: function(xhr) {
-            $("#synchronization form input[type=submit]").button("reset");
-            $("#synchronization form p.error").addClass("alert alert-error");
+            $("#synchronization input[type=submit]").button("reset");
+            $("#synchronization p.error").addClass("alert alert-error");
             if (xhr.status == 409) {
-                $("#synchronization form p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
+                $("#synchronization p.error").text("Veuillez commencer par définir la configuration générale (dont les répertoires de travail) avant de lancer la première synchronisation.");
             } else {
-                $("#synchronization form p.error").text("Erreur de communication avec le serveur.");
+                $("#synchronization p.error").text("Erreur de communication avec le serveur.");
             }
         }
     });

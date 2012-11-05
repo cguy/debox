@@ -318,7 +318,7 @@ public class AlbumService extends DeboxService {
         albumDao.save(album);
         
         if (authorizedTokens != null) {
-            List<Token> tokens = tokenDao.getAll();
+            List<Token> tokens = tokenDao.getAll(album.getOwnerId());
             for (Token token : tokens) {
                 if (authorizedTokens.contains(token.getId())) {
                     addParentAlbumsToToken(album, token);

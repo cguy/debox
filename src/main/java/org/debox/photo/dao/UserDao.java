@@ -57,7 +57,7 @@ public class UserDao {
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
     protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
-    protected static String SQL_CREATE_USER = "INSERT INTO users (id) VALUES (?)";
+    protected static String SQL_CREATE_USER = "INSERT INTO users (id, firstname, lastname) VALUES (?, ?, ?)";
     protected static String SQL_CREATE_USER_NO_ERRORS = "INSERT IGNORE INTO users (id) VALUES (?)";
     protected static String SQL_CREATE_USER_INFO = "INSERT INTO accounts VALUES (?, ?, ?, ?)";
     protected static String SQL_CREATE_USER_INFO_NO_ERRORS = "INSERT INTO accounts VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = ?, password = ?, password_salt = ?";
@@ -80,6 +80,7 @@ public class UserDao {
     
     private static String GET_USER = "SELECT id, lastname, firstname, avatar FROM users u WHERE u.id = ?";
     private static String GET_ROLE = "SELECT id, name FROM roles WHERE name = ?";
+    private static String DELETE_USER = "DELETE FROM users WHERE id = ?";
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -255,6 +256,8 @@ public class UserDao {
         try {
             userStatement = connection.prepareStatement(SQL_CREATE_USER);
             userStatement.setString(1, user.getId());
+            userStatement.setString(2, user.getFirstName());
+            userStatement.setString(3, user.getLastName());
             userStatement.executeUpdate();
 
             userInfosStatement = connection.prepareStatement(SQL_CREATE_USER_INFO);
@@ -283,6 +286,23 @@ public class UserDao {
             JdbcUtils.closeStatement(userInfosStatement);
             JdbcUtils.closeStatement(roleStatement);
             connection.setAutoCommit(true);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+    
+    public void updateUserInfo(DeboxUser user) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement updateUserStatement = null;
+        try {
+            updateUserStatement = connection.prepareStatement(SQL_UPDATE_USER_INFO);
+            updateUserStatement.setString(1, user.getFirstName());
+            updateUserStatement.setString(2, user.getLastName());
+            updateUserStatement.setString(3, user.getAvatar());
+            updateUserStatement.setString(4, user.getId());
+            updateUserStatement.executeUpdate();
+
+        } finally {
+            JdbcUtils.closeStatement(updateUserStatement);
             JdbcUtils.closeConnection(connection);
         }
     }
@@ -496,6 +516,16 @@ public class UserDao {
             JdbcUtils.closeConnection(connection);
         }
         return role;
+    }
+
+    public void deleteUser(DeboxUser user) throws SQLException {
+        try (
+            Connection connection = DatabaseUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement(DELETE_USER);
+        ) {
+            statement.setString(1, user.getId());
+            statement.executeUpdate();
+        }
     }
     
 }

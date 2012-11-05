@@ -19,10 +19,8 @@
         <link rel="stylesheet" href="static/js/lib/chosen/chosen.css" />
         
         <link rel="stylesheet" href="static/css/style.css" />
-        <link rel="stylesheet" href="static/css/black.css" />
         <link rel="stylesheet" href="static/css/thumbnails.css" />
         <link rel="stylesheet" href="static/css/slideshow.css" />
-        <link rel="stylesheet" href="static/css/administration/configuration.css" />
         <!--[if IE 9]><link rel="stylesheet" href="static/css/style.ie9.css" /><![endif]-->
         <!--[if lt IE 9]><link rel="stylesheet" href="static/css/style.ie.css" /><![endif]-->
     </head>
@@ -75,13 +73,14 @@
                     head.js(
                         "static/js/routes/media-browsing.js" + suffix,
                         "static/js/routes/administration.js" + suffix,
+                        "static/js/routes/account.js" + suffix,
                         "static/js/routes/administration/configuration.js" + suffix,
-                        "static/js/routes/administration/administrator-account.js" + suffix,
-                        "static/js/routes/administration/albums.js" + suffix,
-                        "static/js/routes/administration/photos.js" + suffix,
-                        "static/js/routes/administration/photos-upload.js" + suffix,
                         "static/js/routes/administration/synchronization.js" + suffix,
-                        "static/js/routes/administration/visitors-accesses.js" + suffix,
+                        "static/js/routes/account/albums.js" + suffix,
+                        "static/js/routes/account/photos-upload.js" + suffix,
+                        "static/js/routes/account/photos.js" + suffix,
+                        "static/js/routes/account/administrator-account.js" + suffix,
+                        "static/js/routes/account/visitors-accesses.js" + suffix,
                         function() {
                             app.run("#/");
                         }

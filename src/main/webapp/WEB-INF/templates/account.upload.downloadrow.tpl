@@ -5,7 +5,7 @@ pouet
             <td></td>
             <td class="name"><span>{{name}}</span></td>
             <td class="size"><span>{{strSize}}</span></td>
-            <td class="error" colspan="2"><span class="label label-important">{{i18n.administration.upload.error}}</span> {{i18n.administration.upload.error}}</td>
+            <td class="error" colspan="2"><span class="label label-important">{{i18n.account.upload.error}}</span> {{i18n.account.upload.error}}</td>
         {{/error}}
         {{^error}}
             <td class="preview">

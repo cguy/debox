@@ -46,7 +46,7 @@ app.put('#/token', function() {
 
             data.i18n = lang;
             data.url = window.location.protocol + "//" + window.location.host + window.location.pathname + data.id;
-            var html = templates["administration.tokens.row"].render(data, templates);
+            var html = templates["account.tokens.row"].render(data, templates);
             $("#administration_tokens tbody").append(html);
 
             initDynatree(data.id, treeChildren);

@@ -135,5 +135,15 @@ public class ConfigurationService extends WebMotionController {
         
         return renderStatus(HttpURLConnection.HTTP_OK);
     }
+
+    public Render getUserSettings() {
+        // TODO Implement this service
+        return renderSuccess();
+    }
+
+    public Render setUserSettings() {
+        // TODO Implement this service
+        return renderSuccess();
+    }
     
 }

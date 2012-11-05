@@ -605,22 +605,29 @@ function initDynatree(id, children) {
     });
 }
 
-function loadAdministrationTab(id, data) {
-    if ($("#administration").length == 0) {
-        loadTemplate("administration", null, null, function() {
-            loadAdministrationTab(id, data);
+function loadTab(id, data, container, cb) {
+    if (!container) {
+        container = "administration";
+    }
+    if ($("#" + container).length == 0) {
+        loadTemplate(container, null, null, function() {
+            loadTab(id, data, container, cb);
         });
     } else {
-        preprocessAdministrationTabLoading(id, data);
-        loadTemplate("administration." + id, data, "#" + id, function() {
-            $(".nav-tabs a[data-target|=\"#" + id + "\"]").tab("show");
+        preprocessTabLoading(id, data);
+        loadTemplate(container + "." + id, data, "#" + container, function() {
+            $(".account li").removeClass("active");
+            $(".account li." + id).addClass("active");
             loadFunctions(id);
-            afterAdministrationTabLoading(id, data);
+            afterTabLoading(id, data);
+            if (cb) {
+                cb();
+            }
         });
     }
 }
 
-function preprocessAdministrationTabLoading(id, data) {
+function preprocessTabLoading(id, data) {
     if (id == "configuration") {
         data.thirdPartyActivation = data.thirdPartyActivation == "true";
         
@@ -636,8 +643,13 @@ function preprocessAdministrationTabLoading(id, data) {
     }
 }
 
-function afterAdministrationTabLoading(id, data) {
-    if (id == "configuration") {
+function afterTabLoading(id, data) {
+    if (id == "personaldata") {
+        $('#delete-account-confirm').on('hidden', function () {
+            location.hash = "#/account";
+        });
+        
+    } else if (id == "configuration") {
         $(".thirdparty-activation").change(function() {
             if($(this).attr("checked") == null) {
                 $(".providers").slideUp(500);
@@ -791,7 +803,9 @@ function afterAdministrationTabLoading(id, data) {
 
 function setTargetAlbum(id, name) {
     $("#albumId").val(id);
-    $("#targetAlbum strong").text(name);
+    var base = $("#targetAlbum a").attr("data-href");
+    $("#targetAlbum a").attr("href", base + id);
+    $("#targetAlbum a").text(name);
     $("#targetAlbum").slideDown(500);
     $("#fileupload input").removeAttr("disabled");
     $("#fileupload .btn").removeClass("disabled");
