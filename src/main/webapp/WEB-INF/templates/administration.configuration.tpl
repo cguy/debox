@@ -8,20 +8,12 @@
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label" for="sourceDirectory">{{i18n.administration.config.source_directory}}:</label>
+        <label class="control-label" for="sourceDirectory">{{i18n.administration.config.directory}}</label>
         <div class="controls">
-            <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="{{i18n.administration.config.source_directory_placeholder}}" value="{{source_path}}" />
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label" for="targetDirectory">{{i18n.administration.config.target_directory}}:</label>
-        <div class="controls">
-            <input class="span5" type="text" required id="targetDirectory" name="targetDirectory" placeholder="{{i18n.administration.config.target_directory_placeholder}}" value="{{target_path}}" />
+            <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="{{i18n.administration.config.directory_placeholder}}" value="{{source_path}}" />
         </div>
     </div>
     <div class="form-actions">
-        <input type="hidden" name="force" />
-        <button type="button" class="btn btn-danger" data-loading-text="{{i18n.administration.processing}}">{{i18n.administration.config.save_and_sync}}</button>
         <input type="submit" class="btn btn-primary" data-loading-text="{{i18n.administration.processing}}" value="{{i18n.administration.config.save}}" />
     </div>
 </form>

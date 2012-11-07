@@ -26,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -51,12 +52,11 @@ public class JdbcMysqlRealm extends JdbcRealm {
     protected UserDao userDao = new UserDao();
 
     public JdbcMysqlRealm() {
-        this.setDataSource(DatabaseUtils.getDataSource());
         this.setAuthenticationQuery(SALTED_AUTHENTICATION_QUERY);
         this.setUserRolesQuery(USER_ROLES_QUERY);
         this.setSaltStyle(SaltStyle.COLUMN);
     }
-
+    
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;

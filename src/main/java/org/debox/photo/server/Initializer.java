@@ -24,71 +24,55 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Set;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.UserDao;
-import org.debox.photo.model.Configuration;
-import org.debox.photo.model.user.DeboxUser;
-import org.debox.photo.model.Role;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.Realm;
+import org.debox.photo.dao.JdbcMysqlRealm;
 import org.debox.photo.util.DatabaseUtils;
-import org.debox.photo.util.StringUtils;
+import org.debux.webmotion.server.WebMotionServerListener;
+import org.debux.webmotion.server.call.ServerContext;
+import org.debux.webmotion.server.mapping.Mapping;
+import org.debux.webmotion.server.mapping.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Initializer implements ServletContextListener {
+public class Initializer implements WebMotionServerListener {
     
     private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
     
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        logger.info("Initializing web context");
-        try {
-            UserDao userDao = new UserDao();
-            int roleCount = userDao.getRoleCount();
-            int userCount = userDao.getUsersCount();
-            
-            Role role = null;
-            if (roleCount == 0) {
-                role = new Role();
-                role.setId(StringUtils.randomUUID());
-                role.setName("user");
-                userDao.save(role);
-
-                role = new Role();
-                role.setId(StringUtils.randomUUID());
-                role.setName("administrator");
-                userDao.save(role);
-            }
-            
-            if (userCount == 0) {
-                DeboxUser admin = new DeboxUser();
-                admin.setId(StringUtils.randomUUID());
-                admin.setUsername("corentin.guy@debox.fr");
-                admin.setPassword("password");
-                userDao.save(admin, role);
-            }
-            
-            ConfigurationDao configurationDao = new ConfigurationDao();
-            Configuration configuration = configurationDao.get();
-            if (StringUtils.isEmpty(configuration.get(Configuration.Key.TITLE))) {
-                configuration.set(Configuration.Key.TITLE, "Galerie photo");
-                configurationDao.save(configuration);
-            }
-            sce.getServletContext().setAttribute("configuration", configuration);
-        } catch (SQLException ex) {
-            logger.error("Unable to access database", ex);
+    public void onStart(Mapping mapping, ServerContext context) {
+        logger.info("Initializing Application");
+        
+        // Load properties
+        Properties properties = mapping.getProperties();
+        DatabaseUtils.setDataSourceConfiguration(properties);
+        
+        // Test database configuration
+        if (!DatabaseUtils.hasConfiguration() && StringUtils.isEmpty(properties.getString("debox.working.directory"))) {
+            logger.info("Application database access & working directory are not configured");
+            return;
         }
-        logger.info("Initialized web context");
+        
+        // Apply datasource to Apache Shiro realms
+        final Collection<Realm> realms = ((RealmSecurityManager)SecurityUtils.getSecurityManager()).getRealms();
+        for (Realm realm : realms) {
+            if (realm instanceof JdbcMysqlRealm) {
+                JdbcMysqlRealm mysqlRealm = (JdbcMysqlRealm) realm;
+                mysqlRealm.setDataSource(DatabaseUtils.getDataSource());
+            }
+        }
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    public void onStop(ServerContext context) {
         logger.info("Destroying web context");
         ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
         if (dataSource != null) {

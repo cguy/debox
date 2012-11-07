@@ -107,15 +107,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
-        <!-- Database default access configuration -->
-        <database.host>localhost</database.host>
-        <database.port>3306</database.port>
-        <database.name>debox-photos</database.name>
-        <database.username>root</database.username>
-        <database.password />
-        <database.idle.connection.test.period>300</database.idle.connection.test.period>
-        <database.prefered.test.query>SELECT 1</database.prefered.test.query>
-        
         <!-- Logback configuration, you should override this property 
         specifying file appender, error level and your favourite log path.  -->
         <log.appender>stdout</log.appender>
@@ -174,6 +165,10 @@
                 <exclusion>
                     <artifactId>flickrapi</artifactId>
                     <groupId>com.aetrion.flickr</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-configuration</artifactId>
+                    <groupId>commons-configuration</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -315,6 +310,12 @@
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>1.5</version>
         </dependency>
         
         <!-- JSON serialization -->

@@ -23,7 +23,27 @@
 
 <form class="form-horizontal block">
     <h3>{{i18n.account.settings.photos.title}}</h3>
-    <input type="radio" id="radio-2-1" class="regular-radio big-radio" /><label for="radio-2-1">Une photo est téléchargeable dans leur résolution d'origine par les visiteurs ayant accès à celle-ci.</label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est téléchargeable dans sa résolution d'origine par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est téléchargeable dans une résolution convenable (environ 2000px de côté) par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est tournable (incrément de 90°) par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est partageable sur Facebook par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est partageable sur Twitter par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Une photo est partageable par e-mail par les visiteurs ayant accès à celle-ci.
+    </label>
+    <label class="checkbox">
+        <input type="checkbox">Les données EXIF d'une photo sont consultables par les visiteurs ayant accès à celle-ci.
+    </label>
 </form>
 
 <form class="block">

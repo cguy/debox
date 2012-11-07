@@ -22,11 +22,10 @@ package org.debox.photo.util;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 import org.debox.photo.dao.JdbcMysqlRealm;
+import org.debux.webmotion.server.mapping.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,23 +43,33 @@ public class DatabaseUtils {
     protected static final String PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD = "database.idle.connection.test.period";
     protected static final String PROPERTY_DATABASE_PREFERED_TEST_QUERY = "database.prefered.test.query";
     protected static ComboPooledDataSource comboPooledDataSource;
-
+    protected static Properties properties = null;
+    
+    public static synchronized void setDataSourceConfiguration(Properties properties) {
+        DatabaseUtils.properties = properties;
+    }
+    
+    public static boolean hasConfiguration() {
+        return StringUtils.atLeastOneIsEmpty(
+                properties.getString(PROPERTY_DATABASE_HOST),
+                properties.getString(PROPERTY_DATABASE_PORT),
+                properties.getString(PROPERTY_DATABASE_NAME),
+                properties.getString(PROPERTY_DATABASE_USERNAME));
+    }
+    
     public static synchronized ComboPooledDataSource getDataSource() {
         if (comboPooledDataSource == null) {
             try {
-                Properties properties = new Properties();
-                properties.load(JdbcMysqlRealm.class.getClassLoader().getResourceAsStream("application.properties"));
-
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
 
-                String host = properties.getProperty(PROPERTY_DATABASE_HOST);
-                String port = properties.getProperty(PROPERTY_DATABASE_PORT);
-                String name = properties.getProperty(PROPERTY_DATABASE_NAME);
-                String user = properties.getProperty(PROPERTY_DATABASE_USERNAME);
-                String password = properties.getProperty(PROPERTY_DATABASE_PASSWORD);
-                Integer period = Integer.valueOf(properties.getProperty(PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD));
-                String testQuery = properties.getProperty(PROPERTY_DATABASE_PREFERED_TEST_QUERY);
+                String host = properties.getString(PROPERTY_DATABASE_HOST);
+                String port = properties.getString(PROPERTY_DATABASE_PORT);
+                String name = properties.getString(PROPERTY_DATABASE_NAME);
+                String user = properties.getString(PROPERTY_DATABASE_USERNAME);
+                String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
+                Integer period = properties.getInt(PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD);
+                String testQuery = properties.getString(PROPERTY_DATABASE_PREFERED_TEST_QUERY);
 
                 String url = "jdbc:mysql://" + host + ':' + port + '/' + name;
                 comboPooledDataSource.setJdbcUrl(url);
@@ -68,8 +77,7 @@ public class DatabaseUtils {
                 comboPooledDataSource.setPassword(password);
                 comboPooledDataSource.setIdleConnectionTestPeriod(period);
                 comboPooledDataSource.setPreferredTestQuery(testQuery);
-
-            } catch (IOException | PropertyVetoException ex) {
+            } catch (PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);
             }
         }

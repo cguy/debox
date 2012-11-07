@@ -218,14 +218,11 @@ var fr = {
         config: {
             title: "Configuration générale",
             tab: "Configuration générale",
-            galery_title: "Titre de la galerie photos",
+            galery_title: "Titre de la galerie photos :",
             galery_title_placeholder: "Exemple : Galerie photos personnelle",
-            source_directory: "Répertoire source (contenant les photos au format original) ",
-            source_directory_placeholder: "Exemple : /home/user/photos/",
-            target_directory: "Répertoire de travail (qui contiendra notamment les vignettes des photos) ",
-            target_directory_placeholder: "Exemple : /home/user/thumbnails/",
-            save: "Enregistrer",
-            save_and_sync: "Enregistrer et synchroniser les répertoires"
+            directory: "Répertoire distant qui contiendra les photos ajoutées par les utilisateurs :",
+            directory_placeholder: "Exemple : /home/user/photos/",
+            save: "Enregistrer"
         },
         sync: {
             title: "Synchroniser les répertoires",

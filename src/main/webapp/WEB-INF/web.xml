@@ -29,11 +29,6 @@
     <listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
     </listener>
-
-    <!-- Should be the last listener, initialize the application context -->
-    <listener>
-        <listener-class>org.debox.photo.server.Initializer</listener-class>
-    </listener>
     
     <!-- Shiro filter, for session management -->
     <filter>

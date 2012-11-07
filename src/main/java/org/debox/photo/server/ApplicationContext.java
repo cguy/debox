@@ -20,9 +20,12 @@
  */
 package org.debox.photo.server;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.util.DatabaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,20 @@ public class ApplicationContext {
 
     public static ApplicationContext getInstance() {
         return instance;
+    }
+    
+    public static boolean isConfigured() {
+        boolean ready = true;
+        try {
+            Connection connection = DatabaseUtils.getConnection();
+            final PreparedStatement statement = connection.prepareStatement("SELECT 1");
+            statement.executeQuery();
+             
+        } catch (Exception e) {
+            ready = false;
+        }
+        
+        return ready;
     }
 
     public Configuration saveConfiguration(Configuration configuration) throws SQLException {
