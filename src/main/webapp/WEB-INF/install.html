@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="robots" content="noindex,nofollow,noarchive">
+
+        <title></title>
+
+        <link rel="shortcut icon" type="image/png" href="img/logo.png" />
+
+        <link rel="stylesheet" href="static/css/bootstrap.min.css" />
+
+        <link rel="stylesheet" href="static/css/font-awesome.css" />
+        <link rel="stylesheet" href="static/css/font-awesome-ie7.css" />
+
+        <link rel="stylesheet" href="static/css/style.css" />
+    </head>
+    <body onscroll="onBodyScroll()">
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="brand">debox</div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            
+        </div>
+        <script src="static/js/lib/head.load-0.96.min.js"></script>
+        <script type="text/javascript">
+            var suffix = "?t=" + new Date().getTime();
+            head.js(
+                    "static/js/lib/jquery-1.7.2.min.js",
+                    "static/js/lib/bootstrap.min.js",
+                    "static/js/lib/Hogan.js",
+                    "static/js/lib/date-fr-FR.js",
+                    "static/js/i18n/fr.js" + suffix,
+                    "static/js/utils.js" + suffix,
+                    function() {
+                        lang = fr;
+                        // Load templates before enable application routing
+                        loadTemplates();
+                        loadTemplate("install", null, null, function() {
+                            $(".step .next").click(function() {
+                                $(this).parents(".step").addClass("hide");
+                                $(this).parents(".step").next().removeClass("hide");
+                            })
+                            $("#datasource").submit(function(event) {
+                                var context = $(this);
+                                $.ajax({
+                                    url: "datasource",
+                                    type: "post",
+                                    data: $("#datasource").serializeArray(),
+                                    success: function() {
+                                        context.parents(".step").addClass("hide");
+                                        context.parents(".step").next().removeClass("hide");
+                                    },
+                                    error : function(data) {
+                                        // TODO show error
+                                        console.log("error", data);
+                                    }
+                                });
+                                return false;
+                            });
+                            $("#workingDirectory").submit(function(event) {
+                                var context = $(this);
+                                $.ajax({
+                                    url: "working-directory",
+                                    type: "post",
+                                    data: $("#workingDirectory").serializeArray(),
+                                    success: function() {
+                                        context.parents(".step").addClass("hide");
+                                        context.parents(".step").next().removeClass("hide");
+                                    },
+                                    error : function(data) {
+                                        // TODO show error
+                                        console.log("error", data);
+                                    }
+                                });
+                                return false;
+                            });
+                        });
+                    }
+            );
+        </script>
+    </body>
+</html>

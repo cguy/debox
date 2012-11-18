@@ -32,8 +32,10 @@ function loadTemplates(callback) {
             templatesLoaded = true;
             
             _config = data.config;
-            _config.providers = data.providers;
-            initHeader(data.config);
+            if (_config) {
+                _config.providers = data.providers;
+                initHeader(data.config);
+            }
             
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
                 var id = templatesToLoad[i].id;

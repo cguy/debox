@@ -46,7 +46,9 @@ var fr = {
         lastname: "Nom de famille",
         password: "Mot de passe",
         password_confirm: "Confirmation du mot de passe",
-        connection: "Connexion"
+        connection: "Connexion",
+        next: "Suivant",
+        previous: "Précédent"
     },
     registration : {
         title: "Créer un compte",
@@ -333,5 +335,58 @@ var fr = {
     },
     slideshow: {
         exit: "Quitter le diaporama"
+    },
+    install : {
+        title: "Installer debox sur votre serveur",
+        introduction: {
+            title: "Introduction",
+            presentation: "L'installation de debox sur votre serveur se fera en plusieurs étapes :",
+            steps : [
+                "Configuration de la base de données MySQL",
+                "Configuration de l'espace de travail (stockage & travail sur les photos)",
+                "Création du compte administrateur"
+            ]
+        },
+        steps: [
+            {
+                title: "Étape n°1 / 3 : Configuration de la base de données MySQL",
+                form: {
+                    host : {
+                        label: "Adresse du serveur MySQL :",
+                        default : "Valeur par défaut : 127.0.0.1"
+                    },
+                    port : {
+                        label: "Port d'accès au serveur MySQL :",
+                        default : "Valeur par défaut : 3306"
+                    },
+                    name : {
+                        label: "Nom de la base de données :",
+                        default : "Valeur par défaut : debox"
+                    },
+                    username: {
+                        label : "Nom de l'utilisateur MySQL :",
+                        default : "Valeur par défaut : root"
+                    },
+                    password: {
+                        label : "Mot de passe de l'utilisateur MySQL :",
+                        default : "Valeur par défaut : Pas de mot de passe"
+                    },
+                    next: "Valider la connexion à la base de données"
+                }
+            },
+            {
+                title: "Étape n°2 / 3 : Configuration de l'espace de travail",
+                introduction : "Vous devez spécifier un répertoire local sur votre serveur qui contiendra notamment les photos téléchargées sur votre application debox.\n\
+                                Ce répertoire doit pouvoir être créé par votre serveur d'application. Si ce répertoire est déjà créé, \n\
+                                votre serveur d'application doit pouvoir en lire et écrire son contenu",
+                path: {
+                    label : "Répertoire de travail :"
+                },
+                next: "Vérifier l'accès au répertoire saisi"
+            },
+            {
+                title: "Étape n°3 / 3 : Création du compte administrateur"
+            }
+        ]
     }
 };

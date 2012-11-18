@@ -48,6 +48,11 @@ public class ApplicationContext {
         return instance;
     }
     
+    public static void setConfigured(boolean b) {
+        
+    }
+
+    
     public static boolean isConfigured() {
         boolean ready = true;
         try {

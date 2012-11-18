@@ -891,3 +891,12 @@ p.mail {
     width: 210px;
     margin-right: 5px;
 }
+
+.control-label.large {
+    width: 250px;
+    margin-right: 5px;
+}
+
+#datasource {
+    margin-bottom: 0;
+}

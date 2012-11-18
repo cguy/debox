@@ -102,6 +102,10 @@ public class HomeService extends DeboxService {
     }
     
     public Render renderTemplates() {
+        if (!ApplicationContext.isConfigured()) {
+            return renderJSON("templates", getTemplates());
+        }
+        
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         

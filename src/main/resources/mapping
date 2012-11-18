@@ -4,7 +4,6 @@ package.filters=filter
 package.actions=service
 package.errors=service
 package.views=WEB-INF/
-server.listener.class=org.debox.photo.server.Initializer
 
 [debox.properties]
 database.host=
@@ -21,6 +20,11 @@ com.restfb.exception.FacebookOAuthException         ThirdPartyService.handleOAut
 org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAuthException
 
 [filters]
+# -----------------------------------------------------------------------------------------------
+# CONFIGURATION CHECKER
+# -----------------------------------------------------------------------------------------------
+*           /*                                      ConfigurationFilter.doFilter
+
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------
@@ -53,6 +57,13 @@ DELETE      /third-party-account/*                  AdministrationFilter.checkUs
 DELETE      /comment/*                              AdministrationFilter.checkUserAuthentication
 
 [actions]
+# -----------------------------------------------------------------------------------------------
+# INSTALL
+# -----------------------------------------------------------------------------------------------
+GET         /install                            view:install.html
+POST        /datasource                         InstallationService.setDataSource                    host=127.0.0.1,port=3306,name=debox,username=root
+POST        /working-directory                  InstallationService.setWorkingDirectory
+
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
 # -----------------------------------------------------------------------------------------------

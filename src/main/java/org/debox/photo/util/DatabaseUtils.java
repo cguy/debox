@@ -35,13 +35,12 @@ import org.slf4j.LoggerFactory;
 public class DatabaseUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
-    protected static final String PROPERTY_DATABASE_HOST = "database.host";
-    protected static final String PROPERTY_DATABASE_PORT = "database.port";
-    protected static final String PROPERTY_DATABASE_NAME = "database.name";
-    protected static final String PROPERTY_DATABASE_USERNAME = "database.username";
-    protected static final String PROPERTY_DATABASE_PASSWORD = "database.password";
-    protected static final String PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD = "database.idle.connection.test.period";
-    protected static final String PROPERTY_DATABASE_PREFERED_TEST_QUERY = "database.prefered.test.query";
+    public static final String PROPERTY_DATABASE_HOST = "database.host";
+    public static final String PROPERTY_DATABASE_PORT = "database.port";
+    public static final String PROPERTY_DATABASE_NAME = "database.name";
+    public static final String PROPERTY_DATABASE_USERNAME = "database.username";
+    public static final String PROPERTY_DATABASE_PASSWORD = "database.password";
+    public static final String TEST_QUERY = "SELECT 1";
     protected static ComboPooledDataSource comboPooledDataSource;
     protected static Properties properties = null;
     
@@ -50,7 +49,7 @@ public class DatabaseUtils {
     }
     
     public static boolean hasConfiguration() {
-        return StringUtils.atLeastOneIsEmpty(
+        return properties != null && StringUtils.atLeastOneIsEmpty(
                 properties.getString(PROPERTY_DATABASE_HOST),
                 properties.getString(PROPERTY_DATABASE_PORT),
                 properties.getString(PROPERTY_DATABASE_NAME),
@@ -58,7 +57,7 @@ public class DatabaseUtils {
     }
     
     public static synchronized ComboPooledDataSource getDataSource() {
-        if (comboPooledDataSource == null) {
+        if (comboPooledDataSource == null && hasConfiguration()) {
             try {
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
@@ -68,15 +67,13 @@ public class DatabaseUtils {
                 String name = properties.getString(PROPERTY_DATABASE_NAME);
                 String user = properties.getString(PROPERTY_DATABASE_USERNAME);
                 String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
-                Integer period = properties.getInt(PROPERTY_DATABASE_IDLE_CONNECTION_TEST_PERIOD);
-                String testQuery = properties.getString(PROPERTY_DATABASE_PREFERED_TEST_QUERY);
 
                 String url = "jdbc:mysql://" + host + ':' + port + '/' + name;
                 comboPooledDataSource.setJdbcUrl(url);
                 comboPooledDataSource.setUser(user);
                 comboPooledDataSource.setPassword(password);
-                comboPooledDataSource.setIdleConnectionTestPeriod(period);
-                comboPooledDataSource.setPreferredTestQuery(testQuery);
+                comboPooledDataSource.setIdleConnectionTestPeriod(300);
+                comboPooledDataSource.setPreferredTestQuery(TEST_QUERY);
             } catch (PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);
             }

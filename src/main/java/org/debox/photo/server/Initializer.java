@@ -24,55 +24,27 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.mgt.RealmSecurityManager;
-import org.apache.shiro.realm.Realm;
-import org.debox.photo.dao.JdbcMysqlRealm;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import org.debox.photo.util.DatabaseUtils;
-import org.debux.webmotion.server.WebMotionServerListener;
-import org.debux.webmotion.server.call.ServerContext;
-import org.debux.webmotion.server.mapping.Mapping;
-import org.debux.webmotion.server.mapping.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Initializer implements WebMotionServerListener {
+public class Initializer implements ServletContextListener {
     
     private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
     
     @Override
-    public void onStart(Mapping mapping, ServerContext context) {
-        logger.info("Initializing Application");
-        
-        // Load properties
-        Properties properties = mapping.getProperties();
-        DatabaseUtils.setDataSourceConfiguration(properties);
-        
-        // Test database configuration
-        if (!DatabaseUtils.hasConfiguration() && StringUtils.isEmpty(properties.getString("debox.working.directory"))) {
-            logger.info("Application database access & working directory are not configured");
-            return;
-        }
-        
-        // Apply datasource to Apache Shiro realms
-        final Collection<Realm> realms = ((RealmSecurityManager)SecurityUtils.getSecurityManager()).getRealms();
-        for (Realm realm : realms) {
-            if (realm instanceof JdbcMysqlRealm) {
-                JdbcMysqlRealm mysqlRealm = (JdbcMysqlRealm) realm;
-                mysqlRealm.setDataSource(DatabaseUtils.getDataSource());
-            }
-        }
+    public void contextInitialized(ServletContextEvent sce) {
     }
 
     @Override
-    public void onStop(ServerContext context) {
+    public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
         ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
         if (dataSource != null) {
@@ -99,7 +71,6 @@ public class Initializer implements WebMotionServerListener {
                 }
             }
         }
-        
         logger.info("Destroyed web context");
     }
 

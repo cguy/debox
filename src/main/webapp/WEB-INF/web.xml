@@ -18,14 +18,19 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #L%
-  -->
+-->
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <!-- Should be the first listener, configure jul to slf4j bridge -->
+
+    <listener>
+        <listener-class>org.debox.photo.server.Initializer</listener-class>
+    </listener>
+    
+    <!-- Configure jul to slf4j bridge -->
     <listener>
         <listener-class>org.debox.photo.server.SLF4JBridgeConfigurator</listener-class>
     </listener>
-
-    <!-- Should be the second listener, configure shiro with database connection -->
+    
+    <!-- Configure shiro with database connection -->
     <listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
     </listener>
@@ -46,4 +51,5 @@
         <tracking-mode>COOKIE</tracking-mode>
         <session-timeout>120</session-timeout>
     </session-config>
+    
 </web-app>
