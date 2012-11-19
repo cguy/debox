@@ -22,19 +22,27 @@ package org.debox.photo.service;
  */
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang3.StringUtils;
+import java.sql.SQLException;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.Realm;
+import org.debox.photo.dao.JdbcMysqlRealm;
+import org.debox.photo.dao.UserDao;
+import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Role;
+import org.debox.photo.model.user.DeboxUser;
+import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.DatabaseUtils;
-import org.debux.webmotion.server.mapping.Properties;
+import org.debox.photo.util.StringUtils;
+import org.debux.webmotion.server.WebMotionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +54,8 @@ public class InstallationService extends DeboxService {
     
     private static final Logger log = LoggerFactory.getLogger(InstallationService.class);
     
+    protected UserDao userDao = new UserDao();
+    
     public Render setWorkingDirectory(String path) {
         Path workingPath = Paths.get(path);
         File workingDirectory = workingPath.toFile();
@@ -54,18 +64,21 @@ public class InstallationService extends DeboxService {
         if (!isWritable && !isCreatable) {
             return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Given path is not writable");
         }
+        
+        ApplicationContext.getInstance().getConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toAbsolutePath().toString());
         return renderSuccess();
     }
     
-    public Render setDataSource(Properties properties, String host, String port, String name, String username, String password) {
-        properties.addProperty(DatabaseUtils.PROPERTY_DATABASE_HOST, host);
-        properties.addProperty(DatabaseUtils.PROPERTY_DATABASE_PORT, port);
-        properties.addProperty(DatabaseUtils.PROPERTY_DATABASE_NAME, name);
-        properties.addProperty(DatabaseUtils.PROPERTY_DATABASE_USERNAME, username);
-        properties.addProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
-        DatabaseUtils.setDataSourceConfiguration(properties);
+    public Render setDataSource(String host, String port, String name, String username, String password) {
+        CompositeConfiguration configuration = new CompositeConfiguration();
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_HOST, host);
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PORT, port);
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_NAME, name);
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_USERNAME, username);
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
+        DatabaseUtils.setDataSourceConfiguration(configuration);
         
-        String message = null;
+        Exception exception = null;
         try (
             Connection connection = DatabaseUtils.getDataSource().getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT 1");
@@ -73,14 +86,75 @@ public class InstallationService extends DeboxService {
             statement.executeQuery();
 
         } catch (Exception ex) {
-            message = ex.getMessage();
+            log.error("Unable to connect to the database", ex);
+            exception = ex;
         }
         
-        if (message != null) {
+        if (exception != null) {
             getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-            return renderJSON("message", message);
+            return renderJSON("message", exception.getMessage());
         }
         return renderSuccess();
+    }
+    
+    public Render createUserAndRoles(String username, String password, String firstname, String lastname) throws SQLException {
+        if (StringUtils.atLeastOneIsEmpty(username, password, firstname, lastname)) {
+            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, firstname and lastname are mandatory.");
+        }
+        
+        DeboxUser user = new DeboxUser();
+        user.setId(StringUtils.randomUUID());
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setFirstName(firstname);
+        user.setLastName(lastname);
+        
+        Role administratorRole = new Role();
+        administratorRole.setId(StringUtils.randomUUID());
+        administratorRole.setName("administrator");
+        
+        Role userRole = new Role();
+        userRole.setId(StringUtils.randomUUID());
+        userRole.setName("user");
+        
+        try {
+            saveDatabaseConfiguration();
+            userDao.save(administratorRole);
+            userDao.save(userRole);
+            userDao.save(user, administratorRole);
+            
+            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+            configuration.set(Configuration.Key.TITLE, "debox");
+            
+            RealmSecurityManager securityManager = (RealmSecurityManager) SecurityUtils.getSecurityManager();
+            for (Realm realm : securityManager.getRealms()) {
+                if (realm instanceof JdbcMysqlRealm) {
+                    JdbcMysqlRealm mysqlRealm = (JdbcMysqlRealm) realm;
+                    mysqlRealm.setDataSource(DatabaseUtils.getDataSource());
+                }
+            }
+            
+            ApplicationContext.getInstance().saveConfiguration(configuration);
+            ApplicationContext.setConfigured(true);
+            
+        } catch (ConfigurationException ex) {
+            log.error("Unable to save database configuration, cause: {}", ex.getMessage(), ex);
+            getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+            return renderJSON("message", ex.getMessage());
+        } catch (SQLException ex) {
+            log.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage());
+            getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+            return renderJSON("message", ex.getMessage());
+        }
+        
+        return renderSuccess();
+    }
+    
+    protected void saveDatabaseConfiguration() throws ConfigurationException {
+        Path path = Paths.get(WebMotionUtils.getUserConfigurationPath(), "debox.properties");
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.append(DatabaseUtils.getConfiguration());
+        configuration.save(path.toString());
     }
     
 }

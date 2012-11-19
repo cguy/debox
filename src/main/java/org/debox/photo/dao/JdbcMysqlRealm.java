@@ -26,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -37,7 +36,6 @@ import org.apache.shiro.util.JdbcUtils;
 import org.apache.shiro.util.SimpleByteSource;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.user.User;
-import org.debox.photo.util.DatabaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

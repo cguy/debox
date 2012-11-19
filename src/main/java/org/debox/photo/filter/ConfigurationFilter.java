@@ -42,7 +42,7 @@ public class ConfigurationFilter extends WebMotionFilter {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationFilter.class);
     private static final Object lock = new Object();
     
-    protected static final String[] CONFIGURATION_PATHS_ARRAYS = {"/install", "/tpl", "/datasource", "/working-directory"};
+    protected static final String[] CONFIGURATION_PATHS_ARRAYS = {"/install", "/tpl", "/datasource", "/working-directory", "/register-administrator"};
     protected static final List<String> CONFIGURATION_PATHS = Arrays.asList(CONFIGURATION_PATHS_ARRAYS);
     
     protected static Properties properties = null;

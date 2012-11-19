@@ -18,10 +18,10 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -- #L%
 --
--- DROP DATABASE IF EXISTS `debox-photos`;
--- CREATE DATABASE IF NOT EXISTS `debox-photos` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
--- USE `debox-photos`;
--- SET FOREIGN_KEY_CHECKS=0;
+DROP DATABASE IF EXISTS `debox`;
+CREATE DATABASE IF NOT EXISTS `debox` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `debox`;
+SET FOREIGN_KEY_CHECKS=0;
 
 -- --------------------- --
 -- OVERALL CONFIGURATION --
@@ -210,4 +210,4 @@ CREATE TABLE IF NOT EXISTS `photos_notifications_subscriptions` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
--- SET FOREIGN_KEY_CHECKS=1;
+SET FOREIGN_KEY_CHECKS=1;

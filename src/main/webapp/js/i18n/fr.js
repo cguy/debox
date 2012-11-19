@@ -378,14 +378,39 @@ var fr = {
                 title: "Étape n°2 / 3 : Configuration de l'espace de travail",
                 introduction : "Vous devez spécifier un répertoire local sur votre serveur qui contiendra notamment les photos téléchargées sur votre application debox.\n\
                                 Ce répertoire doit pouvoir être créé par votre serveur d'application. Si ce répertoire est déjà créé, \n\
-                                votre serveur d'application doit pouvoir en lire et écrire son contenu",
+                                votre serveur d'application doit pouvoir en lire et écrire son contenu.",
+                note: "Attention, le répertoire local de travail doit être vide afin que l'application debox puisse créer l'arborescence nécessaire à son bon fonctionnement.",
                 path: {
                     label : "Répertoire de travail :"
                 },
                 next: "Vérifier l'accès au répertoire saisi"
             },
             {
-                title: "Étape n°3 / 3 : Création du compte administrateur"
+                title: "Étape n°3 / 3 : Création du compte administrateur",
+                form: {
+                    firstname : {
+                        label: "Prénom : ",
+                        placeholder : "Nécessaire pour afficher votre identité"
+                    },
+                    lastname : {
+                        label: "Nom de famille : ",
+                        placeholder : "Nécessaire pour afficher votre identité"
+                    },
+                    username : {
+                        label: "Votre adresse e-mail : ",
+                        placeholder : "Nécessaire pour vous connecter à votre application debox"
+                    },
+                    password: {
+                        label : "Votre mot de passe de connexion : ",
+                        placeholder : "Nécessaire pour vous connecter à votre application debox"
+                    },
+                    next: "Valider la création du compte administrateur"
+                }
+            },
+            {
+                title: "Installation de votre application debox terminée avec succès",
+                introduction : "Vous avez terminé l'installation de votre application debox, vous pouvez dès maintenant vous connecter avec votre compte par le lien ci-dessous :",
+                go : "Me connecter à mon compte"
             }
         ]
     }

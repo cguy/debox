@@ -24,8 +24,9 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.dbutils.DbUtils;
 import org.debox.photo.dao.JdbcMysqlRealm;
-import org.debux.webmotion.server.mapping.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +43,18 @@ public class DatabaseUtils {
     public static final String PROPERTY_DATABASE_PASSWORD = "database.password";
     public static final String TEST_QUERY = "SELECT 1";
     protected static ComboPooledDataSource comboPooledDataSource;
-    protected static Properties properties = null;
+    protected static Configuration properties = null;
     
-    public static synchronized void setDataSourceConfiguration(Properties properties) {
+    public static Configuration getConfiguration() {
+        return properties;
+    }
+    
+    public static synchronized void setDataSourceConfiguration(Configuration properties) {
         DatabaseUtils.properties = properties;
     }
     
     public static boolean hasConfiguration() {
-        return properties != null && StringUtils.atLeastOneIsEmpty(
+        return properties != null && !StringUtils.atLeastOneIsEmpty(
                 properties.getString(PROPERTY_DATABASE_HOST),
                 properties.getString(PROPERTY_DATABASE_PORT),
                 properties.getString(PROPERTY_DATABASE_NAME),
@@ -58,6 +63,7 @@ public class DatabaseUtils {
     
     public static synchronized ComboPooledDataSource getDataSource() {
         if (comboPooledDataSource == null && hasConfiguration()) {
+            Connection connection = null;
             try {
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
@@ -74,8 +80,13 @@ public class DatabaseUtils {
                 comboPooledDataSource.setPassword(password);
                 comboPooledDataSource.setIdleConnectionTestPeriod(300);
                 comboPooledDataSource.setPreferredTestQuery(TEST_QUERY);
-            } catch (PropertyVetoException ex) {
+                
+                connection = comboPooledDataSource.getConnection();
+                
+            } catch (SQLException | PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);
+            } finally {
+                DbUtils.closeQuietly(connection);
             }
         }
         return comboPooledDataSource;

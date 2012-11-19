@@ -48,11 +48,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     
     public static boolean atLeastOneIsEmpty(String... strings) {
         for (String string : strings) {
-            if (StringUtils.isNotEmpty(string)) {
-                return false;
+            if (StringUtils.isEmpty(string)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
     
 }

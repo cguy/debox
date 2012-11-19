@@ -29,6 +29,7 @@ import java.util.Map;
 public class Configuration {
     
     public static enum Key {
+        WORKING_DIRECTORY("working.directory"),
         SOURCE_PATH,
         TARGET_PATH,
         TITLE,

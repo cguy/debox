@@ -79,6 +79,25 @@
                                 });
                                 return false;
                             });
+                            $("#account").submit(function(event) {
+                                var context = $(this);
+                                $.ajax({
+                                    url: "register-administrator",
+                                    type: "post",
+                                    data: $("#account").serializeArray(),
+                                    success: function() {
+                                        context.parents(".step").addClass("hide");
+                                        context.parents(".step").next().removeClass("hide");
+                                        $("#authenticate input[name=username]").val($("#account input[name=username]").val());
+                                        $("#authenticate input[name=password]").val($("#account input[name=password]").val());
+                                    },
+                                    error : function(data) {
+                                        // TODO show error
+                                        console.log("error", data);
+                                    }
+                                });
+                                return false;
+                            });
                         });
                     }
             );

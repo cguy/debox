@@ -39,6 +39,8 @@ public class ApplicationContext {
     protected static ConfigurationDao configurationDao = new ConfigurationDao();
     protected static ApplicationContext instance = new ApplicationContext();
     protected static Configuration configuration;
+    
+    protected static boolean configured = false;
 
     protected ApplicationContext() {
         // Nothing to do
@@ -49,22 +51,11 @@ public class ApplicationContext {
     }
     
     public static void setConfigured(boolean b) {
-        
+        configured = b;
     }
-
     
     public static boolean isConfigured() {
-        boolean ready = true;
-        try {
-            Connection connection = DatabaseUtils.getConnection();
-            final PreparedStatement statement = connection.prepareStatement("SELECT 1");
-            statement.executeQuery();
-             
-        } catch (Exception e) {
-            ready = false;
-        }
-        
-        return ready;
+        return configured;
     }
 
     public Configuration saveConfiguration(Configuration configuration) throws SQLException {
