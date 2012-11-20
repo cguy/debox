@@ -24,7 +24,6 @@ package org.debox.photo.filter;
 import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.DatabaseUtils;
 import org.debux.webmotion.server.WebMotionFilter;
@@ -58,6 +57,7 @@ public class ConfigurationFilter extends WebMotionFilter {
 
                 // Test database configuration
                 if (DatabaseUtils.hasConfiguration() && DatabaseUtils.testConnection()) {
+                    DatabaseUtils.applyDatasourceToShiro();
                     ApplicationContext.setConfigured(true);
                 }
             }

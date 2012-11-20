@@ -70,6 +70,7 @@ public class AccountService extends DeboxService {
 
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
+            return renderRedirect("/#/sign-in?error");
         }
         return renderRedirect("/");
     }

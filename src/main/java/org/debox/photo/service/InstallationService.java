@@ -25,8 +25,6 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -114,17 +112,10 @@ public class InstallationService extends DeboxService {
             
             Configuration configuration = ApplicationContext.getInstance().getConfiguration();
             configuration.set(Configuration.Key.TITLE, "debox");
-            
-            RealmSecurityManager securityManager = (RealmSecurityManager) SecurityUtils.getSecurityManager();
-            for (Realm realm : securityManager.getRealms()) {
-                if (realm instanceof JdbcMysqlRealm) {
-                    JdbcMysqlRealm mysqlRealm = (JdbcMysqlRealm) realm;
-                    mysqlRealm.setDataSource(DatabaseUtils.getDataSource());
-                }
-            }
-            
             ApplicationContext.getInstance().saveConfiguration(configuration);
             ApplicationContext.setConfigured(true);
+            
+            DatabaseUtils.applyDatasourceToShiro();
             
         } catch (ConfigurationException ex) {
             log.error("Unable to save database configuration, cause: {}", ex.getMessage(), ex);
