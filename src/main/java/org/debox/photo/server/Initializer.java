@@ -21,14 +21,19 @@
 package org.debox.photo.server;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.io.File;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.debox.photo.util.DatabaseUtils;
+import org.debux.webmotion.server.WebMotionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +46,19 @@ public class Initializer implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        logger.info("Initializing web context");
+        File configurationFile = new File(WebMotionUtils.getUserConfigurationPath(), "debox.properties");
+        if (configurationFile.exists()) {
+            try {
+                PropertiesConfiguration configuration = new PropertiesConfiguration(configurationFile);
+                DatabaseUtils.setDataSourceConfiguration(configuration);
+            } catch (ConfigurationException ex) {
+                logger.error("Unable to load debox configuration from file {}", configurationFile.getAbsolutePath(), ex);
+            }
+        } else {
+            logger.warn("Configuration file {} doesn't exist.", configurationFile.getAbsolutePath());
+        }
+        logger.info("Web context initialized");
     }
 
     @Override

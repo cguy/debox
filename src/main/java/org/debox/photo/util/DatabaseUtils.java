@@ -23,6 +23,7 @@ package org.debox.photo.util;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbutils.DbUtils;
@@ -59,6 +60,20 @@ public class DatabaseUtils {
                 properties.getString(PROPERTY_DATABASE_PORT),
                 properties.getString(PROPERTY_DATABASE_NAME),
                 properties.getString(PROPERTY_DATABASE_USERNAME));
+    }
+    
+    public static boolean testConnection() {
+        boolean result = true;
+        try (
+            Connection connection = DatabaseUtils.getDataSource().getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT 1");
+        ) {
+            statement.executeQuery();
+        } catch (SQLException ex) {
+            logger.error("Unable to connect to the database", ex);
+            result = false;
+        }
+        return result;
     }
     
     public static synchronized ComboPooledDataSource getDataSource() {

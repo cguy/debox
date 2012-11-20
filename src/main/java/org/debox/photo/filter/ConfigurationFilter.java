@@ -57,7 +57,7 @@ public class ConfigurationFilter extends WebMotionFilter {
                 DatabaseUtils.setDataSourceConfiguration(properties);
 
                 // Test database configuration
-                if (DatabaseUtils.hasConfiguration() && !StringUtils.isEmpty(properties.getString("debox.working.directory"))) {
+                if (DatabaseUtils.hasConfiguration() && DatabaseUtils.testConnection()) {
                     ApplicationContext.setConfigured(true);
                 }
             }

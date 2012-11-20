@@ -78,21 +78,10 @@ public class InstallationService extends DeboxService {
         configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
         DatabaseUtils.setDataSourceConfiguration(configuration);
         
-        Exception exception = null;
-        try (
-            Connection connection = DatabaseUtils.getDataSource().getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT 1");
-        ) {
-            statement.executeQuery();
-
-        } catch (Exception ex) {
-            log.error("Unable to connect to the database", ex);
-            exception = ex;
-        }
-        
-        if (exception != null) {
+        boolean connectionTest = DatabaseUtils.testConnection();
+        if (!connectionTest) {
             getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-            return renderJSON("message", exception.getMessage());
+            return renderJSON("message", "Unable to connect to the database, please see server logs.");
         }
         return renderSuccess();
     }
