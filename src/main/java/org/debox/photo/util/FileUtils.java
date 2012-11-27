@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+    
     /**
      * Default permissions for created directories and files, corresponding with 775 digit value.
      */

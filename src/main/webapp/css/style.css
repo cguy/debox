@@ -246,6 +246,10 @@ body > .container-fluid {
     margin: 10px 15px;
 }
 
+.block .alert {
+    margin: 10px 0;
+}
+
 .page-header + .alert, .page-header + div > .alert {
     margin-top: 20px;
 }

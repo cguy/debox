@@ -103,7 +103,9 @@ var fr = {
             tab: "Réglages",
             title: "Réglages & paramètres",
             hosting: {
-                title: "Stockage des photos"
+                title: "Stockage des photos",
+                source: "Stockage des photos",
+                add: "Je veux préciser où trouver mes photos déjà présentes sur Internet"
             },
             albums: {
                 title: "Paramètres par défaut des albums"

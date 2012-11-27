@@ -26,10 +26,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.JdbcMysqlRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +104,7 @@ public class DatabaseUtils {
             } catch (SQLException | PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);
             } finally {
-                DbUtils.closeQuietly(connection);
+                JdbcUtils.closeConnection(connection);
             }
         }
         return comboPooledDataSource;
