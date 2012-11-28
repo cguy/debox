@@ -102,9 +102,9 @@ public class AlbumService extends DeboxService {
         album.setDownloadable(false);
         album.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
         
+        String relativePathPrefix = File.separatorChar + album.getOwnerId();
         if (StringUtils.isEmpty(parentId)) {
-            album.setRelativePath(parentId);
-            album.setRelativePath(File.separatorChar + album.getName());
+            album.setRelativePath(relativePathPrefix + File.separatorChar + album.getName());
             
         } else {
             Album parent = albumDao.getAlbum(parentId);
@@ -112,20 +112,18 @@ public class AlbumService extends DeboxService {
                 return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is not any album with id " + parentId);
             }
             album.setParentId(parentId);
-            album.setRelativePath(parent.getRelativePath() + File.separatorChar + album.getName());
+            album.setRelativePath(relativePathPrefix + parent.getRelativePath() + File.separatorChar + album.getName());
         }
-        
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-        String[] paths = {configuration.get(Configuration.Key.SOURCE_PATH), configuration.get(Configuration.Key.TARGET_PATH)};
         
         Album existingAtPath = albumDao.getAlbumByPath(album.getRelativePath());
         if (existingAtPath != null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is already an album at path (" + album.getRelativePath() + ")");
         }
         
+        String[] paths = {ImageUtils.getAlbumsBasePath(), ImageUtils.getThumbnailsBasePath()};
         for (String path : paths) {
             File targetDirectory = new File(path + album.getRelativePath());
-            if (!targetDirectory.exists() && !targetDirectory.mkdir()) {
+            if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
                 return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Error during directory creation (" + targetDirectory.getAbsolutePath() + ")");
             }
         }
@@ -140,10 +138,8 @@ public class AlbumService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any album with id " + albumId);
         }
         
-        Configuration conf = ApplicationContext.getInstance().getConfiguration();
-        String originalDirectory = conf.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath();
-        String workingDirectory = conf.get(Configuration.Key.TARGET_PATH) + album.getRelativePath();
-        
+        String originalDirectory = ImageUtils.getSourcePath(album);
+        String workingDirectory = ImageUtils.getTargetPath(album);
         if (!FileUtils.deleteQuietly(new File(workingDirectory)) || !FileUtils.deleteQuietly(new File(originalDirectory))) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to delete directories from file system.");
         }
@@ -412,13 +408,16 @@ public class AlbumService extends DeboxService {
             return renderRedirect("/img/default_album.png");
         }
         
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.SQUARE);
+            fis = ImageUtils.getStream(photo, ThumbnailSize.SQUARE);
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
+        }
+        if (fis == null) {
+            logger.error("Errror, stream is null for the photo " + photo.getFilename());
+            return renderRedirect("/img/default_album.png");
         }
         RenderStatus status = handleLastModifiedHeader(album);
         if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
@@ -455,26 +454,19 @@ public class AlbumService extends DeboxService {
             for (Photo photo : photos) {
                 names.put(ThumbnailSize.LARGE.getPrefix() + photo.getFilename(), ThumbnailSize.LARGE.getPrefix() + photo.getFilename());
             }
-            return new ZipDownloadRenderer(configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath(), album.getName(), names);
+            return new ZipDownloadRenderer(ImageUtils.getTargetPath(album), album.getName(), names);
         }
-        return new ZipDownloadRenderer(configuration.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath(), album.getName());
+        return new ZipDownloadRenderer(ImageUtils.getSourcePath(album), album.getName());
     }
 
     public Render regenerateThumbnails(String albumId) throws SQLException {
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
-        String strSource = configuration.get(Configuration.Key.SOURCE_PATH) + album.getRelativePath();
-        String strTarget = configuration.get(Configuration.Key.TARGET_PATH) + album.getRelativePath();
-
-        if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
-            return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
-        }
-
+        String strSource = ImageUtils.getSourcePath(album);
+        String strTarget = ImageUtils.getTargetPath(album);
         Path source = Paths.get(strSource);
         Path target = Paths.get(strTarget);
 

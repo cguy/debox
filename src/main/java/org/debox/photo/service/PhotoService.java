@@ -20,7 +20,6 @@
  */
 package org.debox.photo.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -75,11 +74,10 @@ public class PhotoService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
         }
         
-        Configuration config = ApplicationContext.getInstance().getConfiguration();
-        String originalPath = config.get(Configuration.Key.SOURCE_PATH) + photo.getRelativePath() + File.separatorChar + photo.getFilename();
+        String originalPath = ImageUtils.getSourcePath(photo);
         try {
             for (ThumbnailSize size : ThumbnailSize.values()) {
-                String targetPath = ImageUtils.getTargetPath(config.get(Configuration.Key.TARGET_PATH), photo, size);
+                String targetPath = ImageUtils.getThumbnailPath(photo, size);
                 Files.deleteIfExists(Paths.get(targetPath));
             }
             Files.deleteIfExists(Paths.get(originalPath));
@@ -112,10 +110,9 @@ public class PhotoService extends DeboxService {
         if (photo == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.SQUARE);
+            fis = ImageUtils.getStream(photo, ThumbnailSize.SQUARE);
             RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
             if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                 return status;
@@ -140,10 +137,9 @@ public class PhotoService extends DeboxService {
         if (photo == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         FileInputStream fis = null;
         try {
-            fis = ImageUtils.getStream(configuration, photo, ThumbnailSize.LARGE);
+            fis = ImageUtils.getStream(photo, ThumbnailSize.LARGE);
             RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
             if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                 return status;

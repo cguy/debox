@@ -34,14 +34,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.AlbumDateReader;
 import org.debox.imaging.ImageUtils;
 import org.debox.imaging.ThumbnailGenerator;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
-import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.FileUtils;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,8 +284,13 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         photo.setId(StringUtils.randomUUID());
         photo.setFilename(path.getFileName().toString());
         photo.setTitle(path.getFileName().toString());
-        photo.setAlbumId(album.getId());
-        photo.setRelativePath(album.getRelativePath());
+        if (album != null) {
+            photo.setAlbumId(album.getId());
+            photo.setRelativePath(album.getRelativePath());
+        } else {
+            String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+            photo.setRelativePath(File.separatorChar + userId);
+        }
 
         for (Photo existing : photos.keySet()) {
             if (existing.equals(photo)) {
@@ -316,9 +322,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             return FileVisitResult.CONTINUE;
         }
 
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-        String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
-        String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
+        String sourcePath = ImageUtils.getAlbumsBasePath();
+        String targetPath = ImageUtils.getThumbnailsBasePath();
         
         // End of synchronise, persist data
         try {
@@ -347,15 +352,15 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 if (entry.getValue()) {
                     
                     if (!existingPhotos.contains(photo) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
-                        ThumbnailGenerator processor = new ThumbnailGenerator(sourcePath, photo, targetPath, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
+                        ThumbnailGenerator processor = new ThumbnailGenerator(photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
                         Future future = threadPool.submit(processor);
                         imageProcesses.add(future);
                     }
                     
                     photosToSave.add(photo);
                 } else {
-                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(targetPath, photo, ThumbnailSize.LARGE)));
-                    Files.deleteIfExists(Paths.get(ImageUtils.getTargetPath(targetPath, photo, ThumbnailSize.SQUARE)));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getThumbnailPath(photo, ThumbnailSize.LARGE)));
+                    Files.deleteIfExists(Paths.get(ImageUtils.getThumbnailPath(photo, ThumbnailSize.SQUARE)));
                     photosToDelete.add(photo);
                 }
             }

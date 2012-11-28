@@ -30,8 +30,6 @@ public class Configuration {
     
     public static enum Key {
         WORKING_DIRECTORY("working.directory"),
-        SOURCE_PATH,
-        TARGET_PATH,
         TITLE,
         THIRDPARTY_ACTIVATION("thirdparty.activation"),
         FACEBOOK_API_KEY("facebook.apiKey"),

@@ -43,9 +43,11 @@ import org.debox.imaging.imgscalr.ImgScalrImageHandler;
 import org.debox.imaging.metadataextractor.MetadataExtractorDateReader;
 import org.debox.imaging.thumbnailator.ThumbnailatorImageHandler;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
+import org.debox.photo.server.ApplicationContext;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.IdentifyCmd;
@@ -92,6 +94,7 @@ public class ImageUtils {
     protected static List<DateReader> dateReaders = new ArrayList(2){{
         add(new MetadataExtractorDateReader());
         add(new ImageMagickDateReader());
+        add(new DefaultFileDateReader());
     }};
     
     public void abort() {
@@ -99,37 +102,61 @@ public class ImageUtils {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 2, 1));
     }
     
-    public static FileInputStream getStream(Configuration configuration, Photo photo, ThumbnailSize size) throws Exception {
-        String sourcePath = configuration.get(Configuration.Key.SOURCE_PATH);
-        String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
-        String path = ImageUtils.getTargetPath(targetPath, photo, size);
+    public static FileInputStream getStream(Photo photo, ThumbnailSize size) throws Exception {
+        String targetPath = ImageUtils.getThumbnailPath(photo, size);
         FileInputStream fis;
 
         try {
-            fis = new FileInputStream(path);
+            fis = new FileInputStream(targetPath);
 
         } catch (IOException ex) {
-            log.warn("Unable to load stream for path " + path);
+            log.warn("Unable to load stream for path " + targetPath);
 
-            Future<Pair<String, FileInputStream>> future = inProgressPaths.get(path);
+            Future<Pair<String, FileInputStream>> future = inProgressPaths.get(targetPath);
             if (future == null) {
-                ThumbnailGenerator processor = new ThumbnailGenerator(sourcePath, photo, targetPath, size);
+                ThumbnailGenerator processor = new ThumbnailGenerator(photo, size);
                 future = threadPool.submit(processor);
-                inProgressPaths.put(path, future);
+                inProgressPaths.put(targetPath, future);
             }
             fis = future.get().getValue();
             try {
                 photoDao.savePhotoGenerationTime(photo.getId(), size, new Date().getTime());
             } catch (SQLException sqle) {
-                log.error("Unable to save time generation for photo: " + path, sqle);
+                log.error("Unable to save time generation for photo: " + targetPath, sqle);
             }
-            inProgressPaths.remove(path);
+            inProgressPaths.remove(targetPath);
         }
         return fis;
     }
 
-    public static String getTargetPath(String targetDirectory, Photo photo, ThumbnailSize size) {
-        return targetDirectory + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
+    protected static String getBasePath() {
+        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        String basePath = configuration.get(Configuration.Key.WORKING_DIRECTORY);
+        return basePath;
+    }
+    
+    public static String getAlbumsBasePath() {
+        return getBasePath() + File.separatorChar + "albums";
+    }
+
+    public static String getThumbnailsBasePath() {
+        return getBasePath() + File.separatorChar + "thumbnails";
+    }
+
+    public static String getSourcePath(Photo photo) {
+        return getBasePath() + File.separatorChar + "albums" + photo.getRelativePath() + File.separatorChar + photo.getFilename();
+    }
+
+    public static String getThumbnailPath(Photo photo, ThumbnailSize size) {
+        return getBasePath() + File.separatorChar + "thumbnails" + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
+    }
+
+    public static String getSourcePath(Album album) {
+        return getAlbumsBasePath() + album.getRelativePath();
+    }
+
+    public static String getTargetPath(Album album) {
+        return getThumbnailsBasePath() + album.getRelativePath();
     }
 
     public static Date getShootingDate(Path path) {
@@ -163,19 +190,18 @@ public class ImageUtils {
         return result;
     }
 
-    public static void thumbnail(String sourcePath, String targetPath, ThumbnailSize size) {
+    public static boolean thumbnail(String sourcePath, String targetPath, ThumbnailSize size) {
         Path source = Paths.get(sourcePath);
         Path target = Paths.get(targetPath);
-        
         for (ImageHandler imageHandler : implementations) {
             try {
                 imageHandler.thumbnail(source, target, size);
-                break;
-                
+                return true;
             } catch (Exception ex) {
                 log.error("Unable to create thumbnail with " + imageHandler.getClass().getCanonicalName() + " implementation, reason:", ex);
             }
         }
+        return false;
     }
     
     public static void thumbnail(String sourcePath, String targetPath, ThumbnailSize size, boolean async) {

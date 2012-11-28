@@ -34,10 +34,8 @@ import java.util.Map;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
-import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.render.Render;
@@ -80,9 +78,7 @@ public class DeboxService extends WebMotionController {
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
 
             if (lastModified == -1) {
-                Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-                String targetPath = configuration.get(Configuration.Key.TARGET_PATH);
-                String strPath = ImageUtils.getTargetPath(targetPath, photo, size);
+                String strPath = ImageUtils.getThumbnailPath(photo, size);
                 Path path = Paths.get(strPath);
 
                 try {

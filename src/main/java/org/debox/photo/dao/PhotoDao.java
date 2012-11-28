@@ -23,6 +23,8 @@ package org.debox.photo.dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
@@ -181,65 +183,51 @@ public class PhotoDao {
     }
 
     public void save(Photo photo) throws SQLException {
+        String id = photo.getId();
+        if (id == null) {
+            id = StringUtils.randomUUID();
+        }
+        
+        QueryRunner queryRunner = new QueryRunner();
         Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        PreparedStatement albumStatement = null;
+        connection.setAutoCommit(false);
+        
         try {
-            statement = connection.prepareStatement(SQL_CREATE_PHOTO);
-            String id = photo.getId();
-            if (id == null) {
-                id = StringUtils.randomUUID();
-            }
-            statement.setString(1, id);
-            statement.setString(2, photo.getFilename());
-            statement.setString(3, photo.getTitle());
-            statement.setTimestamp(4, new Timestamp(photo.getDate().getTime()));
-            statement.setString(5, photo.getRelativePath());
-            statement.setString(6, photo.getAlbumId());
-            statement.setString(7, photo.getAlbumId());
-            statement.setString(8, photo.getRelativePath());
-            statement.setString(9, photo.getTitle());
-            statement.executeUpdate();
+            // Save the photo
+            queryRunner.update(connection, SQL_CREATE_PHOTO,
+                    id, photo.getFilename(),
+                    photo.getTitle(),
+                    new Timestamp(photo.getDate().getTime()),
+                    photo.getRelativePath(),
+                    photo.getAlbumId(),
+                    photo.getAlbumId(),
+                    photo.getRelativePath(),
+                    photo.getTitle());
             
-            albumStatement = connection.prepareStatement(SQL_INCREMENT_PHOTO_COUNT);
-            albumStatement.setString(1, photo.getAlbumId());
-            albumStatement.executeUpdate();
-        } finally {
-            JdbcUtils.closeStatement(albumStatement);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            // Increase photos count for the album containing this photo
+            queryRunner.update(connection, SQL_INCREMENT_PHOTO_COUNT, photo.getAlbumId());
+            
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
     }
     
     public void delete(Photo photo) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_DELETE_PHOTO);
-            statement.setString(1, photo.getId());
-            statement.executeUpdate();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_DELETE_PHOTO, photo.getId());
     }
     
     public void delete(List<Photo> photos) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_DELETE_PHOTO);
-            for (Photo photo : photos) {
-                statement.setString(1, photo.getId());
-                statement.addBatch();
-            }
-            statement.executeBatch();
-            connection.commit();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+        String[] ids = new String[photos.size()];
+        int i = 0;
+        for (Photo photo : photos) {
+            ids[i] = photo.getId();
+            i++;
         }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.batch(SQL_DELETE_PHOTO, new Object[][]{ids});
     }
 
     public List<Photo> getPhotos(String albumId) throws SQLException {

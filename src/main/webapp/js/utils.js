@@ -632,6 +632,7 @@ function loadTab(id, data, container, cb) {
 function preprocessTabLoading(id, data) {
     if (id == "configuration") {
         data.thirdPartyActivation = data.thirdPartyActivation == "true";
+        data.workingDirectory = data["working.directory"];
         
     } else if (id == "albums") {
         for (var i = 0 ; i < data.albums.length ; i++) {

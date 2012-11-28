@@ -66,9 +66,6 @@ public class ConfigurationService extends WebMotionController {
         propertiesConfiguration.append(deboxConfiguration);
         propertiesConfiguration.save();
         
-        
-        
-        
         try {
             UserDao userDao = new UserDao();
             int roleCount = userDao.getRoleCount();
@@ -111,7 +108,7 @@ public class ConfigurationService extends WebMotionController {
     public Render getConfiguration() {
         Configuration configuration = ApplicationContext.getInstance().getConfiguration();
         
-        Configuration.Key[] dontTransform = new Configuration.Key[] {Configuration.Key.TITLE, Configuration.Key.SOURCE_PATH, Configuration.Key.TARGET_PATH};
+        Configuration.Key[] dontTransform = new Configuration.Key[] {Configuration.Key.TITLE, Configuration.Key.WORKING_DIRECTORY};
         
         Map<String, Object> model = new HashMap<>();
         for (Configuration.Key key : dontTransform) {
@@ -141,26 +138,14 @@ public class ConfigurationService extends WebMotionController {
         return renderJSON(model);
     }
 
-    public Render editConfiguration(String title, String sourceDirectory, String targetDirectory) throws IOException, SQLException {
-        Path source = Paths.get(sourceDirectory);
-        Path target = Paths.get(targetDirectory);
+    public Render editConfiguration(String title, String workingDirectory) throws IOException, SQLException {
+        Path path = Paths.get(workingDirectory);
 
         boolean error = false;
-        if (!Files.isDirectory(source)) {
-            getContext().addErrorMessage("source", "source.notdirectory");
+        if (!Files.isDirectory(path) && !path.toFile().mkdirs()) {
+            getContext().addErrorMessage("workingDirectory", "path.notdirectory");
             error = true;
         }
-
-        if (!Files.exists(source)) {
-            getContext().addErrorMessage("source", "source.notexist");
-            error = true;
-        }
-
-        if (source.equals(target)) {
-            getContext().addErrorMessage("path", "paths.equals");
-            error = true;
-        }
-
         if (StringUtils.isEmpty(title)) {
             getContext().addErrorMessage("name", "isEmpty");
             error = true;
@@ -173,8 +158,7 @@ public class ConfigurationService extends WebMotionController {
         getContext().addInfoMessage("success", "configuration.edit.success");
 
         Configuration configuration = new Configuration();
-        configuration.set(Configuration.Key.SOURCE_PATH, sourceDirectory);
-        configuration.set(Configuration.Key.TARGET_PATH, targetDirectory);
+        configuration.set(Configuration.Key.WORKING_DIRECTORY, workingDirectory);
         configuration.set(Configuration.Key.TITLE, title);
         ApplicationContext.getInstance().saveConfiguration(configuration);
 

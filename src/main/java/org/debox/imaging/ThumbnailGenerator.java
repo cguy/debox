@@ -20,10 +20,7 @@
  */
 package org.debox.imaging;
 
-import java.awt.image.ImagingOpException;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,14 +35,10 @@ import org.slf4j.LoggerFactory;
 public class ThumbnailGenerator implements Callable<Pair<String, FileInputStream>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ThumbnailGenerator.class);
-    protected String sourcePath;
-    protected String targetPath;
     protected Photo photo;
     protected ThumbnailSize[] sizes;
 
-    public ThumbnailGenerator(String sourcePath, Photo photo, String targetPath, ThumbnailSize... sizes) {
-        this.sourcePath = sourcePath;
-        this.targetPath = targetPath;
+    public ThumbnailGenerator(Photo photo, ThumbnailSize... sizes) {
         this.photo = photo;
         this.sizes = sizes;
     }
@@ -53,31 +46,22 @@ public class ThumbnailGenerator implements Callable<Pair<String, FileInputStream
     @Override
     public Pair<String, FileInputStream> call() throws Exception {
         Pair<String, FileInputStream> result = null;
-
+        String sourcePath = ImageUtils.getSourcePath(photo);
         try {
-            String imagePath = sourcePath + photo.getRelativePath() + File.separatorChar + photo.getFilename();
-
             // Sort thumbnails size (desc) to optimize image processing (use bigger image to create thumbnail, but not the huge original)
             Arrays.sort(sizes, new ThumbnailSize.Comparator());
             for (ThumbnailSize size : sizes) {
-                String photoTargetPath = targetPath + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
-                ImageUtils.thumbnail(imagePath, photoTargetPath, size);
-
-                imagePath = photoTargetPath;
+                String photoTargetPath = ImageUtils.getThumbnailPath(photo, size);
+                ImageUtils.thumbnail(sourcePath, photoTargetPath, size);
+                sourcePath = photoTargetPath;
             }
-
             // If only one size was requested, we return the corresponding stream
             if (sizes.length == 1) {
-                result = Pair.of(imagePath, new FileInputStream(imagePath));
+                result = Pair.of(sourcePath, new FileInputStream(sourcePath));
             }
-
-        } catch (IOException | IllegalArgumentException | ImagingOpException ex) {
-            logger.error(ex.getMessage(), ex);
-
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         }
-
         return result;
     }
     

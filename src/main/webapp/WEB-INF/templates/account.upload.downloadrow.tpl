@@ -1,4 +1,3 @@
-pouet
 {{#files}}
     <tr class="template-download fade">
         {{#error}}

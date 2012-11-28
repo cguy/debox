@@ -1,4 +1,3 @@
-pouet
 {{#files}}
 <tr class="template-upload fade">
     <td class="preview"><span class="fade"></span></td>

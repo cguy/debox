@@ -10,7 +10,7 @@
     <div class="control-group">
         <label class="control-label" for="sourceDirectory">{{i18n.administration.config.directory}}</label>
         <div class="controls">
-            <input class="span5" type="text" required id="sourceDirectory" name="sourceDirectory" placeholder="{{i18n.administration.config.directory_placeholder}}" value="{{source_path}}" />
+            <input class="span5" type="text" required id="sourceDirectory" name="workingDirectory" placeholder="{{i18n.administration.config.directory_placeholder}}" value="{{workingDirectory}}" />
         </div>
     </div>
     <div class="form-actions">

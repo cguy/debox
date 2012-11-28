@@ -178,7 +178,7 @@ public class RegenerateThumbnailsJob implements FileVisitor<Path>, Runnable {
         Photo photo = new Photo();
         photo.setRelativePath(StringUtils.substringAfter(path.getParent().toString(), this.source.toString()));
         photo.setFilename(path.getFileName().toString());
-        ThumbnailGenerator processor = new ThumbnailGenerator(source.toString(), photo, target.toString(), ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
+        ThumbnailGenerator processor = new ThumbnailGenerator(photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
         Future future = threadPool.submit(processor);
         imageProcesses.add(future);
         return FileVisitResult.CONTINUE;

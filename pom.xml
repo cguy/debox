@@ -313,9 +313,9 @@
         </dependency>
         
         <dependency>
-            <groupId>org.javalite</groupId>
-            <artifactId>activejdbc</artifactId>
-            <version>1.4.5</version>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>1.5</version>
         </dependency>
         
         <!-- JSON serialization -->

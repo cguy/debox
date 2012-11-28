@@ -20,6 +20,7 @@
  */
 package org.debox.photo.service;
 
+import java.io.File;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.model.configuration.SynchronizationMode;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import org.debox.photo.model.*;
 import org.debox.photo.model.user.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
+import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.call.FileProgressListener;
@@ -66,6 +68,7 @@ public class AdministrationService extends DeboxService {
         return renderJSON(getSyncData());
     }
     
+    // TODO [cguy:2012-11-28] Handle error cases (in these case, delete original file, thumbnails, rollback DB transactions)
     public Render upload(UploadFile photo, String albumId) throws IOException, SQLException {
         // Get existing album
         Album album = albumDao.getAlbum(albumId);
@@ -73,47 +76,59 @@ public class AdministrationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album identifier " + albumId + " is not corresponding with any existing album.");
         }
         
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-        
-        String basePath = configuration.get(Configuration.Key.SOURCE_PATH);
-        Path targetFile = Paths.get(basePath + album.getRelativePath(), photo.getName());
         Path originalFile = Paths.get(photo.getFile().getAbsolutePath());
-        
-        logger.debug("Copy {} to {}", originalFile, targetFile);
-        Files.move(originalFile, targetFile);
         
         Photo addedPhoto = new Photo();
         addedPhoto.setAlbumId(albumId);
         addedPhoto.setFilename(photo.getName());
         addedPhoto.setTitle(photo.getName());
-        addedPhoto.setDate(ImageUtils.getShootingDate(targetFile));
+        addedPhoto.setDate(ImageUtils.getShootingDate(originalFile));
         addedPhoto.setId(StringUtils.randomUUID());
         addedPhoto.setRelativePath(album.getRelativePath());
         
-        photoDao.save(addedPhoto); // Handle photo count increment for album
+        Path targetFile = Paths.get(ImageUtils.getSourcePath(addedPhoto));
         
-        String thumbnailPath = ImageUtils.getTargetPath(configuration.get(Configuration.Key.TARGET_PATH), addedPhoto, ThumbnailSize.LARGE);
-        ImageUtils.thumbnail(targetFile.toString(), thumbnailPath, ThumbnailSize.LARGE);
+        logger.debug("Copy {} to {}", originalFile, targetFile);
+        Files.move(originalFile, targetFile);
         
-        thumbnailPath = ImageUtils.getTargetPath(configuration.get(Configuration.Key.TARGET_PATH), addedPhoto, ThumbnailSize.SQUARE);
-        ImageUtils.thumbnail(targetFile.toString(), thumbnailPath.toString(), ThumbnailSize.SQUARE);
+        String thumbnailPath = ImageUtils.getThumbnailPath(addedPhoto, ThumbnailSize.LARGE);
+        if (!ImageUtils.thumbnail(targetFile.toString(), thumbnailPath, ThumbnailSize.LARGE)) {
+            FileUtils.deleteQuietly(targetFile.toFile());
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to create large thumbnail for photo " + photo.getName());
+        }
+        
+        String squarePath = ImageUtils.getThumbnailPath(addedPhoto, ThumbnailSize.SQUARE);
+        if (!ImageUtils.thumbnail(targetFile.toString(), squarePath.toString(), ThumbnailSize.SQUARE)) {
+            FileUtils.deleteQuietly(new File(thumbnailPath));
+            FileUtils.deleteQuietly(targetFile.toFile());
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to create square thumbnail for photo " + photo.getName());
+        }
+        
+        try {
+            photoDao.save(addedPhoto); // Handle photo count increment for album
+            
+            album = albumDao.getAlbum(albumId); // Get refreshed version on the album modified in photoDao.save method
+            boolean edited = false;
+            Date date = ImageUtils.getShootingDate(targetFile);
+            if (album.getBeginDate() == null || album.getBeginDate().after(date)) {
+                album.setBeginDate(date);
+                edited = true;
+            }
+            if (album.getEndDate() == null || album.getEndDate().before(date)) {
+                album.setEndDate(date);
+                edited = true;
+            }
+            if (edited) {
+                albumDao.save(album);
+            }
+        } catch (SQLException ex) {
+            FileUtils.deleteQuietly(new File(thumbnailPath));
+            FileUtils.deleteQuietly(new File(squarePath));
+            FileUtils.deleteQuietly(targetFile.toFile());
+            throw ex;
+        }
         
         Photo result = photoDao.getPhoto(addedPhoto.getId());
-        Date date = ImageUtils.getShootingDate(targetFile);
-        album = albumDao.getAlbum(albumId); // Get refreshed version on the album modified in photoDao.save method
-        boolean edited = false;
-        if (album.getBeginDate() == null || album.getBeginDate().after(date)) {
-            album.setBeginDate(date);
-            edited = true;
-        }
-        if (album.getEndDate() == null || album.getEndDate().before(date)) {
-            album.setEndDate(date);
-            edited = true;
-        }
-        if (edited) {
-            albumDao.save(album);
-        }
-        
         HashMap<String, Object> metaData = new HashMap<>(4);
         metaData.put("name", photo.getName());
         metaData.put("size", photo.getSize());
@@ -121,7 +136,7 @@ public class AdministrationService extends DeboxService {
         metaData.put("thumbnail_url", result.getThumbnailUrl());
 
         HashMap<String, Object> resultMetadata = new HashMap<>(1);
-        resultMetadata.put(null, metaData);
+        resultMetadata.put(null, new Object[] {metaData});
         
         return new JacksonRenderJsonImpl(resultMetadata);
     }
@@ -132,11 +147,8 @@ public class AdministrationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
 
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
-
-        String strSource = configuration.get(Configuration.Key.SOURCE_PATH);
-        String strTarget = configuration.get(Configuration.Key.TARGET_PATH);
-
+        String strSource = ImageUtils.getAlbumsBasePath();
+        String strTarget = ImageUtils.getThumbnailsBasePath();
         if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
             return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
         }
