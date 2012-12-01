@@ -65,7 +65,7 @@ app.post('#/token/reinit', function() {
         type: "post",
         success: function(data) {
             $("#" + id).attr("id", data.id);
-            $("#" + data.id + " .access_link a").attr("href", data.id + "#/");
+            $("#" + data.id + " .access_link .accessShare").val(window.location.protocol + "//" + window.location.host + window.location.pathname + data.id + "#/");
             $("#" + data.id + " .access_link .alert-success").show();
 
             var form = $("#" + data.id + " .album-access-form");

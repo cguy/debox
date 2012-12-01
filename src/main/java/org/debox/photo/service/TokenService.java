@@ -139,6 +139,7 @@ public class TokenService extends DeboxService {
         newToken.setLabel(token.getLabel());
         newToken.setAlbums(token.getAlbums());
         newToken.setId(StringUtils.randomUUID());
+        newToken.setOwner(SessionUtils.getUser(SecurityUtils.getSubject()));
         
         tokenDao.save(newToken);
         tokenDao.delete(id);

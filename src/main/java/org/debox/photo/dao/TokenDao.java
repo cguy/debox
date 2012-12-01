@@ -115,8 +115,8 @@ public class TokenDao {
             for (Token token : tokens) {
                 statementCreateToken.setString(1, token.getId());
                 statementCreateToken.setString(2, token.getLabel());
-                statement.setString(3, token.getOwner().getId());
-                statement.setString(4, token.getLabel());
+                statementCreateToken.setString(3, token.getOwner().getId());
+                statementCreateToken.setString(4, token.getLabel());
                 statementCreateToken.addBatch();
 
                 for (Album album : token.getAlbums()) {

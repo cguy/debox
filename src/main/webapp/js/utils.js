@@ -512,7 +512,7 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
         
         if (allAlbums[i]['public']) {
             p.addClass = "public";
-            p.title += fr.administration.tokens.public_album;
+            p.title += fr.account.tokens.public_album;
         }
                                     
         prepareDynatree(allAlbums[i].subAlbums, accessibleAlbumsWithCurrentToken, p.children, allAlbums[i].id);

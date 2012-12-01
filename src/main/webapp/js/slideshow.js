@@ -101,13 +101,10 @@ $.getDocHeight = function() {
     window.fullScreenApi = fullScreenApi;
 })();
 
-function exitFullscreen(dontChangeHash) {
+function exitFullscreen() {
     delete s;
     $(document.body).removeClass("fixed");
     document.body.removeChild(document.getElementById("fullscreenContainer"));
-    if (!dontChangeHash) {
-        location.hash = location.hash.substring(0, location.hash.lastIndexOf("/"));
-    }
 }
 
 function fullscreen(index, data, mode) {
@@ -267,8 +264,7 @@ function Slideshow() {
         href = href.substring(0, href.indexOf("/", href.indexOf("#/album/") + "#/album/".length));
         $("#slideshow-options .exit").attr("href", href);
         $("#slideshow-options .exit").click(function() {
-            console.log("drpgjdrùlgkh")
-            exitFullscreen(true);
+            exitFullscreen();
             return false;
         });
         $("#slideshow-comments").mCustomScrollbar({
