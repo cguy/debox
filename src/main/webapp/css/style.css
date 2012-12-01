@@ -219,8 +219,8 @@ body > .container-fluid {
     font-size: 30px;
     padding: 5px 20px;
     margin: 0;
-    border-bottom-color: #ccc;
     z-index: 1029;
+    border-bottom-color: #ccc;
 
     background: rgb(255,255,255);
     background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);

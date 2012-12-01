@@ -325,6 +325,7 @@ var fr = {
         }
     },
     comments: {
+        title: "Commentaires",
         show: "Afficher les commentaires",
         hide: "Cacher les commentaires",
         placeholder: "Laissez un commentaire ...",

@@ -164,7 +164,7 @@ function Slideshow() {
             result[i] = item;
         }
         return result;
-    }
+    };
 
     this.setIndex = function(index) {
         this.index = index;
@@ -184,7 +184,7 @@ function Slideshow() {
         }
         $("#slideshow-label").text(this.items[this.index].name);
         this.refreshLinks();
-    }
+    };
     
     this.getAlbumId = function() {
         var hash = location.hash;
@@ -192,11 +192,11 @@ function Slideshow() {
         var prefixIndex = hash.indexOf(prefix) + prefix.length;
         var albumId = hash.substring(prefixIndex, hash.indexOf("/", prefixIndex));
         return albumId;
-    }
+    };
     
     this.getBasePath = function() {
         return "#/album/" + this.getAlbumId() + "/" + this.items[this.index].id; 
-    }
+    };
 
     this.refreshLinks = function() {
         var hash = location.hash;
@@ -209,30 +209,39 @@ function Slideshow() {
         $("#slideshow-options .comments").attr("href", path);
         $("#new-photo-comment").attr("action", location.hash);
         
-        $("#slideshow-options > a[rel=tooltip]").tooltip('destroy');
-        $("#slideshow-options > a[rel=tooltip]").click(function() {
-            $(this).tooltip('hide');
-        });
+        var commentsText = fr.comments.show;
         if (isCommentsMode) {
-            $("#slideshow-options > a.comments").attr("title", fr.comments.hide);
-        } else {
-            $("#slideshow-options a.comments").attr("title", fr.comments.show);
+            commentsText = fr.comments.hide;
         }
-        $("#slideshow-options > a[rel=tooltip]").tooltip();
-    }
+        $("#slideshow-options > a.comments").attr("title", commentsText);
+        $("#slideshow-help-label").text(commentsText);
+        $("#slideshow-options > a.comments").unbind("mouseenter");
+        $("#slideshow-options > a.comments").unbind("mouseout");
+        $("#slideshow-options *").mouseenter(function() {
+            var title = $(this).attr("title");
+            if (!title) {
+                title = $(this).parents("a").attr("title");
+            }
+            $("#slideshow-options").addClass("show");
+            $("#slideshow-help-label").text(title);
+        });
+        $("#slideshow-options").mouseout(function() {
+            $("#slideshow-options").removeClass("show");
+        });
+    };
 
     this.getCurrentId = function() {
         return this.items[this.index].id;
-    }
+    };
 
     this.getId = function(index) {
         return this.items[index].id;
-    }
+    };
     
     this.setLabel = function() {
         $("#slideshow-label").text(this.items[this.index].name);
         $("#slideshow-label").get(0).className = "";
-    }
+    };
 
     this.setItems = function(items) {
         this.items = this.convert(items);
@@ -242,13 +251,13 @@ function Slideshow() {
         
         var self = this;
         addTransitionListener($("#slideshow-label").get(0), function() {self.setLabel()});
-    }
+    };
 
     this.setSize = function(id, w, h) {
         var index = this.getItemIndex(id);
         this.items[index].width = w;
         this.items[index].height = h;
-    }
+    };
 
     this.show = function() {
         $(document.body).addClass("fixed");
@@ -258,7 +267,9 @@ function Slideshow() {
         href = href.substring(0, href.indexOf("/", href.indexOf("#/album/") + "#/album/".length));
         $("#slideshow-options .exit").attr("href", href);
         $("#slideshow-options .exit").click(function() {
+            console.log("drpgjdrùlgkh")
             exitFullscreen(true);
+            return false;
         });
         $("#slideshow-comments").mCustomScrollbar({
             scrollInertia: 500,
@@ -267,7 +278,7 @@ function Slideshow() {
                 updateOnContentResize: true
             }
         });
-    }
+    };
     
     this.setMode = function(mode) {
         if (!mode) {
@@ -275,14 +286,14 @@ function Slideshow() {
         } else if (mode == "/comments") {
             this._showComments();
         }
-    }
+    };
     
     this._showComments = function() {
         this._displayDrawer();
         $("#fullscreenContainer").addClass("comments");
         this.refreshLinks();
         this._loadComments();
-    }
+    };
     
     this._loadComments = function() {
         if (!_config.authenticated) {
@@ -317,14 +328,14 @@ function Slideshow() {
                 
             }
         });
-    }
+    };
     
     this._displayDrawer = function() {
         $("#fullscreenContainer").addClass("drawer");
         $("#slideshow-drawer").removeClass("hide");
         this._resetMargin();
         $("#slideshow-next").get(0).style.width = (this.getPhotosNode().clientWidth / 6 - this.DRAWER_MARGIN / 2)+"px";
-    }
+    };
     
     this._hideDrawer = function() {
         $("#slideshow-drawer").addClass("hide");
@@ -333,7 +344,7 @@ function Slideshow() {
         this.getPhotos()[this.index].style.right = "34%";
         this.getPhotos()[this.index].style.maxWidth = "90%";
         this.refreshLinks();
-    }
+    };
     
     this._resetMargin = function() {
         var prevIndex = this.getPreviousIndex();
@@ -343,19 +354,19 @@ function Slideshow() {
         this.getPhotos()[this.index].style.maxWidth = (this.getPhotosNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
         this.getPhotos()[prevIndex].style.right = null;
         this.getPhotos()[nextIndex].style.right = null;
-    }
+    };
 
     this.hide = function() {
         document.body.removeChild($("#fullscreenContainer"));
-    }
+    };
     
     this.getPhotosNode = function() {
         return $("#fullscreenContainer_photos").get(0);
-    }
+    };
     
     this.getPhotos = function() {
         return $("#fullscreenContainer_photos img");
-    }
+    };
 
     this.previous = function() {
         var prevIndex = this.getPreviousIndex();
@@ -369,7 +380,7 @@ function Slideshow() {
 
         nextPhoto.className = "next undisplayed";
         currentPhoto.className = "next";
-        previousPhoto.className = ""
+        previousPhoto.className = "";
         newPreviousPhoto.className = "previous";
         
         if (!Modernizr.csstransitions) {
@@ -381,7 +392,7 @@ function Slideshow() {
         this.index = prevIndex;
         this._resetMargin();
         this.refreshLinks();
-    }
+    };
 
     this.next = function() {
         var prevIndex = this.getPreviousIndex();
@@ -395,7 +406,7 @@ function Slideshow() {
         
         previousPhoto.className = "previous undisplayed";
         currentPhoto.className = "previous";
-        nextPhoto.className = ""
+        nextPhoto.className = "";
         newNextPhoto.className = "next";
         
         if (!Modernizr.csstransitions) {
@@ -407,7 +418,7 @@ function Slideshow() {
         this.index = nextIndex;
         this._resetMargin();
         this.refreshLinks();
-    }
+    };
 
     this.gotoItem = function(itemId) {
         var index = this.getItemIndex(itemId);
@@ -419,29 +430,29 @@ function Slideshow() {
             throw "Cannot switch to photo other than strict previous or following photo.";
         }
         this._loadComments();
-    }
+    };
 
     this.getNextIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
         return index == this.getPhotos().length - 1 ? 0 : index + 1
-    }
+    };
 
     this.getPreviousIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index != 0 ? index - 1 : this.getPhotos().length - 1
-    }
+        return index != 0 ? index - 1 : this.getPhotos().length - 1;
+    };
 
     this.isNextIndex = function(index) {
         return (this.index == this.getPhotos().length - 1 && index == 0) || (this.index != this.getPhotos().length - 1 && index == this.index + 1);
-    }
+    };
 
     this.isPreviousIndex = function(index) {
         return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.getPhotos().length - 1);
-    }
+    };
 
     this.getItemIndex = function(itemId) {
         for (var i = 0; i < this.items.length; i++) {
@@ -450,6 +461,6 @@ function Slideshow() {
             }
         }
         throw "Unable to find index for item " + itemId;
-    }
+    };
 
 }

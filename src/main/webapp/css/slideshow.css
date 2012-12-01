@@ -167,36 +167,35 @@ body.fixed #fullscreenContainer {
 #slideshow-options {
     position: absolute;
     z-index: 1050;
-    top: 15px;
-    right: 15px;
+    top: 0;
+    right: 0;
     font-size: 26px;
+    width: 331px;
+    height: 40px;
+    line-height: 40px;
+    border-left: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    -webkit-transition: background-color .5s, border-color .5s;
+    -moz-transition: background-color .1s, border-color .1s;
+    -ms-transition: background-color .1s, border-color .1s;
+    -o-transition: background-color .1s, border-color .1s;
+    transition: background-color 1s, border-color 1s;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-left-radius: 5px;
 }
 
-body.fixed .tooltip {
-    z-index: 10000;
-}
-
-body.fixed .tooltip .tooltip-inner {
+#slideshow-options.show, .drawer #slideshow-options {
     background-color: #fff;
-    color: #000;
-}
-
-body.fixed .tooltip.left .tooltip-arrow {
-    border-left-color: #fff;
-}
-
-body.fixed .drawer ~ .tooltip .tooltip-inner {
-    background-color: #000;
-    color: #fff;
-}
-
-body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
-    border-left-color: #000;
+    background-color: rgba(255,255,255,0.95);
+    border-left-color: #ddd;
+    border-bottom-color: #ddd;
 }
 
 #slideshow-options a {
+    float: right;
     display: inline-block;
-    margin: 0 10px;
+    margin: 0 15px;
     color: #888;
     -webkit-transition: color .1s ease;
     -moz-transition: color .1s ease;
@@ -207,7 +206,7 @@ body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
 
 #slideshow-options a:hover {
     text-decoration: none;
-    color: #fefefe;
+    color: #333;
 }
 
 .drawer #slideshow-options a:hover,
@@ -222,12 +221,17 @@ body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
     color: #005580;
 }
 
-#slideshow-options a:first-of-type {
-    margin-left: 0;
+#slideshow-help-label {
+    visibility: hidden;
+    position: absolute;
+    color: #333;
+    font-size: 14px;
+    padding-left: 10px;
+    line-height: 40px;
 }
 
-#slideshow-options a:last-of-type {
-    margin-right: 0;
+#slideshow-options.show #slideshow-help-label {
+    visibility: visible;
 }
 
 /* ********************************************* */
@@ -239,14 +243,13 @@ body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
     right: 0;
     top: 0;
     bottom: 0;
-    width: 300px;
-    background: #fff;
-    padding: 30px 20px 20px 20px;
+    width: 340px;
     -webkit-transition: right .5s ease;
     -moz-transition: right .5s ease;
     -ms-transition: right .5s ease;
     -o-transition: right .5s ease;
     transition: right .5s ease;
+    background-color: #f0f0f0;
 }
 
 #slideshow-drawer.hide {
@@ -265,17 +268,59 @@ body.fixed .drawer ~ .tooltip.left .tooltip-arrow {
 .drawer.comments #slideshow-comments {
     display: block;
     position: absolute;
-    top: 50px;
-    left: 10px;
-    right: 10px;
+    top: 100px;
+    left: 0px;
+    right: 0px;
     bottom: 10px;
+    padding: 0px;
+}
+
+.drawer.comments h3 {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    background: rgb(255,255,255);
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(47%,rgba(246,246,246,1)), color-stop(100%,rgba(237,237,237,1)));
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(246,246,246,1) 47%,rgba(237,237,237,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 );
+    margin: 0 0 10px;
+    padding-left: 10px;
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    height: 50px;
+    line-height: 50px;
+}
+
+.drawer.comments .no-comments {
+    margin: 10px 0;
+    border-left: none;
+    border-right: none;
+}
+
+.drawer.comments .comment:nth-of-type(2n) {
+    background-color: #fefefe;
+}
+
+.drawer.comments .comment:nth-of-type(2n+1) {
+    background-color: #f8f8f8;
+}
+
+.drawer.comments #slideshow-comments form {
+    border-top: 1px solid #ddd;
+    margin-top: 10px;
 }
 
 .drawer.comments #slideshow-comments textarea {
-    width: 300px;
     margin: 0;
+    border: none;
 }
 
 .drawer.comments #slideshow-comments .form-actions {
     margin-top: 0;
+    border-bottom: 1px solid #ddd;
 }
