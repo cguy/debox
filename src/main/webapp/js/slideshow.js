@@ -265,7 +265,6 @@ function Slideshow() {
         $("#slideshow-options .exit").attr("href", href);
         $("#slideshow-options .exit").click(function() {
             exitFullscreen();
-            return false;
         });
         $("#slideshow-comments").mCustomScrollbar({
             scrollInertia: 500,
@@ -321,7 +320,7 @@ function Slideshow() {
                 bindPhotoCommentDeletion();
             },
             error: function() {
-                
+                console.log("Error during deletion");
             }
         });
     };

@@ -18,7 +18,7 @@
 
     {{#photos.length}}{{#album.downloadable}}
     <div class="dropdown pull-right">
-        <a href="#" data-placement="left" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
+        <a href="#" data-placement="bottom" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
         <ul class="dropdown-menu">
             <li><a target="_blank" href="{{album.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>
             <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>

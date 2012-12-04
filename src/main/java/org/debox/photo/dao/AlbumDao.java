@@ -337,21 +337,36 @@ public class AlbumDao {
     public Album getAlbum(String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(connection, null, false), albumId);
+        Album result = null;
+        try {
+            result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(connection, null, false), albumId);
+        } finally {
+            DbUtils.closeQuietly(connection);
+        }
         return result;
     }
     
     public Album getAlbumByPath(String path) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false));
+        Album result = null;
+        try {
+            result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false));
+        } finally {
+            DbUtils.closeQuietly(connection);
+        }
         return result;
     }
    
     public List<Album> getAllAlbums() throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
-        List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(connection, null, false));
+        List<Album> result = null;
+        try {
+            result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(connection, null, false));
+        } finally {
+            DbUtils.closeQuietly(connection);
+        }
         return result;
     }
     
@@ -359,10 +374,14 @@ public class AlbumDao {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(connection, null, false));
-        } else {
-            result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(connection, null, false), parentId);
+        try {
+            if (parentId == null) {
+                result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(connection, null, false));
+            } else {
+                result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(connection, null, false), parentId);
+            }
+        } finally {
+            DbUtils.closeQuietly(connection);
         }
         return result;
     }
@@ -371,10 +390,14 @@ public class AlbumDao {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(connection, token, true), token);
-        } else {
-            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(connection, token, true), parentId, token);
+        try {
+            if (parentId == null) {
+                result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(connection, token, true), token);
+            } else {
+                result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(connection, token, true), parentId, token);
+            }
+        } finally {
+            DbUtils.closeQuietly(connection);
         }
         return result;
     }
@@ -384,10 +407,14 @@ public class AlbumDao {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(connection, id, false), id);
-        } else {
-            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(connection, id, false), parentId, id);
+        try {
+            if (parentId == null) {
+                result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(connection, id, false), id);
+            } else {
+                result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(connection, id, false), parentId, id);
+            }
+        } finally {
+            DbUtils.closeQuietly(connection);
         }
         return result;
     }
@@ -527,5 +554,4 @@ public class AlbumDao {
         return new BeanListHandler<>(Album.class, getRowProcessor(connection, identifier, isToken));
     }
     
-
 }

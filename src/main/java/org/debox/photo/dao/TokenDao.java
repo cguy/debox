@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Token;
@@ -46,7 +45,7 @@ public class TokenDao {
 
     protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE label = ?";
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
-    protected static String SQL_DELETE_ALL_TOKEN_ALBUM = "DELETE FROM albums_tokens where owner_id = ?";
+    protected static String SQL_DELETE_BY_USER = "DELETE FROM tokens where owner_id = ?";
     protected static String SQL_DELETE_TOKEN_ALBUM = "DELETE FROM albums_tokens WHERE token_id = ?";
     protected static String SQL_DELETE_ALBUM_TOKEN = "DELETE FROM albums_tokens WHERE album_id = ?";
     protected static String SQL_DELETE = "DELETE FROM tokens WHERE id = ?";
@@ -97,10 +96,8 @@ public class TokenDao {
         connection.setAutoCommit(false);
         try {
             QueryRunner queryRunner = new QueryRunner();
-            String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
-            queryRunner.update(connection, SQL_DELETE_ALL_TOKEN_ALBUM, id);
-            
             for (Token token : tokens) {
+                queryRunner.update(connection, SQL_DELETE, token.getId());
                 queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId(), token.getLabel());
                 for (Album album : token.getAlbums()) {
                     queryRunner.update(connection, SQL_CREATE_TOKEN_ALBUM, album.getId(), token.getId());
