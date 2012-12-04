@@ -26,6 +26,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Token;
@@ -43,7 +46,7 @@ public class TokenDao {
 
     protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE label = ?";
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
-    protected static String SQL_DELETE_ALL_TOKEN_ALBUM = "DELETE FROM albums_tokens";
+    protected static String SQL_DELETE_ALL_TOKEN_ALBUM = "DELETE FROM albums_tokens where owner_id = ?";
     protected static String SQL_DELETE_TOKEN_ALBUM = "DELETE FROM albums_tokens WHERE token_id = ?";
     protected static String SQL_DELETE_ALBUM_TOKEN = "DELETE FROM albums_tokens WHERE album_id = ?";
     protected static String SQL_DELETE = "DELETE FROM tokens WHERE id = ?";
@@ -74,63 +77,39 @@ public class TokenDao {
 
     public void save(Token token) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
+        connection.setAutoCommit(false);
         try {
-            statement = connection.prepareStatement(SQL_CREATE);
-            statement.setString(1, token.getId());
-            statement.setString(2, token.getLabel());
-            statement.setString(3, token.getOwner().getId());
-            statement.setString(4, token.getLabel());
-            statement.executeUpdate();
-
-            statement = connection.prepareStatement(SQL_DELETE_TOKEN_ALBUM);
-            statement.setString(1, token.getId());
-            statement.executeUpdate();
-
-            statement = connection.prepareStatement(SQL_CREATE_TOKEN_ALBUM);
+            QueryRunner queryRunner = new QueryRunner();
+            queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId(), token.getLabel());
+            queryRunner.update(connection, SQL_DELETE_TOKEN_ALBUM, token.getId());
             for (Album album : token.getAlbums()) {
-                statement.setString(1, album.getId());
-                statement.setString(2, token.getId());
-                statement.addBatch();
+                queryRunner.update(connection, SQL_CREATE_TOKEN_ALBUM, album.getId(), token.getId());
             }
-            statement.executeBatch();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
     }
     
     public void saveAll(List<Token> tokens) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
-        
-        try (
-            PreparedStatement statement = connection.prepareStatement(SQL_DELETE_ALL_TOKEN_ALBUM);
-            PreparedStatement statementCreateToken = connection.prepareStatement(SQL_CREATE);
-            PreparedStatement statementCreateTokenAlbum = connection.prepareStatement(SQL_CREATE_TOKEN_ALBUM);
-        ) {
+        try {
+            QueryRunner queryRunner = new QueryRunner();
+            String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
+            queryRunner.update(connection, SQL_DELETE_ALL_TOKEN_ALBUM, id);
             
-            statement.executeUpdate();
             for (Token token : tokens) {
-                statementCreateToken.setString(1, token.getId());
-                statementCreateToken.setString(2, token.getLabel());
-                statementCreateToken.setString(3, token.getOwner().getId());
-                statementCreateToken.setString(4, token.getLabel());
-                statementCreateToken.addBatch();
-
+                queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId(), token.getLabel());
                 for (Album album : token.getAlbums()) {
-                    statementCreateTokenAlbum.setString(1, album.getId());
-                    statementCreateTokenAlbum.setString(2, token.getId());
-                    statementCreateTokenAlbum.addBatch();
+                    queryRunner.update(connection, SQL_CREATE_TOKEN_ALBUM, album.getId(), token.getId());
                 }
             }
-            statementCreateTokenAlbum.executeBatch();
-            connection.commit();
-
-        } finally {
-            connection.setAutoCommit(true);
-            JdbcUtils.closeConnection(connection);
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
     }
     
@@ -259,13 +238,8 @@ public class TokenDao {
     }
     
     public void delete(String id) throws SQLException {
-        try (
-            Connection connection = DatabaseUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_DELETE);
-        ) {
-            statement.setString(1, id);
-            statement.executeUpdate();
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_DELETE, id);
     }
     
 }

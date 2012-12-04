@@ -22,10 +22,17 @@ package org.debox.photo.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.shiro.util.JdbcUtils;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.RowProcessor;
+import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.DatabaseUtils;
@@ -59,126 +66,81 @@ public class PhotoDao {
     protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
     
     public void savePhotoGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_INSERT_PHOTO_GENERATION);
-            statement.setString(1, id);
-            statement.setString(2, size.name());
-            statement.setTimestamp(3, new Timestamp(time));
-            statement.setTimestamp(4, new Timestamp(time));
-            statement.executeUpdate();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        Timestamp timestamp = new Timestamp(time);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_INSERT_PHOTO_GENERATION, id, size.name(), timestamp, timestamp);
     }
     
     public long getGenerationTime(String id, ThumbnailSize size) throws SQLException {
-        long result = -1;
-
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement(SQL_GET_PHOTO_GENERATION);
-            statement.setString(1, id);
-            statement.setString(2, size.name());
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                result = resultSet.getTimestamp(1).getTime();
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        long result = queryRunner.query(SQL_GET_PHOTO_GENERATION, new ResultSetHandler<Long> () {
+            @Override
+            public Long handle(ResultSet rs) throws SQLException {
+                if (rs.next()) {
+                    return rs.getTimestamp(1).getTime();
+                }
+                return -1L;
             }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-
+        },id, size.name());
         return result;
     }
     
     public List<Photo> getAll() throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALL);
-        List<Photo> result = executeListQueryStatement(statement, null);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        List<Photo> result = queryRunner.query(SQL_GET_ALL, getBeanListHandler(null));
         return result;
     }
-
-    public Photo getPhotoBySourcePath(String sourcePath) throws SQLException {
-        Photo result = null;
-
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement(SQL_GET_PHOTO_BY_SOURCE_PATH);
-            statement.setString(1, sourcePath);
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                result = convertPhoto(resultSet, null);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-
+    
+    public List<Photo> getPhotos(String albumId) throws SQLException {
+        return getPhotos(albumId, null);
+    }
+    
+    public List<Photo> getPhotos(String albumId, String token) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        List<Photo> result = queryRunner.query(SQL_GET_PHOTOS_BY_ALBUM_ID, getBeanListHandler(token), albumId);
         return result;
     }
-
-    protected static Photo convertPhoto(ResultSet resultSet, String token) throws SQLException {
-        Photo result = new Photo();
-        result.setId(resultSet.getString(1));
-        result.setFilename(resultSet.getString(2));
-        result.setTitle(resultSet.getString(3));
-        result.setDate(resultSet.getTimestamp(4));
-        result.setRelativePath(resultSet.getString(5));
-        result.setAlbumId(resultSet.getString(6));
-        
-        // deploy/ is present because of a bug in WebMotion 2.2
-        String thumbnail = "deploy/thumbnail/" + result.getId() + ".jpg";
-        String url = "deploy/photo/" + result.getId() + ".jpg";
-        
-        if (token != null) {
-            thumbnail += "?token=" + token;
-            url += "?token=" + token;
-        }
-        
-        result.setThumbnailUrl(thumbnail);
-        result.setUrl(url);
-
+    
+    public Photo getPhoto(String photoId) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Photo result = queryRunner.query(SQL_GET_PHOTO_BY_ID, getBeanHandler(null), photoId);
+        return result;
+    }
+    
+    public Photo getVisiblePhoto(String token, String photoId) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Photo result = queryRunner.query(SQL_GET_VISIBLE_PHOTO_BY_ID, getBeanHandler(token), photoId, token, photoId);
         return result;
     }
 
     public void save(List<Photo> photos) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner();
         Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
-        PreparedStatement statement = null;
         try {
-            statement = connection.prepareStatement(SQL_CREATE_PHOTO);
+            Object[][] params = new Object[photos.size()][9];
+            int i = 0;
             for (Photo photo : photos) {
                 String id = photo.getId();
                 if (id == null) {
                     id = StringUtils.randomUUID();
                 }
-                statement.setString(1, id);
-                statement.setString(2, photo.getFilename());
-                statement.setString(3, photo.getTitle());
-                statement.setTimestamp(4, new Timestamp(photo.getDate().getTime()));
-                statement.setString(5, photo.getRelativePath());
-                statement.setString(6, photo.getAlbumId());
-                statement.setString(7, photo.getAlbumId());
-                statement.setString(8, photo.getRelativePath());
-                statement.setString(9, photo.getTitle());
-                statement.addBatch();
+                params[i][0] = id;
+                params[i][1] = photo.getFilename();
+                params[i][2] = photo.getTitle();
+                params[i][3] = new Timestamp(photo.getDate().getTime());
+                params[i][4] = photo.getRelativePath();
+                params[i][5] = photo.getAlbumId();
+                params[i][6] = photo.getAlbumId();
+                params[i][7] = photo.getRelativePath();
+                params[i][8] = photo.getTitle();
+                i++;
             }
-            statement.executeBatch();
-            connection.commit();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            queryRunner.batch(connection, SQL_CREATE_PHOTO, params);
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
     }
 
@@ -229,68 +191,53 @@ public class PhotoDao {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         queryRunner.batch(SQL_DELETE_PHOTO, new Object[][]{ids});
     }
+        
+    protected static RowProcessor getRowProcessor(final String token) {
+        Map<String, String> map = new HashMap<>(6);
+        map.put("id", "id");
+        map.put("filename", "filename");
+        map.put("title", "title");
+        map.put("relative_path", "relativePath");
+        map.put("album_id", "albumId");
+        map.put("date", "date");
+        
+        return new BasicRowProcessor(new BeanProcessor(map)) {
+            @Override
+            public <T> T toBean(ResultSet rs, Class<T> type) throws SQLException {
+                T result = super.toBean(rs, type);
+                if (result instanceof Photo) {
+                    Photo photo = (Photo) result;
+                    String thumbnail = "thumbnail/" + photo.getId() + ".jpg";
+                    String url = "photo/" + photo.getId() + ".jpg";
 
-    public List<Photo> getPhotos(String albumId) throws SQLException {
-        return getPhotos(albumId, null);
-    }
-    
-    public List<Photo> getPhotos(String albumId, String token) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTOS_BY_ALBUM_ID);
-        statement.setString(1, albumId);
-        List<Photo> result = executeListQueryStatement(statement, token);
-        return result;
-    }
-    
-    public Photo getPhoto(String photoId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_PHOTO_BY_ID);
-        statement.setString(1, photoId);
-        Photo result = executeSingleQueryStatement(statement, null);
-        return result;
-    }
-    
-    public Photo getVisiblePhoto(String token, String photoId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_PHOTO_BY_ID);
-        statement.setString(1, photoId);
-        statement.setString(2, token);
-        statement.setString(3, photoId);
-        Photo result = executeSingleQueryStatement(statement, token);
-        return result;
-    }
-    
-    protected static Photo executeSingleQueryStatement(PreparedStatement statement, String token) throws SQLException {
-        Photo result = null;
-        ResultSet resultSet = null;
-        try {
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                result = convertPhoto(resultSet, token);
+                    if (token != null) {
+                        thumbnail += "?token=" + token;
+                        url += "?token=" + token;
+                    }
+                    photo.setThumbnailUrl(thumbnail);
+                    photo.setUrl(url);
+                }
+                return result;
             }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeConnection(statement.getConnection());
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
+            
+            @Override
+            public <T> List<T> toBeanList(ResultSet rs, Class<T> type) throws SQLException {
+                List<T> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(toBean(rs, type));
+                }
+                return result;
+            }
+            
+        };
     }
     
-    protected static List<Photo> executeListQueryStatement(PreparedStatement statement, String token) throws SQLException {
-        List<Photo> result = new ArrayList<>();
-        ResultSet resultSet = null;
-        try {
-            resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Photo photo = convertPhoto(resultSet, token);
-                result.add(photo);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeConnection(statement.getConnection());
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
+    protected static BeanHandler<Photo> getBeanHandler(final String token) {
+        return new BeanHandler<>(Photo.class, getRowProcessor(token));
     }
-
+    
+    protected static BeanListHandler<Photo> getBeanListHandler(final String token) {
+        return new BeanListHandler<>(Photo.class, getRowProcessor(token));
+    }
+    
 }

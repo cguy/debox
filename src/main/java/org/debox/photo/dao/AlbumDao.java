@@ -22,7 +22,17 @@ package org.debox.photo.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.BeanProcessor;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.RowProcessor;
+import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
@@ -250,46 +260,30 @@ public class AlbumDao {
     }
     
     public void save(List<Album> albums) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner();
         Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
-        PreparedStatement statement = null;
-        
         try {
-            statement = connection.prepareStatement(SQL_CREATE_ALBUM);
             for (Album album : albums) {
-                statement = prepareAlbumSaveStatement(statement, album);
-                statement.addBatch();
+                queryRunner.update(connection, SQL_CREATE_ALBUM, getParamsToSave(album));
             }
-            statement.executeBatch();
-            connection.commit();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
     }
     
     public void save(Album album) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
         String id = album.getId();
         if (id == null) {
             album.setId(StringUtils.randomUUID());
         }
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_CREATE_ALBUM);
-            statement = prepareAlbumSaveStatement(statement, album);
-            statement.executeUpdate();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_CREATE_ALBUM, getParamsToSave(album));
     }
     
-    protected PreparedStatement prepareAlbumSaveStatement(PreparedStatement statement, Album album) throws SQLException {
-        statement.setString(1, album.getId());
-        statement.setString(2, album.getName());
-        statement.setString(3, album.getDescription());
+    protected Object[] getParamsToSave(Album album) throws SQLException {
         Timestamp beginTimestamp = null;
         Timestamp endTimestamp = null;
         if (album.getBeginDate() != null) {
@@ -298,124 +292,103 @@ public class AlbumDao {
         if (album.getEndDate() != null) {
             endTimestamp = new Timestamp(album.getEndDate().getTime());
         }
-        statement.setTimestamp(4, beginTimestamp);
-        statement.setTimestamp(5, endTimestamp);
-        statement.setInt(6, album.getPhotosCount());
-        statement.setBoolean(7, album.isDownloadable());
-        statement.setString(8, album.getRelativePath());
-        statement.setString(9, album.getParentId());
-        statement.setBoolean(10, album.isPublic());
-        statement.setString(11, album.getOwnerId());
-        statement.setString(12, album.getName());
-        statement.setString(13, album.getDescription());
-        statement.setBoolean(14, album.isPublic());
-        statement.setInt(15, album.getPhotosCount());
-        statement.setBoolean(16, album.isDownloadable());
-        statement.setTimestamp(17, beginTimestamp);
-        statement.setTimestamp(18, endTimestamp);
-
-        return statement;
+        
+        Object[] result = new Object[18];
+        result[0] = album.getId();
+        result[1] = album.getName();
+        result[2] = album.getDescription();
+        result[3] = beginTimestamp;
+        result[4] = endTimestamp;
+        result[5] = album.getPhotosCount();
+        result[6] = album.isDownloadable();
+        result[7] = album.getRelativePath();
+        result[8] = album.getParentId();
+        result[9] = album.isPublic();
+        result[10] = album.getOwnerId();
+        result[11] = album.getName();
+        result[12] = album.getDescription();
+        result[13] = album.isPublic();
+        result[14] = album.getPhotosCount();
+        result[15] = album.isDownloadable();
+        result[16] = beginTimestamp;
+        result[17] = endTimestamp;
+        return result;
     }
     
     public void delete(Album album) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_DELETE_ALBUM);
-            statement.setString(1, album.getId());
-            statement.executeUpdate();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_DELETE_ALBUM, album.getId());
     }
     
     public Album getVisibleAlbumForLoggedUser(String userId, String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED);
-        statement.setString(1, albumId);
-        statement.setString(2, userId);
-        Album result = executeSingleQueryStatement(statement, userId, false);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED, getBeanHandler(connection, userId, false), albumId, userId);
         return result;
     }
     
     public Album getVisibleAlbum(String token, String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_BY_ID);
-        statement.setString(1, albumId);
-        statement.setString(2, token);
-        Album result = executeSingleQueryStatement(statement, token, true);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID, getBeanHandler(connection, token, true), albumId, token);
         return result;
     }
     
     public Album getAlbum(String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_ID);
-        statement.setString(1, albumId);
-        Album result = executeSingleQueryStatement(statement, null, false);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(connection, null, false), albumId);
         return result;
     }
     
     public Album getAlbumByPath(String path) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_BY_RELATIVE_PATH);
-        statement.setString(1, path);
-        Album result = executeSingleQueryStatement(statement, null, false);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false));
         return result;
     }
    
     public List<Album> getAllAlbums() throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUMS);
-        List<Album> result = executeListQueryStatement(statement, null, false);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(connection, null, false));
         return result;
     }
     
     public List<Album> getAlbums(String parentId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement;
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        List<Album> result;
         if (parentId == null) {
-            statement = connection.prepareStatement(SQL_GET_ROOT_ALBUMS_FOR_ADMIN);
+            result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(connection, null, false));
         } else {
-            statement = connection.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR);
-            statement.setString(1, parentId);
+            result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(connection, null, false), parentId);
         }
-
-        List<Album> result = this.executeListQueryStatement(statement, null, false);
         return result;
     }
 
     public List<Album> getVisibleAlbums(String token, String parentId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement;
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        List<Album> result;
         if (parentId == null) {
-            statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS);
-            statement.setString(1, token);
-
+            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(connection, token, true), token);
         } else {
-            statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
-            statement.setString(1, parentId);
-            statement.setString(2, token);
+            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(connection, token, true), parentId, token);
         }
-        List<Album> result = this.executeListQueryStatement(statement, token, true);
         return result;
     }
 
     public List<Album> getVisibleAlbumsForLoggedUser(String parentId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement;
         String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Connection connection = queryRunner.getDataSource().getConnection();
+        List<Album> result;
         if (parentId == null) {
-            statement = connection.prepareStatement(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED);
-            statement.setString(1, id);
-
+            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(connection, id, false), id);
         } else {
-            statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, parentId);
-            statement.setString(2, id);
+            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(connection, id, false), parentId, id);
         }
-        List<Album> result = this.executeListQueryStatement(statement, id, false);
         return result;
     }
 
@@ -430,19 +403,8 @@ public class AlbumDao {
             Photo cover = getAlbumCover(subAlbumId);
             photoId = cover.getId();
         }
-        
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_UPDATE_ALBUM_COVER);
-            statement.setString(1, photoId);
-            statement.setString(2, albumId);
-            statement.executeUpdate();
-
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_UPDATE_ALBUM_COVER, photoId, albumId);
         return photoId;
     }
 
@@ -453,23 +415,17 @@ public class AlbumDao {
      * @throws SQLException
      */
     protected String getRandomSubAlbumId(String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        String subAlbumId = null;
-        try {
-            statement = connection.prepareStatement(SQL_GET_RANDOM_SUB_ALBUM);
-            statement.setString(1, albumId);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.first()) {
-                subAlbumId = resultSet.getString(1);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        String result = queryRunner.query(SQL_GET_RANDOM_SUB_ALBUM, new ResultSetHandler<String>() {
+            @Override
+            public String handle(ResultSet rs) throws SQLException {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+                return null;
             }
-            JdbcUtils.closeResultSet(resultSet);
-            
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-        return subAlbumId;
+        }, albumId);
+        return result;
     }
 
     /**
@@ -479,29 +435,22 @@ public class AlbumDao {
      * @throws SQLException
      */
     protected String getRandomAlbumPhoto(String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        String photoId = null;
-        try {
-            statement = connection.prepareStatement(SQL_GET_RANDOM_PHOTO);
-            statement.setString(1, albumId);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.first()) {
-                photoId = resultSet.getString(1);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        String result = queryRunner.query(SQL_GET_RANDOM_PHOTO, new ResultSetHandler<String>() {
+            @Override
+            public String handle(ResultSet rs) throws SQLException {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+                return null;
             }
-            JdbcUtils.closeResultSet(resultSet);
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
-        return photoId;
+        }, albumId);
+        return result;
     }
 
     public Photo getAlbumCover(String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_ALBUM_COVER);
-        statement.setString(1, albumId);
-        Photo result = PhotoDao.executeSingleQueryStatement(statement, null);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Photo result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(null), albumId);
         if (result == null) {
             Album album = getAlbum(albumId);
             if (album.getPhotosCount() == 0) {
@@ -515,99 +464,68 @@ public class AlbumDao {
     }
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_VISIBLE_ALBUM_COVER);
-        statement.setString(1, albumId);
-        statement.setString(2, token);
-        statement.setString(3, albumId);
-        Photo result = PhotoDao.executeSingleQueryStatement(statement, token);
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Photo result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
         return result;
     }
     
-    protected Album convertAlbum(ResultSet resultSet, String token) throws SQLException {
-        Album result = new Album();
-        result.setId(resultSet.getString(1));
-        result.setName(resultSet.getString(2));
-        result.setDescription(resultSet.getString(3));
-        result.setBeginDate(resultSet.getTimestamp(4));
-        result.setEndDate(resultSet.getTimestamp(5));
-        result.setPhotosCount(resultSet.getInt(6));
-        result.setDownloadable(resultSet.getBoolean(7));
-        result.setRelativePath(resultSet.getString(8));
-        result.setParentId(resultSet.getString(9));
-        result.setPublic(resultSet.getBoolean(10));
-        result.setSubAlbumsCount(resultSet.getInt(11));
-        result.setOwnerId(resultSet.getString(12));
+    protected RowProcessor getRowProcessor(final Connection connection, final String identifier, final boolean isToken) {
+        Map<String, String> map = new HashMap<>(6);
+        map.put("id", "id");
+        map.put("name", "name");
+        map.put("description", "description");
+        map.put("begin_date", "beginDate");
+        map.put("end_date", "endDate");
+        map.put("photos_count", "photosCount");
+        map.put("relative_path", "relativePath");
+        map.put("parent_id", "parentId");
+        map.put("public", "isPublic");
+        map.put("owner_id", "ownerId");
+        map.put("subAlbumsCount", "subAlbumsCount");
         
-        // deploy/ is present because of a bug in WebMotion 2.2
-        String url = "deploy/album/" + result.getId() + "-cover.jpg";
-        if (token != null) {
-            url += "?token=" + token;
-        }
-        result.setCoverUrl(url);
-
-        return result;
-    }
-
-    protected List<Album> executeListQueryStatement(PreparedStatement statement, String identifier, boolean isToken) throws SQLException {
-        List<Album> result = new ArrayList<>();
-        ResultSet resultSet = null;
-        try {
-            resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Album album;
-                if (isToken) {
-                    album = convertAlbum(resultSet, identifier);
-                } else {
-                    album = convertAlbum(resultSet, null);
+        return new BasicRowProcessor(new BeanProcessor(map)) {
+            @Override
+            public <T> T toBean(ResultSet rs, Class<T> type) throws SQLException {
+                T result = super.toBean(rs, type);
+                if (result instanceof Album) {
+                    Album album = (Album) result;
+                    String url = "album/" + album.getId() + "-cover.jpg";
+                    if (identifier != null && isToken) {
+                        url += "?token=" + identifier;
+                    }
+                    album.setCoverUrl(url);
+                    int count;
+                    if (isToken) {
+                        count = getVisiblePhotosCount(album.getId(), identifier, connection);
+                    } else if (identifier != null) {
+                        count = getPhotosCountForLoggedUser(album.getId(), identifier, connection);
+                    } else {
+                        count = getAllPhotosCount(album.getId(), connection);
+                    }
+                    album.setPhotosCount(count);
                 }
-                int count;
-                if (isToken) {
-                    count = getVisiblePhotosCount(album.getId(), identifier, statement.getConnection());
-                } else if (identifier != null) {
-                    count = getPhotosCountForLoggedUser(album.getId(), identifier, statement.getConnection());
-                } else {
-                    count = getAllPhotosCount(album.getId(), statement.getConnection());
-                }
-                album.setPhotosCount(count);
-                result.add(album);
+                return result;
             }
 
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeConnection(statement.getConnection());
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
-    }
-
-    protected Album executeSingleQueryStatement(PreparedStatement statement, String identifier, boolean isToken) throws SQLException {
-        Album album = null;
-        ResultSet resultSet = null;
-        try {
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                if (isToken) {
-                    album = convertAlbum(resultSet, identifier);
-                } else {
-                    album = convertAlbum(resultSet, null);
+            @Override
+            public <T> List<T> toBeanList(ResultSet rs, Class<T> type) throws SQLException {
+                List<T> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(toBean(rs, type));
                 }
-                int count;
-                if (isToken) {
-                    count = getVisiblePhotosCount(album.getId(), identifier, statement.getConnection());
-                } else if (identifier != null) {
-                    count = getPhotosCountForLoggedUser(album.getId(), identifier, statement.getConnection());
-                } else {
-                    count = getAllPhotosCount(album.getId(), statement.getConnection());
-                }
-                album.setPhotosCount(count);
+                return result;
             }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeConnection(statement.getConnection());
-            JdbcUtils.closeStatement(statement);
-        }
-        return album;
+            
+        };
     }
+    
+    protected BeanHandler<Album> getBeanHandler(final Connection connection, final String identifier, final boolean isToken) {
+        return new BeanHandler<>(Album.class, getRowProcessor(connection, identifier, isToken));
+    }
+    
+    protected BeanListHandler<Album> getBeanListHandler(final Connection connection, final String identifier, final boolean isToken) {
+        return new BeanListHandler<>(Album.class, getRowProcessor(connection, identifier, isToken));
+    }
+    
 
 }

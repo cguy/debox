@@ -27,7 +27,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.BeanProcessor;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -382,51 +388,36 @@ public class UserDao {
         access.setId(userId);
 
         if (access.getToken() != null) {
-            if (access.getProviderId().equals("facebook")) {
-                DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
-                com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
-                access.setUsername(fbUser.getName());
-                access.setAccountUrl(fbUser.getLink());
-                access.setFirstName(fbUser.getFirstName());
-                access.setLastName(fbUser.getLastName());
-
-            } else if (access.getProviderId().equals("google")) {
-                String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readTree(response);
-
-                if (node.get("error") != null && node.get("error").get("code") != null) {
-                    if (node.get("error").get("code").asInt() == 401) {
-                        throw new OAuthException("google");
+            switch (access.getProviderId()) {
+                case "facebook":
+                    DefaultFacebookClient client = new DefaultFacebookClient(access.getToken());
+                    com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
+                    access.setUsername(fbUser.getName());
+                    access.setAccountUrl(fbUser.getLink());
+                    access.setFirstName(fbUser.getFirstName());
+                    access.setLastName(fbUser.getLastName());
+                    break;
+                case "google":
+                    String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode node = mapper.readTree(response);
+                    if (node.get("error") != null && node.get("error").get("code") != null) {
+                        if (node.get("error").get("code").asInt() == 401) {
+                            throw new OAuthException("google");
+                        }
+                        return null;
                     }
+                    access.setUsername(node.get("name").asText());
+                    access.setAccountUrl(node.get("link").asText());
+                    access.setFirstName(node.get("given_name").asText());
+                    access.setLastName(node.get("family_name").asText());
+                    break;
+                default:
                     return null;
-                }
-
-                access.setUsername(node.get("name").asText());
-                access.setAccountUrl(node.get("link").asText());
-                access.setFirstName(node.get("given_name").asText());
-                access.setLastName(node.get("family_name").asText());
-            } else {
-                return null;
             }
         }
 
         return access;
-    }
-
-    public void delete(ThirdPartyAccount account) throws SQLException {
-        PreparedStatement statement = null;
-        Connection connection = DatabaseUtils.getConnection();
-        try {
-            statement = connection.prepareStatement(SQL_DELETE_THIRD_PARTY_ACCOUNT);
-            statement.setString(1, account.getId());
-            statement.setString(2, account.getProviderId());
-            statement.setString(3, account.getProviderAccountId());
-            statement.executeUpdate();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
     }
 
     public void saveAccess(List<ThirdPartyAccount> accounts, String albumId) throws SQLException {
@@ -471,61 +462,31 @@ public class UserDao {
     }
 
     public User getUser(String userId) throws SQLException {
-        DeboxUser user = null;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        Connection connection = DatabaseUtils.getConnection();
-        try {
-            statement = connection.prepareStatement(GET_USER);
-            statement.setString(1, userId);
-            
-            rs = statement.executeQuery();
-            if (rs.next()) {
-                user = new DeboxUser();
-                user.setId(rs.getString("id"));
-                user.setFirstName(rs.getString("firstname"));
-                user.setLastName(rs.getString("lastname"));
-                user.setAvatar(rs.getString("avatar"));
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        Map<String, String> map = new HashMap<>(4);
+        map.put("id", "id");
+        map.put("firstname", "firstName");
+        map.put("lastname", "lastName");
+        map.put("avatar", "avatar");
+        
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        DeboxUser user = queryRunner.query(GET_USER, new BeanHandler<>(DeboxUser.class, new BasicRowProcessor(new BeanProcessor(map))), userId);
         return user;
     }
 
     public Role getRole(String name) throws SQLException {
-        Role role = null;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        Connection connection = DatabaseUtils.getConnection();
-        try {
-            statement = connection.prepareStatement(GET_ROLE);
-            statement.setString(1, name);
-            
-            rs = statement.executeQuery();
-            if (rs.next()) {
-                role = new Role();
-                role.setId(rs.getString("id"));
-                role.setName(rs.getString("name"));
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        Role role = queryRunner.query(GET_ROLE, new BeanHandler<>(Role.class), name);
         return role;
     }
 
     public void deleteUser(DeboxUser user) throws SQLException {
-        try (
-            Connection connection = DatabaseUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(DELETE_USER);
-        ) {
-            statement.setString(1, user.getId());
-            statement.executeUpdate();
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(DELETE_USER, user.getId());
+    }
+    
+    public void delete(ThirdPartyAccount account) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_DELETE_THIRD_PARTY_ACCOUNT, account.getId(), account.getProviderId(), account.getProviderAccountId());
     }
     
 }
