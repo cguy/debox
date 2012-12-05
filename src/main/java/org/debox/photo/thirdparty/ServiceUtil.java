@@ -46,7 +46,7 @@ public class ServiceUtil {
 
     public static String getAuthenticationUrl() {
         ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getConfiguration();
+        Configuration configuration = context.getOverallConfiguration();
         String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
         String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
         String authenticationUrl = "https://accounts.google.com/o/oauth2/auth"
@@ -63,7 +63,7 @@ public class ServiceUtil {
 
     public static OAuth2Token getAuthenticationToken(String code) throws IOException, IllegalArgumentException, FeedException, AuthenticationProviderException {
         ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getConfiguration();
+        Configuration configuration = context.getOverallConfiguration();
         String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
         String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
         String secret = configuration.get(Configuration.Key.GOOGLE_SECRET);
@@ -72,7 +72,7 @@ public class ServiceUtil {
 
     public static OAuthService getFacebookService() {
         ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getConfiguration();
+        Configuration configuration = context.getOverallConfiguration();
         String apiKey = configuration.get(Configuration.Key.FACEBOOK_API_KEY);
         String secret = configuration.get(Configuration.Key.FACEBOOK_SECRET);
         String callback = configuration.get(Configuration.Key.FACEBOOK_CALLBACK_URL);
@@ -120,7 +120,7 @@ public class ServiceUtil {
 
     public static List<Provider> getAuthenticationUrls() {
         ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getConfiguration();
+        Configuration configuration = context.getOverallConfiguration();
         String activated = configuration.get(Configuration.Key.THIRDPARTY_ACTIVATION);
         
         if (!Boolean.parseBoolean(activated)) {

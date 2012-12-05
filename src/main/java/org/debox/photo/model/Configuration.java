@@ -31,6 +31,8 @@ public class Configuration {
     public static enum Key {
         WORKING_DIRECTORY("working.directory"),
         TITLE,
+        ALBUMS_DIRECTORY("albums.directory"),
+        THUMBNAILS_DIRECTORY("thumbnails.directory"),
         THIRDPARTY_ACTIVATION("thirdparty.activation"),
         FACEBOOK_API_KEY("facebook.apiKey"),
         FACEBOOK_SECRET("facebook.secret"),
@@ -79,6 +81,10 @@ public class Configuration {
     
     public void set(Key key, String value) {
         data.put(key.getId(), value);
+    }
+    
+    public void remove(Key key) {
+        data.remove(key.getId());
     }
     
 }

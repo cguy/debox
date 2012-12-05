@@ -22,20 +22,27 @@ package org.debox.photo.filter;
 
 import java.net.HttpURLConnection;
 import org.apache.shiro.SecurityUtils;
+import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.WebMotionFilter;
 import org.debux.webmotion.server.render.Render;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class AdministrationFilter extends WebMotionFilter {
+    
+    protected static final Logger log = LoggerFactory.getLogger(AdministrationFilter.class);
 
     public Render checkUserSession() {
         if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
             doProcess();
             return null;
         }
+        User user = SessionUtils.getUser(SecurityUtils.getSubject());
+        log.error("User {} ({}) is not an administrator", user.getFirstName(), user.getId());
         return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
     }
 

@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.ConfigurationDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
@@ -39,8 +40,8 @@ import org.debox.photo.model.Role;
 import org.debox.photo.model.configuration.ThirdPartyConfiguration;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.server.ApplicationContext;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionController;
 import org.debux.webmotion.server.WebMotionUtils;
 import org.debux.webmotion.server.mapping.Properties;
 import org.debux.webmotion.server.render.Render;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class ConfigurationService extends WebMotionController {
+public class ConfigurationService extends DeboxService {
     
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
@@ -93,7 +94,7 @@ public class ConfigurationService extends WebMotionController {
             }
             
             ConfigurationDao configurationDao = new ConfigurationDao();
-            org.debox.photo.model.Configuration appConfiguration = configurationDao.get();
+            Configuration appConfiguration = configurationDao.getOverallConfiguration();
             if (StringUtils.isEmpty(appConfiguration.get(org.debox.photo.model.Configuration.Key.TITLE))) {
                 appConfiguration.set(org.debox.photo.model.Configuration.Key.TITLE, "Galerie photo");
                 configurationDao.save(appConfiguration);
@@ -106,7 +107,7 @@ public class ConfigurationService extends WebMotionController {
     }
     
     public Render getConfiguration() {
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         
         Configuration.Key[] dontTransform = new Configuration.Key[] {Configuration.Key.TITLE, Configuration.Key.WORKING_DIRECTORY};
         
@@ -123,17 +124,17 @@ public class ConfigurationService extends WebMotionController {
         facebook.setCallbackURL(configuration.get(Configuration.Key.FACEBOOK_CALLBACK_URL));
         model.put("facebook", facebook);
         
-        ThirdPartyConfiguration google = new ThirdPartyConfiguration();
-        google.setApiKey(configuration.get(Configuration.Key.GOOGLE_API_KEY));
-        google.setSecret(configuration.get(Configuration.Key.GOOGLE_SECRET));
-        google.setCallbackURL(configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL));
-        model.put("google", google);
-        
-        ThirdPartyConfiguration twitter = new ThirdPartyConfiguration();
-        twitter.setApiKey(configuration.get(Configuration.Key.TWITTER_API_KEY));
-        twitter.setSecret(configuration.get(Configuration.Key.TWITTER_SECRET));
-        twitter.setCallbackURL(configuration.get(Configuration.Key.TWITTER_CALLBACK_URL));
-        model.put("twitter", twitter);
+//        ThirdPartyConfiguration google = new ThirdPartyConfiguration();
+//        google.setApiKey(configuration.get(Configuration.Key.GOOGLE_API_KEY));
+//        google.setSecret(configuration.get(Configuration.Key.GOOGLE_SECRET));
+//        google.setCallbackURL(configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL));
+//        model.put("google", google);
+//        
+//        ThirdPartyConfiguration twitter = new ThirdPartyConfiguration();
+//        twitter.setApiKey(configuration.get(Configuration.Key.TWITTER_API_KEY));
+//        twitter.setSecret(configuration.get(Configuration.Key.TWITTER_SECRET));
+//        twitter.setCallbackURL(configuration.get(Configuration.Key.TWITTER_CALLBACK_URL));
+//        model.put("twitter", twitter);
         
         return renderJSON(model);
     }
@@ -168,20 +169,20 @@ public class ConfigurationService extends WebMotionController {
     public Render editThirdPartyConfiguration(boolean activated, ThirdPartyConfiguration facebook, 
             ThirdPartyConfiguration google, ThirdPartyConfiguration twitter) throws SQLException {
         
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         configuration.set(Configuration.Key.THIRDPARTY_ACTIVATION, Boolean.toString(activated));
         
         configuration.set(Configuration.Key.FACEBOOK_API_KEY, facebook.getApiKey());
         configuration.set(Configuration.Key.FACEBOOK_SECRET, facebook.getSecret());
         configuration.set(Configuration.Key.FACEBOOK_CALLBACK_URL, facebook.getCallbackURL());
         
-        configuration.set(Configuration.Key.GOOGLE_API_KEY, google.getApiKey());
-        configuration.set(Configuration.Key.GOOGLE_SECRET, google.getSecret());
-        configuration.set(Configuration.Key.GOOGLE_CALLBACK_URL, google.getCallbackURL());
-        
-        configuration.set(Configuration.Key.TWITTER_API_KEY, twitter.getApiKey());
-        configuration.set(Configuration.Key.TWITTER_SECRET, twitter.getSecret());
-        configuration.set(Configuration.Key.TWITTER_CALLBACK_URL, twitter.getCallbackURL());
+//        configuration.set(Configuration.Key.GOOGLE_API_KEY, google.getApiKey());
+//        configuration.set(Configuration.Key.GOOGLE_SECRET, google.getSecret());
+//        configuration.set(Configuration.Key.GOOGLE_CALLBACK_URL, google.getCallbackURL());
+//        
+//        configuration.set(Configuration.Key.TWITTER_API_KEY, twitter.getApiKey());
+//        configuration.set(Configuration.Key.TWITTER_SECRET, twitter.getSecret());
+//        configuration.set(Configuration.Key.TWITTER_CALLBACK_URL, twitter.getCallbackURL());
         
         ApplicationContext.getInstance().saveConfiguration(configuration);
         
@@ -189,12 +190,46 @@ public class ConfigurationService extends WebMotionController {
     }
 
     public Render getUserSettings() {
-        // TODO Implement this service
-        return renderSuccess();
+        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        try {
+            Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
+            String albums = configuration.get(Configuration.Key.ALBUMS_DIRECTORY);
+            String thumbnails = configuration.get(Configuration.Key.THUMBNAILS_DIRECTORY);
+            boolean autoHosting = albums == null || thumbnails == null;
+            return renderJSON("isAutoHosting", autoHosting, "albums", albums, "thumbnails", thumbnails);
+            
+        } catch (SQLException ex) {
+            logger.error(ex.getMessage(), ex);
+            return renderError(500);
+        }
     }
 
-    public Render setUserSettings() {
-        // TODO Implement this service
+    public Render setUserSettings(String hostingOption, String albums, String thumbnails) {
+        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        try {
+            Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
+            if ("local".equals(hostingOption)) {
+                configuration.set(Configuration.Key.ALBUMS_DIRECTORY, albums);
+                configuration.set(Configuration.Key.THUMBNAILS_DIRECTORY, thumbnails);
+                
+                String[] directories = {albums, thumbnails};
+                for (String strDirectory : directories) {
+                    File directory = new File(strDirectory);
+                    boolean isCreatable = !directory.exists() && directory.mkdirs();
+                    boolean isWritable = directory.exists() && directory.canWrite();
+                    if (!isWritable && !isCreatable) {
+                        return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Directory " + strDirectory + " is not writable");
+                    }
+                }
+                
+            } else {
+                configuration.remove(Configuration.Key.ALBUMS_DIRECTORY);
+                configuration.remove(Configuration.Key.THUMBNAILS_DIRECTORY);
+            }
+            ApplicationContext.getInstance().saveUserConfiguration(userId, configuration);
+        } catch (SQLException ex) {
+            return renderError(500);
+        }
         return renderSuccess();
     }
     

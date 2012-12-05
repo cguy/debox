@@ -36,8 +36,10 @@ public class ConfigurationDao {
 
     protected static final String SQL_GET_CONFIGURATION = "SELECT `key`, `value` FROM configurations";
     protected static final String SQL_SET_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?";
+    protected static final String SQL_GET_USER_CONFIGURATION = "SELECT `key`, `value` FROM users_configurations WHERE user_id = ?";
+    protected static final String SQL_SET_USER_CONFIGURATION = "INSERT INTO users_configurations VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE value = ?";
     
-    public Configuration get() throws SQLException {
+    public Configuration getOverallConfiguration() throws SQLException {
         Configuration configuration = new Configuration();
         
         Connection connection = DatabaseUtils.getConnection();
@@ -74,4 +76,48 @@ public class ConfigurationDao {
         }
     }
     
+    public void saveUserConfiguration(String userId, Configuration applicationConfiguration) throws SQLException {
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement("DELETE FROM users_configurations WHERE user_id = ?");
+            statement.setString(1, userId);
+            statement.executeUpdate();
+            
+            statement = connection.prepareStatement(SQL_SET_USER_CONFIGURATION);
+            for (Entry<String, String> configuration : applicationConfiguration.get().entrySet()) {
+                statement.setString(1, userId);
+                statement.setString(2, configuration.getKey());
+                statement.setString(3, configuration.getValue());
+                statement.setString(4, configuration.getValue());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+    }
+
+    public Configuration getUserConfiguration(String userId) throws SQLException {
+        Configuration configuration = new Configuration();
+        
+        Connection connection = DatabaseUtils.getConnection();
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(SQL_GET_USER_CONFIGURATION);
+            statement.setString(1, userId);
+            
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                configuration.set(Configuration.Key.getById(resultSet.getString(1)),resultSet.getString(2));
+            }
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
+        
+        return configuration;
+    }
+
 }

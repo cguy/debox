@@ -182,14 +182,18 @@ public class PhotoDao {
     }
     
     public void delete(List<Photo> photos) throws SQLException {
-        String[] ids = new String[photos.size()];
-        int i = 0;
-        for (Photo photo : photos) {
-            ids[i] = photo.getId();
-            i++;
+        QueryRunner queryRunner = new QueryRunner();
+        Connection connection = DatabaseUtils.getConnection();
+        connection.setAutoCommit(false);
+        try {
+            for (Photo photo : photos) {
+                queryRunner.update(connection, SQL_DELETE_PHOTO, photo.getId());
+            }
+            DbUtils.commitAndCloseQuietly(connection);
+        } catch (SQLException ex) {
+            DbUtils.rollbackAndCloseQuietly(connection);
+            throw ex;
         }
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        queryRunner.batch(SQL_DELETE_PHOTO, new Object[][]{ids});
     }
         
     protected static RowProcessor getRowProcessor(final String token) {

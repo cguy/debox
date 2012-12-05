@@ -448,10 +448,12 @@ public class UserDao {
             statement.setString(1, album.getId());
             rs = statement.executeQuery();
             while (rs.next()) {
-                ThirdPartyAccount access = convert(rs.getString("user_id"), rs);
-                if (access != null) {
-                    result.add(access);
-                }
+                ThirdPartyAccount access = new ThirdPartyAccount(
+                    ServiceUtil.getProvider(rs.getString("provider")),
+                    rs.getString("id"),
+                    rs.getString("token"));
+                access.setId(rs.getString("user_id"));
+                result.add(access);
             }
         } finally {
             JdbcUtils.closeResultSet(rs);

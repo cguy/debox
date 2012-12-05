@@ -808,6 +808,16 @@ h2.subtitle {
     display: inline-block;
 }
 
+.btn-facebook .logo {
+    vertical-align: -5px;
+    background: url(../img/facebook_logo.png) center center no-repeat;
+    background-size: contain;
+    width: 22px;
+    height: 22px;
+    margin-right: 8px;
+    display: inline-block;
+}
+
 .block {
     padding: 20px;
     background: #fcfcfc;

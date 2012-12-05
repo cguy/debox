@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.post('#/account/:accountId', function() {
+app.post('#/accounts/:accountId', function() {
     $("#personaldata input[type=submit]").button('loading');
     $("#personaldata p").addClass("hide");
     $("#personaldata p").removeClass("alert alert-error alert-success");
     $("#personaldata p").html("");
     $.ajax({
-        url: "account/" + this.params['accountId'],
+        url: "accounts/" + this.params['accountId'],
         type : "post",
         data : $("#personaldata").serializeArray(),
         success: function(data) {
@@ -48,13 +48,13 @@ app.post('#/account/:accountId', function() {
     return false;
 });
 
-app.post('#/account/:accountId/credentials', function() {
+app.post('#/accounts/:accountId/credentials', function() {
     $("#credentials input[type=submit]").button('loading');
     $("#credentials p").addClass("hide");
     $("#credentials p").removeClass("alert alert-error alert-success");
     $("#credentials p").html("");
     $.ajax({
-        url: "account/" + this.params['accountId'] + "/credentials",
+        url: "accounts/" + this.params['accountId'] + "/credentials",
         type : "post",
         data : $("#credentials").serializeArray(),
         success: function() {
@@ -73,6 +73,21 @@ app.post('#/account/:accountId/credentials', function() {
             $("#credentials input[type=submit]").button('reset');
             $("#credentials p").addClass("alert alert-error");
             $("#credentials p").removeClass("hide");
+        }
+    });
+    return false;
+});
+
+app.post('#/accounts/:accountId/settings', function() {
+    $.ajax({
+        url: "accounts/" + this.params['accountId'] + "/settings",
+        type : "post",
+        data : $("#accountSettings").serializeArray(),
+        success: function(data) {
+            alert("ok")
+        },
+        error: function(xhr) {
+            alert("error")
         }
     });
     return false;

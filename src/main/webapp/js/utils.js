@@ -74,7 +74,7 @@ function loadTemplate(templateId, data, selector, callback) {
     data.i18n = lang;
     
     if (!templates[templateId]) {
-        throw "Template \""+"\" doesn't exist.";
+        throw "Template \""+templateId+"\" doesn't exist.";
     }
     var html = templates[templateId].render(data, templates);
     if (!selector) {

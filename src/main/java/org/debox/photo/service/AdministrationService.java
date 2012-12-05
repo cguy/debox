@@ -141,7 +141,7 @@ public class AdministrationService extends DeboxService {
         return new JacksonRenderJsonImpl(resultMetadata);
     }
 
-    public Render synchronize(String mode, boolean forceCheckDates) {
+    public Render synchronize(String mode, boolean forceCheckDates) throws SQLException {
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
@@ -198,7 +198,7 @@ public class AdministrationService extends DeboxService {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
                     "username", username,
-                    "configuration", ApplicationContext.getInstance().getConfiguration().get(),
+                    "configuration", ApplicationContext.getInstance().getOverallConfiguration().get(),
                     "albums", albumDao.getAllAlbums(),
                     "tokens", tokenDao.getAll(user.getId()),
                     "sync", sync);
@@ -206,7 +206,7 @@ public class AdministrationService extends DeboxService {
 
         return renderJSON(
                 "username", username,
-                "configuration", ApplicationContext.getInstance().getConfiguration().get(),
+                "configuration", ApplicationContext.getInstance().getOverallConfiguration().get(),
                 "albums", albumDao.getAllAlbums(),
                 "tokens", tokenDao.getAll(user.getId()));
     }

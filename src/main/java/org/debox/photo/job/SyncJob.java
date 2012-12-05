@@ -322,11 +322,10 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             return FileVisitResult.CONTINUE;
         }
 
-        String sourcePath = ImageUtils.getAlbumsBasePath();
-        String targetPath = ImageUtils.getThumbnailsBasePath();
-        
-        // End of synchronise, persist data
         try {
+            String sourcePath = ImageUtils.getAlbumsBasePath();
+        
+            // End of synchronise, persist data
             List<Album> albumsToSave = new ArrayList<>();
             for (Entry<Album, Boolean> entry : albums.entrySet()) {
                 Album album = entry.getKey();

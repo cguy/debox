@@ -106,7 +106,7 @@ public class HomeService extends DeboxService {
             return renderJSON("templates", getTemplates());
         }
         
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         
         Subject subject = SecurityUtils.getSubject();

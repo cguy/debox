@@ -1,14 +1,13 @@
 <h2 class="subtitle">{{i18n.account.tokens.title}}</h2>
 
 {{#providers.length}}
-<h3>{{i18n.account.tokens.thirdparty.title}}</h3>
-{{#providers}}
-    {{#enabled}}<a href="{{url}}" class="btn btn-large {{id}}"><img src="static/img/{{id}}_logo.png"/>&nbsp;{{name}}</a>{{/enabled}}
-    {{^enabled}}<div class="btn btn-large {{id}} disabled"><img src="static/img/{{id}}_logo.png"/>&nbsp;{{name}}</div>{{/enabled}}
-{{/providers}}
-{{/providers.length}}
-
-{{#accounts.length}}
+<div class="block">
+    <h3>{{i18n.account.tokens.thirdparty.title}}</h3>
+    {{#providers}}
+        {{#enabled}}<a href="{{url}}" class="btn btn-{{id}}"><img class="logo" src="static/img/{{id}}_logo.png"/>&nbsp;{{name}}</a>{{/enabled}}
+    {{/providers}}
+    <hr />
+    {{#accounts.length}}
     <table id="thirdparty_accounts" class="table table-bordered table-striped">
         <tr>
             <th>{{i18n.account.tokens.thirdparty.provider.name}}</th>
@@ -16,21 +15,23 @@
             <th class="delete">{{i18n.common.deletion}}</th>
         </tr>
         {{#accounts}}
-            <tr id="{{provider.id}}-{{providerAccountId}}">
-                <td>
-                    <img src="static/img/{{provider.id}}_logo.png"/>&nbsp;{{provider.name}}
-                </td>
-                <td>
-                    <img src="{{avatarUrl}}" />
-                    <a href="{{accountUrl}}">{{username}}</a>
-                </td>
-                <td class="delete">
-                    <a href="#delete-third-party-account" class="btn btn-danger btn-small delete-third-party-account" data-toggle="modal">{{i18n.account.tokens.thirdparty.provider.deletion}}</a>
-                </td>
-            </tr>
+        <tr id="{{provider.id}}-{{providerAccountId}}">
+            <td>
+                <img src="static/img/{{provider.id}}_logo.png"/>&nbsp;{{provider.name}}
+            </td>
+            <td>
+                <img src="{{avatarUrl}}" />
+                <a href="{{accountUrl}}">{{username}}</a>
+            </td>
+            <td class="delete">
+                <a href="#delete-third-party-account" class="btn btn-danger btn-small delete-third-party-account" data-toggle="modal">{{i18n.account.tokens.thirdparty.provider.deletion}}</a>
+            </td>
+        </tr>
         {{/accounts}}
     </table>
-{{/accounts.length}}
+    {{/accounts.length}}
+</div>
+{{/providers.length}}
 
 <div class="block">
     <h3>{{i18n.account.tokens.token_list}}</h3>
@@ -43,9 +44,9 @@
             </tr>
         </thead>
         <tbody>
-        {{#tokens}}
+            {{#tokens}}
             {{> account.tokens.row}}
-        {{/tokens}}
+            {{/tokens}}
         </tbody>
     </table>
     <p class="alert alert-warning{{#tokens.length}} hide{{/tokens.length}}">{{i18n.account.tokens.no_token}}</p>

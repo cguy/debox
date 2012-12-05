@@ -447,7 +447,7 @@ public class AlbumService extends DeboxService {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
-        Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+        Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         if (resized) {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());

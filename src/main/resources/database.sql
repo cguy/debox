@@ -31,6 +31,14 @@ CREATE TABLE IF NOT EXISTS `configurations` (
     `value` VARCHAR(255) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `users_configurations` (
+    `user_id` VARCHAR(32) NOT NULL,
+    `key` VARCHAR(255) NOT NULL,
+    `value` VARCHAR(255),
+    PRIMARY KEY (`user_id`, `key`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
 -- ---------------- --
 -- USERS MANAGEMENT --
 -- ---------------- --
@@ -78,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `users_permissions` (
     `actions` VARCHAR(255) NOT NULL,
     `instance` VARCHAR(32) NOT NULL,
     PRIMARY KEY (`user_id`, `domain`, `instance`),
-    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 -- ------------------- --

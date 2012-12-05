@@ -21,7 +21,7 @@
 /* ***************************** */
 /* Administration tab navigation */
 /* ***************************** */
-app.get('#/account/:accountId/delete', function() {
+app.get('#/accounts/:accountId/delete', function() {
     if ($("#delete-account-confirm").length) {
         $("#delete-account-confirm").modal();
     } else {
@@ -43,7 +43,7 @@ app.get('#/account(/:tab)?', function() {
     var tab = this.params["tab"];
     if (tab) {
         tab = tab.substr(1);
-        var route = tab;
+        var route = "accounts/" + _config.userId + "/" + tab;
         if (tab == "upload") {
             route = "albums";
         } else if (tab == "albums") {

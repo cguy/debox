@@ -130,7 +130,7 @@ public class AccountService extends DeboxService {
         userDao.save(thirdPartyAccount);
 
         user.addThirdPartyAccount(thirdPartyAccount);
-        return renderRedirect("/#/administration/tokens");
+        return renderRedirect("/#/account/tokens");
     }
     
     public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException, FeedException {
@@ -158,7 +158,7 @@ public class AccountService extends DeboxService {
         userDao.save(thirdPartyAccount);
 
         user.addThirdPartyAccount(thirdPartyAccount);
-        return renderRedirect("/#/administration/tokens");
+        return renderRedirect("/#/account/tokens");
     }
     
     public Render deleteThirdPartyAccount(String id) throws SQLException {

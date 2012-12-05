@@ -3,22 +3,36 @@
 <div class="block">
     <h3>{{i18n.account.settings.hosting.title}}</h3>
     
-    <p class="alert alert-info">
+<!--    <p class="alert alert-info">
         <span class="label label-info">Statut</span> Actuellement, vos photos sont / seront gérées & hébergées automatiquement par ce site (aucune configuration de votre part n'est nécessaire).
-    </p>
-    <hr />
+    </p>-->
+    <!--<hr />-->
     <h3>{{i18n.account.settings.hosting.sources}}</h3>
 
-    <form class="form-horizontal" method="post">
+    <form id="accountSettings" class="form-horizontal" method="post" action="#/accounts/{{config.userId}}/settings">
 
         {{#config.administrator}}
-        <label class="checkbox">
-            <input type="checkbox" name="hostingOption" value="local"> Je veux que debox accède en local aux photos hébergées sur ce serveur (administrateur uniquement).
+        <label class="radio">
+            <input type="radio" name="hostingOption" value="local"{{^isAutoHosting}} checked{{/isAutoHosting}}> Je veux que debox accède en local aux photos hébergées sur ce serveur (administrateur uniquement).
         </label>
+        <div class="well well-small">
+            <div class="control-group">
+                <label class="control-label" for="albumsInput">Albums</label>
+                <div class="controls">
+                    <input type="text" class="span8" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="thumbnailsInput">Vignettes</label>
+                <div class="controls">
+                    <input type="text" class="span8" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
+                </div>
+            </div>
+        </div>
         
         {{/config.administrator}}
-        <label class="checkbox">
-            <input type="checkbox" name="hostingOption" value="debox" checked> Je veux que ce site gère tout seul la manière dont il héberge mes photos.
+        <label class="radio">
+            <input type="radio" name="hostingOption" value="auto"{{#isAutoHosting}} checked{{/isAutoHosting}}> Je veux que ce site gère tout seul la manière dont il héberge mes photos.
         </label>
         <div class="form-actions">
             <input type="submit" class="btn btn-primary" value="{{i18n.common.validate}}" />

@@ -64,14 +64,23 @@ public class ApplicationContext {
         return configuration;
     }
 
-    public Configuration getConfiguration() {
+    public Configuration saveUserConfiguration(String userId, Configuration configuration) throws SQLException {
+        configurationDao.saveUserConfiguration(userId, configuration);
+        return configuration;
+    }
+
+    public Configuration getOverallConfiguration() {
         if (configuration == null) {
             try {
-                configuration = configurationDao.get();
+                configuration = configurationDao.getOverallConfiguration();
             } catch (SQLException ex) {
                 logger.error("Unable to load configuration from database", ex);
             }
         }
         return configuration;
+    }
+
+    public Configuration getUserConfiguration(String userId) throws SQLException {
+        return configurationDao.getUserConfiguration(userId);
     }
 }

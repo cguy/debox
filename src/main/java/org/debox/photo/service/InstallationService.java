@@ -29,10 +29,6 @@ import java.sql.SQLException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.mgt.RealmSecurityManager;
-import org.apache.shiro.realm.Realm;
-import org.debox.photo.dao.JdbcMysqlRealm;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Role;
@@ -63,7 +59,7 @@ public class InstallationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Given path is not writable");
         }
         
-        ApplicationContext.getInstance().getConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toAbsolutePath().toString());
+        ApplicationContext.getInstance().getOverallConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toAbsolutePath().toString());
         return renderSuccess();
     }
     
@@ -110,7 +106,7 @@ public class InstallationService extends DeboxService {
             userDao.save(userRole);
             userDao.save(user, administratorRole);
             
-            Configuration configuration = ApplicationContext.getInstance().getConfiguration();
+            Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
             configuration.set(Configuration.Key.TITLE, "debox");
             ApplicationContext.getInstance().saveConfiguration(configuration);
             ApplicationContext.setConfigured(true);
@@ -122,7 +118,7 @@ public class InstallationService extends DeboxService {
             getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
             return renderJSON("message", ex.getMessage());
         } catch (SQLException ex) {
-            log.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage());
+            log.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage(), ex);
             getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
             return renderJSON("message", ex.getMessage());
         }

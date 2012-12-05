@@ -1,6 +1,6 @@
 <h2 class="subtitle">{{i18n.account.personaldata.title}}</h2>
 
-<form id="personaldata" class="form-horizontal row block" action="#/account/{{id}}" method="post">
+<form id="personaldata" class="form-horizontal row block" action="#/accounts/{{id}}" method="post">
     <h3>{{i18n.account.personaldata.edit}}</h3>
     <p class="hide"><a class="close">&times;</a></p>
 
@@ -40,7 +40,7 @@
 </form>
 
 
-<form id="credentials" class="form-horizontal row block" action="#/account/{{id}}/credentials" method="post">
+<form id="credentials" class="form-horizontal row block" action="#/accounts/{{id}}/credentials" method="post">
     <h3>{{i18n.account.personaldata.passwordChange}}</h3>
     <p class="hide"><a class="close">&times;</a></p>
 
@@ -70,7 +70,7 @@
 </form>
 
 
-<form id="delete-account" class="form-horizontal row block" action="#/account/{{id}}/delete" method="get">
+<form id="delete-account" class="form-horizontal row block" action="#/accounts/{{id}}/delete" method="get">
     <h3>{{i18n.account.personaldata.accountDeletion.title}}</h3>
     <p class="hide"><a class="close">&times;</a></p>
     <p>{{i18n.account.personaldata.accountDeletion.message}}</p>
@@ -84,7 +84,7 @@
 {{! =================================== }}
 {{! POPUP MODAL - DELETE A USER ACCOUNT }}
 {{! =================================== }}
-<form id="delete-account-confirm" class="form-horizontal modal fade hide" action="account/{{id}}/delete" method="post">
+<form id="delete-account-confirm" class="form-horizontal modal fade hide" action="accounts/{{id}}/delete" method="post">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
         <h3>{{i18n.account.personaldata.accountDeletion.title}}</h3>

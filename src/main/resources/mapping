@@ -33,8 +33,8 @@ org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAut
 GET,POST    /settings                               AdministrationFilter.checkUserAuthentication
 
 GET,POST    /configuration                          AdministrationFilter.checkUserSession
-GET         /account                                AdministrationFilter.checkUserAuthentication
-POST        /account/*                              AdministrationFilter.checkUserAuthentication
+GET,POST    /accounts/*                              AdministrationFilter.checkUserAuthentication
+POST        /accounts/*/settings                     AdministrationFilter.checkUserAuthentication
 
 GET         /tokens                                 AdministrationFilter.checkUserAuthentication
 PUT,POST    /token                                  AdministrationFilter.checkUserAuthentication
@@ -83,13 +83,13 @@ POST        /administration/upload              AdministrationService.upload
 POST        /register                           AccountService.register
 POST        /authenticate                       AccountService.authenticate
 GET         /account                            AccountService.getLoggedUser
-POST        /account/{userId}/credentials       AccountService.editCredentials
-POST        /account/{userId}/delete            AccountService.deleteAccount
-POST        /account/{userId}                   AccountService.editPersonalData
+GET         /accounts/{userId}/settings         ConfigurationService.getUserSettings
+POST        /accounts/{userId}/settings         ConfigurationService.setUserSettings
+POST        /accounts/{userId}/credentials      AccountService.editCredentials
+POST        /accounts/{userId}/delete           AccountService.deleteAccount
+POST        /accounts/{userId}                  AccountService.editPersonalData
 GET         /logout                             AccountService.logout
 DELETE      /third-party-account/{id}           AccountService.deleteThirdPartyAccount
-GET         /settings                           ConfigurationService.getUserSettings
-POST        /settings                           ConfigurationService.setUserSettings
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - PHOTOS

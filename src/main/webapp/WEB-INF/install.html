@@ -30,7 +30,7 @@
         <script type="text/javascript">
             var suffix = "?t=" + new Date().getTime();
             head.js(
-                    "static/js/lib/jquery-1.7.2.min.js",
+                    "static/js/lib/jquery-1.8.3.min.js",
                     "static/js/lib/bootstrap.min.js",
                     "static/js/lib/Hogan.js",
                     "static/js/lib/date-fr-FR.js",
@@ -41,6 +41,7 @@
                         // Load templates before enable application routing
                         loadTemplates();
                         loadTemplate("install", null, null, function() {
+                            editTitle("Installation - debox");
                             $(".step .next").click(function() {
                                 $(this).parents(".step").addClass("hide");
                                 $(this).parents(".step").next().removeClass("hide");
