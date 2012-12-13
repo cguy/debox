@@ -119,126 +119,126 @@ var fr = {
             tab: "Add photos",
             add: "Add photos",
             createAlbum: "Create a new album",
-            mandatory: "Veuillez choisir ou créer l'album dans lequel vous voulez ajouter vos photos.",
-            action: "Commencer le chargement des photos",
-            "album": "Choisissez l'album dans lequel vous voulez ajouter des photos",
-            "photos": "Ajoutez vos photos",
-            targetDirectory : "Les photos seront ajoutées à l'album : ",
-            "start": "Commencer le chargement",
+            mandatory: "Please choose an existing album or create a new one.",
+            action: "Start photos upload",
+            "album": "Please select the album that you want to add photos",
+            "photos": "Add your photos",
+            targetDirectory : "Photos will be added into the folllowing album : ",
+            "start": "Start upload",
             "errors": {
-                "albumCreation": "Une erreur est survenue pendant la création de l'album.",
-                "maxFileSize": "Le fichier est trop gros",
-                "minFileSize": "Le fichier est trop petit",
-                "acceptFileTypes": "Ce type de fichier n'est pas accepté",
-                "maxNumberOfFiles": "Vous avez dépassé le nombre de fichiers autorisé",
-                "uploadedBytes": "Le nombre d'octets envoyés dépasse la taille du fichier",
-                "emptyResult": "Fichier vide"
+                "albumCreation": "An error occurred during the album creation.",
+                "maxFileSize": "The file is too big",
+                "minFileSize": "The file is too small",
+                "acceptFileTypes": "This file type is not supported",
+                "maxNumberOfFiles": "You have exceeded the number of files allowed",
+                "uploadedBytes": "The number of bytes sent exceeds the file size",
+                "emptyResult": "Empty file"
             },
             "form": {
-                title: "Création d'un album",
-                "albumName": "Nom de l'album :",
-                namePlaceHolder: "Veuillez entrer le nom du nouvel album",
-                "subAlbum": "Sous-album :",
+                title: "Album creation",
+                "albumName": "Album name:",
+                namePlaceHolder: "Please enter the new album name",
+                "subAlbum": "Sub-album:",
                 "parent": {
-                    "false": "L'album ne sera pas un sous-album, il sera accessible directement dans la liste des albums.",
-                    "true": "L'album sera un sous-album, choisissez l'album qui contiendra ce sous-album.",
-                    "error": "Pour que l'album créé soit un sous-album, vous devez spécifier l'album qui contiendra ce sous-album."
+                    "false": "The album will not be a sub-album, it will be available in the album list.",
+                    "true": "The album will be a sub-album, please choose the album that will contain this sub-album.",
+                    "error": "To create a sub-album, you must specify the parent album."
                 }
             },
-            "error": "Une erreur est survenue",
-            "existingAlbum": "Je veux ajouter des photos dans un album existant",
-            "newAlbum": "Je veux créer un nouvel album"
+            "error": "An error occured",
+            "existingAlbum": "I want to add photos in an existing album",
+            "newAlbum": "I want to create a new album"
         },
         tokens: {
-            title: "Gestion des accès visiteurs",
-            tab: "Gestion des accès visiteurs",
+            title: "Visitors accesses management",
+            tab: "Visitors accesses",
             
             thirdparty : {
-                title: "Ajouter des comptes tiers pour gérer les accès de vos contacts",
+                title: "Add thirdparty accounts to manage your contacts accesses",
                 provider : {
-                    name: "Nom du service",
-                    identifier: "Nom du compte",
-                    deletion: "Supprimer l'accès à ce compte",
+                    name: "Service name",
+                    identifier: "Account name",
+                    deletion: "Delete this thirdparty account",
                     remove: {
-                        title: "Suppression de l'accès à un compte tiers",
-                        message: "Êtes-vous sûr de vouloir supprimer l'accès à ce compte ?"
+                        title: "Delete a thirdparty account",
+                        message: "Are you sure you want to delete this thirdparty account?"
                     }
                 }
             },
             
-            token_list: "Liste des accès visiteurs",
-            label: "Libellé",
+            token_list: "Visitors accesses",
+            label: "Label",
             albums: "Albums",
-            link2share: "Lien à partager",
+            link2share: "Link to share",
             actions: "Actions",
-            visible_albums: "Voir les albums visibles via cet accès",
-            public_album: " <span class=\"bold\">(album public)</span>",
-            link: "Lien",
-            no_token: "Aucun accès visiteur n'a été créé !",
-            new_token: "Créer un nouvel accès visiteur",
-            create_token: "Créer l'accès",
-            new_token_label: "Libellé du nouvel accès",
+            visible_albums: "Visible albums with this access",
+            public_album: " <span class=\"bold\">(public album)</span>",
+            link: "Link",
+            no_token: "There is not any visitor access yet.Aucun accès visiteur n'a été créé !",
+            new_token: "Create a new access",
+            create_token: "Create the access",
+            new_token_label: "New access label",
             edit: {
-                title: "Modifier un accès visiteur",
-                label: "Libellé de l'accès visiteur",
-                success: "La liste des albums visibles via cet accès a été modifée avec succès.",
-                error: "Erreur durant la modification de la liste des albums visibles via cet accès."
+                title: "Edit an access",
+                label: "Access label",
+                success: "Visible albums list linked to this access has been successfully edited.",
+                error: "An error occured during visible albums list modification."
             },
             "delete": {
-                title: "Supprimer un accès visiteur",
-                message: "Êtes-vous sûr de vouloir supprimer l'accès visiteur"
+                title: "Delete a visitor access",
+                message: "Are you sure you want to delete this visitor access?"
             },
             reinit: {
-                label: "Réinitialiser",
-                label_in_progress: "Réinitialisation en cours",
-                title: "Réinitialiser un accès visiteur",
-                message: "Êtes-vous sûr de vouloir Réinitialiser l'accès visiteur",
-                description: "Un nouveau lien sera généré, interdisant l'accès à ceux qui utilisent le lien précédent. Le nouveau lien donnera accès aux mêmes albums que l'ancien.",
-                success: "L'accès a été réinitialisé avec succès.",
-                error404: "L'accès que essayez de réinitialiser n'existe pas.",
-                error: "Erreur pendant la réinitialisation de l'accès, veuillez réessayer ultérieurement."
+                label: "Reset",
+                label_in_progress: "Reset in progress",
+                title: "Reset a visitor access",
+                message: "Are you sure you want to reset this visitor access?",
+                description: "A new link will be generated, deleting the old access. The new link will allow access to the same albums list than the old one.",
+                success: "The access has been successfully reset.",
+                error404: "The access you try to reset doesn't exist.",
+                error: "An error occured during the access reset, please retry later."
             }
         },
         personaldata: {
-            tab: "Mes informations personnelles",
-            title: "Mes informations personnelles",
-            edit: "Modifier mon identité",
-            username: "Nom d'utilisateur :",
-            firstname: "Prénom :",
-            lastname: "Nom de famille :",
-            old_password: "Ancien mot de passe :",
-            new_password: "Nouveau mot de passe :",
-            passwordChange: "Modifier mon mot de passe",
+            tab: "My personal data",
+            title: "My personal data",
+            edit: "Modify my identity",
+            username: "Username:",
+            firstname: "First name:",
+            lastname: "Last name:",
+            old_password: "Old password:",
+            new_password: "New password:",
+            passwordChange: "Edit my password",
             accountDeletion: {
-                title: "Supprimer mon compte",
-                message: "Êtes-vous sûr / sure de vouloir supprimer votre compte ? Si vous supprimez votre compte, l'intégralité des informations qui vous sont liées seront également supprimées (photos, albums, commentaires, etc.)",
-                irreversible: "Attention, cette action est irréversible !"
+                title: "Delete my account",
+                message: "Are you sure you want to delete your account? If you delete your account, all data linked to your account will be delete (photos, albums, comments, etc.).",
+                irreversible: "Warning, this action is irreversible!"
             }
         }
     },
     administration: {
         title: "Administration",
-        processing: "Traitement en cours...",
+        processing: "Processing...",
         config: {
-            title: "Configuration générale",
-            tab: "Configuration générale",
-            galery_title: "Titre de la galerie photos :",
-            galery_title_placeholder: "Exemple : Galerie photos personnelle",
-            directory: "Répertoire distant qui contiendra les photos ajoutées par les utilisateurs :",
-            directory_placeholder: "Exemple : /home/user/photos/",
-            save: "Enregistrer"
+            title: "Overall configuration",
+            tab: "Overall configuration",
+            galery_title: "Gallery title:",
+            galery_title_placeholder: "Example : Personal photo gallery",
+            directory: "Directory that will contain photos added by the users:",
+            directory_placeholder: "Example : /home/user/photos/",
+            save: "Save"
         },
         sync: {
-            title: "Synchroniser les répertoires",
-            tab: "Synchronisation des répertoires",
-            in_progress: "Synchronisation en cours",
-            cancel: "Annuler la synchronisation",
-            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
-            fastest: "Le plus rapide ",
-            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
+            title: "Synchronize directories",
+            tab: "Synchronize directories",
+            in_progress: "Synchronizing ...",
+            cancel: "Cancel the synchronization",
+            choice_mode: "Please choose the synchronization mode, then launch process ",
+            fastest: "Fastest ",
+            fastest_description: "Thumbnails will be generated only at first access.",
             normal: "Normal ",
-            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
-            longest: "Le plus long ",
+            normal_description: "Thumbnails will be generated only for new photos.",
+            longest: "Longest ",
             longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
             force_check_dates: "Forcer la vérification des dates des photos existantes",
             warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
