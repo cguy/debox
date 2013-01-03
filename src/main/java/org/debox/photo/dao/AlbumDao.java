@@ -148,15 +148,15 @@ public class AlbumDao {
 
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
-    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
+    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id "
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM photos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id "
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM photos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
@@ -492,7 +492,7 @@ public class AlbumDao {
     
     public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Photo result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
+        Photo result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
         return result;
     }
     

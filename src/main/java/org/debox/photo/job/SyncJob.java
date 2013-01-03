@@ -323,7 +323,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         }
 
         try {
-            String sourcePath = ImageUtils.getAlbumsBasePath();
+            String sourcePath = ImageUtils.getAlbumsBasePath(getOwnerId());
         
             // End of synchronise, persist data
             List<Album> albumsToSave = new ArrayList<>();

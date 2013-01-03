@@ -37,6 +37,15 @@ public class Photo implements Comparable<Photo> {
     protected String thumbnailUrl;
     protected String url;
     protected Date date;
+    protected String ownerId;
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 
     public String getTitle() {
         return title;

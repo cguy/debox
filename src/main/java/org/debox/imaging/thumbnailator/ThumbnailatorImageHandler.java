@@ -58,6 +58,7 @@ public class ThumbnailatorImageHandler implements ImageHandler {
 
         try {
             builder.toFile(target.toString());
+            log.debug("Create thumbnail at path : " + target.toString());
         } catch (IOException ex) {
             log.error("Unable to write file {}, reason: {}", target.toString(), ex.getMessage());
         }

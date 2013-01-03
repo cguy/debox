@@ -24,15 +24,19 @@ import org.debox.photo.model.configuration.ThumbnailSize;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.imaging.ThumbnailGenerator;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.*;
 import org.debox.photo.util.FileUtils;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,11 +156,16 @@ public class RegenerateThumbnailsJob implements FileVisitor<Path>, Runnable {
             return FileVisitResult.CONTINUE;
         }
 
-        // Create target path if not exists
-        String relativePath = StringUtils.substringAfter(currentPath.toString(), this.source.toString());
-        Path targetPath = Paths.get(this.target + relativePath);
-        if (!Files.exists(targetPath)) {
-            Files.createDirectories(targetPath, FileUtils.PERMISSIONS);
+        try {
+            // Create target path if not exists
+            String albumsBasePath = ImageUtils.getAlbumsBasePath(SessionUtils.getUserId());
+            String relativePath = StringUtils.substringAfter(currentPath.toString(), albumsBasePath);
+            Path targetPath = Paths.get(this.target + relativePath);
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath, FileUtils.PERMISSIONS);
+            }
+        } catch (SQLException ex) {
+            return FileVisitResult.TERMINATE;
         }
 
         return FileVisitResult.CONTINUE;
@@ -164,24 +173,30 @@ public class RegenerateThumbnailsJob implements FileVisitor<Path>, Runnable {
 
     @Override
     public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
-        logger.info("File visited: {}", path);
+        try {
+            logger.info("File visited: {}", path);
 
-        String mimeType = Files.probeContentType(path);
-        if (!ImageUtils.JPEG_MIME_TYPE.equals(mimeType)) {
-            logger.warn("Tried to process a non-jpeg image, mime-type was: {}", mimeType);
+            String mimeType = Files.probeContentType(path);
+            if (!ImageUtils.JPEG_MIME_TYPE.equals(mimeType)) {
+                logger.warn("Tried to process a non-jpeg image, mime-type was: {}", mimeType);
+                return FileVisitResult.CONTINUE;
+
+            } else if (aborted) {
+                return FileVisitResult.TERMINATE;
+            }
+
+            Photo photo = new Photo();
+            String albumsBasePath = ImageUtils.getAlbumsBasePath(SessionUtils.getUserId());
+            photo.setRelativePath(StringUtils.substringAfter(path.getParent().toString(), albumsBasePath));
+            photo.setFilename(path.getFileName().toString());
+            photo.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
+            ThumbnailGenerator processor = new ThumbnailGenerator(photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
+            Future future = threadPool.submit(processor);
+            imageProcesses.add(future);
             return FileVisitResult.CONTINUE;
-
-        } else if (aborted) {
-            return FileVisitResult.TERMINATE;
+        } catch (SQLException ex) {
+            return FileVisitResult.CONTINUE;
         }
-
-        Photo photo = new Photo();
-        photo.setRelativePath(StringUtils.substringAfter(path.getParent().toString(), this.source.toString()));
-        photo.setFilename(path.getFileName().toString());
-        ThumbnailGenerator processor = new ThumbnailGenerator(photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
-        Future future = threadPool.submit(processor);
-        imageProcesses.add(future);
-        return FileVisitResult.CONTINUE;
     }
 
     @Override

@@ -147,8 +147,9 @@ public class AdministrationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
 
-        String strSource = ImageUtils.getAlbumsBasePath();
-        String strTarget = ImageUtils.getThumbnailsBasePath();
+        String ownerId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String strSource = ImageUtils.getAlbumsBasePath(ownerId);
+        String strTarget = ImageUtils.getThumbnailsBasePath(ownerId);
         if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
             return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
         }

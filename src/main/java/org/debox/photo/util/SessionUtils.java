@@ -20,6 +20,7 @@
  */
 package org.debox.photo.util;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.photo.model.user.User;
 
@@ -32,6 +33,14 @@ public class SessionUtils {
     
     public static User getUser(Subject subject) {
         return (User) subject.getPrincipal();
+    }
+    
+    public static User getUser() {
+        return (User) SecurityUtils.getSubject().getPrincipal();
+    }
+    
+    public static String getUserId() {
+        return ((User) SecurityUtils.getSubject().getPrincipal()).getId();
     }
 
     public static boolean isLogged(Subject subject) {

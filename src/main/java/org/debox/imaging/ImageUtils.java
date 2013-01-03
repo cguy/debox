@@ -36,7 +36,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.gm.GraphicsMagickImageHandler;
 import org.debox.imaging.gm.ImageMagickDateReader;
 import org.debox.imaging.gm.StringOutputConsumer;
@@ -49,7 +48,6 @@ import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
-import org.debox.photo.util.SessionUtils;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.IdentifyCmd;
@@ -137,9 +135,8 @@ public class ImageUtils {
         return basePath;
     }
     
-    public static String getAlbumsBasePath() throws SQLException {
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
-        Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
+    public static String getAlbumsBasePath(String ownerId) throws SQLException {
+        Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(ownerId);
         String basePath = configuration.get(Configuration.Key.ALBUMS_DIRECTORY);
         if (basePath == null) {
             basePath = getBasePath() + File.separatorChar + "albums";
@@ -147,9 +144,8 @@ public class ImageUtils {
         return basePath;
     }
 
-    public static String getThumbnailsBasePath() throws SQLException {
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
-        Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
+    public static String getThumbnailsBasePath(String ownerId) throws SQLException {
+        Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(ownerId);
         String basePath = configuration.get(Configuration.Key.THUMBNAILS_DIRECTORY);
         if (basePath == null) {
             basePath = getBasePath() + File.separatorChar + "thumbnails";
@@ -158,19 +154,19 @@ public class ImageUtils {
     }
 
     public static String getSourcePath(Photo photo) throws SQLException {
-        return getAlbumsBasePath() + photo.getRelativePath() + File.separatorChar + photo.getFilename();
+        return getAlbumsBasePath(photo.getOwnerId()) + photo.getRelativePath() + File.separatorChar + photo.getFilename();
     }
 
     public static String getThumbnailPath(Photo photo, ThumbnailSize size) throws SQLException {
-        return getThumbnailsBasePath() + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
+        return getThumbnailsBasePath(photo.getOwnerId()) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
     }
 
     public static String getSourcePath(Album album) throws SQLException {
-        return getAlbumsBasePath() + album.getRelativePath();
+        return getAlbumsBasePath(album.getOwnerId()) + album.getRelativePath();
     }
 
     public static String getTargetPath(Album album) throws SQLException {
-        return getThumbnailsBasePath() + album.getRelativePath();
+        return getThumbnailsBasePath(album.getOwnerId()) + album.getRelativePath();
     }
 
     public static Date getShootingDate(Path path) {

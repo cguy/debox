@@ -120,7 +120,7 @@ public class AlbumService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is already an album at path (" + album.getRelativePath() + ")");
         }
         
-        String[] paths = {ImageUtils.getAlbumsBasePath(), ImageUtils.getThumbnailsBasePath()};
+        String[] paths = {ImageUtils.getAlbumsBasePath(album.getOwnerId()), ImageUtils.getThumbnailsBasePath(album.getOwnerId())};
         for (String path : paths) {
             File targetDirectory = new File(path + album.getRelativePath());
             if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
