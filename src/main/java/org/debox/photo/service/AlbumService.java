@@ -57,7 +57,6 @@ import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Comment;
-import org.debox.photo.model.Configuration;
 import org.debox.photo.model.user.Contact;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Provider;
@@ -65,7 +64,6 @@ import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.model.Token;
 import org.debox.photo.model.user.User;
-import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
@@ -447,7 +445,6 @@ public class AlbumService extends DeboxService {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 
-        Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         if (resized) {
             List<Photo> photos = photoDao.getPhotos(album.getId());
             Map<String, String> names = new HashMap<>(photos.size());

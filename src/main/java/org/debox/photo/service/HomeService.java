@@ -20,6 +20,8 @@
  */
 package org.debox.photo.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import java.io.File;
@@ -35,8 +37,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Provider;
@@ -73,27 +73,28 @@ public class HomeService extends DeboxService {
                 
             } else if (principal instanceof ThirdPartyAccount) {
                 ThirdPartyAccount user = (ThirdPartyAccount) principal;
-                
-                if (user.getProviderId().equals("facebook")) {
-                    FacebookClient client = new DefaultFacebookClient(user.getToken());
-                    com.restfb.types.User me = client.fetchObject("me", com.restfb.types.User.class);
-                    username = me.getFirstName() + " " + me.getLastName();
-                    
-                } else if (user.getProviderId().equals("google")) {
-                    try {
-                        String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + user.getToken());
-                        ObjectMapper mapper = new ObjectMapper();
-                        JsonNode node = mapper.readTree(response);
-                        if (node.get("error") != null && node.get("error").get("code") != null) {
-                            if (node.get("error").get("code").asInt() == 401) {
-                                throw new OAuthException("google");
+                switch (user.getProviderId()) {
+                    case "facebook":
+                        FacebookClient client = new DefaultFacebookClient(user.getToken());
+                        com.restfb.types.User me = client.fetchObject("me", com.restfb.types.User.class);
+                        username = me.getFirstName() + " " + me.getLastName();
+                        break;
+                    case "google":
+                        try {
+                            String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + user.getToken());
+                            ObjectMapper mapper = new ObjectMapper();
+                            JsonNode node = mapper.readTree(response);
+                            if (node.get("error") != null && node.get("error").get("code") != null) {
+                                if (node.get("error").get("code").asInt() == 401) {
+                                    throw new OAuthException("google");
+                                }
                             }
+                            username = node.get("name").asText();
+                            
+                        } catch (IOException ex) {
+                            logger.error("Unable to get Google session", ex);
                         }
-                        username = node.get("name").asText();
-                        
-                    } catch (IOException ex) {
-                        logger.error("Unable to get Google session", ex);
-                    }
+                        break;
                 }
                 
             }

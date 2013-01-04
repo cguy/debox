@@ -20,6 +20,8 @@
  */
 package org.debox.photo.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import com.sun.syndication.io.FeedException;
 import java.io.IOException;
@@ -31,8 +33,6 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.connector.api.exception.ProviderException;
 import org.debox.model.OAuth2Token;
 import org.debox.photo.dao.UserDao;

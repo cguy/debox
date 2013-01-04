@@ -20,6 +20,8 @@
  */
 package org.debox.photo.dao;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import java.io.IOException;
 import java.sql.Connection;
@@ -39,8 +41,6 @@ import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.JdbcUtils;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Role;

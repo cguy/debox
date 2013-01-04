@@ -20,14 +20,13 @@
  */
 package org.debox.photo.dao.thirdparty;
 
-import com.restfb.DefaultFacebookClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.syndication.io.FeedException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
-import java.util.logging.Level;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -37,12 +36,9 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.connector.api.exception.AuthenticationProviderException;
 import org.debox.model.OAuth2Token;
 import org.debox.photo.dao.JdbcMysqlRealm;
-import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;

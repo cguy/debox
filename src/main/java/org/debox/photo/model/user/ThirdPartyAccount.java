@@ -20,9 +20,9 @@
  */
 package org.debox.photo.model.user;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Objects;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.debox.photo.model.Provider;
 import org.debox.util.HttpUtils;
 import org.slf4j.Logger;
@@ -69,22 +69,18 @@ public class ThirdPartyAccount extends User {
     }
 
     public String getAvatarUrl() {
-        if (getProviderId().equals("facebook")) {
-            return String.format("https://graph.facebook.com/%s/picture?return_ssl_resources=1&type=square", getProviderAccountId());
-            
-        } else if (getProviderId().equals("google")) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                String response = HttpUtils.getResponse(String.format("https://www.googleapis.com/plus/v1/people/%s?access_token=%s", getProviderAccountId(), getToken()));
-                log.debug(response);
-                
-                JsonNode node = mapper.readTree(response);
-                
-                return node.get("image").get("url").asText();
-                
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        switch (getProviderId()) {
+            case "facebook":
+                return String.format("https://graph.facebook.com/%s/picture?return_ssl_resources=1&type=square", getProviderAccountId());
+            case "google":
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String response = HttpUtils.getResponse(String.format("https://www.googleapis.com/plus/v1/people/%s?access_token=%s", getProviderAccountId(), getToken()));
+                    JsonNode node = mapper.readTree(response);
+                    return node.get("image").get("url").asText();
+                } catch (Exception ex) {
+                    log.error("Error getting avatar URL" , ex);
+                }
         }
         
         return null;
