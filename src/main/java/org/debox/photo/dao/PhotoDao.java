@@ -152,30 +152,20 @@ public class PhotoDao {
             id = StringUtils.randomUUID();
         }
         
-        QueryRunner queryRunner = new QueryRunner();
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        
-        try {
-            // Save the photo
-            queryRunner.update(connection, SQL_CREATE_PHOTO,
-                    id, photo.getFilename(),
-                    photo.getTitle(),
-                    new Timestamp(photo.getDate().getTime()),
-                    photo.getRelativePath(),
-                    photo.getAlbumId(),
-                    photo.getAlbumId(),
-                    photo.getRelativePath(),
-                    photo.getTitle());
-            
-            // Increase photos count for the album containing this photo
-            queryRunner.update(connection, SQL_INCREMENT_PHOTO_COUNT, photo.getAlbumId());
-            
-            DbUtils.commitAndCloseQuietly(connection);
-        } catch (SQLException ex) {
-            DbUtils.rollbackAndCloseQuietly(connection);
-            throw ex;
-        }
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        // Save the photo
+        queryRunner.update(SQL_CREATE_PHOTO,
+                id, photo.getFilename(),
+                photo.getTitle(),
+                new Timestamp(photo.getDate().getTime()),
+                photo.getRelativePath(),
+                photo.getAlbumId(),
+                photo.getAlbumId(),
+                photo.getRelativePath(),
+                photo.getTitle());
+
+        // Increase photos count for the album containing this photo
+        queryRunner.update(SQL_INCREMENT_PHOTO_COUNT, photo.getAlbumId());
     }
     
     public void delete(Photo photo) throws SQLException {
