@@ -85,6 +85,7 @@ public class AdministrationService extends DeboxService {
         addedPhoto.setDate(ImageUtils.getShootingDate(originalFile));
         addedPhoto.setId(StringUtils.randomUUID());
         addedPhoto.setRelativePath(album.getRelativePath());
+        addedPhoto.setOwnerId(album.getOwnerId());
         
         Path targetFile = Paths.get(ImageUtils.getSourcePath(addedPhoto));
         
