@@ -351,7 +351,7 @@ public class AlbumDao {
         Connection connection = queryRunner.getDataSource().getConnection();
         Album result = null;
         try {
-            result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false));
+            result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false), path);
         } finally {
             DbUtils.closeQuietly(connection);
         }
