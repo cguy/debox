@@ -23,7 +23,6 @@ package org.debox.photo.util;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
@@ -65,7 +64,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         long size = 0;
 
         for (File file : files) {
-            if (file.isDirectory()) {
+            if (file.isDirectory() || (names != null && !names.containsKey(file.getName()))) {
                 continue;
             }
             size += file.length();
@@ -92,8 +91,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                 if (fileName != null) {
                     try (FileInputStream fis = new FileInputStream(file)) {
                         zos.putNextEntry(new ZipEntry(fileName));
-                        byte[] byteArray = IOUtils.toByteArray(fis, Files.size(Paths.get(file.getAbsolutePath())));
-                        zos.write(byteArray);
+                        IOUtils.copyLarge(fis, zos);
                         zos.closeEntry();
                     }
                 }

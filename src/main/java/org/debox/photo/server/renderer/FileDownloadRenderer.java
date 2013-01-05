@@ -66,9 +66,7 @@ public class FileDownloadRenderer extends Render {
         try (
                 ServletOutputStream out = response.getOutputStream();
                 InputStream inputStream = new FileInputStream(file.toFile())) {
-            
-            byte[] bytes = IOUtils.toByteArray(inputStream, Files.size(file));
-            out.write(bytes);
+            IOUtils.copyLarge(inputStream, out);
             out.flush();
         }
     }

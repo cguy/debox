@@ -20,7 +20,6 @@
  */
 package org.debox.photo.thirdparty;
 
-import com.sun.syndication.io.FeedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public class ServiceUtil {
         return String.format(authenticationUrl, apiKey, callback, "https%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email");
     }
 
-    public static OAuth2Token getAuthenticationToken(String code) throws IOException, IllegalArgumentException, FeedException, AuthenticationProviderException {
+    public static OAuth2Token getAuthenticationToken(String code) throws IOException, IllegalArgumentException, AuthenticationProviderException {
         ApplicationContext context = ApplicationContext.getInstance();
         Configuration configuration = context.getOverallConfiguration();
         String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);

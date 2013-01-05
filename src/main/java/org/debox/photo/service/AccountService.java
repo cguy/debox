@@ -23,7 +23,6 @@ package org.debox.photo.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
-import com.sun.syndication.io.FeedException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
@@ -133,7 +132,7 @@ public class AccountService extends DeboxService {
         return renderRedirect("/#/account/tokens");
     }
     
-    public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException, FeedException {
+    public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException {
         Verifier verifier = new Verifier(code);
         ThirdPartyTokenWrapper tokenWrapper = new ThirdPartyTokenWrapper(verifier);
         Subject subject = SecurityUtils.getSubject();

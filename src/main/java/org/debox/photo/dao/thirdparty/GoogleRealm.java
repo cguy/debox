@@ -22,7 +22,6 @@ package org.debox.photo.dao.thirdparty;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.syndication.io.FeedException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -121,7 +120,7 @@ public class GoogleRealm extends JdbcMysqlRealm {
 
             return new SimpleAuthenticationInfo(account, tokenWrapper.getCode(), this.getName());
 
-        } catch (IOException | IllegalArgumentException | FeedException | AuthenticationProviderException ex) {
+        } catch (IOException | IllegalArgumentException | AuthenticationProviderException ex) {
             logger.error("Unable to get auth token, reason:", ex);
         } catch (SQLException ex) {
             logger.error("Unable to access database, reason:", ex);

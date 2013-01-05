@@ -22,16 +22,10 @@ package org.debox.photo.service;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndLinkImpl;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -39,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +41,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.debox.connector.api.exception.AuthenticationProviderException;
-import org.debox.connector.google.CustomXMLReader;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
@@ -70,7 +62,6 @@ import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
-import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +162,7 @@ public class AlbumService extends DeboxService {
         return renderJSON("albums", albums);
     }
 
-    public Render getAlbum(String token, String id) throws IOException, SQLException, IllegalArgumentException, FeedException, IOException, AuthenticationProviderException {
+    public Render getAlbum(String token, String id) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
         
@@ -204,28 +195,28 @@ public class AlbumService extends DeboxService {
                             contacts.addAll(convert(myFriends.getData()));
                             break;
                         case "google":
-                            URL url = new URL("https://www.google.com/m8/feeds/contacts/default/full?access_token=" + thirdPartyToken);
-                            SyndFeedInput input = new SyndFeedInput();
-                            
-                            do {
-                                SyndFeed feed = input.build(new CustomXMLReader(url).getReader());
-                                List<SyndLinkImpl> links = feed.getLinks();
-                                url = null;
-                                if (links != null) {
-                                    for (SyndLinkImpl link : links) {
-                                        if (link.getRel().equals("next")) {
-                                            url = new URL(link.getHref() + "&access_token=" + thirdPartyToken);
-                                            break;
-                                        }
-                                    }
-                                }
-                                
-                                Iterator<SyndEntry> contactsIterator = feed.getEntries().iterator();
-                                List<Contact> result = convert(contactsIterator);
-                                contacts.addAll(result);
-                                
-                            } while (url != null);
-                            break;
+//                            URL url = new URL("https://www.google.com/m8/feeds/contacts/default/full?access_token=" + thirdPartyToken);
+//                            SyndFeedInput input = new SyndFeedInput();
+//                            
+//                            do {
+//                                SyndFeed feed = input.build(new CustomXMLReader(url).getReader());
+//                                List<SyndLinkImpl> links = feed.getLinks();
+//                                url = null;
+//                                if (links != null) {
+//                                    for (SyndLinkImpl link : links) {
+//                                        if (link.getRel().equals("next")) {
+//                                            url = new URL(link.getHref() + "&access_token=" + thirdPartyToken);
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                
+//                                Iterator<SyndEntry> contactsIterator = feed.getEntries().iterator();
+//                                List<Contact> result = convert(contactsIterator);
+//                                contacts.addAll(result);
+//                                
+//                            } while (url != null);
+//                            break;
                     }
                 }
             }
@@ -254,35 +245,34 @@ public class AlbumService extends DeboxService {
                 "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts, "comments", comments);
     }
     
-    private List<Contact> convert(Iterator<SyndEntry> contactsIterator) {
-        List<Contact> list = new ArrayList<>();
-        while (contactsIterator.hasNext()) {
-            SyndEntry entry = contactsIterator.next();
-            
-            Contact contact = new Contact();
-            contact.setName(entry.getTitle());
-            contact.setProvider(ServiceUtil.getProvider("google"));
-            
-            List<Element> elements = (List<Element>) entry.getForeignMarkup();
-            for (Element element : elements) {
-                String prefix = element.getNamespacePrefix();
-                String name = element.getName();
-                if ("gd".equals(prefix) && "email".equals(name)) {
-                    String mail = element.getAttributeValue("address");
-                    contact.setId(mail);
-                    if (StringUtils.isEmpty(contact.getName())) {
-                        contact.setName(mail);
-                    }
-                    break;
-                }
-            }
-            if (StringUtils.isNotEmpty(contact.getId())) {
-                list.add(contact);
-            }
-        }
-        return list;
-    }
-
+//    private List<Contact> convert(Iterator<SyndEntry> contactsIterator) {
+//        List<Contact> list = new ArrayList<>();
+//        while (contactsIterator.hasNext()) {
+//            SyndEntry entry = contactsIterator.next();
+//            
+//            Contact contact = new Contact();
+//            contact.setName(entry.getTitle());
+//            contact.setProvider(ServiceUtil.getProvider("google"));
+//            
+//            List<Element> elements = (List<Element>) entry.getForeignMarkup();
+//            for (Element element : elements) {
+//                String prefix = element.getNamespacePrefix();
+//                String name = element.getName();
+//                if ("gd".equals(prefix) && "email".equals(name)) {
+//                    String mail = element.getAttributeValue("address");
+//                    contact.setId(mail);
+//                    if (StringUtils.isEmpty(contact.getName())) {
+//                        contact.setName(mail);
+//                    }
+//                    break;
+//                }
+//            }
+//            if (StringUtils.isNotEmpty(contact.getId())) {
+//                list.add(contact);
+//            }
+//        }
+//        return list;
+//    }
     
     public List<Contact> convert(List<com.restfb.types.User> list) {
         if (list == null) {
@@ -299,7 +289,7 @@ public class AlbumService extends DeboxService {
         return result;
     }
     
-    public Render editAlbum(String albumId, String name, String description, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, FeedException, AuthenticationProviderException {
+    public Render editAlbum(String albumId, String name, String description, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
