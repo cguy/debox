@@ -239,181 +239,175 @@ var fr = {
             normal: "Normal ",
             normal_description: "Thumbnails will be generated only for new photos.",
             longest: "Longest ",
-            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
-            force_check_dates: "Forcer la vérification des dates des photos existantes",
-            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
-            launch: "Lancer la synchronisation"
+            longest_description: "Override existing thumbnails + create thumbnails for new photos.",
+            force_check_dates: "Force the shooting date check for existing photos",
+            warning: "This last one will delete all existing thumbnails before create them.",
+            launch: "Process"
         }
     },
     album: {
-        from_date: "du",
-        to_date: "au",
-        on_date: "le",
-        back2album: "Retour à l'album ",
-        back2albums: "Retour à la liste des albums",
-        download: "Télécharger les photos de cet album",
-        reduced_size: "Taille réduite des photos",
-        original_size: "Taille originale des photos",
-        subalbums: "Sous-albums",
-        no_photos: "Il n'y a aucune photo disponible pour cet album.",
+        from_date: "from",
+        to_date: "to",
+        on_date: "the",
+        back2album: "Back to the album ",
+        back2albums: "Back to the list of albums",
+        download: "Download this album",
+        reduced_size: "Small size of photos",
+        original_size: "Original size of photos",
+        subalbums: "Sub-albums",
+        no_photos: "There is not any available photos for this album.",
         admin: {
             title: "",
             edit: {
-                modify_this: "Modifier cet album",
-                close_notif_zone: "Fermer la zone de modification",
-                modify: "Modifier l'album",
-                album_name: "Nom de l'album",
-                album_description: "Description de l'album",
-                album_visibility: "Visibilité de l'album",
-                album_authorized_tokens: "Accès visiteurs",
-                album_authorized_tokens_placeholder: "Sélectionnez les accès visiteur",
-                download: "Téléchargement",
-                download_description: "Les photos de cet album sont téléchargeables par les personnes ayant accès à cet album.",
+                modify_this: "Edit this album",
+                close_notif_zone: "Close the edition area",
+                modify: "Edit",
+                album_name: "Name",
+                album_description: "Description",
+                album_visibility: "Privacy",
+                album_authorized_tokens: "Visitors accesses",
+                album_authorized_tokens_placeholder: "Select authorized visitors",
+                download: "Download",
+                download_description: "These album photos are downloadable by any people who has access to this album.",
                 actions: "Actions",
                 choose_cover: {
-                    button: "Choisir une couverture pour l'album",
-                    title: "Choix de la couverture de l'album",
-                    tooltip: "Cliquez sur la photo pour qu'elle devienne la couverture de cette album",
+                    button: "Choose the album cover",
+                    title: "Album cover choice",
+                    tooltip: "Click this photo for it becomes the album cover",
                     photos: "Photos",
-                    success: "La couverture de l'album a été modifiée avec succès.",
-                    error: "Une erreur est survenue lors de la modification de la couvreture de cet album."
+                    success: "The album cover has been successfully edited.",
+                    error: "An error occurred during the choice of album cover."
                 },
-                cancel_cover_choice: "Annuler le choix de la couverture",
-                regenerate_thumbnails: "Regénérer les vignettes de cet album",
-                success: "L'album a été modifié avec succès.",
-                error: "Une erreur est survenue lors de la modification de l'album."
+                cancel_cover_choice: "Cancel the album cover choice",
+                regenerate_thumbnails: "Regenerate the photos thumbnails",
+                success: "The album has been successfully edited.",
+                error: "An error occured editing the album."
             },
             "delete" : {
-                action: "Supprimer l'album",
+                action: "Delete the album",
                 confirm : {
-                    title: "Confirmation",
-                    body: "Êtes-vous sûr / sure de vouloir supprimer cet album ?"
+                    title: "Confirm",
+                    body: "Are you sure you want to delete this album?"
                 },
-                error: "Une erreur est survenue durant la suppression de l'album."
+                error: "An error occured during album deletion."
             }
         }
     },
     header: {
-        album_list: "Liste des albums",
+        album_list: "Albums",
         administration: "Administration",
-        settings: "Mon compte",
-        disconnection: "Déconnexion",
-        connection: "Connexion",
-        connection_others: "Vous pouvez également vous connecter avec votre compte :",
-        connection_in_progress: "Connexion en cours ...",
-        username: "Nom d'utilisateur",
-        password: "Mot de passe",
-        register: "Créer un compte"
+        settings: "My account",
+        disconnection: "Log out",
+        connection: "Log in",
+        connection_others: "You could also log in with your account:",
+        connection_in_progress: "Authenticating in progress...",
+        username: "Username",
+        password: "Password",
+        register: "Register"
     },
     home: {
-        title: "Accueil"
+        title: "Home"
     },
     photo: {
-        title: "Titre de la photo",
-        thumbnails: {
-            admin: {
-                cover_choice: "Choix d'une photo de couverture"
-            }
-        },
+        title: "Photo title",
         "delete" : {
-            title: "Suppression de la photo",
-            confirm: "Êtes-vous sûr / sure de vouloir supprimer cette photo ?"
+            title: "Photo deletion",
+            confirm: "Are you sure you want to delete this photo?"
         },
         edit: {
-            title: "Modification d'une photo",
-            placeholder: "Veuillez rentrer le titre de la photo"
+            title: "Photo edition",
+            placeholder: "Please enter the photo title"
         }
     },
     comments: {
-        title: "Commentaires",
-        show: "Afficher les commentaires",
-        hide: "Cacher les commentaires",
-        placeholder: "Laissez un commentaire ...",
-        remove: "Supprimer ce commentaire",
-        confirm: "Êtes-vous sûr de vouloir supprimer ce commentaire ?",
+        title: "Comments",
+        show: "Show comments",
+        hide: "Hide comments",
+        placeholder: "Leave a comment",
+        remove: "Delete this comment",
+        confirm: "Are your sure you want to delete this comment?",
         empty: {
-            album: "Aucun commentaire n'a encore été laissé sur cet album",
-            photo: "Aucun commentaire n'a encore été laissé sur cette photo"
+            album: "There is not any comment for this album",
+            photo: "There is not any comment for this photo"
         }
     },
     slideshow: {
-        exit: "Quitter le diaporama"
+        exit: "Exit the slideshow"
     },
     install : {
-        title: "Installer debox sur votre serveur",
+        title: "Install debox on your server",
         introduction: {
             title: "Introduction",
-            presentation: "L'installation de debox sur votre serveur se fera en plusieurs étapes :",
+            presentation: "debox installation on your server will be in several steps:",
             steps : [
-                "Configuration de la base de données MySQL",
-                "Configuration de l'espace de travail (stockage & travail sur les photos)",
-                "Création du compte administrateur"
+                "MySQL database configuration",
+                "Workspace configuration (photos hosting & management)",
+                "Creation of the administrator account"
             ]
         },
         steps: [
             {
-                title: "Étape n°1 / 3 : Configuration de la base de données MySQL",
+                title: "Step 1 / 3 : MySQL database configuration",
                 form: {
                     host : {
-                        label: "Adresse du serveur MySQL :",
-                        default : "Valeur par défaut : 127.0.0.1"
+                        label: "MySQL server host:",
+                        default : "Default value: 127.0.0.1"
                     },
                     port : {
-                        label: "Port d'accès au serveur MySQL :",
-                        default : "Valeur par défaut : 3306"
+                        label: "MySQL server access port:",
+                        default : "Default value: 3306"
                     },
                     name : {
-                        label: "Nom de la base de données :",
-                        default : "Valeur par défaut : debox"
+                        label: "Database name:",
+                        default : "Default value: debox"
                     },
                     username: {
-                        label : "Nom de l'utilisateur MySQL :",
-                        default : "Valeur par défaut : root"
+                        label : "MySQL username:",
+                        default : "Default value: root"
                     },
                     password: {
-                        label : "Mot de passe de l'utilisateur MySQL :",
-                        default : "Valeur par défaut : Pas de mot de passe"
+                        label : "MySQL password:",
+                        default : "Default value: <empty>"
                     },
-                    next: "Valider la connexion à la base de données"
+                    next: "Check database connection"
                 }
             },
             {
-                title: "Étape n°2 / 3 : Configuration de l'espace de travail",
-                introduction : "Vous devez spécifier un répertoire local sur votre serveur qui contiendra notamment les photos téléchargées sur votre application debox.\n\
-                                Ce répertoire doit pouvoir être créé par votre serveur d'application. Si ce répertoire est déjà créé, \n\
-                                votre serveur d'application doit pouvoir en lire et écrire son contenu.",
-                note: "Attention, le répertoire local de travail doit être vide afin que l'application debox puisse créer l'arborescence nécessaire à son bon fonctionnement.",
+                title: "Step n°2 / 3 : Workspace configuration",
+                introduction : "You must define a local directory on your server that will contain uploaded photos.\n\
+                                This directory should be creatable by your application server. If this directory already exists, your application server should write and read it.",
+                note: "Warning, working local directory must be empty so that the debox application can create the tree necessary for its proper functioning.",
                 path: {
-                    label : "Répertoire de travail :"
+                    label : "Local directory :"
                 },
-                next: "Vérifier l'accès au répertoire saisi"
+                next: "Check local directory access"
             },
             {
-                title: "Étape n°3 / 3 : Création du compte administrateur",
+                title: "Step 3 / 3 : Creation of administrator account",
                 form: {
                     firstname : {
-                        label: "Prénom : ",
-                        placeholder : "Nécessaire pour afficher votre identité"
+                        label: "First name: ",
+                        placeholder : "Necessary to display your identity"
                     },
                     lastname : {
-                        label: "Nom de famille : ",
-                        placeholder : "Nécessaire pour afficher votre identité"
+                        label: "Last name: ",
+                        placeholder : "Necessary to display your identity"
                     },
                     username : {
-                        label: "Votre adresse e-mail : ",
-                        placeholder : "Nécessaire pour vous connecter à votre application debox"
+                        label: "Your mail: ",
+                        placeholder : "Mandatory to log-in the application"
                     },
                     password: {
-                        label : "Votre mot de passe de connexion : ",
-                        placeholder : "Nécessaire pour vous connecter à votre application debox"
+                        label : "Your account password: ",
+                        placeholder : "Mandatory to log-in the application"
                     },
-                    next: "Valider la création du compte administrateur"
+                    next: "Create the administrator account"
                 }
             },
             {
-                title: "Installation de votre application debox terminée avec succès",
-                introduction : "Vous avez terminé l'installation de votre application debox, vous pouvez dès maintenant vous connecter avec votre compte par le lien ci-dessous :",
-                go : "Me connecter à mon compte"
+                title: "debox application has been successfully installed",
+                introduction : "You finished installation, you could now log-in with the following link:",
+                go : "Log-in"
             }
         ]
     }
