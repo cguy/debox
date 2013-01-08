@@ -21,7 +21,6 @@
 package org.debox.photo.dao;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.shiro.SecurityUtils;
@@ -162,6 +160,29 @@ public class AlbumDao {
             + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
             + "WHERE a.id = ?)";
     
+    protected static final Map<String, String> columnsMapping = new HashMap<>(11);
+    static {
+        columnsMapping.put("id", "id");
+        columnsMapping.put("name", "name");
+        columnsMapping.put("description", "description");
+        columnsMapping.put("begin_date", "beginDate");
+        columnsMapping.put("end_date", "endDate");
+        columnsMapping.put("photos_count", "photosCount");
+        columnsMapping.put("relative_path", "relativePath");
+        columnsMapping.put("parent_id", "parentId");
+        columnsMapping.put("public", "isPublic");
+        columnsMapping.put("owner_id", "ownerId");
+        columnsMapping.put("subAlbumsCount", "subAlbumsCount");
+    }
+    
+    protected int getAllPhotosCount(String albumId) throws SQLException {
+        int result;
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            result = this.getAllPhotosCount(albumId, connection);
+        }
+        return result;
+    }
+    
     protected int getAllPhotosCount(String albumId, Connection c) throws SQLException {
         int result = 0;
         PreparedStatement statement = null;
@@ -187,8 +208,16 @@ public class AlbumDao {
             }
             
         } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
+            DbUtils.closeQuietly(rs);
+            DbUtils.closeQuietly(statement);
+        }
+        return result;
+    }
+    
+    protected int getPhotosCountForLoggedUser(String albumId, String userId) throws SQLException {
+        int result;
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            result = this.getPhotosCountForLoggedUser(albumId, userId, connection);
         }
         return result;
     }
@@ -222,6 +251,14 @@ public class AlbumDao {
         } finally {
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(statement);
+        }
+        return result;
+    }
+    
+    protected int getVisiblePhotosCount(String albumId, String token) throws SQLException {
+        int result;
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            result = this.getVisiblePhotosCount(albumId, token, connection);
         }
         return result;
     }
@@ -323,81 +360,61 @@ public class AlbumDao {
     public Album getVisibleAlbumForLoggedUser(String userId, String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED, getBeanHandler(connection, userId, false), albumId, userId);
+        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED, getBeanHandler(userId, false), albumId, userId);
         return result;
     }
     
     public Album getVisibleAlbum(String token, String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID, getBeanHandler(connection, token, true), albumId, token);
+        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID, getBeanHandler(token, true), albumId, token);
         return result;
     }
     
     public Album getAlbum(String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = null;
-        try {
-            result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(connection, null, false), albumId);
-        } finally {
-            DbUtils.closeQuietly(connection);
-        }
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(null, false), albumId);
         return result;
     }
     
     public Album getAlbumByPath(String path) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
-        Album result = null;
-        try {
-            result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(connection, null, false), path);
-        } finally {
-            DbUtils.closeQuietly(connection);
-        }
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(null, false), path);
         return result;
     }
    
     public List<Album> getAllAlbums() throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
-        List<Album> result = null;
-        try {
-            result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(connection, null, false));
-        } finally {
-            DbUtils.closeQuietly(connection);
+        List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(null, false));
+        for (Album album : result) {
+            this.fillPhotosCount(album, null, false);
         }
         return result;
     }
     
     public List<Album> getAlbums(String parentId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        try {
-            if (parentId == null) {
-                result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(connection, null, false));
-            } else {
-                result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(connection, null, false), parentId);
-            }
-        } finally {
-            DbUtils.closeQuietly(connection);
+        if (parentId == null) {
+            result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(null, false));
+        } else {
+            result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(null, false), parentId);
+        }
+        for (Album album : result) {
+            this.fillPhotosCount(album, null, false);
         }
         return result;
     }
 
     public List<Album> getVisibleAlbums(String token, String parentId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        try {
-            if (parentId == null) {
-                result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(connection, token, true), token);
-            } else {
-                result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(connection, token, true), parentId, token);
-            }
-        } finally {
-            DbUtils.closeQuietly(connection);
+        if (parentId == null) {
+            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(token, true), token);
+        } else {
+            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(token, true), parentId, token);
+        }
+        for (Album album : result) {
+            this.fillPhotosCount(album, token, true);
         }
         return result;
     }
@@ -405,16 +422,14 @@ public class AlbumDao {
     public List<Album> getVisibleAlbumsForLoggedUser(String parentId) throws SQLException {
         String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Connection connection = queryRunner.getDataSource().getConnection();
         List<Album> result;
-        try {
-            if (parentId == null) {
-                result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(connection, id, false), id);
-            } else {
-                result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(connection, id, false), parentId, id);
-            }
-        } finally {
-            DbUtils.closeQuietly(connection);
+        if (parentId == null) {
+            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(id, false), id);
+        } else {
+            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(id, false), parentId, id);
+        }
+        for (Album album : result) {
+            this.fillPhotosCount(album, id, false);
         }
         return result;
     }
@@ -496,62 +511,72 @@ public class AlbumDao {
         return result;
     }
     
-    protected RowProcessor getRowProcessor(final Connection connection, final String identifier, final boolean isToken) {
-        Map<String, String> map = new HashMap<>(6);
-        map.put("id", "id");
-        map.put("name", "name");
-        map.put("description", "description");
-        map.put("begin_date", "beginDate");
-        map.put("end_date", "endDate");
-        map.put("photos_count", "photosCount");
-        map.put("relative_path", "relativePath");
-        map.put("parent_id", "parentId");
-        map.put("public", "isPublic");
-        map.put("owner_id", "ownerId");
-        map.put("subAlbumsCount", "subAlbumsCount");
+    protected void fillPhotosCount(Album album, String identifier, boolean isToken) throws SQLException {
+        int count;
+        if (isToken) {
+            count = getVisiblePhotosCount(album.getId(), identifier);
+        } else if (identifier != null) {
+            count = getPhotosCountForLoggedUser(album.getId(), identifier);
+        } else {
+            count = getAllPhotosCount(album.getId());
+        }
+        album.setPhotosCount(count);
+    }
         
-        return new BasicRowProcessor(new BeanProcessor(map)) {
-            @Override
-            public <T> T toBean(ResultSet rs, Class<T> type) throws SQLException {
-                T result = super.toBean(rs, type);
-                if (result instanceof Album) {
-                    Album album = (Album) result;
-                    String url = "album/" + album.getId() + "-cover.jpg";
-                    if (identifier != null && isToken) {
-                        url += "?token=" + identifier;
-                    }
-                    album.setCoverUrl(url);
-                    int count;
-                    if (isToken) {
-                        count = getVisiblePhotosCount(album.getId(), identifier, connection);
-                    } else if (identifier != null) {
-                        count = getPhotosCountForLoggedUser(album.getId(), identifier, connection);
-                    } else {
-                        count = getAllPhotosCount(album.getId(), connection);
-                    }
-                    album.setPhotosCount(count);
-                }
-                return result;
+    protected void fillAlbumCoverUrl(Album album, String identifier, boolean isToken) {
+        String url = "album/" + album.getId() + "-cover.jpg";
+        if (identifier != null && isToken) {
+            url += "?token=" + identifier;
+        }
+        album.setCoverUrl(url);
+    }
+    
+    protected BeanHandler<Album> getBeanHandler(String identifier, boolean isToken) {
+        return new BeanHandler<>(Album.class, new BeanRowProcessor(identifier, isToken));
+    }
+    
+    protected BeanListHandler<Album> getBeanListHandler(String identifier, boolean isToken) {
+        return new BeanListHandler<>(Album.class, new BeanListRowProcessor(identifier, isToken));
+    }
+    
+    protected class BeanRowProcessor extends BasicRowProcessor {
+        
+        protected String identifier;
+        protected boolean isToken;
+        
+        public BeanRowProcessor(String identifier, boolean isToken) {
+            super(new BeanProcessor(columnsMapping));
+            this.identifier = identifier;
+            this.isToken = isToken;
+        }
+        
+        @Override
+        public <T> T toBean(ResultSet rs, Class<T> type) throws SQLException {
+            T result = super.toBean(rs, type);
+            if (result instanceof Album) {
+                fillAlbumCoverUrl((Album) result, identifier, isToken);
+                fillPhotosCount((Album) result, identifier, isToken);
             }
+            return result;
+        }
+        
+    }
+    
+    protected class BeanListRowProcessor extends BeanRowProcessor {
 
-            @Override
-            public <T> List<T> toBeanList(ResultSet rs, Class<T> type) throws SQLException {
-                List<T> result = new ArrayList<>();
-                while (rs.next()) {
-                    result.add(toBean(rs, type));
-                }
-                return result;
+        public BeanListRowProcessor(String identifier, boolean isToken) {
+            super(identifier, isToken);
+        }
+        
+        @Override
+        public <T> List<T> toBeanList(ResultSet rs, Class<T> type) throws SQLException {
+            List<T> result = super.toBeanList(rs, type);
+            for (T current : result) {
+                fillAlbumCoverUrl((Album) current, identifier, isToken);
             }
-            
-        };
-    }
-    
-    protected BeanHandler<Album> getBeanHandler(final Connection connection, final String identifier, final boolean isToken) {
-        return new BeanHandler<>(Album.class, getRowProcessor(connection, identifier, isToken));
-    }
-    
-    protected BeanListHandler<Album> getBeanListHandler(final Connection connection, final String identifier, final boolean isToken) {
-        return new BeanListHandler<>(Album.class, getRowProcessor(connection, identifier, isToken));
+            return result;
+        }
+        
     }
     
 }
