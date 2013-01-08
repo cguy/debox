@@ -61,7 +61,6 @@ public class UserDao {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
     protected static final RandomNumberGenerator GENERATOR = new SecureRandomNumberGenerator();
-    protected static String SQL_GET_USERS_COUNT = "SELECT count(id) FROM users";
     protected static String SQL_GET_ROLE_COUNT = "SELECT count(id) FROM roles";
     protected static String SQL_CREATE_USER = "INSERT INTO users (id, firstname, lastname) VALUES (?, ?, ?)";
     protected static String SQL_CREATE_USER_NO_ERRORS = "INSERT IGNORE INTO users (id) VALUES (?)";
@@ -164,26 +163,6 @@ public class UserDao {
             JdbcUtils.closeStatement(statement);
             JdbcUtils.closeConnection(connection);
         }
-    }
-
-    public int getUsersCount() throws SQLException {
-        int result = -1;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-
-            Connection connection = DatabaseUtils.getConnection();
-            statement = connection.prepareStatement(SQL_GET_USERS_COUNT);
-            resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                result = resultSet.getInt(1);
-            }
-
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
     }
 
     public void save(ThirdPartyAccount user) throws SQLException {

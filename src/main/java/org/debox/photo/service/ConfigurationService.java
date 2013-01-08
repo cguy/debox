@@ -29,21 +29,12 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.shiro.SecurityUtils;
-import org.debox.photo.dao.ConfigurationDao;
-import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
-import org.debox.photo.model.Role;
 import org.debox.photo.model.configuration.ThirdPartyConfiguration;
-import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionUtils;
-import org.debux.webmotion.server.mapping.Properties;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,57 +46,6 @@ public class ConfigurationService extends DeboxService {
     
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
-    // TODO Fix this method
-    public Render initConfiguration(Properties applicationProperties) throws ConfigurationException {
-        CompositeConfiguration configuration = (CompositeConfiguration) applicationProperties.getConfiguration();
-        final org.apache.commons.configuration.Configuration deboxConfiguration = configuration.getConfiguration(0);
-        
-        String userConfigurationPath = WebMotionUtils.getUserConfigurationPath();
-        String fileNameUser = userConfigurationPath + File.separator + "debox.properties";
-        
-        PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration(fileNameUser);
-        propertiesConfiguration.append(deboxConfiguration);
-        propertiesConfiguration.save();
-        
-        try {
-            UserDao userDao = new UserDao();
-            int roleCount = userDao.getRoleCount();
-            int userCount = userDao.getUsersCount();
-            
-            Role role = null;
-            if (roleCount == 0) {
-                role = new Role();
-                role.setId(StringUtils.randomUUID());
-                role.setName("user");
-                userDao.save(role);
-
-                role = new Role();
-                role.setId(StringUtils.randomUUID());
-                role.setName("administrator");
-                userDao.save(role);
-            }
-            
-            if (userCount == 0) {
-                DeboxUser admin = new DeboxUser();
-                admin.setId(StringUtils.randomUUID());
-                admin.setUsername("corentin.guy@debox.fr");
-                admin.setPassword("password");
-                userDao.save(admin, role);
-            }
-            
-            ConfigurationDao configurationDao = new ConfigurationDao();
-            Configuration appConfiguration = configurationDao.getOverallConfiguration();
-            if (StringUtils.isEmpty(appConfiguration.get(org.debox.photo.model.Configuration.Key.TITLE))) {
-                appConfiguration.set(org.debox.photo.model.Configuration.Key.TITLE, "Galerie photo");
-                configurationDao.save(appConfiguration);
-            }
-        } catch (SQLException ex) {
-            logger.error("Unable to access database", ex);
-        }
-        
-        return null;
-    }
-    
     public Render getConfiguration() {
         Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         
