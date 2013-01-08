@@ -20,7 +20,7 @@
  */
 package org.debox.photo.server;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mchange.v2.c3p0.DataSources;
 import java.io.File;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.sql.DataSource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.debox.photo.util.DatabaseUtils;
@@ -64,9 +65,10 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         logger.info("Destroying web context");
-        ComboPooledDataSource dataSource = DatabaseUtils.getDataSource();
-        if (dataSource != null) {
-            dataSource.close();
+        try {
+            DataSources.destroy(DatabaseUtils.getDataSource());
+        } catch (SQLException ex) {
+            logger.error("Unable to destroy datasource", ex.getMessage());
         }
         
         Enumeration<Driver> drivers = DriverManager.getDrivers();
