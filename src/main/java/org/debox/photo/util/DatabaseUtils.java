@@ -26,10 +26,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
-import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.JdbcMysqlRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class DatabaseUtils {
         boolean result = true;
         try (
             Connection connection = DatabaseUtils.getDataSource().getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT 1");
+            PreparedStatement statement = connection.prepareStatement(TEST_QUERY);
         ) {
             statement.executeQuery();
         } catch (SQLException ex) {
@@ -85,7 +85,7 @@ public class DatabaseUtils {
             try {
                 comboPooledDataSource = new ComboPooledDataSource();
                 comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
-
+                
                 String host = properties.getString(PROPERTY_DATABASE_HOST);
                 String port = properties.getString(PROPERTY_DATABASE_PORT);
                 String name = properties.getString(PROPERTY_DATABASE_NAME);
@@ -98,13 +98,16 @@ public class DatabaseUtils {
                 comboPooledDataSource.setPassword(password);
                 comboPooledDataSource.setIdleConnectionTestPeriod(300);
                 comboPooledDataSource.setPreferredTestQuery(TEST_QUERY);
+                comboPooledDataSource.setMinPoolSize(5);
+                comboPooledDataSource.setMaxPoolSize(20);
+                comboPooledDataSource.setInitialPoolSize(10);
 
                 connection = comboPooledDataSource.getConnection();
-
+                
             } catch (SQLException | PropertyVetoException ex) {
                 logger.error(ex.getMessage(), ex);
             } finally {
-                JdbcUtils.closeConnection(connection);
+                DbUtils.closeQuietly(connection);
             }
         }
         return comboPooledDataSource;
