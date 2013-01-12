@@ -23,23 +23,32 @@ package org.debox.photo.job;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.model.configuration.SynchronizationMode;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.AlbumDateReader;
+import org.debox.imaging.DefaultFileDateReader;
 import org.debox.imaging.ImageUtils;
 import org.debox.imaging.ThumbnailGenerator;
+import org.debox.mediainfo.MediaInfoWrapper;
+import org.debox.mediainfo.VideoMetadata;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.PhotoDao;
+import org.debox.photo.dao.VideoDao;
 import org.debox.photo.model.*;
 import org.debox.photo.util.FileUtils;
 import org.debox.photo.util.SessionUtils;
@@ -56,6 +65,8 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     
     protected static PhotoDao photoDao = new PhotoDao();
     protected static AlbumDao albumDao = new AlbumDao();
+    protected static VideoDao videoDao = new VideoDao();
+    
     protected AlbumDateReader albumDateReader;
     protected ForkJoinPool forkJoinPool = new ForkJoinPool();
     
@@ -65,6 +76,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
     
     protected Map<Album, Boolean> albums = new LinkedHashMap<>();
     protected Map<Photo, Boolean> photos = new LinkedHashMap<>();
+    protected Map<Video, Boolean> videos = new LinkedHashMap<>();
     
     protected SynchronizationMode mode;
     protected boolean forceCheckDates = false;
@@ -102,6 +114,11 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             List<Photo> existingPhotos = photoDao.getAll();
             for (Photo existing : existingPhotos) {
                 photos.put(existing, Boolean.FALSE);
+            }
+
+            List<Video> existingVideos = videoDao.getAll();
+            for (Video existing : existingVideos) {
+                videos.put(existing, Boolean.FALSE);
             }
 
             // Cleaning target path
@@ -256,59 +273,54 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
 
         return FileVisitResult.CONTINUE;
     }
+    
+    protected boolean isVideoThumbnail(Path path) {
+        File[] videoFiles = this.getAllFilesWithFilename(path);
+        return videoFiles != null && videoFiles.length > 1;
+    }
+    
+    protected File[] getAllFilesWithFilename(Path path) {
+        File file = path.toFile();
+        String filename = FilenameUtils.removeExtension(file.getName());
+        File directory = path.getParent().toFile();
+        
+        File[] videoFiles = directory.listFiles(getFilenameFilter(filename));
+        return videoFiles;
+    }
+    
+    protected FilenameFilter getFilenameFilter(final String refFilename) {
+        return new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(refFilename);
+            }
+        };
+    }
 
     @Override
     public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
         logger.info("File visited: {}", path);
 
         String mimeType = Files.probeContentType(path);
-        if (!ImageUtils.JPEG_MIME_TYPE.equals(mimeType)) {
-            logger.warn("Tried to process a non-jpeg image, mime-type was: {}", mimeType);
-            return FileVisitResult.CONTINUE;
-
-        } else if (aborted) {
+        if (aborted) {
             return FileVisitResult.TERMINATE;
-        }
+            
+        } else if (ImageUtils.JPEG_MIME_TYPE.equals(mimeType) && !this.isVideoThumbnail(path)) {
+            processPhotoFile(path);
 
-        // Increment photos count for parents, and search first parent
-        Album album = null;
-        for (Album current : albums.keySet()) {
-            String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
-            if (currentPathParent.equals(current.getRelativePath())) {
-                current.setPhotosCount(current.getPhotosCount() + 1);
-                album = current;
-            }
-        }
-        
-        Photo photo = new Photo();
-        photo.setId(StringUtils.randomUUID());
-        photo.setFilename(path.getFileName().toString());
-        photo.setTitle(path.getFileName().toString());
-        if (album != null) {
-            photo.setAlbumId(album.getId());
-            photo.setRelativePath(album.getRelativePath());
+        } else if (StringUtils.startsWith(mimeType, "video/")) {
+            processVideoFile(path);
+
         } else {
-            String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
-            photo.setRelativePath(File.separatorChar + userId);
-        }
-
-        for (Photo existing : photos.keySet()) {
-            if (existing.equals(photo)) {
-                photo.setId(existing.getId());
-                break;
-            }
+            logger.warn("Tried to process a non-jpeg image, mime-type was: {}", mimeType);
         }
         
-        photos.put(photo, Boolean.TRUE);
         return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFileFailed(Path path, IOException exception) throws IOException {
         logger.error("Error visiting file " + path.toString(), exception);
-        if (aborted) {
-            return FileVisitResult.TERMINATE;
-        }
         return FileVisitResult.CONTINUE;
     }
 
@@ -370,10 +382,49 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             Pair<List<Album>, List<Photo>> modifiedLists = forkJoinPool.invoke(albumDateReader);
             albumDao.save(modifiedLists.getLeft());
             photoDao.save(modifiedLists.getRight());
+            
+            // Video processing
+            List<Video> existingVideos = videoDao.getAll();
+            List<Video> videosToSave = new ArrayList<>();
+            List<Video> videosToDelete = new ArrayList<>();
+            
+            for (Entry<Video, Boolean> entry : videos.entrySet()) {
+                Video video = entry.getKey();
+                Path oggPath = Paths.get(ImageUtils.getOggSourcePath(video));
+                Path h264Path = Paths.get(ImageUtils.getH264SourcePath(video));
+                Path webmPath = Paths.get(ImageUtils.getWebMSourcePath(video));
+
+                Path oggTargetPath = Paths.get(ImageUtils.getOggThumbnailPath(video));
+                Path h264TargetPath = Paths.get(ImageUtils.getH264ThumbnailPath(video));
+                Path webmTargetPath = Paths.get(ImageUtils.getWebMThumbnailPath(video));
+
+                if (entry.getValue()) {
+                    Files.createSymbolicLink(oggTargetPath, oggPath);
+                    Files.createSymbolicLink(h264TargetPath, h264Path);
+                    Files.createSymbolicLink(webmTargetPath, webmPath);
+                    
+                    if (!existingVideos.contains(video) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
+                        ThumbnailGenerator processor = new ThumbnailGenerator(video, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
+                        Future future = threadPool.submit(processor);
+                        imageProcesses.add(future);
+                    }
+                    
+                    videosToSave.add(video);
+                } else {
+                    Files.deleteIfExists(oggTargetPath);
+                    Files.deleteIfExists(h264TargetPath);
+                    Files.deleteIfExists(webmTargetPath);
+                    videosToDelete.add(video);
+                }
+            }
+            
+            videoDao.delete(videosToDelete);
+            videoDao.save(videosToSave);
 
             // Ensure clear
             albums.clear();
             photos.clear();
+            videos.clear();
             
             memoryProcessing = false;
             
@@ -383,6 +434,121 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         }
 
         return FileVisitResult.TERMINATE;
+    }
+
+    protected void processPhotoFile(Path path) {
+        // Increment photos count for parents, and search first parent
+        Album album = null;
+        for (Album current : albums.keySet()) {
+            String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
+            if (currentPathParent.equals(current.getRelativePath())) {
+                current.setPhotosCount(current.getPhotosCount() + 1);
+                album = current;
+            }
+        }
+        
+        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        
+        Photo photo = new Photo();
+        photo.setId(StringUtils.randomUUID());
+        photo.setOwnerId(userId);
+        photo.setFilename(path.getFileName().toString());
+        photo.setTitle(path.getFileName().toString());
+        if (album != null) {
+            photo.setAlbumId(album.getId());
+            photo.setRelativePath(album.getRelativePath());
+        } else {
+            photo.setRelativePath(File.separatorChar + userId);
+        }
+
+        for (Photo existing : photos.keySet()) {
+            if (existing.equals(photo)) {
+                photo.setId(existing.getId());
+                break;
+            }
+        }
+        
+        photos.put(photo, Boolean.TRUE);
+    }
+
+    protected void processVideoFile(Path path) {
+        // Increment photos count for parents, and search first parent
+        Album album = null;
+        for (Album current : albums.keySet()) {
+            String currentPathParent = StringUtils.substringAfter(path.getParent().toString(), this.source.toString());
+            if (currentPathParent.equals(current.getRelativePath())) {
+                album = current;
+            }
+        }
+        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        
+        MediaInfoWrapper mediaInfoWrapper = new MediaInfoWrapper(path);
+        VideoMetadata videoMetadata = mediaInfoWrapper.getMetadata();
+        
+        Video video = new Video();
+        video.setId(StringUtils.randomUUID());
+        video.setFilename(FilenameUtils.removeExtension(path.getFileName().toString()));
+        if (album != null) {
+            video.setAlbumId(album.getId());
+            video.setRelativePath(album.getRelativePath());
+        } else {
+            video.setRelativePath(File.separatorChar + userId);
+        }
+        
+        boolean alreadyExists = false;
+        for (Video existing : videos.keySet()) {
+            if (existing.equals(video)) {
+                video.setId(existing.getId());
+                alreadyExists = true;
+                break;
+            }
+        }
+        
+        if (alreadyExists) {
+            return;
+        }
+        
+        if (album != null) {
+            album.setVideosCount(album.getVideosCount() + 1);
+        }
+        
+        File[] files = this.getAllFilesWithFilename(path);
+        for (File file : files) {
+            String contentType = null;
+            try {
+                contentType = Files.probeContentType(file.toPath());
+            } catch (IOException ex) {
+                logger.error("Unable to get content type of path: {}", path.toString(), ex);
+            }
+            if (contentType == null) {
+                String extension = FilenameUtils.getExtension(file.getName());
+                contentType = FileUtils.getMimeType(extension);
+            }
+            switch (contentType) {
+                case ImageUtils.JPEG_MIME_TYPE:
+                    video.setThumbnail(true);
+                    break;
+                case FileUtils.MIMETYPE_VIDEO_H264:
+                    video.setSupportsH264(true);
+                    break;
+                case FileUtils.MIMETYPE_VIDEO_OGG:
+                    video.setSupportsOgg(true);
+                    break;
+                case FileUtils.MIMETYPE_VIDEO_WEB_M:
+                    video.setSupportsWebM(true);
+                    break;
+            }
+        }
+        
+        video.setOwnerId(userId);
+        video.setTitle(path.getFileName().toString());
+
+        Date encodedDate = videoMetadata.getEncodedDate();
+        if (encodedDate == null) {
+            encodedDate = new DefaultFileDateReader().getShootingDate(path);
+        }
+        video.setDate(encodedDate);
+        videos.put(video, Boolean.TRUE);
     }
 
 }

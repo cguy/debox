@@ -20,55 +20,31 @@
  */
 package org.debox.photo.model;
 
-import java.io.File;
-import java.util.Date;
-import java.util.Objects;
+import org.debox.photo.model.configuration.ThumbnailSize;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Photo implements Comparable<Photo> {
+public class Photo extends Media {
 
-    protected String id;
-    protected String filename;
-    protected String title;
-    protected String relativePath;
-    protected String albumId;
-    protected String thumbnailUrl;
+    protected static final String type = "photo";
+    protected static final boolean isPhoto = true;
+    
     protected String url;
-    protected Date date;
-    protected String ownerId;
-
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    
+    public void computeAccessUrl(String token) {
+        String baseUrl = "photo/" + this.getId() + ".jpg";
+        char separator = '?'; 
+        if (token != null) {
+            baseUrl += "?token=" + token;
+            separator = '&';
+        }
+        this.setThumbnailUrl(baseUrl + separator + "size=" + ThumbnailSize.SQUARE.getLowerCaseName());
+        this.setUrl(baseUrl + separator + "size=" + ThumbnailSize.LARGE.getLowerCaseName());
     }
     
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public boolean isPhoto() {
+        return isPhoto;
     }
 
     public String getUrl() {
@@ -77,60 +53,6 @@ public class Photo implements Comparable<Photo> {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-    
-    public String getAlbumId() {
-        return albumId;
-    }
-
-    public void setAlbumId(String albumId) {
-        this.albumId = albumId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public String getRelativePath() {
-        return relativePath;
-    }
-
-    public void setRelativePath(String relativePath) {
-        this.relativePath = relativePath;
-    }
-    
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        } 
-        if (object instanceof Photo) {
-            Photo photo = (Photo) object; 
-            return Objects.equals(this.relativePath + File.separatorChar + this.getFilename(), photo.getRelativePath() + File.separatorChar + photo.getFilename());
-        } 
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.relativePath);
-    }
-
-    @Override
-    public int compareTo(Photo photo) {
-        return this.getFilename().compareToIgnoreCase(photo.getFilename());
     }
     
 }

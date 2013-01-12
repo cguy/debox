@@ -108,7 +108,7 @@ function loadSlideshow(context, mode) {
                 loadAlbum(data, function() {
                     albumLoaded();
                     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
-                    fullscreen(index, data.photos, mode);
+                    fullscreen(index, data.medias, mode);
                 });
             }
         });
@@ -117,13 +117,7 @@ function loadSlideshow(context, mode) {
         var photos = $(".photos a.thumbnail");
         for (var i = 0 ; i < photos.length ; i++) {
             var photo = $(photos[i]);
-            slideshowData.push({
-                "date": photo.attr("data-date"),
-                "id" : photo.attr("data-id"),
-                "title" : photo.attr("data-title"),
-                "thumbnail": photo.attr("data-thumbnail"),
-                "url" : photo.attr("data-url")
-            });
+            slideshowData.push(photo.data());
         }
         fullscreen(index, slideshowData, mode);
                 
@@ -201,6 +195,7 @@ app.get('#/album/([a-zA-Z0-9-_]*)', function() {
         ajax({
             url: computeUrl("album/" + id),
             success: function(data) {
+                console.log(data);
                 loadAlbum(data, albumLoaded);
             }
         });

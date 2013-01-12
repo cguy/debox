@@ -26,13 +26,26 @@ package org.debox.photo.model.configuration;
 public enum ThumbnailSize {
     
     SQUARE ("s_", 190, 190, true),
-    
-    LARGE ("l_", 1920, 1200);
+    LARGE ("l_", 1920, 1200),
+    ORIGINAL;
     
     protected String prefix;
     protected int width;
     protected int height;
     protected boolean cropped;
+    
+    public static ThumbnailSize byName(String name) {
+        for (ThumbnailSize size : ThumbnailSize.values()) {
+            if (size.name().toLowerCase().equals(name)) {
+                return size;
+            }
+        }
+        return null;
+    }
+    
+    private ThumbnailSize() {
+        this(null, -1, -1, false);
+    }
     
     private ThumbnailSize(String prefix, int width, int height) {
         this(prefix, width, height, false);
@@ -43,6 +56,10 @@ public enum ThumbnailSize {
         this.width = width;
         this.height = height;
         this.cropped = cropped;
+    }
+    
+    public String getLowerCaseName() {
+        return this.name().toLowerCase();
     }
 
     public int getWidth() {

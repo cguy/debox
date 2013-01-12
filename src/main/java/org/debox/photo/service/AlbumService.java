@@ -46,18 +46,22 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
+import org.debox.photo.dao.VideoDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Comment;
+import org.debox.photo.model.Datable;
 import org.debox.photo.model.user.Contact;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Provider;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.model.Token;
+import org.debox.photo.model.Video;
 import org.debox.photo.model.user.User;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.photo.util.DatableComparator;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
@@ -75,9 +79,11 @@ public class AlbumService extends DeboxService {
     protected static AlbumDao albumDao = new AlbumDao();
     protected static CommentDao commentDao = new CommentDao();
     protected static TokenDao tokenDao = new TokenDao();
+    protected static VideoDao videoDao = new VideoDao();
+    protected static UserDao userDao = new UserDao();
+    
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
-    protected UserDao userDao = new UserDao();
     
     public Render createAlbum(String albumName, String parentId) throws SQLException {
         if (StringUtils.isEmpty(albumName)) {
@@ -91,9 +97,8 @@ public class AlbumService extends DeboxService {
         album.setDownloadable(false);
         album.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
         
-        String relativePathPrefix = File.separatorChar + album.getOwnerId();
         if (StringUtils.isEmpty(parentId)) {
-            album.setRelativePath(relativePathPrefix + File.separatorChar + album.getName());
+            album.setRelativePath(File.separatorChar + album.getName());
             
         } else {
             Album parent = albumDao.getAlbum(parentId);
@@ -101,7 +106,7 @@ public class AlbumService extends DeboxService {
                 return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is not any album with id " + parentId);
             }
             album.setParentId(parentId);
-            album.setRelativePath(relativePathPrefix + parent.getRelativePath() + File.separatorChar + album.getName());
+            album.setRelativePath(parent.getRelativePath() + File.separatorChar + album.getName());
         }
         
         Album existingAtPath = albumDao.getAlbumByPath(album.getRelativePath());
@@ -234,6 +239,13 @@ public class AlbumService extends DeboxService {
         
         List<Album> subAlbums = this.albums(album.getId(), token);
         List<Photo> photos = photoDao.getPhotos(id, token);
+        List<Video> videos = videoDao.getVideos(id, token);
+        List<Datable> medias = new ArrayList<>(photos.size() + videos.size());
+        medias.addAll(photos);
+        medias.addAll(videos);
+        
+        Collections.sort(medias, new DatableComparator());
+        
         Album parent = albumDao.getAlbum(album.getParentId());
         List<Comment> comments = null;
         if (isAdministrator || isLogged) {
@@ -241,7 +253,7 @@ public class AlbumService extends DeboxService {
         }
         
         return renderJSON("album", album, "albumParent", parent,
-                "subAlbums", subAlbums, "photos", photos,
+                "subAlbums", subAlbums, "medias", medias,
                 "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts, "comments", comments);
     }
     

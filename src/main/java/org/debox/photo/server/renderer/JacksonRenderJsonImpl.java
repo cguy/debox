@@ -30,10 +30,14 @@ import org.debux.webmotion.server.call.Call;
 import org.debux.webmotion.server.call.HttpContext;
 import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JacksonRenderJsonImpl extends Render {
+    
+    private static final Logger log = LoggerFactory.getLogger(JacksonRenderJsonImpl.class);
+    
     protected Map<String, Object> model;
-
     protected static ObjectMapper objectMapper = new ObjectMapper();
     
     public JacksonRenderJsonImpl(Map<String, Object> model) {
@@ -57,7 +61,7 @@ public class JacksonRenderJsonImpl extends Render {
         } else {
             json = objectMapper.writeValueAsString(model);
         }
-        
+
         PrintWriter out = context.getOut();
         out.print(json);
     }

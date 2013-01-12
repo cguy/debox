@@ -20,7 +20,6 @@
  */
 package org.debox.photo.service;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
@@ -35,16 +34,15 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
-import org.debux.webmotion.server.render.RenderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class PhotoService extends DeboxService {
+public class PhotoService extends MediaService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PhotoService.class);
+    private static final Logger log = LoggerFactory.getLogger(PhotoService.class);
     
     protected static AlbumDao albumDao = new AlbumDao();
     
@@ -90,63 +88,10 @@ public class PhotoService extends DeboxService {
             }
             
         } catch (SQLException | IOException ex) {
-            logger.error("Unable to delete photo (original file: " + originalPath + ")", ex);
+            log.error("Unable to delete photo (original file: " + originalPath + ")", ex);
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "An error has occured during deletion");
         }
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
-    public Render getThumbnail(String token, String photoId) throws IOException, SQLException {
-        photoId = StringUtils.substringBeforeLast(photoId, ".jpg");
-        
-        Photo photo;
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            photo = photoDao.getPhoto(photoId);
-        } else {
-            photo = photoDao.getVisiblePhoto(token, photoId);
-        }
-        if (photo == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        FileInputStream fis = null;
-        try {
-            fis = ImageUtils.getStream(photo, ThumbnailSize.SQUARE);
-            RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.SQUARE);
-            if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                return status;
-            }
-            
-        } catch (Exception ex) {
-            logger.error("Unable to get stream", ex);
-        }
-        return renderStream(fis, "image/jpeg");
-    }
-
-    public Render getPhotoStream(String token, String photoId) throws IOException, SQLException {
-        photoId = StringUtils.substringBeforeLast(photoId, ".jpg");       
-        
-        Photo photo;
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            photo = photoDao.getPhoto(photoId);
-        } else {
-            photo = photoDao.getVisiblePhoto(token, photoId);
-        }
-
-        if (photo == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        FileInputStream fis = null;
-        try {
-            fis = ImageUtils.getStream(photo, ThumbnailSize.LARGE);
-            RenderStatus status = handleLastModifiedHeader(photo, ThumbnailSize.LARGE);
-            if (status.getCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                return status;
-            }
-            
-        } catch (Exception ex) {
-            logger.error("Unable to get stream", ex);
-        }
-        return renderStream(fis, "image/jpeg");
-    }
-
 }

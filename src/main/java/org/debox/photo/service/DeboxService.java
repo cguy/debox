@@ -34,6 +34,7 @@ import java.util.Map;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
@@ -56,6 +57,10 @@ public class DeboxService extends WebMotionController {
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
+    public Render renderNotFound() {
+        return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+    }
+    
     @Override
     public Render renderJSON(Object... model) {
         return new JacksonRenderJsonImpl(toMap(model));
@@ -72,13 +77,13 @@ public class DeboxService extends WebMotionController {
         return super.toMap(model);
     }
 
-    protected RenderStatus handleLastModifiedHeader(Photo photo, ThumbnailSize size) {
+    protected RenderStatus handleLastModifiedHeader(Media media, ThumbnailSize size) {
         try {
-            long lastModified = photoDao.getGenerationTime(photo.getId(), size);
+            long lastModified = photoDao.getGenerationTime(media.getId(), size);
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
 
             if (lastModified == -1) {
-                String strPath = ImageUtils.getThumbnailPath(photo, size);
+                String strPath = ImageUtils.getThumbnailPath(media, size);
                 Path path = Paths.get(strPath);
 
                 try {
@@ -86,13 +91,13 @@ public class DeboxService extends WebMotionController {
                     FileTime lastModifiedTimeAttribute = attributes.lastModifiedTime();
 
                     lastModified = lastModifiedTimeAttribute.toMillis();
-                    photoDao.savePhotoGenerationTime(photo.getId(), size, lastModified);
+                    photoDao.savePhotoGenerationTime(media.getId(), size, lastModified);
 
                 } catch (IOException ioe) {
                     logger.error("Unable to access last modified property from file: " + strPath, ioe);
                 }
 
-                logger.warn("Get -1 value for photo " + photo.getFilename() + " and size " + size.name());
+                logger.warn("Get -1 value for photo " + media.getFilename() + " and size " + size.name());
             }
 
             if (lastModified != -1) {

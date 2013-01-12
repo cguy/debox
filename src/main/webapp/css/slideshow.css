@@ -53,7 +53,7 @@ body.fixed #fullscreenContainer {
     position: absolute;
 }
 
-#fullscreenContainer_photos img {
+#fullscreenContainer_photos > * {
     background: url('../img/camera-loader.gif') center center no-repeat #fff;
     position: absolute;
     display: block;
@@ -66,7 +66,6 @@ body.fixed #fullscreenContainer {
     max-height: 88%;
     max-width: 80%;
     border: 5px solid #fafafa;
-    border-radius: 2px;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
     -ms-transition: all .5s ease;
@@ -74,17 +73,21 @@ body.fixed #fullscreenContainer {
     transition: all .5s ease;
 }
 
-#fullscreenContainer_photos img.undisplayed {
+#fullscreenContainer_photos > video {
+    border: none;
+}
+
+#fullscreenContainer_photos > *.undisplayed {
     display: none;
 }
 
-#fullscreenContainer_photos img.previous {
+#fullscreenContainer_photos > *.previous {
     position: absolute;
     right: 67%;
     left: auto;
 }
 
-#fullscreenContainer_photos img.next {
+#fullscreenContainer_photos > *.next {
     position: absolute;
     left: 67%;
     right: auto;
@@ -94,7 +97,7 @@ body.fixed #fullscreenContainer {
     position: absolute;
     top:50px;
     bottom: 50px;
-    width: 50%;
+    width: 50px;
     padding: 20px;
     color: #888;
     font-size: 32px;

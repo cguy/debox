@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -43,6 +44,47 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * Default permissions for created directories and files, corresponding with 775 digit value.
      */
     public static final FileAttribute PERMISSIONS = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwx---"));
+    
+    /**
+     * Mime-Type for Ogg videos.
+     */
+    public static final String MIMETYPE_VIDEO_OGG = "video/ogg";
+    
+    /**
+     * Mime-Type for WebM videos.
+     */
+    public static final String MIMETYPE_VIDEO_WEB_M = "video/webm";
+    
+    /**
+     * Mime-Type for H264 videos.
+     */
+    public static final String MIMETYPE_VIDEO_H264 = "video/mp4";
+    
+    /**
+     * Default extension for Ogg video.
+     */
+    public static final String DEFAULT_EXT_VIDEO_OGG = "ogv";
+    
+    /**
+     * Default extension for H264 video.
+     */
+    public static final String DEFAULT_EXT_VIDEO_H264 = "mp4";
+    
+    /**
+     * Default extension for WebM video.
+     */
+    public static final String DEFAULT_EXT_VIDEO_WEB_M = "webm";
+    
+    protected static final Map<String, String> supportedVideos = new HashMap<>();
+    static {
+        supportedVideos.put(DEFAULT_EXT_VIDEO_OGG, MIMETYPE_VIDEO_OGG);
+        supportedVideos.put(DEFAULT_EXT_VIDEO_H264, MIMETYPE_VIDEO_H264);
+        supportedVideos.put(DEFAULT_EXT_VIDEO_WEB_M, MIMETYPE_VIDEO_WEB_M);
+    }
+    
+    public static String getMimeType(String extension) {
+        return supportedVideos.get(extension);
+    }
     
     public static void createDirectories(Path path) throws IOException {
         try {

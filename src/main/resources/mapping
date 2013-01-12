@@ -33,11 +33,11 @@ org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAut
 GET,POST    /settings                               AdministrationFilter.checkUserAuthentication
 
 GET,POST    /configuration                          AdministrationFilter.checkUserSession
-GET,POST    /accounts/*                              AdministrationFilter.checkUserAuthentication
-POST        /accounts/*/settings                     AdministrationFilter.checkUserAuthentication
+GET,POST    /accounts/*                             AdministrationFilter.checkUserAuthentication
+POST        /accounts/*/settings                    AdministrationFilter.checkUserAuthentication
 
-GET         /accounts/*/tokens                                 AdministrationFilter.checkUserAuthentication
-PUT,POST    /accounts/*/token                                  AdministrationFilter.checkUserAuthentication
+GET         /accounts/*/tokens                      AdministrationFilter.checkUserAuthentication
+PUT,POST    /accounts/*/token                       AdministrationFilter.checkUserAuthentication
 *           /token/*                                AdministrationFilter.checkUserAuthentication
 
 *           /administration/*                       AdministrationFilter.checkUserSession
@@ -131,8 +131,9 @@ DELETE /comment/{commentId}                      CommentService.deleteComment
 # -----------------------------------------------------------------------------------------------
 GET   /album/{albumId:.+-cover\.jpg}            AlbumService.getAlbumCover
 POST  /album/{albumId}/cover                    AlbumService.setAlbumCover
-GET   /thumbnail/{photoId:.+\.jpg}              PhotoService.getThumbnail
-GET   /photo/{photoId:.+\.jpg}                  PhotoService.getPhotoStream
+GET   /photo/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
+GET   /video/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
+GET   /video/{filename}                         VideoService.getVideoStream
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS

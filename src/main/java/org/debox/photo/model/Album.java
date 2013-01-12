@@ -34,6 +34,7 @@ public class Album implements Comparable<Album> {
     protected Date beginDate;
     protected Date endDate;
     protected int photosCount;
+    protected int videosCount;
     protected String relativePath;
     protected String parentId;
     protected String coverUrl;
@@ -146,6 +147,14 @@ public class Album implements Comparable<Album> {
         this.isPublic = isPublic;
     }
 
+    public int getVideosCount() {
+        return videosCount;
+    }
+
+    public void setVideosCount(int videosCount) {
+        this.videosCount = videosCount;
+    }
+    
     @Override
     public boolean equals(Object object) {
         if (object == this) {

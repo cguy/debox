@@ -1,7 +1,16 @@
 <div id="fullscreenContainer">
     <div id="fullscreenContainer_photos">
         {{#data}}
-        <img id="{{id}}" src="{{url}}" class="undisplayed" />
+            {{#photo}}
+                <img id="{{id}}" src="{{url}}" class="undisplayed" />
+            {{/photo}}
+            {{#video}}
+            <video id="{{id}}" class="undisplayed" controls preload="none" poster="{{thumbnailurl}}">
+                {{#oggurl}}<source src="{{oggurl}}" type="video/ogg"/>{{/oggurl}}
+                {{#webmurl}}<source src="{{webmurl}}" type="video/webm" />{{/webmurl}}
+                {{#h264url}}<source src="{{h264url}}" type="video/mp4" />{{/h264url}}
+            </video>
+            {{/video}}
         {{/data}}
     </div>
     <a id="slideshow-previous"><i class="icon-chevron-left"></i></a>

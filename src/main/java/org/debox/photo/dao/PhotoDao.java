@@ -204,15 +204,7 @@ public class PhotoDao {
                 T result = super.toBean(rs, type);
                 if (result instanceof Photo) {
                     Photo photo = (Photo) result;
-                    String thumbnail = "thumbnail/" + photo.getId() + ".jpg";
-                    String url = "photo/" + photo.getId() + ".jpg";
-
-                    if (token != null) {
-                        thumbnail += "?token=" + token;
-                        url += "?token=" + token;
-                    }
-                    photo.setThumbnailUrl(thumbnail);
-                    photo.setUrl(url);
+                    photo.computeAccessUrl(token);
                 }
                 return result;
             }

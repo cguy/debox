@@ -28,6 +28,8 @@ var fr = {
         back2home: "Retour à l'accueil",
         photo: "photo",
         photos: "photos",
+        video: "vidéo",
+        videos: "vidéos",
         "public": "Public",
         "private": "Privé",
         cancel: "Annuler",

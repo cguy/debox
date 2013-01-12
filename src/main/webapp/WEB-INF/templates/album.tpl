@@ -16,7 +16,7 @@
     </a>
     {{/config.authenticated}}
 
-    {{#photos.length}}{{#album.downloadable}}
+    {{#medias.length}}{{#album.downloadable}}
     <div class="dropdown pull-right">
         <a href="#" data-placement="bottom" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
         <ul class="dropdown-menu">
@@ -24,33 +24,33 @@
             <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>
         </ul>
     </div>
-    {{/album.downloadable}}{{/photos.length}}
+    {{/album.downloadable}}{{/medias.length}}
     <h1 id="{{album.id}}">
         {{album.name}}
     </h1>
     <div class="information">
         {{#album.photosCount}}
-        {{album.photosCount}}
-        {{#album.hasSeveralTotalPhotos}}
-        {{i18n.common.photos}}
-        {{/album.hasSeveralTotalPhotos}}
-        {{^album.hasSeveralTotalPhotos}}
-        {{i18n.common.photo}}
-        {{/album.hasSeveralTotalPhotos}}
+            {{album.photosCount}}
+            {{#album.hasSeveralTotalPhotos}}
+                {{i18n.common.photos}}
+            {{/album.hasSeveralTotalPhotos}}
+            {{^album.hasSeveralTotalPhotos}}
+                {{i18n.common.photo}}
+            {{/album.hasSeveralTotalPhotos}}
 
-        {{#album.beginDate}}
-        {{#album.isInterval}}
-        {{#album.endDate}}
-        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
-        {{/album.endDate}}
-        {{/album.isInterval}}
-        {{^album.isInterval}}
-        {{i18n.album.on_date}} {{album.beginDate}}
-        {{/album.isInterval}}
-        {{/album.beginDate}}
+            {{#album.beginDate}}
+                {{#album.isInterval}}
+                    {{#album.endDate}}
+                        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
+                    {{/album.endDate}}
+                {{/album.isInterval}}
+                {{^album.isInterval}}
+                    {{i18n.album.on_date}} {{album.beginDate}}
+                {{/album.isInterval}}
+            {{/album.beginDate}}
         {{/album.photosCount}}
         {{^album.photosCount}}
-        {{i18n.common.noPhotos}}
+            {{i18n.common.noPhotos}}
         {{/album.photosCount}}
     </div>
 </div>
@@ -84,7 +84,7 @@
 
     <div id="photos">
         {{#subAlbums.length}}
-        {{#photos.length}}<h2>{{i18n.album.subalbums}}</h2>{{/photos.length}}
+        {{#medias.length}}<h2>{{i18n.album.subalbums}}</h2>{{/medias.length}}
         <ul class="thumbnails albums">
             {{#subAlbums}}
             <li>
@@ -97,10 +97,19 @@
                             <i class="icon-calendar"></i>
                             {{beginDate}}
                         </span>
-                        <span class="count">
-                            <i class="icon-picture"></i> {{photosCount}}
-                                {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
-                                {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
+                        {{#videosCount}}
+                        <span class="videos count">
+                            {{videosCount}}
+                            {{#hasSeveralTotalVideos}}{{i18n.common.videos}}{{/hasSeveralTotalVideos}}
+                            {{^hasSeveralTotalVideos}}{{i18n.common.video}}{{/hasSeveralTotalVideos}}
+                            <i class="icon-film"></i>
+                        </span>
+                        {{/videosCount}}
+                        <span class="photos count">
+                            {{photosCount}}
+                            {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
+                            {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
+                            <i class="icon-picture"></i>
                         </span>
                     </span>
                 </a>
@@ -108,24 +117,24 @@
             {{/subAlbums}}
         </ul>
         {{/subAlbums.length}}
-        {{#photos.length}}
+        {{#medias.length}}
         {{#subAlbums.length}}
-        <h2>{{photos.length}} 
+        <h2>{{medias.length}} 
             {{#album.hasSeveralPhotos}}{{i18n.common.photos}}{{/album.hasSeveralPhotos}}
             {{^album.hasSeveralPhotos}}{{i18n.common.photo}}{{/album.hasSeveralPhotos}}
         </h2>{{/subAlbums.length}}
-        {{> album.photos}}
-        {{/photos.length}}
+        {{> album.medias}}
+        {{/medias.length}}
 
         {{^subAlbums}}
-        {{^photos}}
+        {{^medias}}
         <p class="alert alert-danger">{{i18n.album.no_photos}}</p>
-        {{/photos}}
+        {{/medias}}
         {{/subAlbums}}
     </div>
 
     {{> administration.album.cover}}
-    {{> administration.album.photos}}
+    {{> administration.album.medias}}
 
 </div>
 <a id="top"></a>

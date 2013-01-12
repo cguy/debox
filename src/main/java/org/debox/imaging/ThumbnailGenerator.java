@@ -21,10 +21,12 @@
 package org.debox.imaging;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.tuple.Pair;
-import org.debox.photo.model.Photo;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,31 +37,32 @@ import org.slf4j.LoggerFactory;
 public class ThumbnailGenerator implements Callable<Pair<String, FileInputStream>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ThumbnailGenerator.class);
-    protected Photo photo;
+    protected Media media;
     protected ThumbnailSize[] sizes;
 
-    public ThumbnailGenerator(Photo photo, ThumbnailSize... sizes) {
-        this.photo = photo;
+    public ThumbnailGenerator(Media media, ThumbnailSize... sizes) {
+        this.media = media;
         this.sizes = sizes;
     }
 
     @Override
     public Pair<String, FileInputStream> call() throws Exception {
         Pair<String, FileInputStream> result = null;
-        String sourcePath = ImageUtils.getSourcePath(photo);
+        String sourcePath = ImageUtils.getSourcePath(media);
+        
         try {
             // Sort thumbnails size (desc) to optimize image processing (use bigger image to create thumbnail, but not the huge original)
             Arrays.sort(sizes, new ThumbnailSize.Comparator());
             for (ThumbnailSize size : sizes) {
-                String photoTargetPath = ImageUtils.getThumbnailPath(photo, size);
-                ImageUtils.thumbnail(sourcePath, photoTargetPath, size);
-                sourcePath = photoTargetPath;
+                String thumbnailPath = ImageUtils.getThumbnailPath(media, size);
+                ImageUtils.thumbnail(sourcePath, thumbnailPath, size);
+                sourcePath = thumbnailPath;
             }
             // If only one size was requested, we return the corresponding stream
             if (sizes.length == 1) {
                 result = Pair.of(sourcePath, new FileInputStream(sourcePath));
             }
-        } catch (Exception ex) {
+        } catch (SQLException | FileNotFoundException ex) {
             logger.error(ex.getMessage(), ex);
         }
         return result;

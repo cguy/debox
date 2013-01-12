@@ -52,13 +52,14 @@ public class ConfigurationFilter extends WebMotionFilter {
             synchronized (lock) {
                 final Mapping mapping = getContext().getServerContext().getMapping();
                 // Load properties
-                properties = mapping.getProperties();
-                DatabaseUtils.setDataSourceConfiguration(properties);
+                Properties loadedProperties = mapping.getProperties();
+                DatabaseUtils.setDataSourceConfiguration(loadedProperties);
 
                 // Test database configuration
                 if (DatabaseUtils.hasConfiguration() && DatabaseUtils.testConnection()) {
                     DatabaseUtils.applyDatasourceToShiro();
                     ApplicationContext.setConfigured(true);
+                    properties = loadedProperties;
                 }
             }
         }

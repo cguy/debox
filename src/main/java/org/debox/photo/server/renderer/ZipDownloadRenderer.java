@@ -65,9 +65,9 @@ public class ZipDownloadRenderer extends Render {
         response.setContentLength((int) FileUtils.getSize(directory, names));
         response.setHeader("Content-Transfer-Encoding", "application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".zip\"");
-        FileUtils.zipDirectoryContent(response.getOutputStream(), directory, names);
 
         try (ServletOutputStream out = response.getOutputStream()) {
+            FileUtils.zipDirectoryContent(out, directory, names);
             out.flush();
         }
     }

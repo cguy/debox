@@ -26,6 +26,14 @@ $.getDocHeight = function() {
             document.documentElement.clientHeight
             );
 };
+$.getDocWidth = function() {
+    return Math.max(
+            $(document).width(),
+            $(window).width(),
+            /* For opera: */
+            document.documentElement.clientWidth
+            );
+};
 
 (function() {
     var fullScreenApi = {
@@ -141,22 +149,14 @@ function Slideshow() {
 
     this.items = [];
     this.index = 0;
-    this.configuration = {
-        "id": "id",
-        "date": "date",
-        "name": "title",
-        "thumbnail": "thumbnailUrl",
-        "url": "url"
-    };
 
     this.convert = function(old) {
-        var c = this.configuration;
         var result = [old.length];
         for (var i = 0; i < old.length; i++) {
             var oldItem = old[i];
             var item = {};
-            for (var key in c) {
-                item[key] = oldItem[c[key]];
+            for (var key in oldItem) {
+                item[key.toLowerCase()] = oldItem[key] ? oldItem[key] : null;
             }
             result[i] = item;
         }
@@ -169,15 +169,15 @@ function Slideshow() {
         var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
 
-        this.getPhotos()[prevIndex].className = "previous";
-        this.getPhotos()[this.index].className = "";
-        this.getPhotos()[nextIndex].className = "next";
+        this.getMedias()[prevIndex].className = "previous";
+        this.getMedias()[this.index].className = "";
+        this.getMedias()[nextIndex].className = "next";
 
-        for (var i = 0; i < prevIndex && prevIndex != this.getPhotos().length - 1; i++) {
-            this.getPhotos()[i].className = "undisplayed previous";
+        for (var i = 0; i < prevIndex && prevIndex != this.getMedias().length - 1; i++) {
+            this.getMedias()[i].className = "undisplayed previous";
         }
-        for (i = nextIndex + 1; i < this.getPhotos().length - 1; i++) {
-            this.getPhotos()[i].className = "undisplayed next";
+        for (i = nextIndex + 1; i < this.getMedias().length - 1; i++) {
+            this.getMedias()[i].className = "undisplayed next";
         }
         $("#slideshow-label").text(this.items[this.index].name);
         this.refreshLinks();
@@ -247,7 +247,7 @@ function Slideshow() {
         $(document.body).append(html);
         
         var self = this;
-        addTransitionListener($("#slideshow-label").get(0), function() {self.setLabel()});
+        addTransitionListener($("#slideshow-label").get(0), function() {self.setLabel();});
     };
 
     this.setSize = function(id, w, h) {
@@ -329,15 +329,13 @@ function Slideshow() {
         $("#fullscreenContainer").addClass("drawer");
         $("#slideshow-drawer").removeClass("hide");
         this._resetMargin();
-        $("#slideshow-next").get(0).style.width = (this.getPhotosNode().clientWidth / 6 - this.DRAWER_MARGIN / 2)+"px";
     };
     
     this._hideDrawer = function() {
         $("#slideshow-drawer").addClass("hide");
         $("#fullscreenContainer").removeClass("drawer");
-        $("#slideshow-next").get(0).style.width = "50%";
-        this.getPhotos()[this.index].style.right = "34%";
-        this.getPhotos()[this.index].style.maxWidth = "90%";
+        this.getMedias()[this.index].style.right = "34%";
+        this.getMedias()[this.index].style.maxWidth = "90%";
         this.refreshLinks();
     };
     
@@ -345,22 +343,22 @@ function Slideshow() {
         var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
         
-        this.getPhotos()[this.index].style.right = (this.getPhotosNode().clientWidth * .34 + this.DRAWER_MARGIN)+"px";
-        this.getPhotos()[this.index].style.maxWidth = (this.getPhotosNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
-        this.getPhotos()[prevIndex].style.right = null;
-        this.getPhotos()[nextIndex].style.right = null;
+        this.getMedias()[this.index].style.right = (this.getMediasNode().clientWidth * .34 + this.DRAWER_MARGIN)+"px";
+        this.getMedias()[this.index].style.maxWidth = (this.getMediasNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
+        this.getMedias()[prevIndex].style.right = null;
+        this.getMedias()[nextIndex].style.right = null;
     };
 
     this.hide = function() {
         document.body.removeChild($("#fullscreenContainer"));
     };
     
-    this.getPhotosNode = function() {
+    this.getMediasNode = function() {
         return $("#fullscreenContainer_photos").get(0);
     };
     
-    this.getPhotos = function() {
-        return $("#fullscreenContainer_photos img");
+    this.getMedias = function() {
+        return $("#fullscreenContainer_photos > *");
     };
 
     this.previous = function() {
@@ -368,15 +366,15 @@ function Slideshow() {
         var nextIndex = this.getNextIndex();
         var newPreviousIndex = this.getPreviousIndex(prevIndex);
 
-        var currentPhoto = this.getPhotos()[this.index];
-        var previousPhoto = this.getPhotos()[prevIndex];
-        var nextPhoto = this.getPhotos()[nextIndex];
-        var newPreviousPhoto = this.getPhotos()[newPreviousIndex];
+        var currentMedia = this.getMedias()[this.index];
+        var previousMedia = this.getMedias()[prevIndex];
+        var nextMedia = this.getMedias()[nextIndex];
+        var newPreviousMedia = this.getMedias()[newPreviousIndex];
 
-        nextPhoto.className = "next undisplayed";
-        currentPhoto.className = "next";
-        previousPhoto.className = "";
-        newPreviousPhoto.className = "previous";
+        nextMedia.className = "next undisplayed";
+        currentMedia.className = "next";
+        previousMedia.className = "";
+        newPreviousMedia.className = "previous";
         
         if (!Modernizr.csstransitions) {
             this.setLabel();
@@ -394,15 +392,15 @@ function Slideshow() {
         var nextIndex = this.getNextIndex();
         var newNextIndex = this.getNextIndex(nextIndex);
 
-        var currentPhoto = this.getPhotos()[this.index];
-        var previousPhoto = this.getPhotos()[prevIndex];
-        var nextPhoto = this.getPhotos()[nextIndex];
-        var newNextPhoto = this.getPhotos()[newNextIndex];
+        var currentMedia = this.getMedias()[this.index];
+        var previousMedia = this.getMedias()[prevIndex];
+        var nextMedia = this.getMedias()[nextIndex];
+        var newNextMedia = this.getMedias()[newNextIndex];
         
-        previousPhoto.className = "previous undisplayed";
-        currentPhoto.className = "previous";
-        nextPhoto.className = "";
-        newNextPhoto.className = "next";
+        previousMedia.className = "previous undisplayed";
+        currentMedia.className = "previous";
+        nextMedia.className = "";
+        newNextMedia.className = "next";
         
         if (!Modernizr.csstransitions) {
             this.setLabel();
@@ -431,22 +429,22 @@ function Slideshow() {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index == this.getPhotos().length - 1 ? 0 : index + 1
+        return index == this.getMedias().length - 1 ? 0 : index + 1
     };
 
     this.getPreviousIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index != 0 ? index - 1 : this.getPhotos().length - 1;
+        return index != 0 ? index - 1 : this.getMedias().length - 1;
     };
 
     this.isNextIndex = function(index) {
-        return (this.index == this.getPhotos().length - 1 && index == 0) || (this.index != this.getPhotos().length - 1 && index == this.index + 1);
+        return (this.index == this.getMedias().length - 1 && index == 0) || (this.index != this.getMedias().length - 1 && index == this.index + 1);
     };
 
     this.isPreviousIndex = function(index) {
-        return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.getPhotos().length - 1);
+        return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.getMedias().length - 1);
     };
 
     this.getItemIndex = function(itemId) {

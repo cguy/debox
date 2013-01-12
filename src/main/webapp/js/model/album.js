@@ -24,10 +24,16 @@ function createAlbum(album) {
     }
     album.hasSeveralPhotos = function() {
         return album.photos && album.photos.length > 1;
-    }
+    };
     album.hasSeveralTotalPhotos = function() {
         return album.photosCount && album.photosCount > 1;
-    }
+    };
+    album.hasSeveralVideos = function() {
+        return album.videos && album.videos.length > 1;
+    };
+    album.hasSeveralTotalVideos = function() {
+        return album.videosCount && album.videosCount > 1;
+    };
     
     var beginDate = null;
     if (album.beginDate) {

@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS `albums` (
     `begin_date` DATETIME,
     `end_date` DATETIME,
     `photos_count` INTEGER NOT NULL,
+    `videos_count` INTEGER NOT NULL,
     `downloadable` TINYINT(1) NOT NULL,
     `relative_path` TEXT NOT NULL,
     `parent_id` VARCHAR(32),
@@ -157,6 +158,25 @@ CREATE TABLE IF NOT EXISTS `photos_generation` (
     `size` VARCHAR(255) NOT NULL,
     `time` TIMESTAMP NOT NULL,
     PRIMARY KEY (`id`, `size`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+-- ------ --
+-- VIDEOS --
+-- ------ --
+CREATE TABLE IF NOT EXISTS `videos` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `filename` VARCHAR(255) NOT NULL,
+    `title` VARCHAR(255),
+    `date` DATETIME,
+    `relative_path` TEXT NOT NULL,
+    `thumbnail` TINYINT(1) NOT NULL,
+    `ogg` TINYINT(1) NOT NULL,
+    `h264` TINYINT(1) NOT NULL,
+    `webm` TINYINT(1) NOT NULL,
+    `album_id` VARCHAR(32),
+    FOREIGN KEY (`album_id`) REFERENCES `albums`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    INDEX USING BTREE (`album_id`),
+    INDEX USING BTREE (`relative_path`(255))
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 -- -------- --

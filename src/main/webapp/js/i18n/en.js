@@ -28,6 +28,8 @@ var fr = {
         back2home: "Back to home",
         photo: "photo",
         photos: "photos",
+        video: "video",
+        videos: "videos",
         "public": "Public",
         "private": "Private",
         cancel: "Cancel",

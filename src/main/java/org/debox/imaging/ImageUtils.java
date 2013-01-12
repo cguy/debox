@@ -45,7 +45,9 @@ import org.debox.imaging.thumbnailator.ThumbnailatorImageHandler;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.Photo;
+import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
 import org.im4java.core.IM4JavaException;
@@ -102,29 +104,35 @@ public class ImageUtils {
         threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 2, 1));
     }
     
-    public static FileInputStream getStream(Photo photo, ThumbnailSize size) throws Exception {
-        String targetPath = ImageUtils.getThumbnailPath(photo, size);
-        FileInputStream fis;
-
+    public static FileInputStream getStream(Media media, ThumbnailSize size) throws Exception {
+        String targetPath;
+        if (ThumbnailSize.ORIGINAL.equals(size)) {
+            targetPath = ImageUtils.getSourcePath(media);
+        } else {
+            targetPath = ImageUtils.getThumbnailPath(media, size);
+        }
+        
+        FileInputStream fis = null;
         try {
             fis = new FileInputStream(targetPath);
 
         } catch (IOException ex) {
             log.warn("Unable to load stream for path " + targetPath);
-
-            Future<Pair<String, FileInputStream>> future = inProgressPaths.get(targetPath);
-            if (future == null) {
-                ThumbnailGenerator processor = new ThumbnailGenerator(photo, size);
-                future = threadPool.submit(processor);
-                inProgressPaths.put(targetPath, future);
+            if (!ThumbnailSize.ORIGINAL.equals(size)) {
+                Future<Pair<String, FileInputStream>> future = inProgressPaths.get(targetPath);
+                if (future == null) {
+                    ThumbnailGenerator processor = new ThumbnailGenerator(media, size);
+                    future = threadPool.submit(processor);
+                    inProgressPaths.put(targetPath, future);
+                }
+                fis = future.get().getValue();
+                try {
+                    photoDao.savePhotoGenerationTime(media.getId(), size, new Date().getTime());
+                } catch (SQLException sqle) {
+                    log.error("Unable to save time generation for photo: " + targetPath, sqle);
+                }
+                inProgressPaths.remove(targetPath);
             }
-            fis = future.get().getValue();
-            try {
-                photoDao.savePhotoGenerationTime(photo.getId(), size, new Date().getTime());
-            } catch (SQLException sqle) {
-                log.error("Unable to save time generation for photo: " + targetPath, sqle);
-            }
-            inProgressPaths.remove(targetPath);
         }
         return fis;
     }
@@ -153,12 +161,47 @@ public class ImageUtils {
         return basePath;
     }
 
-    public static String getSourcePath(Photo photo) throws SQLException {
-        return getAlbumsBasePath(photo.getOwnerId()) + photo.getRelativePath() + File.separatorChar + photo.getFilename();
+    public static String getSourcePath(Media media) throws SQLException {
+        String path = getAlbumsBasePath(media.getOwnerId()) + media.getRelativePath() + File.separatorChar + media.getFilename();
+        if (media instanceof Video) {
+            path += ".jpg";
+        }
+        return path;
     }
 
-    public static String getThumbnailPath(Photo photo, ThumbnailSize size) throws SQLException {
-        return getThumbnailsBasePath(photo.getOwnerId()) + photo.getRelativePath() + File.separatorChar + size.getPrefix() + photo.getFilename();
+    public static String getOggSourcePath(Video video) throws SQLException {
+        return getAlbumsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getOggFilename();
+    }
+
+    public static String getH264SourcePath(Video video) throws SQLException {
+        return getAlbumsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getH264Filename();
+    }
+
+    public static String getWebMSourcePath(Video video) throws SQLException {
+        return getAlbumsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getWebMFilename();
+    }
+
+    public static String getOggThumbnailPath(Video video) throws SQLException {
+        return getThumbnailsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getOggFilename();
+    }
+
+    public static String getH264ThumbnailPath(Video video) throws SQLException {
+        return getThumbnailsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getH264Filename();
+    }
+
+    public static String getWebMThumbnailPath(Video video) throws SQLException {
+        return getThumbnailsBasePath(video.getOwnerId()) + video.getRelativePath() + File.separatorChar + video.getWebMFilename();
+    }
+
+    public static String getThumbnailPath(Media media, ThumbnailSize size) throws SQLException {
+        if (ThumbnailSize.ORIGINAL.equals(size)) {
+            return getSourcePath(media);
+        }
+        String path = getThumbnailsBasePath(media.getOwnerId()) + media.getRelativePath() + File.separatorChar + size.getPrefix() + media.getFilename();
+        if (media instanceof Video) {
+            path += ".jpg";
+        }
+        return path;
     }
 
     public static String getSourcePath(Album album) throws SQLException {

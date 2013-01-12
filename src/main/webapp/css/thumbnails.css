@@ -176,6 +176,22 @@
     background-repeat: no-repeat;
 }
 
+.thumbnails > li > .thumbnail > .picture.video i {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 28px;
+    line-height: 34px;
+    display: block;
+    color: #333;
+    font-size: 26px;
+    background-color: #fff;
+    -webkit-border-top-left-radius: 4px;
+    -moz-border-radius-topleft: 4px;
+    border-top-left-radius: 4px;
+}
+
 .thumbnails.albums > li > .thumbnail > .picture {
     background-size: 190px 190px;
     background-position: 0 center;
@@ -268,9 +284,16 @@
     right: 5px;
     text-align: right;
     position: absolute;
-    bottom: 0;
     color: #fefefe;
     font-size: 12px;
+}
+
+.thumbnails > li > .thumbnail > .filter .photos.count {
+    bottom: 0;
+}
+
+.thumbnails > li > .thumbnail > .filter .videos.count {
+    bottom: 18px;
 }
 
 .thumbnails > li > .thumbnail > .filter span i {
