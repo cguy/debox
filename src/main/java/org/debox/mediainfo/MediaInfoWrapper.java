@@ -69,7 +69,7 @@ public class MediaInfoWrapper {
             process = Runtime.getRuntime().exec(new String[]{"mediainfo", "--Output=XML", path.toString()});
             process.waitFor();
         } catch (IOException | InterruptedException ex) {
-            log.error("Error during mediainfo process", ex);
+            log.error("Error during mediainfo process, cause: {}", ex.getMessage());
         }
         if (process == null) {
             return null;

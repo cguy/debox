@@ -482,9 +482,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         }
         String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
         
-        MediaInfoWrapper mediaInfoWrapper = new MediaInfoWrapper(path);
-        VideoMetadata videoMetadata = mediaInfoWrapper.getMetadata();
-        
+
         Video video = new Video();
         video.setId(StringUtils.randomUUID());
         video.setFilename(FilenameUtils.removeExtension(path.getFileName().toString()));
@@ -543,7 +541,12 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         video.setOwnerId(userId);
         video.setTitle(path.getFileName().toString());
 
-        Date encodedDate = videoMetadata.getEncodedDate();
+        MediaInfoWrapper mediaInfoWrapper = new MediaInfoWrapper(path);
+        VideoMetadata videoMetadata = mediaInfoWrapper.getMetadata();
+        Date encodedDate = null;
+        if (videoMetadata != null) {
+            encodedDate = videoMetadata.getEncodedDate();
+        }
         if (encodedDate == null) {
             encodedDate = new DefaultFileDateReader().getShootingDate(path);
         }
