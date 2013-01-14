@@ -278,7 +278,7 @@ var fr = {
                     tooltip: "Cliquez sur la photo pour qu'elle devienne la couverture de cette album",
                     photos: "Photos",
                     success: "La couverture de l'album a été modifiée avec succès.",
-                    error: "Une erreur est survenue lors de la modification de la couvreture de cet album."
+                    error: "Une erreur est survenue lors de la modification de la couverture de cet album."
                 },
                 cancel_cover_choice: "Annuler le choix de la couverture",
                 regenerate_thumbnails: "Regénérer les vignettes de cet album",

@@ -1,10 +1,15 @@
 <div id="photos-edition" class="{{^inEdition}}hide{{/inEdition}}">
-    {{#photos.length}}
+    {{#medias.length}}
     <ul class="thumbnails photos">
-        {{#photos}}
+        {{#medias}}
         <li class="span2">
             <div data-id="{{id}}" class="thumbnail">
-                <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
+                {{#photo}}
+                    <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
+                {{/photo}}
+                {{#video}}
+                    <span class="picture" style="background-image:url('{{squareThumbnailUrl}}')"></span>
+                {{/video}}
                 <span class="title">{{title}}</span>
                 <span class="actions">
                     <a href="#edit-photo" class="edit-photo"><i class="icon-edit"></i></a>
@@ -12,9 +17,9 @@
                 </span>
             </div>
         </li>
-        {{/photos}}
+        {{/medias}}
     </ul>
-    {{/photos.length}}
+    {{/medias.length}}
 </div>
 
 <form id="edit-photo" class="modal fade hide form-horizontal" method="post">

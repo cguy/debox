@@ -13,16 +13,25 @@
     </ul>
     {{/subAlbums.length}}
 
-    {{#photos.length}}
+    {{#medias.length}}
     {{#subAlbums.length}}<h3>{{i18n.album.admin.edit.choose_cover.photos}}</h3>{{/subAlbums.length}}
     <ul class="thumbnails photos">
-        {{#photos}}
+        {{#medias}}
         <li class="span2">
-            <div data-id="{{id}}" class="thumbnail" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-color:#ddd;background-image:url('{{thumbnailUrl}}')">
+            <div data-id="{{id}}"
+                 class="thumbnail"
+                 rel="tooltip"
+                 title="{{i18n.album.admin.edit.choose_cover.tooltip}}"
+            {{#photo}}
+                 style="background-color:#ddd;background-image:url('{{thumbnailUrl}}')">
+            {{/photo}}
+            {{#video}}
+                 style="background-color:#ddd;background-image:url('{{squareThumbnailUrl}}')">
+            {{/video}}
                 <span class="container"></span>
             </div>
         </li>
-        {{/photos}}
+        {{/medias}}
     </ul>
-    {{/photos.length}}
+    {{/medias.length}}
 </div>
