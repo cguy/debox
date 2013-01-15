@@ -30,6 +30,8 @@ import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.VideoDao;
 import org.debox.photo.model.Media;
+import org.debox.photo.model.Photo;
+import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
@@ -87,6 +89,23 @@ public class MediaService extends DeboxService {
             }
         }
         return media;
+    }
+    
+    public Render editMedia(String id, String title) throws SQLException {
+        Media media = getMediaById(id, null);
+        if (media == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any media with id: " + id);
+        }
+        if (StringUtils.isBlank(title)) {
+            title = media.getFilename();
+        }
+        media.setTitle(title);
+        if (media instanceof Video) {
+            videoDao.save((Video)media);
+        } else {
+            photoDao.save((Photo)media);
+        }
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
 }

@@ -369,23 +369,33 @@ function albumLoaded(mode) {
     });
     
     // Photo deletion binding
-    $(".delete-photo").unbind("click");
-    $(".delete-photo").click(function() {
-        var photoId = $(this).parents("div").attr("data-id");
-        $("#delete-photo").attr("action", "#/photo/"+photoId);
-        $("#delete-photo").modal();
+    $(".delete-media").unbind("click");
+    $(".delete-media").click(function() {
+        var mediaId = $(this).parents("div").attr("data-id");
+        var isVideo = !!$(this).parents("div").attr("data-video");
+        var path = "photo";
+        if (isVideo) {
+            path = "video";
+        }
+        $("#delete-media").attr("action", "#/" + path + "/"+mediaId);
+        $("#delete-media").modal();
         return false;
     });
 
     // Photo edition binding
-    $(".edit-photo").unbind("click");
-    $(".edit-photo").click(function() {
-        var photoId = $(this).parents("div").attr("data-id");
-        $("#edit-photo").attr("action", "#/photo/"+photoId);
+    $(".edit-media").unbind("click");
+    $(".edit-media").click(function() {
+        var mediaId = $(this).parents("div").attr("data-id");
+        var isVideo = !!$(this).parents("div").attr("data-video");
+        var path = "photo";
+        if (isVideo) {
+            path = "video";
+        }
+        $("#edit-media").attr("action", "#/" + path + "/"+mediaId);
                 
         var refTitleNode = $(this).parents("div").children(".title");
-        $("#edit-photo #photoTitle").val(refTitleNode.text());
-        $("#edit-photo").modal();
+        $("#edit-media #mediaTitle").val(refTitleNode.text());
+        $("#edit-media").modal();
         return false;
     });
     

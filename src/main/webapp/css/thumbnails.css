@@ -95,11 +95,11 @@
     border-color: #333;
 }
 
-#photos-edition .thumbnail .actions a.edit-photo:hover {
+#photos-edition .thumbnail .actions a.edit-media:hover {
     color: #19c1e3;
 }
 
-#photos-edition .thumbnail .actions a.delete-photo:hover {
+#photos-edition .thumbnail .actions a.delete-media:hover {
     color: #d14;
 }
 

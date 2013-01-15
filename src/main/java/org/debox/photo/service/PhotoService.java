@@ -25,14 +25,11 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
-import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,25 +43,7 @@ public class PhotoService extends MediaService {
     
     protected static AlbumDao albumDao = new AlbumDao();
     
-    public Render editPhoto(String id, String title) throws SQLException {
-        // This test can't be put in mapping file
-        if (!SessionUtils.isLogged(SecurityUtils.getSubject())) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in.");
-        }
-        Photo photo = photoDao.getPhoto(id);
-        if (photo == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
-        }
-        if (StringUtils.isBlank(title)) {
-            title = photo.getFilename();
-        }
-        photo.setTitle(title);
-        photoDao.save(photo);
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
-        
-    }
-    
-    public Render deletePhoto(String id) throws SQLException {
+    public Render delete(String id) throws SQLException {
         Photo photo = photoDao.getPhoto(id);
         if (photo == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);

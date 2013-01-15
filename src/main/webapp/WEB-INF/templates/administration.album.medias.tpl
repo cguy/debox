@@ -3,7 +3,7 @@
     <ul class="thumbnails photos">
         {{#medias}}
         <li class="span2">
-            <div data-id="{{id}}" class="thumbnail">
+            <div data-id="{{id}}" data-video="{{video}}" class="thumbnail">
                 {{#photo}}
                     <span class="picture" style="background-image:url('{{thumbnailUrl}}')"></span>
                 {{/photo}}
@@ -12,8 +12,8 @@
                 {{/video}}
                 <span class="title">{{title}}</span>
                 <span class="actions">
-                    <a href="#edit-photo" class="edit-photo"><i class="icon-edit"></i></a>
-                    <a href="#delete-photo" class="delete-photo"><i class="icon-remove"></i></a>
+                    <a href="#edit-media" class="edit-media"><i class="icon-edit"></i></a>
+                    <a href="#delete-media" class="delete-media"><i class="icon-remove"></i></a>
                 </span>
             </div>
         </li>
@@ -22,16 +22,17 @@
     {{/medias.length}}
 </div>
 
-<form id="edit-photo" class="modal fade hide form-horizontal" method="post">
+<form id="edit-media" class="modal fade hide form-horizontal" method="post">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>{{i18n.photo.edit.title}}</h3>
+        <h3>{{i18n.media.edit.title}}</h3>
     </div>
     <div class="modal-body">
+        <p class="alert alert-danger hide">{{i18n.media.edit.error}}</p>
         <div class="control-group">
-            <label class="control-label" for="photoTitle">{{i18n.photo.title}}</label>
+            <label class="control-label" for="mediaTitle">{{i18n.media.title}}</label>
             <div class="controls">
-                <input type="text" id="photoTitle" name="title" placeholder="{{i18n.photo.edit.placeholder}}">
+                <input type="text" id="mediaTitle" name="title" placeholder="{{i18n.media.edit.placeholder}}">
             </div>
         </div>
     </div>
@@ -41,13 +42,14 @@
     </div>
 </form>
 
-<form id="delete-photo" class="modal fade hide" method="delete">
+<form id="delete-media" class="modal fade hide" method="delete">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>{{i18n.photo.delete.title}}</h3>
+        <h3>{{i18n.media.delete.title}}</h3>
     </div>
     <div class="modal-body">
-        <p>{{i18n.photo.delete.confirm}}</p>
+        <p class="alert alert-danger hide">{{i18n.media.delete.error}}</p>
+        <p>{{i18n.media.delete.confirm}}</p>
     </div>
     <div class="modal-footer">
         <input class="btn btn-danger" type="submit" value="{{i18n.common.delete}}"/>

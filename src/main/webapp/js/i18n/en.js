@@ -311,15 +311,22 @@ var fr = {
     home: {
         title: "Home"
     },
-    photo: {
-        title: "Photo title",
+    media: {
+        title: "Media title",
+        thumbnails: {
+            admin: {
+                cover_choice: "Album cover choice"
+            }
+        },
         "delete" : {
-            title: "Photo deletion",
-            confirm: "Are you sure you want to delete this photo?"
+            title: "Media deletion",
+            confirm: "Are you sure you want to delete this media?",
+            error: "An error occured during media deletion. Please retry later."
         },
         edit: {
-            title: "Photo edition",
-            placeholder: "Please enter the photo title"
+            title: "Media edition",
+            placeholder: "Please enter the media title",
+            error: "An error occured during media edition. Please retry later."
         }
     },
     comments: {

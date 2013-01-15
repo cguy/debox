@@ -18,30 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.post('#/photo/:id', function() {
+app.post(/^#\/(photo|video)\/(.*)/, function() {
+    $("#edit-media .alert").hide();
+    var type = this.params['splat'][0];
+    var id = this.params['splat'][1];
     $.ajax({
-        url: "photo/" + this.params["id"],
+        url: type + "/" + id,
         type : "post",
-        data : $("#edit-photo").serializeArray(),
+        data : $("#edit-media").serializeArray(),
         success: function() {
-            $("#edit-photo").modal("hide");
+            $("#edit-media").modal("hide");
         },
         error : function() {
+            $("#edit-media .alert").show();
         }
     });
     return false;
 });
 
-app.del('#/photo/:id', function() {
-    var id = this.params["id"];
+app.del(/^#\/(photo|video)\/(.*)/, function() {
+    $("#delete-media .alert").hide();
+    var type = this.params['splat'][0];
+    var id = this.params['splat'][1];
     $.ajax({
-        url: "photo/" + id,
+        url: type + "/" + id,
         type : "delete",
         success: function() {
             $("*[data-id=" + id + "]").parent().remove();
-            $("#delete-photo").modal("hide");
+            $("#delete-media").modal("hide");
         },
         error : function() {
+            $("#delete-media .alert").show();
         }
     });
     return false;

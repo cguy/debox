@@ -42,8 +42,11 @@ PUT,POST    /accounts/*/token                       AdministrationFilter.checkUs
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
-DELETE      /photo/*                                AdministrationFilter.checkUserSession
+POST,DELETE /photo/*                                AdministrationFilter.checkUserSession
 GET,POST    /photo/*/comments                       AdministrationFilter.checkUserAuthentication
+
+POST,DELETE /video/*                                AdministrationFilter.checkUserSession
+GET,POST    /video/*/comments                       AdministrationFilter.checkUserAuthentication
 
 POST,DELETE /album                                  AdministrationFilter.checkUserSession
 GET,POST    /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
@@ -94,8 +97,14 @@ DELETE      /third-party-account/{id}           AccountService.deleteThirdPartyA
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - PHOTOS
 # -----------------------------------------------------------------------------------------------
-POST        /photo/{id}                         PhotoService.editPhoto
-DELETE      /photo/{id}                         PhotoService.deletePhoto
+POST        /photo/{id}                         MediaService.editMedia
+DELETE      /photo/{id}                         PhotoService.delete
+
+# -----------------------------------------------------------------------------------------------
+# ADMINISTRATION - VIDEOS
+# -----------------------------------------------------------------------------------------------
+POST        /video/{id}                         MediaService.editMedia
+DELETE      /video/{id}                         VideoService.delete
 
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS

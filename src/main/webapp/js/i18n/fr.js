@@ -311,20 +311,22 @@ var fr = {
     home: {
         title: "Accueil"
     },
-    photo: {
-        title: "Titre de la photo",
+    media: {
+        title: "Titre du média",
         thumbnails: {
             admin: {
                 cover_choice: "Choix d'une photo de couverture"
             }
         },
         "delete" : {
-            title: "Suppression de la photo",
-            confirm: "Êtes-vous sûr / sure de vouloir supprimer cette photo ?"
+            title: "Suppression du média",
+            confirm: "Êtes-vous sûr / sure de vouloir supprimer ce média ?",
+            error: "Une erreur est survenue pendant la suppression du média. Veuillez réessayer ultérieurement."
         },
         edit: {
-            title: "Modification d'une photo",
-            placeholder: "Veuillez rentrer le titre de la photo"
+            title: "Modification d'un média",
+            placeholder: "Veuillez rentrer le titre du média",
+            error: "Une erreur est survenue pendant la modification du média. Veuillez réessayer ultérieurement."
         }
     },
     comments: {

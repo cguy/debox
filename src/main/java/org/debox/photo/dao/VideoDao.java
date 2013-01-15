@@ -127,7 +127,6 @@ public class VideoDao {
                 if (id == null) {
                     id = StringUtils.randomUUID();
                 }
-                //INSERT INTO videos VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?, title = ?, thumbnail = ?, ogg = ?, h264 = ?, webm = ?"
                 params[i][0] = id;
                 params[i][1] = video.getFilename();
                 params[i][2] = video.getTitle();
@@ -168,10 +167,18 @@ public class VideoDao {
                 video.getTitle(),
                 new Timestamp(video.getDate().getTime()),
                 video.getRelativePath(),
+                video.hasThumbnail(),
+                video.supportsOgg(),
+                video.supportsH264(),
+                video.supportsWebM(),
                 video.getAlbumId(),
                 video.getAlbumId(),
                 video.getRelativePath(),
-                video.getTitle());
+                video.getTitle(),
+                video.hasThumbnail(),
+                video.supportsOgg(),
+                video.supportsH264(),
+                video.supportsWebM());
 
         // Increase videos count for the album containing this video
         queryRunner.update(SQL_INCREMENT_VIDEO_COUNT, video.getAlbumId());
