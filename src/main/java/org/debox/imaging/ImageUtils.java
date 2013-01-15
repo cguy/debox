@@ -220,10 +220,9 @@ public class ImageUtils {
                 if (result != null) {
                     break;
                 }
-                log.warn("Unable to read original date in EXIF with " + dateReader.getClass().getCanonicalName() + " implementation (unknown reason)");
-                
+                log.warn("Unable to read original date in EXIF with {} implementation (unknown reason)", dateReader.getClass().getCanonicalName());
             } catch (Exception ex) {
-                log.warn("Unable to read original date in EXIF with " + dateReader.getClass().getCanonicalName() + " implementation, reason:", ex);
+                log.warn("Unable to read original date in EXIF with {} implementation, reason: {}", dateReader.getClass().getCanonicalName(), ex.getMessage());
             }
         }
         return result;

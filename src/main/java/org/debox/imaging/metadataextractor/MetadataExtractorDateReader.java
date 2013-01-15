@@ -39,19 +39,18 @@ public class MetadataExtractorDateReader implements DateReader {
     private static final Logger log = LoggerFactory.getLogger(MetadataExtractorDateReader.class);
 
     @Override
-    public Date getShootingDate(Path photoPath) {
+    public Date getShootingDate(Path path) {
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(photoPath.toFile());
+            Metadata metadata = ImageMetadataReader.readMetadata(path.toFile());
             ExifSubIFDDirectory directory = metadata.getDirectory(ExifSubIFDDirectory.class);
             if (directory == null) {
                 return null;
             }
-            
             Date result = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
             return result;
 
         } catch (ImageProcessingException | IOException ex) {
-            log.error("Unable to read orientation from file " + photoPath.toString(), ex);
+            log.error("Error while reading shooting date in exif metadata of file {}, reason: {}", path, ex.getMessage());
         }
         return null;
     }

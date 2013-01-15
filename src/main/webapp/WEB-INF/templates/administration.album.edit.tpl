@@ -2,7 +2,7 @@
 <div id="edit_album" class="{{#inEdition}}visible{{/inEdition}}">
     <div id="regeneration-progress" class="alert alert-info hide">
         <h3 class="alert-heading" style="line-height:50px;">
-            <span id="progress-label">{{i18n.administration.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
+            <span id="progress-label">{{i18n.account.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
         </h3>
         <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
             <div class="bar"></div>

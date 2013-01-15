@@ -43,8 +43,8 @@ public class DefaultFileDateReader implements DateReader {
             FileTime lastModifiedTime = Files.getLastModifiedTime(path);
             date = new Date(lastModifiedTime.toMillis());
 
-        } catch (IOException eee) {
-            logger.error("Error while getting the last modification date of " + path, eee);
+        } catch (IOException ex) {
+            logger.error("Error while getting the last modification date of {}, reason: {}", path, ex.getMessage());
             date = new Date();
         }
         return date;

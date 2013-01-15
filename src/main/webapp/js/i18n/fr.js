@@ -151,6 +151,22 @@ var fr = {
             "existingAlbum": "Je veux ajouter des photos dans un album existant",
             "newAlbum": "Je veux créer un nouvel album"
         },
+        sync: {
+            title: "Synchroniser les répertoires",
+            tab: "Synchronisation des répertoires",
+            in_progress: "Synchronisation en cours",
+            cancel: "Annuler la synchronisation",
+            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
+            fastest: "Le plus rapide ",
+            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
+            normal: "Normal ",
+            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
+            longest: "Le plus long ",
+            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
+            force_check_dates: "Forcer la vérification des dates des photos existantes",
+            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
+            launch: "Lancer la synchronisation"
+        },
         tokens: {
             title: "Gestion des accès visiteurs",
             tab: "Gestion des accès visiteurs",
@@ -229,22 +245,6 @@ var fr = {
             directory: "Répertoire distant qui contiendra les photos ajoutées par les utilisateurs :",
             directory_placeholder: "Exemple : /home/user/photos/",
             save: "Enregistrer"
-        },
-        sync: {
-            title: "Synchroniser les répertoires",
-            tab: "Synchronisation des répertoires",
-            in_progress: "Synchronisation en cours",
-            cancel: "Annuler la synchronisation",
-            choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
-            fastest: "Le plus rapide ",
-            fastest_description: "Aucune pré-génération des vignettes. Les vignettes seront générées lors de leur premier accès.",
-            normal: "Normal ",
-            normal_description: "Pré-génération des vignettes pour les nouvelles photos.",
-            longest: "Le plus long ",
-            longest_description: "Regénération des vignettes existantes + création des vignettes pour les nouvelles photos.",
-            force_check_dates: "Forcer la vérification des dates des photos existantes",
-            warning: "Ce dernier mode de synchronisation supprimera toutes les vignettes existantes avant de les regénérer.",
-            launch: "Lancer la synchronisation"
         }
     },
     album: {

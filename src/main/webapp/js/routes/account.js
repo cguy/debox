@@ -44,7 +44,10 @@ app.get('#/account(/:tab)?', function() {
     if (tab) {
         tab = tab.substr(1);
         var route = "accounts/" + _config.userId + "/" + tab;
-        if (tab == "upload") {
+        if (tab == "synchronization") {
+            loadTab(tab, null, "account");
+            return;
+        } else if (tab == "upload") {
             route = "albums";
         } else if (tab == "albums") {
             route = "albums?criteria=all";

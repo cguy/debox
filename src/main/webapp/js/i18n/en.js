@@ -151,6 +151,22 @@ var fr = {
             "existingAlbum": "I want to add photos in an existing album",
             "newAlbum": "I want to create a new album"
         },
+        sync: {
+            title: "Synchronize directories",
+            tab: "Synchronize directories",
+            in_progress: "Synchronizing ...",
+            cancel: "Cancel the synchronization",
+            choice_mode: "Please choose the synchronization mode, then launch process ",
+            fastest: "Fastest ",
+            fastest_description: "Thumbnails will be generated only at first access.",
+            normal: "Normal ",
+            normal_description: "Thumbnails will be generated only for new photos.",
+            longest: "Longest ",
+            longest_description: "Override existing thumbnails + create thumbnails for new photos.",
+            force_check_dates: "Force the shooting date check for existing photos",
+            warning: "This last one will delete all existing thumbnails before create them.",
+            launch: "Process"
+        },
         tokens: {
             title: "Visitors accesses management",
             tab: "Visitors accesses",
@@ -229,22 +245,6 @@ var fr = {
             directory: "Directory that will contain photos added by the users:",
             directory_placeholder: "Example : /home/user/photos/",
             save: "Save"
-        },
-        sync: {
-            title: "Synchronize directories",
-            tab: "Synchronize directories",
-            in_progress: "Synchronizing ...",
-            cancel: "Cancel the synchronization",
-            choice_mode: "Please choose the synchronization mode, then launch process ",
-            fastest: "Fastest ",
-            fastest_description: "Thumbnails will be generated only at first access.",
-            normal: "Normal ",
-            normal_description: "Thumbnails will be generated only for new photos.",
-            longest: "Longest ",
-            longest_description: "Override existing thumbnails + create thumbnails for new photos.",
-            force_check_dates: "Force the shooting date check for existing photos",
-            warning: "This last one will delete all existing thumbnails before create them.",
-            launch: "Process"
         }
     },
     album: {

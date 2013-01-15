@@ -25,16 +25,12 @@ app.get('#/administration(/:tab)?', function() {
     var tab = this.params["tab"];
     if (tab) {
         tab = tab.substr(1);
-        if (tab == "synchronization") {
-            loadTab(tab);
-        } else {
-            ajax({
-                url: tab,
-                success: function(data) {
-                    loadTab(tab, data);
-                }
-            });
-        }
+        ajax({
+            url: tab,
+            success: function(data) {
+                loadTab(tab, data);
+            }
+        });
     } else {
         this.redirect("#/administration/configuration");
     }
