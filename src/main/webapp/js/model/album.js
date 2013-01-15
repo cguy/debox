@@ -20,7 +20,7 @@
  */
 function createAlbum(album) {
     if (!album) {
-        album = {}
+        album = {};
     }
     album.hasSeveralPhotos = function() {
         return album.photos && album.photos.length > 1;
@@ -33,6 +33,9 @@ function createAlbum(album) {
     };
     album.hasSeveralTotalVideos = function() {
         return album.videosCount && album.videosCount > 1;
+    };
+    album.hasMedias = function() {
+        return album.hasSeveralTotalPhotos() || album.hasSeveralTotalVideos();
     };
     
     var beginDate = null;

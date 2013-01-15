@@ -195,7 +195,6 @@ app.get('#/album/([a-zA-Z0-9-_]*)', function() {
         ajax({
             url: computeUrl("album/" + id),
             success: function(data) {
-                console.log(data);
                 loadAlbum(data, albumLoaded);
             }
         });

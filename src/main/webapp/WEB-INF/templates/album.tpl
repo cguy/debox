@@ -37,7 +37,20 @@
             {{^album.hasSeveralTotalPhotos}}
                 {{i18n.common.photo}}
             {{/album.hasSeveralTotalPhotos}}
-
+            {{#album.videosCount}}
+                {{i18n.common.and}}
+            {{/album.videosCount}}
+        {{/album.photosCount}}
+        {{#album.videosCount}}
+            {{album.videosCount}}
+            {{#album.hasSeveralTotalVideos}}
+                {{i18n.common.videos}}
+            {{/album.hasSeveralTotalVideos}}
+            {{^album.hasSeveralTotalVideos}}
+                {{i18n.common.video}}
+            {{/album.hasSeveralTotalVideos}}
+        {{/album.videosCount}}
+        {{#album.hasMedias}}
             {{#album.beginDate}}
                 {{#album.isInterval}}
                     {{#album.endDate}}
@@ -48,10 +61,10 @@
                     {{i18n.album.on_date}} {{album.beginDate}}
                 {{/album.isInterval}}
             {{/album.beginDate}}
-        {{/album.photosCount}}
-        {{^album.photosCount}}
+        {{/album.hasMedias}}
+        {{^album.photosCount}}{{^album.videosCount}}
             {{i18n.common.noPhotos}}
-        {{/album.photosCount}}
+        {{/album.videosCount}}{{/album.photosCount}}
     </div>
 </div>
 

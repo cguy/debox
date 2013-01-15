@@ -50,7 +50,8 @@ var fr = {
         password_confirm: "Confirmation du mot de passe",
         connection: "Connexion",
         next: "Suivant",
-        previous: "Précédent"
+        previous: "Précédent",
+        and: "et"
     },
     registration : {
         title: "Créer un compte",

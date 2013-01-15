@@ -50,7 +50,8 @@ var fr = {
         password_confirm: "Password confirm",
         connection: "Login",
         next: "Next",
-        previous: "Previous"
+        previous: "Previous",
+        and: "and"
     },
     registration : {
         title: "Register",
