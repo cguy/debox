@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.AlbumDateReader;
@@ -399,10 +397,15 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 Path webmTargetPath = Paths.get(ImageUtils.getWebMThumbnailPath(video));
 
                 if (entry.getValue()) {
-                    Files.createSymbolicLink(oggTargetPath, oggPath);
-                    Files.createSymbolicLink(h264TargetPath, h264Path);
-                    Files.createSymbolicLink(webmTargetPath, webmPath);
-                    
+                    if (Files.notExists(oggTargetPath)) {
+                        Files.createSymbolicLink(oggTargetPath, oggPath);
+                    }
+                    if (Files.notExists(h264TargetPath)) {
+                        Files.createSymbolicLink(h264TargetPath, h264Path);
+                    }
+                    if (Files.notExists(webmTargetPath)) {
+                        Files.createSymbolicLink(webmTargetPath, webmPath);
+                    }
                     if (!existingVideos.contains(video) && SynchronizationMode.NORMAL.equals(this.mode) || SynchronizationMode.SLOW.equals(this.mode)) {
                         ThumbnailGenerator processor = new ThumbnailGenerator(video, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
                         Future future = threadPool.submit(processor);
@@ -538,8 +541,12 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             }
         }
         
+        if (!video.hasThumbnail() && !video.supportsH264() && !video.supportsOgg() && !video.supportsWebM()) {
+            return;
+        }
+        
         video.setOwnerId(userId);
-        video.setTitle(path.getFileName().toString());
+        video.setTitle(video.getFilename());
 
         MediaInfoWrapper mediaInfoWrapper = new MediaInfoWrapper(path);
         VideoMetadata videoMetadata = mediaInfoWrapper.getMetadata();
