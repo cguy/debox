@@ -34,7 +34,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Photo;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
@@ -164,12 +164,14 @@ public class AlbumDao {
     protected static String SQL_GET_CHILDREN_ID = "SELECT id from albums WHERE parent_id = ?";
     
     protected static String SQL_GET_RANDOM_PHOTO = "SELECT id FROM photos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
+    protected static String SQL_GET_RANDOM_VIDEO = "SELECT id FROM videos WHERE album_id = ? ORDER BY RAND( ) LIMIT 1";
 
     protected static String SQL_GET_RANDOM_SUB_ALBUM = "SELECT id FROM albums WHERE parent_id = ? ORDER BY RAND( ) LIMIT 1";
 
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
     protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
+    protected static String SQL_GET_ALBUM_COVER_VIDEO = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM videos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
@@ -179,6 +181,18 @@ public class AlbumDao {
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM photos p "
+            + "LEFT JOIN albums a ON a.cover = p.id "
+            + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
+            + "WHERE a.id = ?)";
+    
+    protected static String SQL_GET_VISIBLE_ALBUM_COVER_VIDEO = ""
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
+            + "FROM video p "
+            + "LEFT JOIN albums a ON a.cover = p.id "
+            + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
+            + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
+            + "FROM video p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
             + "WHERE a.id = ?)";
@@ -580,20 +594,24 @@ public class AlbumDao {
         return result;
     }
 
-    public String setAlbumCover(String albumId, String photoId) throws SQLException {
-        //if no photo id is given, then get a random photo
-        if (StringUtils.isEmpty(photoId)) {
-            photoId = getRandomAlbumPhoto(albumId);
+    public String setAlbumCover(String albumId, String mediaId) throws SQLException {
+        //if no media id is given, then get a random photo
+        if (StringUtils.isEmpty(mediaId)) {
+            mediaId = getRandomAlbumPhoto(albumId);
         }
-        //if the album has no photo, only subalbums, then get a random subalbum and get its cover
-        if (StringUtils.isEmpty(photoId)) {
+        //if the album has no photo, then get a random video
+        if (StringUtils.isEmpty(mediaId)) {
+            mediaId = getRandomAlbumVideo(albumId);
+        }
+        //if the album has neither photo neither video, only subalbums, then get a random subalbum and get its cover
+        if (StringUtils.isEmpty(mediaId)) {
             String subAlbumId = getRandomSubAlbumId(albumId);
-            Photo cover = getAlbumCover(subAlbumId);
-            photoId = cover.getId();
+            Media cover = getAlbumCover(subAlbumId);
+            mediaId = cover.getId();
         }
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        queryRunner.update(SQL_UPDATE_ALBUM_COVER, photoId, albumId);
-        return photoId;
+        queryRunner.update(SQL_UPDATE_ALBUM_COVER, mediaId, albumId);
+        return mediaId;
     }
 
     /**
@@ -623,8 +641,29 @@ public class AlbumDao {
      * @throws SQLException
      */
     protected String getRandomAlbumPhoto(String albumId) throws SQLException {
+        return getRandomAlbumMedia(albumId, SQL_GET_RANDOM_PHOTO);
+    }
+
+    /**
+     * Get a random video of an album
+     * @param albumId
+     * @return the id of a random video
+     * @throws SQLException
+     */
+    protected String getRandomAlbumVideo(String albumId) throws SQLException {
+        return getRandomAlbumMedia(albumId, SQL_GET_RANDOM_VIDEO);
+    }
+
+    /**
+     * Get a random media of an album
+     * @param albumId
+     * @param query The SQL query to execute to get random media
+     * @return the id of a random video
+     * @throws SQLException
+     */
+    protected String getRandomAlbumMedia(String albumId, String query) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        String result = queryRunner.query(SQL_GET_RANDOM_PHOTO, new ResultSetHandler<String>() {
+        String result = queryRunner.query(query, new ResultSetHandler<String>() {
             @Override
             public String handle(ResultSet rs) throws SQLException {
                 if (rs.next()) {
@@ -636,24 +675,30 @@ public class AlbumDao {
         return result;
     }
 
-    public Photo getAlbumCover(String albumId) throws SQLException {
+    public Media getAlbumCover(String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Photo result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(null), albumId);
+        Media result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(null), albumId);
         if (result == null) {
-            Album album = getAlbum(albumId);
-            if (album.getPhotosCount() == 0) {
-                return null;
-            } else {
-                setAlbumCover(albumId, null);
-                return getAlbumCover(albumId);
+            result = queryRunner.query(SQL_GET_ALBUM_COVER_VIDEO, VideoDao.getBeanHandler(null), albumId);
+            if (result == null) {
+                Album album = getAlbum(albumId);
+                if (album.getPhotosCount() == 0 && album.getVideosCount() == 0) {
+                    return null;
+                } else {
+                    setAlbumCover(albumId, null);
+                    return getAlbumCover(albumId);
+                }
             }
         }
         return result;
     }
     
-    public Photo getVisibleAlbumCover(String token, String albumId) throws SQLException {
+    public Media getVisibleAlbumCover(String token, String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Photo result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
+        Media result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
+        if (result == null) {
+            result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER_VIDEO, VideoDao.getBeanHandler(token), albumId, token, albumId);
+        }
         return result;
     }
     

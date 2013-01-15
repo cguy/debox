@@ -51,6 +51,7 @@ import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Comment;
 import org.debox.photo.model.Datable;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.user.Contact;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Provider;
@@ -374,13 +375,13 @@ public class AlbumService extends DeboxService {
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
-        if (StringUtils.isEmpty(objectId) && photoDao.getPhoto(objectId) != null) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The photoId parameter must correspond with a valid photo.");
+        if (!StringUtils.isEmpty(objectId) && photoDao.getPhoto(objectId) == null && videoDao.getVideo(objectId) == null) {
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The objectId parameter must correspond with a valid media.");
         }
         
         String id;
         if (objectId.startsWith("a.")) {
-            Photo photo = albumDao.getAlbumCover(objectId.substring(2));
+            Media photo = albumDao.getAlbumCover(objectId.substring(2));
             id = photo.getId();
         } else {
             id = objectId;
@@ -394,29 +395,29 @@ public class AlbumService extends DeboxService {
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
         
-        Photo photo;
+        Media media;
         if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            photo = albumDao.getAlbumCover(albumId);
+            media = albumDao.getAlbumCover(albumId);
         } else {
-            photo = albumDao.getVisibleAlbumCover(token, albumId);
+            media = albumDao.getVisibleAlbumCover(token, albumId);
         }
 
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
-        } else if (photo == null) {
+        } else if (media == null) {
             return renderRedirect("/img/default_album.png");
         }
         
         FileInputStream fis = null;
         try {
-            fis = ImageUtils.getStream(photo, ThumbnailSize.SQUARE);
+            fis = ImageUtils.getStream(media, ThumbnailSize.SQUARE);
             
         } catch (Exception ex) {
             logger.error("Unable to get stream", ex);
         }
         if (fis == null) {
-            logger.error("Errror, stream is null for the photo " + photo.getFilename());
+            logger.error("Errror, stream is null for the photo " + media.getFilename());
             return renderRedirect("/img/default_album.png");
         }
         RenderStatus status = handleLastModifiedHeader(album);
