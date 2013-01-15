@@ -42,10 +42,10 @@ PUT,POST    /accounts/*/token                       AdministrationFilter.checkUs
 
 *           /administration/*                       AdministrationFilter.checkUserSession
 
-POST,DELETE /photo/*                                AdministrationFilter.checkUserSession
+POST,DELETE /photo/*                                AdministrationFilter.checkUserAuthentication
 GET,POST    /photo/*/comments                       AdministrationFilter.checkUserAuthentication
 
-POST,DELETE /video/*                                AdministrationFilter.checkUserSession
+POST,DELETE /video/*                                AdministrationFilter.checkUserAuthentication
 GET,POST    /video/*/comments                       AdministrationFilter.checkUserAuthentication
 
 POST,DELETE /album                                  AdministrationFilter.checkUserSession
@@ -131,8 +131,13 @@ DELETE      /token/{id}                         TokenService.deleteToken
 # MEDIA - COMMENTS
 # -----------------------------------------------------------------------------------------------
 POST   /album/{albumId}/comments                 CommentService.createAlbumComment
-POST   /photo/{photoId}/comments                 CommentService.createPhotoComment
-GET    /photo/{photoId}/comments                 CommentService.getPhotoComments
+
+POST   /photo/{mediaId}/comments                 CommentService.createMediaComment
+GET    /photo/{mediaId}/comments                 CommentService.getMediaComments
+
+POST   /video/{mediaId}/comments                 CommentService.createMediaComment
+GET    /video/{mediaId}/comments                 CommentService.getMediaComments
+
 DELETE /comment/{commentId}                      CommentService.deleteComment
 
 # -----------------------------------------------------------------------------------------------
@@ -165,7 +170,7 @@ GET   /tpl                                      HomeService.renderTemplates
 # THIRD-PARTY CALLBACKS
 # -----------------------------------------------------------------------------------------------
 GET   /facebook                                 AccountService.handleFacebookCallback
-GET   /google                                   AccountService.handleGoogleCallback
+# GET   /google                                   AccountService.handleGoogleCallback
 
 # -----------------------------------------------------------------------------------------------
 # HOME

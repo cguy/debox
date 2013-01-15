@@ -205,6 +205,13 @@ CREATE TABLE IF NOT EXISTS `photos_comments` (
     FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS `videos_comments` (
+    `comment_id` VARCHAR(32) PRIMARY KEY,
+    `video_id` VARCHAR(32),
+    FOREIGN KEY (`video_id`) REFERENCES `videos`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (`comment_id`) REFERENCES `comments`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
 -- ------------- --
 -- NOTIFICATIONS --
 -- ------------- --

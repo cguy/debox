@@ -135,30 +135,33 @@ app.get('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
     loadSlideshow(this, "/comments");
 });
 
-app.post('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
-    var photoId = this.params['splat'][1];
+// Photo / video comment
+app.post(/#\/(photos|videos)\/([a-zA-Z0-9-_]*)\/comments/, function() {
+    var type = this.params['splat'][0].slice(0, -1);
+    var mediaId = this.params['splat'][1];
     ajax({
-        url: computeUrl("photo/" + photoId + "/comments"),
-        data: $("#new-photo-comment").serializeArray(),
+        url: computeUrl(type + "/" + mediaId + "/comments"),
+        data: $("#new-media-comment").serializeArray(),
         type: "post",
         success: function(data) {
             $("#slideshow-comments .no-comments").addClass("hide");
-            $("#slideshow-options .comments .badge").removeClass("hide");
-            $("#slideshow-options .comments .badge").text(parseInt($("#slideshow-options .comments .badge").text(), 10) + 1);
+            $("#slideshow-options .comments .badge[data-id=" + mediaId + "]").removeClass("hide");
+            $("#slideshow-options .comments .badge[data-id=" + mediaId + "]").text(parseInt($("#slideshow-options .comments .badge").text(), 10) + 1);
             data = loadComment(data);
             var html = templates["comment"].render(data);
             $(html).insertBefore("#slideshow-comments form");
             $("#slideshow-comments form textarea").val("");
             $("#slideshow-comments").mCustomScrollbar("update");
+            bindPhotoCommentDeletion();
         },
         error : function() {
-    
+            alert("Erreur");
         }
     });
 });
 
-app.del('#/photos/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
-    deleteComment(this.params['splat'][1], $("#slideshow-options .comments .badge"), $("#slideshow-comments .no-comments"), $("#remove-comment"));
+app.del(/#\/(photos|videos)\/([a-zA-Z0-9-_]*)\/comments\/([a-zA-Z0-9-_]*)/, function() {
+    deleteComment(this.params['splat'][2], $("#slideshow-options .comments .badge"), $("#slideshow-comments .no-comments"), $("#remove-comment"));
 });
 
 function deleteComment(id, badgeNode, emptyNode, modalNode) {

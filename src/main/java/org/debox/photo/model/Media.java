@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Media implements Comparable<Media>, Datable {
+public abstract class Media implements Comparable<Media>, Datable {
     
     protected String id;
     protected String filename;

@@ -30,6 +30,7 @@ import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
+import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,8 @@ public class PhotoService extends MediaService {
         Photo photo = photoDao.getPhoto(id);
         if (photo == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
+        } else if (!photo.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this photo");
         }
         
         String originalPath = ImageUtils.getSourcePath(photo);

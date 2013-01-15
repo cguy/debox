@@ -89,6 +89,8 @@ public class VideoService extends MediaService {
         Video media = videoDao.getVideo(id);
         if (media == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any video with id: " + id);
+        } else if (!media.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this video");
         }
         
         try {

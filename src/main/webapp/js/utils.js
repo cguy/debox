@@ -189,7 +189,7 @@ function hideAlbumChoose() {
 }
 
 function loadComment(comment) {
-    comment.date = new Date(comment.date).toString("dd/MM:yyyy à HH:mm:ss");
+    comment.date = new Date(comment.date).toString("dd/MM/yyyy à HH:mm:ss");
     comment.deletable = function() {
         return _config.administrator || (_config.authenticated && _config.userId == comment.user.id);
     }

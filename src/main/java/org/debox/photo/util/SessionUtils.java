@@ -56,5 +56,9 @@ public class SessionUtils {
         }
         return subject.hasRole(ADMIN_ROLE);
     }
+
+    public static boolean isAdministrator() {
+        return SecurityUtils.getSubject().hasRole(ADMIN_ROLE);
+    }
     
 }

@@ -92,6 +92,11 @@ public class MediaService extends DeboxService {
     }
     
     public Render editMedia(String id, String title) throws SQLException {
+        // This test can't be put in mapping file
+        if (!SessionUtils.isLogged(SecurityUtils.getSubject())) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in.");
+        }
+        
         Media media = getMediaById(id, null);
         if (media == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any media with id: " + id);

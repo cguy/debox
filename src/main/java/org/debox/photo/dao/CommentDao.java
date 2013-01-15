@@ -32,7 +32,10 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Comment;
+import org.debox.photo.model.Media;
+import org.debox.photo.model.Video;
 import org.debox.photo.util.DatabaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +50,26 @@ public class CommentDao {
     protected static String CREATE = "INSERT INTO comments (id, author_id, publish_time, content) VALUES (?, ?, ?, ?)";
     protected static String CREATE_ALBUM_LINK = "INSERT INTO albums_comments (comment_id, album_id) VALUES (?, ?)";
     protected static String CREATE_PHOTO_LINK = "INSERT INTO photos_comments (comment_id, photo_id) VALUES (?, ?)";
+    protected static String CREATE_VIDEO_LINK = "INSERT INTO videos_comments (comment_id, video_id) VALUES (?, ?)";
     protected static String GET_BY_ALBUM = "SELECT * FROM comments c INNER JOIN albums_comments ac ON c.id = ac.comment_id WHERE ac.album_id = ? ORDER BY c.publish_time";
     protected static String GET_BY_PHOTO = "SELECT * FROM comments c INNER JOIN photos_comments pc ON c.id = pc.comment_id WHERE pc.photo_id = ? ORDER BY c.publish_time";
+    protected static String GET_BY_VIDEO = "SELECT * FROM comments c INNER JOIN videos_comments vc ON c.id = vc.comment_id WHERE vc.video_id = ? ORDER BY c.publish_time";
     protected static String GET_BY_ID = "SELECT * FROM comments WHERE id = ?";
     protected static String DELETE = "DELETE FROM comments WHERE id = ?";
     
     protected UserDao userDao = new UserDao();
     protected BeanListHandler<Comment> beanListHandler = new BeanListHandler<>(Comment.class, getRowProcessor());
 
-    public void saveAlbumComment(String albumId, Comment comment) throws SQLException {
-        save(albumId, comment, CREATE_ALBUM_LINK);
+    public void save(Album album, Comment comment) throws SQLException {
+        save(album.getId(), comment, CREATE_ALBUM_LINK);
     }
 
-    public void savePhotoComment(String photoId, Comment comment) throws SQLException {
-        save(photoId, comment, CREATE_PHOTO_LINK);
+    public void save(Media media, Comment comment) throws SQLException {
+        if (media instanceof Video) {
+            save(media.getId(), comment, CREATE_VIDEO_LINK);
+        } else {
+            save(media.getId(), comment, CREATE_PHOTO_LINK);
+        }
     }
 
     public Comment getById(String id) throws SQLException {
@@ -88,10 +97,12 @@ public class CommentDao {
         return get(albumId, GET_BY_ALBUM);
     }
 
-    public List<Comment> getByPhoto(String photoId) throws SQLException {
-        return get(photoId, GET_BY_PHOTO);
+    public List<Comment> getByMedia(Media media) throws SQLException {
+        if (media instanceof Video) {
+            return get(media.getId(), GET_BY_VIDEO);
+        }
+        return get(media.getId(), GET_BY_PHOTO);
     }
-
     protected List<Comment> get(String mediaId, String query) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         List<Comment> result = queryRunner.query(query, beanListHandler, mediaId);

@@ -187,12 +187,12 @@ public class AlbumDao {
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER_VIDEO = ""
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM video p "
+            + "FROM videos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM video p "
+            + "FROM videos p "
             + "LEFT JOIN albums a ON a.cover = p.id "
             + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
             + "WHERE a.id = ?)";

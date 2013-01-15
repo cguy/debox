@@ -24,8 +24,11 @@ import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.util.Date;
 import org.apache.shiro.SecurityUtils;
+import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Comment;
+import org.debox.photo.model.Media;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
@@ -37,6 +40,8 @@ import org.debux.webmotion.server.render.Render;
 public class CommentService extends DeboxService {
     
     protected static CommentDao commentDao = new CommentDao();
+    protected static AlbumDao albumDao = new AlbumDao();
+    protected static MediaService mediaService = new MediaService();
     
     protected Comment create(String content) {
         User user = SessionUtils.getUser(SecurityUtils.getSubject());
@@ -50,26 +55,38 @@ public class CommentService extends DeboxService {
     }
     
     public Render createAlbumComment(String albumId, String content) throws SQLException {
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            return renderNotFound();
+        }
         Comment comment = create(content);
-        commentDao.saveAlbumComment(albumId, comment);
+        commentDao.save(album, comment);
         return renderJSON(comment);
     }
     
-    public Render createPhotoComment(String photoId, String content) throws SQLException {
+    public Render createMediaComment(String mediaId, String content) throws SQLException {
+        Media media = mediaService.getMediaById(mediaId, null);
+        if (media == null) {
+            return renderNotFound();
+        }
         Comment comment = create(content);
-        commentDao.savePhotoComment(photoId, comment);
+        commentDao.save(media, comment);
         return renderJSON(comment);
     }
-
-    public Render getPhotoComments(String photoId) throws SQLException {
-        return renderJSON("photoId", photoId, "comments", commentDao.getByPhoto(photoId));
+    
+    public Render getMediaComments(String mediaId) throws SQLException {
+        Media media = mediaService.getMediaById(mediaId, null);
+        if (media == null) {
+            return renderNotFound();
+        }
+        return renderJSON("mediaId", mediaId, "comments", commentDao.getByMedia(media));
     }
     
     public Render deleteComment(String commentId) throws SQLException {
         Comment comment = commentDao.getById(commentId);
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String userId = SessionUtils.getUserId();
         String ownerId = comment.getUser().getId();
-        if (!userId.equals(ownerId)) {
+        if (!userId.equals(ownerId) && !SessionUtils.isAdministrator()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not autorized to delete this comment.");
         }
         

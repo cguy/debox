@@ -34,7 +34,7 @@
         <h3>{{i18n.comments.title}}</h3>
         <div id="slideshow-comments">
             <div class="alert alert-heading no-comments">{{i18n.comments.empty.photo}}</div>
-            <form id="new-photo-comment" method="post" action="">
+            <form id="new-media-comment" method="post" action="">
                 <textarea name="content" required placeholder="{{i18n.comments.placeholder}}"></textarea>
                 <div class="form-actions">
                     <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />

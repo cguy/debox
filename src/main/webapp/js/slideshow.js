@@ -165,6 +165,8 @@ function Slideshow() {
 
     this.setIndex = function(index) {
         this.index = index;
+        
+        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
 
         var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
@@ -204,7 +206,14 @@ function Slideshow() {
         var path = this.getBasePath();
         path += isCommentsMode ? "" : "/comments";
         $("#slideshow-options .comments").attr("href", path);
-        $("#new-photo-comment").attr("action", location.hash);
+        
+        var currentItem = this.items[this.index];
+        var isVideo = currentItem.video;
+        var path = "photos";
+        if (isVideo) {
+            path = "videos";
+        }
+        $("#new-media-comment").attr("action", "#/" + path + "/" + currentItem.id + "/comments");
         
         var commentsText = fr.comments.show;
         if (isCommentsMode) {
@@ -295,10 +304,15 @@ function Slideshow() {
             return;
         }
         var id = this.items[this.index].id;
+        var isVideo = this.items[this.index].video;
+        var path = "photo";
+        if (isVideo) {
+            path = "video";
+        }
         ajax({
-            url: computeUrl("photo/" + id + "/comments"),
+            url: computeUrl(path + "/" + id + "/comments"),
             success: function(data) {
-                if (data.photoId != id) {
+                if (data.mediaId != id) {
                     return;
                 }
                 $("#slideshow-comments .comment").remove();
@@ -320,7 +334,7 @@ function Slideshow() {
                 bindPhotoCommentDeletion();
             },
             error: function() {
-                console.log("Error during deletion");
+                console.log("Error during comments loading");
             }
         });
     };
@@ -383,6 +397,7 @@ function Slideshow() {
         }
         
         this.index = prevIndex;
+        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
         this._resetMargin();
         this.refreshLinks();
     };
@@ -409,6 +424,7 @@ function Slideshow() {
         }
 
         this.index = nextIndex;
+        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
         this._resetMargin();
         this.refreshLinks();
     };
