@@ -43,7 +43,9 @@ public class TokenDao {
     
     private static final Logger logger = LoggerFactory.getLogger(TokenDao.class);
 
-    protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE label = ?";
+    protected static String SQL_CREATE = "INSERT INTO tokens VALUES (?, ?, ?)";
+    protected static String SQL_UPDATE = "UPDATE tokens SET label = ? WHERE id = ?";
+    
     protected static String SQL_CREATE_TOKEN_ALBUM = "INSERT IGNORE INTO albums_tokens VALUES (?, ?)";
     protected static String SQL_DELETE_BY_USER = "DELETE FROM tokens where owner_id = ?";
     protected static String SQL_DELETE_TOKEN_ALBUM = "DELETE FROM albums_tokens WHERE token_id = ?";
@@ -75,19 +77,19 @@ public class TokenDao {
     protected UserDao userDao = new UserDao();
 
     public void save(Token token) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        try {
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
             QueryRunner queryRunner = new QueryRunner();
-            queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId(), token.getLabel());
-            queryRunner.update(connection, SQL_DELETE_TOKEN_ALBUM, token.getId());
+            int changedRows = queryRunner.update(connection, SQL_UPDATE, token.getLabel(), token.getId());
+            if (changedRows == 0) {
+                queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId());
+            } else {
+                queryRunner.update(connection, SQL_DELETE_TOKEN_ALBUM, token.getId());
+            }
             for (Album album : token.getAlbums()) {
                 queryRunner.update(connection, SQL_CREATE_TOKEN_ALBUM, album.getId(), token.getId());
             }
             DbUtils.commitAndCloseQuietly(connection);
-        } catch (SQLException ex) {
-            DbUtils.rollbackAndCloseQuietly(connection);
-            throw ex;
         }
     }
     

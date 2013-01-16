@@ -21,6 +21,7 @@
 package org.debox.photo.dao;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,8 @@ public class AlbumDao {
     
     protected static final PhotoDao PHOTO_DAO = new PhotoDao();
     
-    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?) ON DUPLICATE KEY UPDATE name = ?, description = ?, public = ?, photos_count = ?, videos_count = ?, downloadable = ?, begin_date = ?, end_date = ?";
+    protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)";
+    protected static String SQL_UPDATE_ALBUM = "UPDATE albums SET name = ?, description = ?, public = ?, photos_count = ?, videos_count = ?, downloadable = ?, begin_date = ?, end_date = ? WHERE id = ?";
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
 
@@ -456,61 +458,59 @@ public class AlbumDao {
     }
     
     public void save(List<Album> albums) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner();
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        try {
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
+            QueryRunner queryRunner = new QueryRunner();
+            
             for (Album album : albums) {
-                queryRunner.update(connection, SQL_CREATE_ALBUM, getParamsToSave(album));
+                if (album.getId() == null) {
+                    album.setId(StringUtils.randomUUID());
+                }
+                
+                Timestamp beginTimestamp = null;
+                Timestamp endTimestamp = null;
+                if (album.getBeginDate() != null) {
+                    beginTimestamp = new Timestamp(album.getBeginDate().getTime());
+                }
+                if (album.getEndDate() != null) {
+                    endTimestamp = new Timestamp(album.getEndDate().getTime());
+                }
+                
+                int changedRows = queryRunner.update(connection, SQL_UPDATE_ALBUM,
+                        album.getName(),
+                        album.getDescription(),
+                        album.isPublic(),
+                        album.getPhotosCount(),
+                        album.getVideosCount(),
+                        album.isDownloadable(),
+                        beginTimestamp,
+                        endTimestamp,
+                        album.getId());
+                
+                if (changedRows == 0) {
+                    queryRunner.update(connection, SQL_CREATE_ALBUM,
+                            album.getId(),
+                            album.getName(),
+                            album.getDescription(),
+                            beginTimestamp,
+                            endTimestamp,
+                            album.getPhotosCount(),
+                            album.getVideosCount(),
+                            album.isDownloadable(),
+                            album.getRelativePath(),
+                            album.getParentId(),
+                            album.isPublic(),
+                            album.getOwnerId());
+                }
             }
             DbUtils.commitAndCloseQuietly(connection);
-        } catch (SQLException ex) {
-            DbUtils.rollbackAndCloseQuietly(connection);
-            throw ex;
         }
     }
     
     public void save(Album album) throws SQLException {
-        String id = album.getId();
-        if (id == null) {
-            album.setId(StringUtils.randomUUID());
-        }
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        queryRunner.update(SQL_CREATE_ALBUM, getParamsToSave(album));
-    }
-    
-    protected Object[] getParamsToSave(Album album) throws SQLException {
-        Timestamp beginTimestamp = null;
-        Timestamp endTimestamp = null;
-        if (album.getBeginDate() != null) {
-            beginTimestamp = new Timestamp(album.getBeginDate().getTime());
-        }
-        if (album.getEndDate() != null) {
-            endTimestamp = new Timestamp(album.getEndDate().getTime());
-        }
-        
-        Object[] result = new Object[20];
-        result[0] = album.getId();
-        result[1] = album.getName();
-        result[2] = album.getDescription();
-        result[3] = beginTimestamp;
-        result[4] = endTimestamp;
-        result[5] = album.getPhotosCount();
-        result[6] = album.getVideosCount();
-        result[7] = album.isDownloadable();
-        result[8] = album.getRelativePath();
-        result[9] = album.getParentId();
-        result[10] = album.isPublic();
-        result[11] = album.getOwnerId();
-        result[12] = album.getName();
-        result[13] = album.getDescription();
-        result[14] = album.isPublic();
-        result[15] = album.getPhotosCount();
-        result[16] = album.getVideosCount();
-        result[17] = album.isDownloadable();
-        result[18] = beginTimestamp;
-        result[19] = endTimestamp;
-        return result;
+        List<Album> list = new ArrayList<>(1);
+        list.add(album);
+        save(list);
     }
     
     public void delete(Album album) throws SQLException {

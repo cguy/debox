@@ -91,7 +91,7 @@ public class DeboxService extends WebMotionController {
                     FileTime lastModifiedTimeAttribute = attributes.lastModifiedTime();
 
                     lastModified = lastModifiedTimeAttribute.toMillis();
-                    photoDao.savePhotoGenerationTime(media.getId(), size, lastModified);
+                    photoDao.saveThumbnailGenerationTime(media.getId(), size, lastModified);
 
                 } catch (IOException ioe) {
                     logger.error("Unable to access last modified property from file: " + strPath, ioe);
@@ -121,7 +121,7 @@ public class DeboxService extends WebMotionController {
             long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
 
             if (lastModified == -1) {
-                photoDao.savePhotoGenerationTime(id, ThumbnailSize.SQUARE, new Date().getTime());
+                photoDao.saveThumbnailGenerationTime(id, ThumbnailSize.SQUARE, new Date().getTime());
                 logger.warn("Get -1 value for album " + album.getId() + " and size " + ThumbnailSize.SQUARE.name());
             }
 

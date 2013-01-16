@@ -47,8 +47,8 @@ public class PhotoDao {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoDao.class);
     
-    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?, title = ?";
-    protected static String SQL_INCREMENT_PHOTO_COUNT = "UPDATE albums SET photos_count = photos_count + 1 WHERE id = ?";
+    protected static String SQL_CREATE_PHOTO = "INSERT INTO photos VALUES (?, ?, ?, ?, ?, ?)";
+    protected static String SQL_UPDATE_PHOTO = "UPDATE photos SET album_id = ?, relative_path = ?, title = ?, date = ? WHERE id = ?";
     
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
     protected static String SQL_GET_ALL = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id";
@@ -62,20 +62,27 @@ public class PhotoDao {
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
     protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id WHERE source_path = ?";
 
-    protected static String SQL_INSERT_PHOTO_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
-    protected static String SQL_GET_PHOTO_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
+    protected static String SQL_INSERT_THUMBNAIL_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?)";
+    protected static String SQL_UPDATE_THUMBNAIL_GENERATION = "UPDATE photos_generation SET time = ? WHERE id = ? AND size = ?";
+    
+    protected static String SQL_GET_THUMBNAIL_GENERATION = "SELECT time FROM photos_generation WHERE id = ? AND size = ?";
     
     protected static UserDao userDao = new UserDao();
     
-    public void savePhotoGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
+    public void saveThumbnailGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
         Timestamp timestamp = new Timestamp(time);
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        queryRunner.update(SQL_INSERT_PHOTO_GENERATION, id, size.name(), timestamp, timestamp);
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            QueryRunner queryRunner = new QueryRunner();
+            int changedRows = queryRunner.update(connection, SQL_UPDATE_THUMBNAIL_GENERATION, timestamp, id, size.name());
+            if (changedRows == 0) {
+                queryRunner.update(connection, SQL_INSERT_THUMBNAIL_GENERATION, id, size.name(), timestamp);
+            }
+        }
     }
     
     public long getGenerationTime(String id, ThumbnailSize size) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        long result = queryRunner.query(SQL_GET_PHOTO_GENERATION, new ResultSetHandler<Long> () {
+        long result = queryRunner.query(SQL_GET_THUMBNAIL_GENERATION, new ResultSetHandler<Long> () {
             @Override
             public Long handle(ResultSet rs) throws SQLException {
                 if (rs.next()) {
@@ -116,56 +123,28 @@ public class PhotoDao {
     }
 
     public void save(List<Photo> photos) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner();
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        try {
-            Object[][] params = new Object[photos.size()][9];
-            int i = 0;
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
+            
+            QueryRunner queryRunner = new QueryRunner();
             for (Photo photo : photos) {
                 String id = photo.getId();
                 if (id == null) {
                     id = StringUtils.randomUUID();
                 }
-                params[i][0] = id;
-                params[i][1] = photo.getFilename();
-                params[i][2] = photo.getTitle();
-                params[i][3] = new Timestamp(photo.getDate().getTime());
-                params[i][4] = photo.getRelativePath();
-                params[i][5] = photo.getAlbumId();
-                params[i][6] = photo.getAlbumId();
-                params[i][7] = photo.getRelativePath();
-                params[i][8] = photo.getTitle();
-                i++;
+                int changedRows = queryRunner.update(connection, SQL_UPDATE_PHOTO, photo.getAlbumId(), photo.getRelativePath(), photo.getTitle(), new Timestamp(photo.getDate().getTime()), id);
+                if (changedRows == 0) {
+                    queryRunner.update(connection, SQL_CREATE_PHOTO, id, photo.getFilename(), photo.getTitle(), new Timestamp(photo.getDate().getTime()), photo.getRelativePath(), photo.getAlbumId());
+                }
             }
-            queryRunner.batch(connection, SQL_CREATE_PHOTO, params);
             DbUtils.commitAndCloseQuietly(connection);
-        } catch (SQLException ex) {
-            DbUtils.rollbackAndCloseQuietly(connection);
-            throw ex;
         }
     }
 
     public void save(Photo photo) throws SQLException {
-        String id = photo.getId();
-        if (id == null) {
-            id = StringUtils.randomUUID();
-        }
-        
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        // Save the photo
-        queryRunner.update(SQL_CREATE_PHOTO,
-                id, photo.getFilename(),
-                photo.getTitle(),
-                new Timestamp(photo.getDate().getTime()),
-                photo.getRelativePath(),
-                photo.getAlbumId(),
-                photo.getAlbumId(),
-                photo.getRelativePath(),
-                photo.getTitle());
-
-        // Increase photos count for the album containing this photo
-        queryRunner.update(SQL_INCREMENT_PHOTO_COUNT, photo.getAlbumId());
+        List<Photo> list = new ArrayList<>(1);
+        list.add(photo);
+        this.save(list);
     }
     
     public void delete(Photo photo) throws SQLException {

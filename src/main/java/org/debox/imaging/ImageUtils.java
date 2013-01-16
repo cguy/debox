@@ -127,7 +127,7 @@ public class ImageUtils {
                 }
                 fis = future.get().getValue();
                 try {
-                    photoDao.savePhotoGenerationTime(media.getId(), size, new Date().getTime());
+                    photoDao.saveThumbnailGenerationTime(media.getId(), size, new Date().getTime());
                 } catch (SQLException sqle) {
                     log.error("Unable to save time generation for photo: " + targetPath, sqle);
                 }

@@ -106,22 +106,18 @@ public class AdministrationService extends DeboxService {
         }
         
         try {
-            photoDao.save(addedPhoto); // Handle photo count increment for album
+            photoDao.save(addedPhoto);
             
-            album = albumDao.getAlbum(albumId); // Get refreshed version on the album modified in photoDao.save method
-            boolean edited = false;
             Date date = ImageUtils.getShootingDate(targetFile);
             if (album.getBeginDate() == null || album.getBeginDate().after(date)) {
                 album.setBeginDate(date);
-                edited = true;
             }
             if (album.getEndDate() == null || album.getEndDate().before(date)) {
                 album.setEndDate(date);
-                edited = true;
             }
-            if (edited) {
-                albumDao.save(album);
-            }
+            album.setPhotosCount(album.getPhotosCount() + 1);
+            albumDao.save(album);
+
         } catch (SQLException ex) {
             FileUtils.deleteQuietly(new File(thumbnailPath));
             FileUtils.deleteQuietly(new File(squarePath));

@@ -29,12 +29,11 @@ import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
-import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
@@ -47,7 +46,9 @@ public class VideoDao {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoDao.class);
     
-    protected static String SQL_CREATE_VIDEO = "INSERT INTO videos VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE album_id = ?, relative_path = ?, title = ?, thumbnail = ?, ogg = ?, h264 = ?, webm = ?";
+    protected static String SQL_CREATE_VIDEO = "INSERT INTO videos VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    protected static String SQL_UPDATE_VIDEO = "UPDATE videos SET album_id = ?, relative_path = ?, title = ?, date = ?, thumbnail = ?, ogg = ?, h264 = ?, webm = ? WHERE id = ?";
+    
     protected static String SQL_INCREMENT_VIDEO_COUNT = "UPDATE albums SET videos_count = videos_count + 1 WHERE id = ?";
     
     protected static String SQL_DELETE_VIDEO = "DELETE FROM videos WHERE id = ?";
@@ -62,31 +63,6 @@ public class VideoDao {
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
     protected static String SQL_GET_VIDEO_BY_SOURCE_PATH = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE source_path = ?";
 
-    protected static String SQL_INSERT_VIDEO_GENERATION = "INSERT INTO videos_generation VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = ?";
-    protected static String SQL_GET_VIDEO_GENERATION = "SELECT time FROM videos_generation WHERE id = ? AND size = ?";
-    
-    protected static UserDao userDao = new UserDao();
-    
-    public void saveVideoGenerationTime(String id, ThumbnailSize size, long time) throws SQLException {
-        Timestamp timestamp = new Timestamp(time);
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        queryRunner.update(SQL_INSERT_VIDEO_GENERATION, id, size.name(), timestamp, timestamp);
-    }
-    
-    public long getGenerationTime(String id, ThumbnailSize size) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        long result = queryRunner.query(SQL_GET_VIDEO_GENERATION, new ResultSetHandler<Long> () {
-            @Override
-            public Long handle(ResultSet rs) throws SQLException {
-                if (rs.next()) {
-                    return rs.getTimestamp(1).getTime();
-                }
-                return -1L;
-            }
-        },id, size.name());
-        return result;
-    }
-    
     public List<Video> getAll() throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         List<Video> result = queryRunner.query(SQL_GET_ALL, getBeanListHandler(null));
@@ -116,72 +92,48 @@ public class VideoDao {
     }
 
     public void save(List<Video> videos) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner();
-        Connection connection = DatabaseUtils.getConnection();
-        connection.setAutoCommit(false);
-        try {
-            Object[][] params = new Object[videos.size()][17];
-            int i = 0;
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
+            
+            QueryRunner queryRunner = new QueryRunner();
             for (Video video : videos) {
                 String id = video.getId();
                 if (id == null) {
                     id = StringUtils.randomUUID();
                 }
-                params[i][0] = id;
-                params[i][1] = video.getFilename();
-                params[i][2] = video.getTitle();
-                params[i][3] = new Timestamp(video.getDate().getTime());
-                params[i][4] = video.getRelativePath();
-                params[i][5] = video.hasThumbnail();
-                params[i][6] = video.supportsOgg();
-                params[i][7] = video.supportsH264();
-                params[i][8] = video.supportsWebM();
-                params[i][9] = video.getAlbumId();
-                params[i][10] = video.getAlbumId();
-                params[i][11] = video.getRelativePath();
-                params[i][12] = video.getTitle();
-                params[i][13] = video.hasThumbnail();
-                params[i][14] = video.supportsOgg();
-                params[i][15] = video.supportsH264();
-                params[i][16] = video.supportsWebM();
-                i++;
+                int changedRows = queryRunner.update(connection, SQL_UPDATE_VIDEO, 
+                        video.getAlbumId(), 
+                        video.getRelativePath(),
+                        video.getTitle(),
+                        new Timestamp(video.getDate().getTime()),
+                        video.hasThumbnail(),
+                        video.supportsOgg(),
+                        video.supportsH264(),
+                        video.supportsWebM(),
+                        id);
+                
+                if (changedRows == 0) {
+                    queryRunner.update(connection, SQL_CREATE_VIDEO, 
+                            id, 
+                            video.getFilename(), 
+                            video.getTitle(), 
+                            new Timestamp(video.getDate().getTime()), 
+                            video.getRelativePath(), 
+                            video.hasThumbnail(),
+                            video.supportsOgg(),
+                            video.supportsH264(),
+                            video.supportsWebM(),
+                            video.getAlbumId());
+                }
             }
-            queryRunner.batch(connection, SQL_CREATE_VIDEO, params);
             DbUtils.commitAndCloseQuietly(connection);
-        } catch (SQLException ex) {
-            DbUtils.rollbackAndCloseQuietly(connection);
-            throw ex;
         }
     }
 
     public void save(Video video) throws SQLException {
-        String id = video.getId();
-        if (id == null) {
-            id = StringUtils.randomUUID();
-        }
-        
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        // Save the video
-        queryRunner.update(SQL_CREATE_VIDEO,
-                id, video.getFilename(),
-                video.getTitle(),
-                new Timestamp(video.getDate().getTime()),
-                video.getRelativePath(),
-                video.hasThumbnail(),
-                video.supportsOgg(),
-                video.supportsH264(),
-                video.supportsWebM(),
-                video.getAlbumId(),
-                video.getAlbumId(),
-                video.getRelativePath(),
-                video.getTitle(),
-                video.hasThumbnail(),
-                video.supportsOgg(),
-                video.supportsH264(),
-                video.supportsWebM());
-
-        // Increase videos count for the album containing this video
-        queryRunner.update(SQL_INCREMENT_VIDEO_COUNT, video.getAlbumId());
+        List<Video> list = new ArrayList<>(1);
+        list.add(video);
+        save(list);
     }
     
     public void delete(Video video) throws SQLException {

@@ -25,6 +25,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map.Entry;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.util.DatabaseUtils;
@@ -35,9 +37,13 @@ import org.debox.photo.util.DatabaseUtils;
 public class ConfigurationDao {
 
     protected static final String SQL_GET_CONFIGURATION = "SELECT `key`, `value` FROM configurations";
-    protected static final String SQL_SET_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?";
+    protected static final String SQL_INSERT_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?)";
+    protected static final String SQL_UPDATE_CONFIGURATION = "UPDATE configurations set value = ? WHERE `key` = ?";
+    
     protected static final String SQL_GET_USER_CONFIGURATION = "SELECT `key`, `value` FROM users_configurations WHERE user_id = ?";
-    protected static final String SQL_SET_USER_CONFIGURATION = "INSERT INTO users_configurations VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE value = ?";
+    protected static final String SQL_INSERT_USER_CONFIGURATION = "INSERT INTO users_configurations VALUES (?, ?, ?)";
+    protected static final String SQL_UPDATE_USER_CONFIGURATION = "UPDATE users_configurations set value = ? WHERE `key` = ? AND user_id = ?";
+    protected static final String SQL_DELETE_USER_CONFIGURATION = "DELETE FROM users_configurations WHERE user_id = ?";
     
     public Configuration getOverallConfiguration() throws SQLException {
         Configuration configuration = new Configuration();
@@ -59,43 +65,34 @@ public class ConfigurationDao {
     }
     
     public void save(Configuration applicationConfiguration) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(SQL_SET_CONFIGURATION);
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
+            
+            QueryRunner queryRunner = new QueryRunner();
             for (Entry<String, String> configuration : applicationConfiguration.get().entrySet()) {
-                statement.setString(1, configuration.getKey());
-                statement.setString(2, configuration.getValue());
-                statement.setString(3, configuration.getValue());
-                statement.addBatch();
+                int changedRows = queryRunner.update(connection, SQL_UPDATE_CONFIGURATION, configuration.getValue(), configuration.getKey());
+                if (changedRows == 0) {
+                    queryRunner.update(connection, SQL_INSERT_CONFIGURATION, configuration.getKey(), configuration.getValue());
+                }
             }
-            statement.executeBatch();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            DbUtils.commitAndCloseQuietly(connection);
         }
     }
     
     public void saveUserConfiguration(String userId, Configuration applicationConfiguration) throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement("DELETE FROM users_configurations WHERE user_id = ?");
-            statement.setString(1, userId);
-            statement.executeUpdate();
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
             
-            statement = connection.prepareStatement(SQL_SET_USER_CONFIGURATION);
+            QueryRunner queryRunner = new QueryRunner();
+            queryRunner.update(connection, SQL_DELETE_USER_CONFIGURATION, userId);
+            
             for (Entry<String, String> configuration : applicationConfiguration.get().entrySet()) {
-                statement.setString(1, userId);
-                statement.setString(2, configuration.getKey());
-                statement.setString(3, configuration.getValue());
-                statement.setString(4, configuration.getValue());
-                statement.addBatch();
+                int changedRows = queryRunner.update(connection, SQL_UPDATE_USER_CONFIGURATION, configuration.getValue(), configuration.getKey(), userId);
+                if (changedRows == 0) {
+                    queryRunner.update(connection, SQL_INSERT_USER_CONFIGURATION, userId, configuration.getKey(), configuration.getValue());
+                }
             }
-            statement.executeBatch();
-        } finally {
-            JdbcUtils.closeStatement(statement);
-            JdbcUtils.closeConnection(connection);
+            DbUtils.commitAndCloseQuietly(connection);
         }
     }
 

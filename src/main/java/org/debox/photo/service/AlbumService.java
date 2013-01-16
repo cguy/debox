@@ -387,7 +387,7 @@ public class AlbumService extends DeboxService {
             id = objectId;
         }
         
-        photoDao.savePhotoGenerationTime("a." + albumId, ThumbnailSize.SQUARE, new Date().getTime());
+        photoDao.saveThumbnailGenerationTime("a." + albumId, ThumbnailSize.SQUARE, new Date().getTime());
         albumDao.setAlbumCover(albumId, id);
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
