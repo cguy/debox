@@ -210,7 +210,7 @@ public class AlbumDao {
         columnsMapping.put("videos_count", "videosCount");
         columnsMapping.put("relative_path", "relativePath");
         columnsMapping.put("parent_id", "parentId");
-        columnsMapping.put("public", "isPublic");
+        columnsMapping.put("public", "public");
         columnsMapping.put("owner_id", "ownerId");
         columnsMapping.put("subAlbumsCount", "subAlbumsCount");
     }
