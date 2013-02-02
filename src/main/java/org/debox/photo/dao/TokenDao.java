@@ -100,7 +100,7 @@ public class TokenDao {
             QueryRunner queryRunner = new QueryRunner();
             for (Token token : tokens) {
                 queryRunner.update(connection, SQL_DELETE, token.getId());
-                queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId(), token.getLabel());
+                queryRunner.update(connection, SQL_CREATE, token.getId(), token.getLabel(), token.getOwner().getId());
                 for (Album album : token.getAlbums()) {
                     queryRunner.update(connection, SQL_CREATE_TOKEN_ALBUM, album.getId(), token.getId());
                 }
