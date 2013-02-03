@@ -365,19 +365,12 @@ h3 {
     cursor: pointer;
 }
 
-#edit_album #edit-album-form {
-    width: auto;
-    border-right: 1px solid #ddd;
-    padding-right: 20px;
-}
-
-#edit_album .row {
-    margin-top: 15px;
-}
-
 #edit_album {
-    overflow: hidden;
-    height: 0;
+    display:none;
+}
+
+#edit_album.visible {
+    display: block;
 }
 
 #edit_album .actions .btn:first-of-type {

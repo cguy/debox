@@ -6,7 +6,6 @@
         {{#subAlbums}}
         <li>
             <div data-id="a.{{id}}" class="thumbnail cover" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-image:url('{{coverUrl}}')">
-                <span class="container"></span>
             </div>
         </li>
         {{/subAlbums}}
@@ -28,7 +27,6 @@
             {{#video}}
                  style="background-color:#ddd;background-image:url('{{squareThumbnailUrl}}')">
             {{/video}}
-                <span class="container"></span>
             </div>
         </li>
         {{/medias}}

@@ -131,6 +131,14 @@
     height: 140px;
 }
 
+/* ************ */
+/* COVER CHOICE */
+/* ************ */
+#cover-photos > .albums > li > .cover {
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
 /* ************** */
 /* ALL THUMBNAILS */
 /* ************** */
