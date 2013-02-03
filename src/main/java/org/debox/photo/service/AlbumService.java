@@ -375,7 +375,12 @@ public class AlbumService extends DeboxService {
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
-        if (!StringUtils.isEmpty(objectId) && photoDao.getPhoto(objectId) == null && videoDao.getVideo(objectId) == null) {
+        boolean notEmpty = !StringUtils.isEmpty(objectId);
+        boolean isPhoto = notEmpty && photoDao.getPhoto(objectId) != null;
+        boolean isVideo = notEmpty && videoDao.getVideo(objectId) != null;
+        boolean isSubAlbum = notEmpty && objectId.startsWith("a.") && albumDao.getAlbumCover(objectId.substring(2)) != null;
+        
+        if (notEmpty || !isPhoto || !isVideo || !isSubAlbum) {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The objectId parameter must correspond with a valid media.");
         }
         
