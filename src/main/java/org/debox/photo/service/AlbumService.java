@@ -375,7 +375,7 @@ public class AlbumService extends DeboxService {
     }
 
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
-        boolean emptyId = !StringUtils.isEmpty(objectId);
+        boolean emptyId = StringUtils.isEmpty(objectId);
         boolean isPhoto = !emptyId && photoDao.getPhoto(objectId) != null;
         boolean isVideo = !emptyId && videoDao.getVideo(objectId) != null;
         boolean isSubAlbum = !emptyId && objectId.startsWith("a.") && albumDao.getAlbumCover(objectId.substring(2)) != null;
