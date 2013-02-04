@@ -46,7 +46,7 @@ public class DeboxJdbcRealm extends JdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(DeboxJdbcRealm.class);
     protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, a.id id, firstname, lastname, avatar from accounts a INNER JOIN users u on u.id = a.id where username = ?";
-    protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur LEFT JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
+    protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur INNER JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
     protected UserDao userDao = new UserDao();
 
     public DeboxJdbcRealm() {

@@ -83,9 +83,9 @@ public class UserDao {
     protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
             + "SELECT ta.user_id user_id, role_id, name role_name, thirdparty_account_id, thirdparty_name, token, firstname, lastname, avatar "
             + "FROM thirdparty_accounts ta "
-            + "     LEFT JOIN users_roles ur ON ur.user_id = ta.user_id "
-            + "     LEFT JOIN roles r ON ur.role_id = r.id "
-            + "     LEFT JOIN users u ON ta.user_id = u.id "
+            + "     INNER JOIN users_roles ur ON ur.user_id = ta.user_id "
+            + "     INNER JOIN roles r ON ur.role_id = r.id "
+            + "     INNER JOIN users u ON ta.user_id = u.id "
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
     

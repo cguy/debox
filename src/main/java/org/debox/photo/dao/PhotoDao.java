@@ -53,13 +53,13 @@ public class PhotoDao {
     protected static String SQL_DELETE_PHOTO = "DELETE FROM photos WHERE id = ?";
     protected static String SQL_GET_ALL = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id";
     protected static String SQL_GET_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id WHERE album_id = ? ORDER BY date";
-    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
+    protected static String SQL_GET_VISIBLE_PHOTOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     
     protected static String SQL_GET_PHOTO_BY_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id WHERE p.id = ?";
     protected static String SQL_GET_VISIBLE_PHOTO_BY_ID = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
             + " UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
     protected static String SQL_GET_PHOTO_BY_SOURCE_PATH = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON p.album_id = a.id WHERE source_path = ?";
 
     protected static String SQL_INSERT_THUMBNAIL_GENERATION = "INSERT INTO photos_generation VALUES (?, ?, ?)";

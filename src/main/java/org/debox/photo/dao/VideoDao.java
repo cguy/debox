@@ -54,13 +54,13 @@ public class VideoDao {
     protected static String SQL_DELETE_VIDEO = "DELETE FROM videos WHERE id = ?";
     protected static String SQL_GET_ALL = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id";
     protected static String SQL_GET_VIDEOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE album_id = ? ORDER BY date";
-    protected static String SQL_GET_VISIBLE_VIDEOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
+    protected static String SQL_GET_VISIBLE_VIDEOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     
     protected static String SQL_GET_VIDEO_BY_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE p.id = ?";
     protected static String SQL_GET_VISIBLE_VIDEO_BY_ID = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
             + " UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id LEFT JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
+            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
     protected static String SQL_GET_VIDEO_BY_SOURCE_PATH = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE source_path = ?";
 
     public List<Video> getAll() throws SQLException {

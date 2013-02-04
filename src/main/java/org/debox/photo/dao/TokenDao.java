@@ -58,19 +58,19 @@ public class TokenDao {
     
     protected static String SQL_GET_ALL_WITH_ALBUMS = ""
             + "SELECT t.id id, label, album_id, name, relative_path FROM tokens t "
-            + "LEFT JOIN albums_tokens ON id = token_id "
-            + "LEFT JOIN albums on album_id = albums.id "
+            + "INNER JOIN albums_tokens ON id = token_id "
+            + "INNER JOIN albums on album_id = albums.id "
             + "WHERE t.owner_id = ? "
             + "ORDER BY label, t.id";
     
     protected static String SQL_GET_BY_ALBUM_ID = ""
             + "SELECT tokens.id id FROM tokens "
-            + "LEFT JOIN albums_tokens ON id = token_id "
+            + "INNER JOIN albums_tokens ON id = token_id "
             + "WHERE album_id = ?";
     
     protected static String SQL_GET_BY_ID = ""
             + "SELECT tokens.id id, label, tokens.owner_id, album_id FROM tokens "
-            + "LEFT JOIN albums_tokens ON id = token_id "
+            + "INNER JOIN albums_tokens ON id = token_id "
             + "WHERE tokens.id = ? ORDER BY label, tokens.id";
     
     protected AlbumDao albumDao = new AlbumDao();

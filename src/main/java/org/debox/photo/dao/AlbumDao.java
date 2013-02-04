@@ -64,7 +64,7 @@ public class AlbumDao {
             + "SELECT DISTINCT"
             + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
-            + "    albums a LEFT JOIN albums_tokens ON id = album_id "
+            + "    albums a INNER JOIN albums_tokens ON id = album_id "
             + "WHERE"
             + "    parent_id is null "
             + "    AND ("
@@ -77,7 +77,7 @@ public class AlbumDao {
             + "SELECT"
             + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
-            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
             + "WHERE aa.user_id = ? AND a.parent_id IS NULL "
             + "ORDER BY begin_date";
     
@@ -89,7 +89,7 @@ public class AlbumDao {
             + "SELECT DISTINCT"
             + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
-            + "    albums a LEFT JOIN albums_tokens ON id = album_id "
+            + "    albums a INNER JOIN albums_tokens ON id = album_id "
             + "WHERE"
             + "    parent_id = ? "
             + "    AND ("
@@ -102,7 +102,7 @@ public class AlbumDao {
             + "SELECT DISTINCT"
             + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
-            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
             + "WHERE"
             + "    parent_id = ? AND (aa.user_id = ? "
             + "    OR public = 1) "
@@ -111,7 +111,7 @@ public class AlbumDao {
     protected static String SQL_GET_PHOTOS_COUNT_BY_PARENT_ID_FOR_LOGGED = ""
             + "SELECT count(*) "
             + "FROM"
-            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
             + "    INNER JOIN photos p ON a.id = p.album_id "
             + "WHERE"
             + "    a.id = ? AND (aa.user_id = ? "
@@ -121,7 +121,7 @@ public class AlbumDao {
     protected static String SQL_GET_VISIBLE_PHOTOS_COUNT_BY_ALBUM_ID = ""
             + "SELECT count(*) "
             + "FROM"
-            + "    albums a LEFT JOIN albums_tokens ON id = album_id "
+            + "    albums a INNER JOIN albums_tokens ON id = album_id "
             + "    INNER JOIN photos p ON a.id = p.album_id "
             + "WHERE"
             + "    a.id = ? "
@@ -134,7 +134,7 @@ public class AlbumDao {
     protected static String SQL_GET_VIDEOS_COUNT_BY_PARENT_ID_FOR_LOGGED = ""
             + "SELECT count(*) "
             + "FROM"
-            + "    albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
             + "    INNER JOIN videos p ON a.id = p.album_id "
             + "WHERE"
             + "    a.id = ? AND (aa.user_id = ? "
@@ -144,7 +144,7 @@ public class AlbumDao {
     protected static String SQL_GET_VISIBLE_VIDEOS_COUNT_BY_ALBUM_ID = ""
             + "SELECT count(*) "
             + "FROM"
-            + "    albums a LEFT JOIN albums_tokens ON id = album_id "
+            + "    albums a INNER JOIN albums_tokens ON id = album_id "
             + "    INNER JOIN videos p ON a.id = p.album_id "
             + "WHERE"
             + "    a.id = ? "
@@ -172,31 +172,31 @@ public class AlbumDao {
 
     protected static String SQL_UPDATE_ALBUM_COVER = "UPDATE albums SET cover = ? WHERE id = ?";
     
-    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
-    protected static String SQL_GET_ALBUM_COVER_VIDEO = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM videos p LEFT JOIN albums a ON a.cover = p.id WHERE a.id = ?";
+    protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON a.cover = p.id WHERE a.id = ?";
+    protected static String SQL_GET_ALBUM_COVER_VIDEO = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM videos p INNER JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM photos p "
-            + "LEFT JOIN albums a ON a.cover = p.id "
-            + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
+            + "INNER JOIN albums a ON a.cover = p.id "
+            + "INNER JOIN albums_tokens at ON at.album_id = a.id "
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM photos p "
-            + "LEFT JOIN albums a ON a.cover = p.id "
-            + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
+            + "INNER JOIN albums a ON a.cover = p.id "
+            + "INNER JOIN accounts_accesses aa ON aa.album_id = a.id "
             + "WHERE a.id = ?)";
     
     protected static String SQL_GET_VISIBLE_ALBUM_COVER_VIDEO = ""
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM videos p "
-            + "LEFT JOIN albums a ON a.cover = p.id "
-            + "LEFT JOIN albums_tokens at ON at.album_id = a.id "
+            + "INNER JOIN albums a ON a.cover = p.id "
+            + "INNER JOIN albums_tokens at ON at.album_id = a.id "
             + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
             + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
             + "FROM videos p "
-            + "LEFT JOIN albums a ON a.cover = p.id "
-            + "LEFT JOIN accounts_accesses aa ON aa.album_id = a.id "
+            + "INNER JOIN albums a ON a.cover = p.id "
+            + "INNER JOIN accounts_accesses aa ON aa.album_id = a.id "
             + "WHERE a.id = ?)";
     
     protected static final Map<String, String> columnsMapping = new HashMap<>(12);
