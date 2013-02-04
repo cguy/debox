@@ -45,12 +45,6 @@ public class ThumbnailatorImageHandler implements ImageHandler {
     @Override
     public void thumbnail(Path source, Path target, ThumbnailSize size) {
         Builder<File> builder = Thumbnails.of(source.toFile());
-        
-        Integer rotation = getOrientation(source);
-        if (rotation != null) {
-            builder.rotate(rotation);
-        }
-        
         if (size.isCropped()) {
             builder = builder.crop(Positions.CENTER);
         }
@@ -64,37 +58,9 @@ public class ThumbnailatorImageHandler implements ImageHandler {
         }
     }
 
-    protected Integer getOrientation(Path imagePath) {
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(imagePath.toFile());
-            ExifIFD0Directory directory = metadata.getDirectory(ExifIFD0Directory.class);
-            if (directory == null) {
-                return null;
-            }
-
-            Integer rawValue = directory.getInteger(ExifIFD0Directory.TAG_ORIENTATION);
-            Integer result = null;
-            switch (rawValue) {
-                case 3:
-                    result = 180;
-                    break;
-                case 6:
-                    result = 90;
-                    break;
-                case 8:
-                    result = 270;
-                    break;
-            }
-            return result;
-
-        } catch (ImageProcessingException | IOException ex) {
-            log.error("Unable to read orientation from file " + imagePath.toString(), ex);
-        }
-        return null;
-    }
-
     @Override
     public void thumbnail(Path source, Path target, ThumbnailSize size, boolean async) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
 }
