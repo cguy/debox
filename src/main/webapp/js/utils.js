@@ -208,7 +208,7 @@ function loadAlbum(data, callback, mode) {
     }
                     
     // Process photos
-    data.album.photos = data.photos;
+    data.album.photos = data.medias;
     
     // Process comments
     if (data.comments) {
