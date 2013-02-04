@@ -50,6 +50,15 @@
     {{#error}}
     <p class="alert alert-danger">{{i18n.registration.errors.internal}}</p>
     {{/error}}
+    {{#signInError}}
+    <p class="alert alert-danger">{{i18n.signin.errors.500}}</p>
+    {{/signInError}}
+    {{#mandatoryFields}}
+    <p class="alert alert-danger">{{i18n.registration.errors.mandatoryFields}}</p>
+    {{/mandatoryFields}}
+    {{#passwordMatch}}
+    <p class="alert alert-danger">{{i18n.registration.errors.passwordMatch}}</p>
+    {{/passwordMatch}}
     {{#success}}
     <p class="alert alert-success">{{{i18n.registration.success}}}</p>
     {{/success}}
@@ -61,6 +70,9 @@
         <input type="password" name="password" required placeholder="{{i18n.registration.placeholder.password}}">
     </p>
     {{^isSignIn}}
+    <p>
+        <input type="password" name="confirm" required placeholder="{{i18n.registration.placeholder.confirm}}">
+    </p>
     <p>
         <input type="text" name="firstname" class="firstname" required placeholder="{{i18n.registration.placeholder.firstname}}">
         <input type="text" name="lastname" class="lastname" required placeholder="{{i18n.registration.placeholder.lastname}}">

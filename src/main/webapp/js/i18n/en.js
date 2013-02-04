@@ -62,12 +62,15 @@ var fr = {
             firstname: "Your first name",
             lastname: "Your last name",
             mail: "Please enter your mail address",
-            password: "Please enter your password"
+            password: "Please enter your password",
+            confirm: "Please confirm your password"
         },
         finish: "Finish registration",
         errors : {
             internal: "An error occured during regristration, please try again or contact the webmaster.",
-            alreadyRegistered: "Unable to finish registration, the entered mail addresse is already used."
+            alreadyRegistered: "Unable to finish registration, the entered mail addresse is already used.",
+            mandatoryFields: "All mandatory fields have not been filled (mail address, password, password confirm, first name and last name.",
+            passwordMatch: "The password and the confirm don't match, please retry."
         },
         note: "Note : your first name and your last name are only used to show your identity on media you interact with. You do not have to enter your real identity, although it is advisable for allowing your friends recognize you.",
         success: "Your account has been successfully created, you can now access to <a href=\"#/account\">your account</a> or start to <a href=\"#/administration/upload\">add your photos</a>."
@@ -76,7 +79,10 @@ var fr = {
         title: "Login",
         subtitle: "Login and access to your gallery or your friends galleries",
         providerPrefix: "Login with my account ",
-        altChoice: "or login with your credentials"
+        altChoice: "or login with your credentials",
+        errors : {
+            500 : "An error occured during authentication, please try again."
+        }
     },
     about : {
         tooltip: "About"

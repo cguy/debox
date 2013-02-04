@@ -74,9 +74,11 @@ public class AccountService extends DeboxService {
         return renderRedirect("/");
     }
     
-    public Render register(String username, String password, String firstname, String lastname) throws SQLException {
-        if (StringUtils.atLeastOneIsEmpty(username, password, firstname, lastname)) {
-            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, firstname and lastname are mandatory.");
+    public Render register(String username, String password, String confirm, String firstname, String lastname) throws SQLException {
+        if (StringUtils.atLeastOneIsEmpty(username, password, confirm, firstname, lastname)) {
+            return renderRedirect("/#/register?mandatory.fields");
+        } else if (!password.equals(confirm)) {
+            return renderRedirect("/#/register?password.match");
         }
         
         DeboxUser user = new DeboxUser();
@@ -99,7 +101,7 @@ public class AccountService extends DeboxService {
         }
         
         this.authenticate(username, password);
-        return renderRedirect("/#/register?success");
+        return renderRedirect("#/account");
     }
     
     public Render handleFacebookCallback(String code) throws SQLException {

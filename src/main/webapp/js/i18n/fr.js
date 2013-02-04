@@ -62,12 +62,15 @@ var fr = {
             firstname: "Votre prénom",
             lastname: "Votre nom de famille",
             mail: "Veuillez saisir votre adresse e-mail",
-            password: "Veuillez saisir votre mot de passe"
+            password: "Veuillez saisir votre mot de passe",
+            confirm: "Veuillez saisir à nouveau votre mot de passe"
         },
         finish: "Terminer la création de mon compte",
         errors : {
             internal: "Une erreur est survenue lors de l'enregistrement de votre compte, veuillez réessayer ou contacter le responsable du site.",
             alreadyRegistered: "Impossible de finir votre inscription, l'adresse e-mail saisie est déjà utilisée.",
+            mandatoryFields: "Tous les champs nécessaires à l'inscription (adresse e-mail, mot de passe, confirmation du mot de passe, prénom, nom de famille) n'ont pas été remplis.",
+            passwordMatch: "Le mot de passe et la confirmation saisies ne correspondent pas, veuillez réessayer."
         },
         note: "Note : votre prénom et votre nom ne sont utilisés que pour afficher votre identité sur des médias qui vont sont liés. Vous n'êtes pas obligé de saisir votre réelle identité, bien que ça soit conseillé pour que vos proches vous reconnaissent.",
         success: "Votre compte a bien été créé, vous pouvez d'ores et déjà accéder à <a href=\"#/account\">votre compte</a> ou commencer à <a href=\"#/administration/upload\">ajouter vos photos</a>."
@@ -76,7 +79,10 @@ var fr = {
         title: "Connexion à votre compte",
         subtitle: "Connectez-vous et accéder à votre photothèque ou celle de vos amis",
         providerPrefix: "Me connecter avec mon compte ",
-        altChoice: "ou connectez-vous avec vos identifiants"
+        altChoice: "ou connectez-vous avec vos identifiants",
+        errors : {
+            500 : "Une erreur est survenue pendant l'authentification, veuillez réessayer."
+        }
     },
     about : {
         tooltip: "En savoir plus"

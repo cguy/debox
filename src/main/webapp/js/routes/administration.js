@@ -41,12 +41,14 @@ app.get('#/administration(/:tab)?', function() {
 /* ******************* */
 app.get("#/register", function() {
     if (_config.authenticated) {
-        this.reditect("#/");
+        this.redirect("#/account");
     } else {
         loadTemplate("register", {
             alreadyRegistered : typeof this.params.alreadyRegistered !== 'undefined',
             error : typeof this.params.error !== 'undefined',
-            success : typeof this.params.success !== 'undefined'
+            success : typeof this.params.success !== 'undefined',
+            mandatoryFields : typeof this.params["mandatory.fields"] !== 'undefined',
+            passwordMatch : typeof this.params["password.match"] !== 'undefined',
         });
     }
 });
@@ -55,6 +57,9 @@ app.get("#/sign-in", function() {
     if (_config.authenticated) {
         this.reditect("#/");
     } else {
-        loadTemplate("register", {isSignIn: true});
+        loadTemplate("register", {
+            isSignIn: true,
+            signInError : typeof this.params.error !== 'undefined'
+        });
     }
 });
