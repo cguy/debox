@@ -1,0 +1,13 @@
+[config]
+package.base=org.debox.photo
+package.actions=service
+package.views=WEB-INF/
+
+[actions]
+# -----------------------------------------------------------------------------------------------
+# INSTALL
+# -----------------------------------------------------------------------------------------------
+GET         /install                            view:install.html
+POST        /datasource                         InstallationService.setDataSource
+POST        /working-directory                  InstallationService.setWorkingDirectory
+POST        /register-administrator             InstallationService.createUserAndRoles

@@ -20,21 +20,19 @@
     <div class="block">
         <form id="datasource" class="form-horizontal" action="datasource" method="post">
             <div class="control-group">
-                <label class="control-label large" for="host">{{i18n.install.steps.0.form.host.label}}</label>
+                <label class="control-label large" for="host">{{i18n.install.steps.0.form.type.label}}</label>
                 <div class="controls">
-                    <input type="text" id="host" name="host" class="span4" placeholder="{{i18n.install.steps.0.form.host.default}}" value="127.0.0.1" >
+                    <select name="type" id="database-type">
+                        <option value="mysql" data-jdbc="mysql://127.0.0.1:3306/debox" selected>MySQL</option>
+                        <option value="h2" data-jdbc="h2:file:~/.debox/database">H2</option>
+                        <option value="postgresql" data-jdbc="postgresql://127.0.0.1:5432/debox">PostgreSQL</option>
+                    </select>
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label large" for="port">{{i18n.install.steps.0.form.port.label}}</label>
-                <div class="controls">
-                    <input type="text" id="port" name="port" class="span4" placeholder="{{i18n.install.steps.0.form.port.default}}" value="3306" >
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label large" for="name">{{i18n.install.steps.0.form.name.label}}</label>
-                <div class="controls">
-                    <input type="text" id="name" name="name" class="span4" placeholder="{{i18n.install.steps.0.form.name.default}}" value="debox" >
+                <label class="control-label large" for="jdbc">{{i18n.install.steps.0.form.jdbc.label}}</label>
+                <div class="input-prepend">
+                    <span class="add-on">jdbc:</span><input type="text" id="jdbc" name="url" class="span4" placeholder="{{i18n.install.steps.0.form.host.default}}" value="127.0.0.1" >
                 </div>
             </div>
             <div class="control-group">
@@ -100,6 +98,12 @@
                 <label class="control-label large" for="account_password">{{i18n.install.steps.2.form.password.label}}</label>
                 <div class="controls">
                     <input type="password" id="account_password" name="password" class="span6" placeholder="{{i18n.install.steps.2.form.password.placeholder}}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label large" for="account_confirm">{{i18n.install.steps.2.form.confirm.label}}</label>
+                <div class="controls">
+                    <input type="password" id="account_confirm" name="confirm" class="span6" placeholder="{{i18n.install.steps.2.form.confirm.placeholder}}">
                 </div>
             </div>
             <div class="form-actions">

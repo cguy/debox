@@ -42,14 +42,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class JdbcMysqlRealm extends JdbcRealm {
+public class DeboxJdbcRealm extends JdbcRealm {
 
-    private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeboxJdbcRealm.class);
     protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, a.id id, firstname, lastname, avatar from accounts a INNER JOIN users u on u.id = a.id where username = ?";
     protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur LEFT JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
     protected UserDao userDao = new UserDao();
 
-    public JdbcMysqlRealm() {
+    public DeboxJdbcRealm() {
         this.setAuthenticationQuery(SALTED_AUTHENTICATION_QUERY);
         this.setUserRolesQuery(USER_ROLES_QUERY);
         this.setSaltStyle(SaltStyle.COLUMN);

@@ -13,7 +13,7 @@
 
         {{#config.administrator}}
         <label class="radio">
-            <input type="radio" name="hostingOption" value="local"{{^isAutoHosting}} checked{{/isAutoHosting}}> Je veux que debox accède en local aux photos hébergées sur ce serveur (administrateur uniquement).
+            <input type="radio" name="hostingOption" value="local"{{#local}} checked{{/local}}> Je veux que debox accède en local aux photos hébergées sur ce serveur (administrateur uniquement).
         </label>
         <div class="well well-small">
             <div class="control-group">
@@ -32,7 +32,25 @@
         
         {{/config.administrator}}
         <label class="radio">
-            <input type="radio" name="hostingOption" value="auto"{{#isAutoHosting}} checked{{/isAutoHosting}}> Je veux que ce site gère tout seul la manière dont il héberge mes photos.
+            <input type="radio" name="hostingOption" value="ftp"{{#ftp}} checked{{/ftp}}> Je veux que debox accède à mes médias hébergés sur un serveur FTP.
+        </label>
+        <div class="well well-small">
+            <div class="control-group">
+                <label class="control-label" for="albumsInput">Albums</label>
+                <div class="controls">
+                    <input type="text" class="span8" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="thumbnailsInput">Vignettes</label>
+                <div class="controls">
+                    <input type="text" class="span8" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
+                </div>
+            </div>
+        </div>
+        
+        <label class="radio">
+            <input type="radio" name="hostingOption" value="auto"{{#auto}} checked{{/auto}}> Je veux que ce site gère tout seul la manière dont il héberge mes photos.
         </label>
         <div class="form-actions">
             <input type="submit" class="btn btn-primary" value="{{i18n.common.validate}}" />

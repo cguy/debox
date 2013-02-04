@@ -350,33 +350,27 @@ var fr = {
             title: "Introduction",
             presentation: "debox installation on your server will be in several steps:",
             steps : [
-                "MySQL database configuration",
+                "Database configuration",
                 "Workspace configuration (photos hosting & management)",
                 "Creation of the administrator account"
             ]
         },
         steps: [
             {
-                title: "Step 1 / 3 : MySQL database configuration",
+                title: "Step 1 / 3 : Database configuration",
                 form: {
-                    host : {
-                        label: "MySQL server host:",
-                        default : "Default value: 127.0.0.1"
+                    type : {
+                        label: "Database server type:"
                     },
-                    port : {
-                        label: "MySQL server access port:",
-                        default : "Default value: 3306"
-                    },
-                    name : {
-                        label: "Database name:",
-                        default : "Default value: debox"
+                    jdbc : {
+                        label: "JDBC URL:"
                     },
                     username: {
-                        label : "MySQL username:",
+                        label : "Database username:",
                         default : "Default value: root"
                     },
                     password: {
-                        label : "MySQL password:",
+                        label : "Database password:",
                         default : "Default value: <empty>"
                     },
                     next: "Check database connection"
@@ -410,6 +404,10 @@ var fr = {
                     password: {
                         label : "Your account password: ",
                         placeholder : "Mandatory to log-in the application"
+                    },
+                    confirm: {
+                        label : "Password confirm : ",
+                        placeholder : "To ensure previously entered password"
                     },
                     next: "Create the administrator account"
                 }

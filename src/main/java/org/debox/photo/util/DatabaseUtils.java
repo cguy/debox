@@ -21,16 +21,19 @@
 package org.debox.photo.util;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mchange.v2.c3p0.DataSources;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
-import org.debox.photo.dao.JdbcMysqlRealm;
+import org.debox.photo.dao.DeboxJdbcRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +42,21 @@ import org.slf4j.LoggerFactory;
  */
 public class DatabaseUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(JdbcMysqlRealm.class);
-    public static final String PROPERTY_DATABASE_HOST = "database.host";
-    public static final String PROPERTY_DATABASE_PORT = "database.port";
-    public static final String PROPERTY_DATABASE_NAME = "database.name";
+    private static final Logger logger = LoggerFactory.getLogger(DeboxJdbcRealm.class);
+    public static final String PROPERTY_DATABASE_TYPE = "database.type";
+    public static final String PROPERTY_JDBC_URL = "database.jdbc.url";
     public static final String PROPERTY_DATABASE_USERNAME = "database.username";
     public static final String PROPERTY_DATABASE_PASSWORD = "database.password";
     public static final String TEST_QUERY = "SELECT 1";
     protected static ComboPooledDataSource comboPooledDataSource;
     protected static Configuration properties = null;
+    
+    protected static final Map<String, String> driverClasses = new HashMap<>(3);
+    static {
+        driverClasses.put("mysql", "com.mysql.jdbc.Driver");
+        driverClasses.put("h2", "org.h2.Driver");
+        driverClasses.put("postgresql", "org.postgresql.Driver");
+    }
 
     public static Configuration getConfiguration() {
         return properties;
@@ -59,16 +68,23 @@ public class DatabaseUtils {
 
     public static boolean hasConfiguration() {
         return properties != null && !StringUtils.atLeastOneIsEmpty(
-                properties.getString(PROPERTY_DATABASE_HOST),
-                properties.getString(PROPERTY_DATABASE_PORT),
-                properties.getString(PROPERTY_DATABASE_NAME),
-                properties.getString(PROPERTY_DATABASE_USERNAME));
+            properties.getString(PROPERTY_DATABASE_TYPE),
+            properties.getString(PROPERTY_JDBC_URL),
+            properties.getString(PROPERTY_DATABASE_USERNAME));
+    }
+    
+    public static String getDriverClass(String type) {
+        return driverClasses.get(type);
+    }
+    
+    public static Map<String, String> getDriverClasses() {
+        return driverClasses;
     }
 
     public static boolean testConnection() {
         boolean result = true;
         try (
-            Connection connection = DatabaseUtils.getDataSource().getConnection();
+            Connection connection = DatabaseUtils.getDataSource(true).getConnection();
             PreparedStatement statement = connection.prepareStatement(TEST_QUERY);
         ) {
             statement.executeQuery();
@@ -79,20 +95,34 @@ public class DatabaseUtils {
         return result;
     }
 
-    public static synchronized ComboPooledDataSource getDataSource() {
-        if (comboPooledDataSource == null && hasConfiguration()) {
+    public static ComboPooledDataSource getDataSource() {
+        return getDataSource(false);
+    }
+    
+    public static ComboPooledDataSource getDataSource(boolean forceRefreshProperties) {
+        if (comboPooledDataSource == null && hasConfiguration() || forceRefreshProperties) {
+            
+            if (comboPooledDataSource != null) {
+                try {
+                    DataSources.destroy(comboPooledDataSource);
+                } catch (SQLException ex) {
+                    logger.error("Unable to destroy datasource", ex);
+                }
+                comboPooledDataSource = null;
+            }
+            
             Connection connection = null;
             try {
-                comboPooledDataSource = new ComboPooledDataSource();
-                comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
+                String type = properties.getString(PROPERTY_DATABASE_TYPE);
+                String driverClass = getDriverClass(type);
                 
-                String host = properties.getString(PROPERTY_DATABASE_HOST);
-                String port = properties.getString(PROPERTY_DATABASE_PORT);
-                String name = properties.getString(PROPERTY_DATABASE_NAME);
+                comboPooledDataSource = new ComboPooledDataSource();
+                comboPooledDataSource.setDriverClass(driverClass);
+                
+                String url = "jdbc:" + properties.getString(PROPERTY_JDBC_URL);
                 String user = properties.getString(PROPERTY_DATABASE_USERNAME);
                 String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
-
-                String url = "jdbc:mysql://" + host + ':' + port + '/' + name;
+                
                 comboPooledDataSource.setJdbcUrl(url);
                 comboPooledDataSource.setUser(user);
                 comboPooledDataSource.setPassword(password);
@@ -116,9 +146,9 @@ public class DatabaseUtils {
     public static void applyDatasourceToShiro() {
         RealmSecurityManager securityManager = (RealmSecurityManager) SecurityUtils.getSecurityManager();
         for (Realm realm : securityManager.getRealms()) {
-            if (realm instanceof JdbcMysqlRealm) {
-                JdbcMysqlRealm mysqlRealm = (JdbcMysqlRealm) realm;
-                mysqlRealm.setDataSource(DatabaseUtils.getDataSource());
+            if (realm instanceof DeboxJdbcRealm) {
+                DeboxJdbcRealm jdbcRealm = (DeboxJdbcRealm) realm;
+                jdbcRealm.setDataSource(DatabaseUtils.getDataSource());
             }
         }
     }

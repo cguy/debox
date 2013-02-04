@@ -18,9 +18,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -- #L%
 --
-DROP DATABASE IF EXISTS `debox`;
-CREATE DATABASE IF NOT EXISTS `debox` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `debox`;
+
 SET FOREIGN_KEY_CHECKS=0;
 
 -- --------------------- --
@@ -47,6 +45,14 @@ CREATE TABLE IF NOT EXISTS `users` (
     `firstname` VARCHAR(50),
     `lastname` VARCHAR(50),
     `avatar` TEXT
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS `medias_sources` (
+    `id` VARCHAR(32) PRIMARY KEY,
+    `type` VARCHAR(32) NOT NULL,
+    `data` TEXT NOT NULL,
+    `user_id` VARCHAR(32) NOT NULL,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8 COLLATE = utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `accounts` (

@@ -350,33 +350,27 @@ var fr = {
             title: "Introduction",
             presentation: "L'installation de debox sur votre serveur se fera en plusieurs étapes :",
             steps : [
-                "Configuration de la base de données MySQL",
+                "Configuration de la base de données",
                 "Configuration de l'espace de travail (stockage & travail sur les photos)",
                 "Création du compte administrateur"
             ]
         },
         steps: [
             {
-                title: "Étape n°1 / 3 : Configuration de la base de données MySQL",
+                title: "Étape n°1 / 3 : Configuration de la base de données",
                 form: {
-                    host : {
-                        label: "Adresse du serveur MySQL :",
-                        default : "Valeur par défaut : 127.0.0.1"
+                    type : {
+                        label: "Type de base de données :"
                     },
-                    port : {
-                        label: "Port d'accès au serveur MySQL :",
-                        default : "Valeur par défaut : 3306"
-                    },
-                    name : {
-                        label: "Nom de la base de données :",
-                        default : "Valeur par défaut : debox"
+                    jdbc : {
+                        label: "URL JDBC :"
                     },
                     username: {
-                        label : "Nom de l'utilisateur MySQL :",
+                        label : "Nom de l'utilisateur :",
                         default : "Valeur par défaut : root"
                     },
                     password: {
-                        label : "Mot de passe de l'utilisateur MySQL :",
+                        label : "Mot de passe de l'utilisateur :",
                         default : "Valeur par défaut : Pas de mot de passe"
                     },
                     next: "Valider la connexion à la base de données"
@@ -411,6 +405,10 @@ var fr = {
                     password: {
                         label : "Votre mot de passe de connexion : ",
                         placeholder : "Nécessaire pour vous connecter à votre application debox"
+                    },
+                    confirm: {
+                        label : "Confirmation de votre mot de passe : ",
+                        placeholder : "Pour assurer le mot de passe saisi"
                     },
                     next: "Valider la création du compte administrateur"
                 }

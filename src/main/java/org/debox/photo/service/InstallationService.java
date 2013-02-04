@@ -22,13 +22,22 @@ package org.debox.photo.service;
  */
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.io.IOUtils;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Role;
@@ -37,6 +46,7 @@ import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.WebMotionUtils;
+import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +60,19 @@ public class InstallationService extends DeboxService {
     
     protected UserDao userDao = new UserDao();
     
+    public Render getAvailableDatabaseDrivers() {
+        Map<String, Boolean> map = new HashMap<>(DatabaseUtils.getDriverClasses().size());
+        for (Entry<String, String> entry : DatabaseUtils.getDriverClasses().entrySet()) {
+            try {
+                Class.forName(entry.getValue());
+                map.put(entry.getKey(),  Boolean.TRUE);
+            } catch (ClassNotFoundException ex) {
+                map.put(entry.getKey(),  Boolean.FALSE);
+            }
+        }
+        return renderJSON(map);
+    }
+    
     public Render setWorkingDirectory(String path) {
         Path workingPath = Paths.get(path);
         File workingDirectory = workingPath.toFile();
@@ -59,30 +82,61 @@ public class InstallationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Given path is not writable");
         }
         
-        ApplicationContext.getInstance().getOverallConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toAbsolutePath().toString());
+        ApplicationContext.getInstance().getOverallConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toString());
         return renderSuccess();
     }
     
-    public Render setDataSource(String host, String port, String name, String username, String password) {
+    public Render setDataSource(String type, String url, String username, String password) {
         CompositeConfiguration configuration = new CompositeConfiguration();
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_HOST, host);
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PORT, port);
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_NAME, name);
+        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_TYPE, type);
+        configuration.addProperty(DatabaseUtils.PROPERTY_JDBC_URL, url);
         configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_USERNAME, username);
         configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
-        DatabaseUtils.setDataSourceConfiguration(configuration);
+        DatabaseUtils.setDataSourceConfiguration((CompositeConfiguration) configuration.clone());
         
         boolean connectionTest = DatabaseUtils.testConnection();
         if (!connectionTest) {
             getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
             return renderJSON("message", "Unable to connect to the database, please see server logs.");
         }
+        
+        try {
+            setupDatabaseStructure();
+        } catch (SQLException | IOException ex) {
+            log.error("Unable to setup database", ex);
+            return renderJSON("message", "Unable to setup the database structure, please see server logs.");
+        }
+        
+        Mapping mapping = getContext().getServerContext().getMapping();
+        mapping.getProperties().append(configuration);
+        
         return renderSuccess();
     }
     
-    public Render createUserAndRoles(String username, String password, String firstname, String lastname) throws SQLException {
-        if (StringUtils.atLeastOneIsEmpty(username, password, firstname, lastname)) {
-            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, firstname and lastname are mandatory.");
+    protected void setupDatabaseStructure() throws SQLException, IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("database.sql");
+        List<String> lines = IOUtils.readLines(is, "utf-8");
+        StringBuilder requestsBuffer = new StringBuilder();
+        for (String line : lines) {
+            if (!line.startsWith("--")) { // Exclude comments
+                requestsBuffer.append(line);
+            }
+        }
+        
+        QueryRunner queryRunner = new QueryRunner();
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            String[] requests = requestsBuffer.toString().split(";");
+            for (String request : requests) {
+                queryRunner.update(connection, request);
+            }
+        }
+    }
+    
+    public Render createUserAndRoles(String username, String password, String confirm, String firstname, String lastname) throws SQLException {
+        if (StringUtils.atLeastOneIsEmpty(username, password, confirm, firstname, lastname)) {
+            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, confirm, firstname and lastname are mandatory.");
+        } else if (!password.equals(confirm)) {
+            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "The password and its confirm must match.");
         }
         
         DeboxUser user = new DeboxUser();

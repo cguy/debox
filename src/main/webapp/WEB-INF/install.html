@@ -46,6 +46,10 @@
                                 $(this).parents(".step").addClass("hide");
                                 $(this).parents(".step").next().removeClass("hide");
                             })
+                            $("#jdbc").val($("#database-type option[selected]").attr("data-jdbc"));
+                            $("#database-type").change(function() {
+                                $("#jdbc").val($(this).find("option[value=" + $(this).val() + "]").attr("data-jdbc"));
+                            });
                             $("#datasource").submit(function(event) {
                                 var context = $(this);
                                 $.ajax({

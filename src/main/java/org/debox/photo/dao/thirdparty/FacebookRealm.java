@@ -33,14 +33,14 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
-import org.debox.photo.dao.JdbcMysqlRealm;
+import org.debox.photo.dao.DeboxJdbcRealm;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FacebookRealm extends JdbcMysqlRealm {
+public class FacebookRealm extends DeboxJdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(FacebookRealm.class);
 

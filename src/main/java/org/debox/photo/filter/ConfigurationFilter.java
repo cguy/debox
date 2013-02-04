@@ -53,13 +53,18 @@ public class ConfigurationFilter extends WebMotionFilter {
                 final Mapping mapping = getContext().getServerContext().getMapping();
                 // Load properties
                 Properties loadedProperties = mapping.getProperties();
-                DatabaseUtils.setDataSourceConfiguration(loadedProperties);
+                if (DatabaseUtils.getConfiguration() == null) {
+                    DatabaseUtils.setDataSourceConfiguration(loadedProperties);
+                }
 
                 // Test database configuration
                 if (DatabaseUtils.hasConfiguration() && DatabaseUtils.testConnection()) {
                     DatabaseUtils.applyDatasourceToShiro();
                     ApplicationContext.setConfigured(true);
                     properties = loadedProperties;
+                    
+                    // Remove mapping file corresponding with install calls
+                    mapping.getExtensionsRules().remove(0);
                 }
             }
         }

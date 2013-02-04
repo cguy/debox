@@ -138,6 +138,13 @@
             <version>2.0.4</version>
         </dependency>
         
+        <!-- FTP -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.2</version>
+        </dependency>
+        
         <!-- debox-core -->
         <dependency>
             <groupId>org.debox</groupId>
@@ -299,6 +306,20 @@
             <version>5.1.22</version>
             <scope>runtime</scope>
         </dependency>
+         
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.170</version>
+            <scope>runtime</scope>
+        </dependency>
+         
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+            <scope>runtime</scope>
+        </dependency>
         
         <dependency>
             <groupId>c3p0</groupId>
@@ -332,7 +353,7 @@
         </dependency>
         
     </dependencies>
-
+    
     <build>
         
         <extensions>
