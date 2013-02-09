@@ -46,7 +46,6 @@ import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Media;
-import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.ApplicationContext;
