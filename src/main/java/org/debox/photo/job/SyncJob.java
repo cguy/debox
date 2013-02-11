@@ -509,10 +509,6 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             return;
         }
         
-        if (album != null) {
-            album.setVideosCount(album.getVideosCount() + 1);
-        }
-        
         File[] files = this.getAllFilesWithFilename(path);
         for (File file : files) {
             String contentType = null;
@@ -543,6 +539,10 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
         
         if (!video.hasThumbnail() && !video.supportsH264() && !video.supportsOgg() && !video.supportsWebM()) {
             return;
+        }
+        
+        if (album != null) {
+            album.setVideosCount(album.getVideosCount() + 1);
         }
         
         video.setOwnerId(userId);
