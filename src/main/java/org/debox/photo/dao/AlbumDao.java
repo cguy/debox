@@ -30,6 +30,7 @@ import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.shiro.SecurityUtils;
@@ -547,6 +548,7 @@ public class AlbumDao {
         List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(null, false));
         for (Album album : result) {
             this.fillPhotosCount(album, null, false);
+            this.fillVideosCount(album, null, false);
         }
         return result;
     }
@@ -561,6 +563,7 @@ public class AlbumDao {
         }
         for (Album album : result) {
             this.fillPhotosCount(album, null, false);
+            this.fillVideosCount(album, null, false);
         }
         return result;
     }
@@ -575,6 +578,7 @@ public class AlbumDao {
         }
         for (Album album : result) {
             this.fillPhotosCount(album, token, true);
+            this.fillVideosCount(album, token, true);
         }
         return result;
     }
@@ -590,6 +594,7 @@ public class AlbumDao {
         }
         for (Album album : result) {
             this.fillPhotosCount(album, id, false);
+            this.fillVideosCount(album, id, false);
         }
         return result;
     }
@@ -713,6 +718,18 @@ public class AlbumDao {
         }
         album.setPhotosCount(count);
     }
+    
+    protected void fillVideosCount(Album album, String identifier, boolean isToken) throws SQLException {
+        int count;
+        if (isToken) {
+            count = getVisibleVideosCount(album.getId(), identifier);
+        } else if (identifier != null) {
+            count = getVideosCountForLoggedUser(album.getId(), identifier);
+        } else {
+            count = getAllVideosCount(album.getId());
+        }
+        album.setVideosCount(count);
+    }
         
     protected void fillAlbumCoverUrl(Album album, String identifier, boolean isToken) {
         String url = "album/" + album.getId() + "-cover.jpg";
@@ -723,7 +740,11 @@ public class AlbumDao {
     }
     
     protected BeanHandler<Album> getBeanHandler(String identifier, boolean isToken) {
-        return new BeanHandler<>(Album.class, new BeanRowProcessor(identifier, isToken));
+        return new BeanHandler<>(Album.class, getRowProcessor(identifier, isToken));
+    }
+    
+    protected RowProcessor getRowProcessor(String identifier, boolean isToken) {
+        return new BeanRowProcessor(identifier, isToken);
     }
     
     protected BeanListHandler<Album> getBeanListHandler(String identifier, boolean isToken) {
@@ -747,6 +768,7 @@ public class AlbumDao {
             if (result instanceof Album) {
                 fillAlbumCoverUrl((Album) result, identifier, isToken);
                 fillPhotosCount((Album) result, identifier, isToken);
+                fillVideosCount((Album) result, identifier, isToken);
             }
             return result;
         }
