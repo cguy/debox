@@ -1,6 +1,16 @@
 <h2 class="subtitle">{{i18n.account.sync.title}}</h2>
 
 <form id="synchronization" class="form-vertical block" action="#/administration/sync" method="post">
+    <div id="sync-progress" class="alert alert-info hide">
+        <h3 class="alert-heading" style="line-height:50px;">
+            <span id="progress-label">{{i18n.account.sync.in_progress}}&hellip;</span>&nbsp;<span id="progress-percentage"></span>
+            <button id="cancel-sync" class="btn btn-warning pull-right" style="margin: 5px -20px 0 20px;">{{i18n.account.sync.cancel}}</button>
+        </h3>
+        <div class="progress progress-info progress-striped active" style="margin:0 -20px 10px 0">
+            <div class="bar"></div>
+        </div>
+    </div>
+    
     <div class="control-group">
         <p class="error"></p>
         <div class="control-group">
