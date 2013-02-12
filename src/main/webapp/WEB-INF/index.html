@@ -16,7 +16,8 @@
         
         <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css" />
         <link rel="stylesheet" href="static/js/lib/skin-vista/ui.dynatree.css" />
-        <link rel="stylesheet" href="static/js/lib/chosen/chosen.css" />
+        <link rel="stylesheet" href="static/js/lib/select2/select2.css" />
+        <link rel="stylesheet" href="static/js/lib/datatables/jquery.dataTables.css" />
         
         <link rel="stylesheet" href="static/css/style.css" />
         <link rel="stylesheet" href="static/css/thumbnails.css" />
@@ -42,21 +43,24 @@
             var suffix = "?t=" + new Date().getTime();
             head.js(
                 "static/js/lib/modernizr.custom.77358.js",
-                "static/js/lib/jquery-1.8.3.min.js",
+                "static/js/lib/jquery-1.9.1.min.js",
                 "static/js/lib/jquery-ui-1.8.23.custom.min.js",
                 "static/js/lib/jquery.dynatree.min.js",
                 "static/js/lib/jquery.mCustomScrollbar.js",
                 "static/js/lib/jquery.mousewheel.min.js",
                 "static/js/lib/jwerty.js",
                 "static/js/lib/bootstrap.min.js",
-                "static/js/lib/sammy-0.7.1.min.js",
+                "static/js/lib/sammy-0.7.4.min.js",
                 "static/js/lib/Hogan.js",
-                "static/js/lib/date-fr-FR.js",
-                "static/js/lib/chosen/chosen.jquery.min.js",
+                "static/js/lib/moment.min.js",
+                "static/js/lib/moment.min.fr.js",
+                "static/js/lib/select2/select2.min.js",
                 "static/js/lib/fu/load-image.min.js",
                 "static/js/lib/fu/jquery.fileupload.js",
                 "static/js/lib/fu/jquery.fileupload-fp.js",
                 "static/js/lib/fu/jquery.fileupload-ui.js",
+                "static/js/lib/datatables/jquery.dataTables.min.js",
+                "static/js/lib/datatables/bootstrap.js",
                 "static/js/i18n/fr.js" + suffix,
                 "static/js/model/album.js" + suffix,
                 "static/js/slideshow.js" + suffix,
@@ -64,27 +68,28 @@
                 function() {
                     lang = fr;
                     // Load templates before enable application routing
-                    loadTemplates();
                     $("#loading").text(lang.common.loading);
-                    app = Sammy(function() {
-                        // Comment this line to enable SammyJS logging
-                        this.log = function() {}
+                    loadTemplates(function() {
+                        app = Sammy(function() {
+                            // Comment this line to enable SammyJS logging
+                            this.log = function() {}
+                        });
+                        head.js(
+                            "static/js/routes/media-browsing.js" + suffix,
+                            "static/js/routes/administration.js" + suffix,
+                            "static/js/routes/account.js" + suffix,
+                            "static/js/routes/administration/configuration.js" + suffix,
+                            "static/js/routes/administration/synchronization.js" + suffix,
+                            "static/js/routes/account/albums.js" + suffix,
+                            "static/js/routes/account/photos-upload.js" + suffix,
+                            "static/js/routes/account/photos.js" + suffix,
+                            "static/js/routes/account/administrator-account.js" + suffix,
+                            "static/js/routes/account/visitors-accesses.js" + suffix,
+                            function() {
+                                app.run("#/");
+                            }
+                        );
                     });
-                    head.js(
-                        "static/js/routes/media-browsing.js" + suffix,
-                        "static/js/routes/administration.js" + suffix,
-                        "static/js/routes/account.js" + suffix,
-                        "static/js/routes/administration/configuration.js" + suffix,
-                        "static/js/routes/administration/synchronization.js" + suffix,
-                        "static/js/routes/account/albums.js" + suffix,
-                        "static/js/routes/account/photos-upload.js" + suffix,
-                        "static/js/routes/account/photos.js" + suffix,
-                        "static/js/routes/account/administrator-account.js" + suffix,
-                        "static/js/routes/account/visitors-accesses.js" + suffix,
-                        function() {
-                            app.run("#/");
-                        }
-                    );
                 }
             );
         </script>

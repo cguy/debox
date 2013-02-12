@@ -40,18 +40,18 @@ function createAlbum(album) {
     
     var beginDate = null;
     if (album.beginDate) {
-        beginDate = new Date(album.beginDate).at("0:00am");
-        album.beginDate = beginDate.toString("dd MMMM yyyy");
+        beginDate = moment(album.beginDate).startOf("day");
+        album.beginDate = beginDate.format("D MMMM YYYY");
     }
                     
     var endDate = null;
     if (album.endDate) {
-        endDate = new Date(album.endDate).at("0:00am");
-        album.endDate = endDate.toString("dd MMMM yyyy");
+        endDate = moment(album.endDate).startOf("day");
+        album.endDate = endDate.format("D MMMM YYYY");
     }
     
     if (beginDate && endDate) {
-        album.isInterval = !beginDate.equals(endDate);
+        album.isInterval = !beginDate.isSame(endDate);
     }
                     
     album.minDownloadUrl = computeUrl("download/album/" + album.id + "/min");

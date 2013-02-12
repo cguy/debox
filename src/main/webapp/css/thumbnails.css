@@ -18,9 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-/* ************************* */
-/* ADMINISTRATION THUMBNAILS */
-/* ************************* */
+/* *************************** */
+/* ACCOUNT - ALBUMS MANAGEMENT */
+/* *************************** */
+.thumbnails.settings {
+    text-align: left;
+}
+
 .thumbnails.settings > li {
     width: 300px;
     height: 75px;
@@ -36,11 +40,23 @@
     color: #333;
     box-shadow: 0 1px 4px rgba(34, 25, 25, 0.4);
     font-size: 12px;
+    overflow: hidden;
+}
+
+.thumbnails.settings > li > .album.admin.thumbnail > .btn-group-vertical {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.thumbnails.settings > li > .album.admin.thumbnail > .btn-group-vertical > .btn {
+    width: 100%;
 }
 
 .thumbnails.settings > li > .album.admin.thumbnail:hover {
     text-decoration: none;
     background-color: #f1f1f1;
+    height: 145px;
+    z-index: 1;
 }
 
 .thumbnails.settings > li > .album.admin.thumbnail ul {
@@ -54,6 +70,23 @@
     line-height: 16px;
 }
 
+.thumbnails.settings > li > .album.admin.thumbnail ul li.downloadable,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.downloadable i,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.public,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.public i {
+    color: #2E9E32;
+}
+
+.thumbnails.settings > li > .album.admin.thumbnail ul li.undownloadable,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.undownloadable i,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.private,
+.thumbnails.settings > li > .album.admin.thumbnail ul li.private i {
+    color:#C42323;
+}
+
+/* ************** */
+/* ALBUMS EDITION */
+/* ************** */
 #photos-edition .title {
     position: absolute;
     display: inline-block;
@@ -150,6 +183,12 @@
 .thumbnails.albums {
     margin: 0 0 15px 0;
     padding: 10px 0 0;
+}
+.page-header + .thumbnails.albums {
+    margin-top: 60px;
+}
+h2 + .thumbnails.albums {
+    padding: 0;
 }
 
 .thumbnails > li {

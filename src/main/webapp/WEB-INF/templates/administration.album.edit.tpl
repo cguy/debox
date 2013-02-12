@@ -64,7 +64,7 @@
             <label class="control-label" for="downloadable">{{i18n.album.admin.edit.download}}</label>
             <div class="controls">
                 <label class="checkbox">
-                    <input id="downloadable" type="checkbox" name="downloadable" {{#album.downloadable}}checked{{/album.downloadable}}/> {{i18n.album.admin.edit.download_description}}
+                    <input id="downloadable" type="checkbox" name="downloadable" value="true" {{#album.downloadable}}checked{{/album.downloadable}}/> {{i18n.album.admin.edit.download_description}}
                 </label>
             </div>
         </div>

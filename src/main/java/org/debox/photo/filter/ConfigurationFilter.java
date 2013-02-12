@@ -64,7 +64,9 @@ public class ConfigurationFilter extends WebMotionFilter {
                     properties = loadedProperties;
                     
                     // Remove mapping file corresponding with install calls
-                    mapping.getExtensionsRules().remove(0);
+                    if (!mapping.getExtensionsRules().isEmpty()) {
+                        mapping.getExtensionsRules().remove(0);
+                    }
                 }
             }
         }

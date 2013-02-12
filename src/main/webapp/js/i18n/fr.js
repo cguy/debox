@@ -20,6 +20,7 @@
  */
 var fr = {
     common: {
+        summary: "Résumé",
         warning: "Attention",
         error: "Erreur",
         close: "Fermer",
@@ -106,7 +107,11 @@ var fr = {
             tab: "Mes albums photos",
             photo_number: "Nombre de photos ",
             downloadable: "Téléchargeable",
-            not_downloadable: "N'est pas téléchargeable"
+            not_downloadable: "N'est pas téléchargeable",
+            make_downloadable: "Rendre cet album téléchargeable",
+            make_undownloadable: "Rendre cet album non-téléchargeable",
+            make_public: "Rendre cet album public",
+            make_private: "Rendre cet album privé"
         },
         settings: {
             tab: "Réglages",
@@ -115,6 +120,9 @@ var fr = {
                 title: "Stockage des photos",
                 source: "Stockage des photos",
                 add: "Je veux préciser où trouver mes photos déjà présentes sur Internet"
+            },
+            comments : {
+                title: "Paramètres par défaut des commentaires"
             },
             albums: {
                 title: "Paramètres par défaut des albums"
@@ -238,6 +246,54 @@ var fr = {
                 title: "Supprimer mon compte",
                 message: "Êtes-vous sûr / sure de vouloir supprimer votre compte ? Si vous supprimez votre compte, l'intégralité des informations qui vous sont liées seront également supprimées (photos, albums, commentaires, etc.)",
                 irreversible: "Attention, cette action est irréversible !"
+            }
+        },
+        dashboard : {
+            tab: "Résumé",
+            title: "Tableau de bord"
+        },
+        comments : {
+            tab: "Commentaires",
+            title: "Gestion des commentaires",
+            list: "Liste des commentaires",
+            total : "Nombre total de commentaires :",
+            albums : "Nombre de commentaires d'albums :",
+            photos : "Nombre de commentaires de photos :",
+            videos : "Nombre de commentaires de vidéos :",
+            empty: "Aucun commentaire n'a été écrit pour le moment",
+            type: "Type",
+            author: "Auteur",
+            content: "Message",
+            date: "Publication",
+            link: "Lien",
+            actions: "Actions",
+            "delete" : {
+                title: "Suppression d'un commentaire",
+                message : "Êtes-vous sûr / sure de vouloir supprimer ce commentaire ?"
+            },
+            table : {
+                Aria: {
+                    sSortAscending: "Tri croissant",
+                    sSortDescending: "Tri décroissant"
+                },
+                oPaginate: {
+                    sFirst:"Premier",
+                    sLast:"Dernier",
+                    sNext:"Suivant",
+                    sPrevious:"Précédent"
+                },
+                sEmptyTable: "Aucun commentaire", 
+                sInfo : "Affichage des commentaires n°_START_ à n°_END_ (total : _TOTAL_)",
+                sInfoEmpty : "Aucun commentaire",
+                sInfoFiltered : "(filtrés parmi _MAX_ commentaires)",
+                sInfoPostFix:"", 
+                sInfoThousands:"", 
+                sLengthMenu: "Afficher _MENU_ commentaires par page",
+                sLoadingRecords:"Chargement en cours...", 
+                sProcessing:"Traitement en cours...", 
+                sSearch:"Recherche :", 
+                sUrl:"", 
+                sZeroRecords: "Aucun commentaire n'a été trouvé"
             }
         }
     },

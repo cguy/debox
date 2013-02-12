@@ -22,12 +22,14 @@ package org.debox.photo.service;
 
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Comment;
+import org.debox.photo.model.comment.Comment;
 import org.debox.photo.model.Media;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
@@ -80,6 +82,49 @@ public class CommentService extends DeboxService {
             return renderNotFound();
         }
         return renderJSON("mediaId", mediaId, "comments", commentDao.getByMedia(media));
+    }
+    
+    public Render getAll(String mediaOwnerId) throws SQLException {
+        String userId = SessionUtils.getUserId();
+        if (!userId.equals(mediaOwnerId)) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
+        List<Comment> videoComments = commentDao.getVideoCommentsByMediaOwner(mediaOwnerId);
+        List<Comment> photoComments = commentDao.getPhotoCommentsByMediaOwner(mediaOwnerId);
+        List<Comment> albumComments = commentDao.getAlbumCommentsByMediaOwner(mediaOwnerId);
+
+        int videoCommentsCount = videoComments.size();
+        int photoCommentsCount = photoComments.size();
+        int albumCommentsCount = albumComments.size();
+        int total = videoCommentsCount + photoCommentsCount + albumCommentsCount;
+        
+        List<Comment> comments = new ArrayList<>(total);
+        comments.addAll(videoComments);
+        comments.addAll(photoComments);
+        comments.addAll(albumComments);
+
+        return renderJSON(
+                "total", total,
+                "videos", videoCommentsCount,
+                "photos", photoCommentsCount,
+                "albums", albumCommentsCount,
+                "comments", comments);
+    }
+    
+    public Render editComment(String commentId, String content) throws SQLException {
+        Comment comment = commentDao.getById(commentId);
+        String userId = SessionUtils.getUserId();
+        String ownerId = comment.getUser().getId();
+        if (!userId.equals(ownerId) && !SessionUtils.isAdministrator()) {
+            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not autorized to modify this comment.");
+        }
+        if (StringUtils.isNotEmpty(content)) {
+            comment.setContent(content);
+            commentDao.save(comment);
+        }
+        
+        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     public Render deleteComment(String commentId) throws SQLException {

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
+package org.debox.photo.model.comment;
 
 import org.debox.photo.model.user.User;
 import java.util.Date;
@@ -26,13 +26,22 @@ import java.util.Date;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Comment {
+public class Comment<T> {
     
     protected String id;
     protected User user;
     protected String content;
     protected Date date;
+    protected T media;
 
+    public T getMedia() {
+        return media;
+    }
+
+    public void setMedia(T media) {
+        this.media = media;
+    }
+    
     public User getUser() {
         return user;
     }
@@ -64,5 +73,5 @@ public class Comment {
     public void setDate(Date date) {
         this.date = date;
     }
-    
+
 }

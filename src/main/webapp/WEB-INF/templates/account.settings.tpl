@@ -19,13 +19,13 @@
             <div class="control-group">
                 <label class="control-label" for="albumsInput">Albums</label>
                 <div class="controls">
-                    <input type="text" class="span8" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
+                    <input type="text" class="span5" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="thumbnailsInput">Vignettes</label>
                 <div class="controls">
-                    <input type="text" class="span8" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
+                    <input type="text" class="span5" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
                 </div>
             </div>
         </div>
@@ -38,13 +38,13 @@
             <div class="control-group">
                 <label class="control-label" for="albumsInput">Albums</label>
                 <div class="controls">
-                    <input type="text" class="span8" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
+                    <input type="text" class="span5" name="albums" id="albumsInput" placeholder="Répertoire contenant vos albums photos (en local sur le serveur)" value="{{albums}}">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="thumbnailsInput">Vignettes</label>
                 <div class="controls">
-                    <input type="text" class="span8" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
+                    <input type="text" class="span5" name="thumbnails" id="thumbnailsInput" placeholder="Répertoire qui contiendra les vignettes générées de vos photos (en local sur le serveur)" value="{{thumbnails}}">
                 </div>
             </div>
         </div>
@@ -69,6 +69,10 @@
             <li>Je souhaite ajouter mes photos présentes sur mon compte Amazon S3</li>
             <li>Je souhaite ajouter mes photos présentes sur mon compte Google Drive</li>
         </ul>-->
+</div>
+
+<div class="block">
+    <h3>{{i18n.account.settings.comments.title}}</h3>
 </div>
 
 <!--<div class="block">

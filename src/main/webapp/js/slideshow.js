@@ -215,9 +215,9 @@ function Slideshow() {
         }
         $("#new-media-comment").attr("action", "#/" + path + "/" + currentItem.id + "/comments");
         
-        var commentsText = fr.comments.show;
+        var commentsText = lang.comments.show;
         if (isCommentsMode) {
-            commentsText = fr.comments.hide;
+            commentsText = lang.comments.hide;
         }
         $("#slideshow-options > a.comments").attr("title", commentsText);
         $("#slideshow-help-label").text(commentsText);

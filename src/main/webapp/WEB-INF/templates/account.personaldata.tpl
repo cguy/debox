@@ -23,6 +23,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="span5">
             <div class="control-group">
                 <label class="control-label" for="lastname">{{i18n.account.personaldata.lastname}}</label>
@@ -53,6 +55,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="span5">
             <div class="control-group">
                 <label class="control-label" for="password">{{i18n.account.personaldata.new_password}}</label>

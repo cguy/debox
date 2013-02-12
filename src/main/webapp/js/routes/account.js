@@ -51,9 +51,16 @@ app.get('#/account(/:tab)?', function() {
             route = "albums";
         } else if (tab == "albums") {
             route = "albums?criteria=all";
+        } else if (tab == "personaldata") {
+            route = "account";
+        } else if (tab == "comments") {
+            route = "comments?mediaOwnerId=" + _config.userId;
+        } else if (tab == "dashboard") {
+            return loadTab("dashboard", null, "account");
         }
     } else {
-        route = "account", tab = "personaldata";
+//        return loadTab("dashboard", null, "account");
+        return this.redirect("#/account/albums");
     }
     ajax({
         url: route,

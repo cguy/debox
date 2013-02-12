@@ -32,7 +32,6 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
-import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
@@ -156,7 +155,7 @@ public class VideoDao {
         }
     }
         
-    protected static RowProcessor getRowProcessor(final String token) {
+    public static RowProcessor getRowProcessor(final String token) {
         Map<String, String> map = new HashMap<>(10);
         map.put("id", "id");
         map.put("filename", "filename");

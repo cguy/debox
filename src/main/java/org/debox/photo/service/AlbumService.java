@@ -49,7 +49,7 @@ import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.VideoDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Comment;
+import org.debox.photo.model.comment.Comment;
 import org.debox.photo.model.Datable;
 import org.debox.photo.model.Media;
 import org.debox.photo.model.user.Contact;
@@ -302,15 +302,23 @@ public class AlbumService extends DeboxService {
         return result;
     }
     
-    public Render editAlbum(String albumId, String name, String description, String visibility, boolean downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+    public Render editAlbum(String albumId, String name, String description, String visibility, String downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
-        album.setName(name);
-        album.setDescription(description);
-        album.setPublic(Boolean.parseBoolean(visibility));
-        album.setDownloadable(downloadable);
+        if (name != null) {
+            album.setName(name);
+        }
+        if (description != null) {
+            album.setDescription(description);
+        }
+        if (visibility != null) {
+            album.setPublic(Boolean.parseBoolean(visibility));
+        }
+        if (downloadable != null) {
+            album.setDownloadable(Boolean.parseBoolean(downloadable));
+        }
 
         albumDao.save(album);
         

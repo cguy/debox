@@ -5,6 +5,8 @@ package.actions=service
 package.errors=service
 package.views=WEB-INF/
 
+server.error.page=disabled
+
 [debox.properties]
 database.type=
 database.jdbc.url=
@@ -47,6 +49,8 @@ GET,POST    /video/*/comments                       AdministrationFilter.checkUs
 POST,DELETE /album                                  AdministrationFilter.checkUserSession
 GET,POST    /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
 POST        /album/*/comments                       AdministrationFilter.checkUserAuthentication
+
+*           /comments                               AdministrationFilter.checkUserAuthentication
 
 POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
 GET         /uploadProgress                         AdministrationFilter.checkUserSession
@@ -98,7 +102,7 @@ DELETE      /video/{id}                         VideoService.delete
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
 PUT         /album                                  AlbumService.createAlbum
-POST        /album/{albumId}                        AlbumService.editAlbum                           downloadable=false
+POST        /album/{albumId}                        AlbumService.editAlbum
 DELETE      /album/{albumId}                        AlbumService.deleteAlbum
 POST        /album/{albumId}/regeneratethumbnails   AlbumService.regenerateThumbnails
 GET         /album/{albumId}/regeneratethumbnails   AlbumService.getRegenerationProgress
@@ -118,6 +122,8 @@ DELETE      /token/{id}                         TokenService.deleteToken
 # -----------------------------------------------------------------------------------------------
 # MEDIA - COMMENTS
 # -----------------------------------------------------------------------------------------------
+GET    /comments                                 CommentService.getAll
+
 POST   /album/{albumId}/comments                 CommentService.createAlbumComment
 
 POST   /photo/{mediaId}/comments                 CommentService.createMediaComment
@@ -126,7 +132,7 @@ GET    /photo/{mediaId}/comments                 CommentService.getMediaComments
 POST   /video/{mediaId}/comments                 CommentService.createMediaComment
 GET    /video/{mediaId}/comments                 CommentService.getMediaComments
 
-DELETE /comment/{commentId}                      CommentService.deleteComment
+DELETE /comments/{commentId}                     CommentService.deleteComment
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS

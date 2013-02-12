@@ -164,9 +164,25 @@ app.del(/#\/(photos|videos)\/([a-zA-Z0-9-_]*)\/comments\/([a-zA-Z0-9-_]*)/, func
     deleteComment(this.params['splat'][2], $("#slideshow-options .comments .badge"), $("#slideshow-comments .no-comments"), $("#remove-comment"));
 });
 
+app.del("#/comments/:commentId", function(context) {
+    var commentId = this.params["commentId"];
+    $.ajax({
+        url: "comments/" + commentId,
+        type: "delete",
+        success: function() {
+            $(_("modal-comment-delete")).modal("hide");
+            context.redirect("#/account/comments");
+        },
+        error : function() {
+            alert(lang.common.error);
+        }
+    });
+    return false;
+});
+
 function deleteComment(id, badgeNode, emptyNode, modalNode) {
     ajax({
-        url: "comment/" + id,
+        url: "comments/" + id,
         type: "delete",
         success: function() {
             $("#"+id).remove();
@@ -215,7 +231,7 @@ app.get('#_=_', function() {
 /* About page           */
 /* ******************* */
 app.get('#/about', function() {
-    editTitle($("a.brand").text() + " - " + fr.about.tooltip);
+    editTitle($("a.brand").text() + " - " + lang.about.tooltip);
     loadTemplate("about");
 });
 
@@ -223,7 +239,7 @@ app.get('#/about', function() {
 /* Home page           */
 /* ******************* */
 app.get('#/', function() {
-    editTitle($("a.brand").text() + " - " + fr.home.title);
+    editTitle($("a.brand").text() + " - " + lang.home.title);
     ajax({
         url: computeUrl("albums"),
         success: function(data) {

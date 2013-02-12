@@ -29,13 +29,13 @@ function loadTemplates(callback) {
             $.each(data.templates, function (name, template) {
                 templates[name] = Hogan.compile(template);
             });
-            templatesLoaded = true;
             
             _config = data.config;
             if (_config) {
                 _config.providers = data.providers;
                 initHeader(data.config);
             }
+            templatesLoaded = true;
             
             for (var i = 0 ; i < templatesToLoad.length ; i++) {
                 var id = templatesToLoad[i].id;
@@ -50,6 +50,10 @@ function loadTemplates(callback) {
             }
         }
     });
+}
+
+function _(nodeId) {
+    return document.getElementById(nodeId);
 }
 
 var _defaultSelector = "body > .container-fluid";
@@ -189,10 +193,10 @@ function hideAlbumChoose() {
 }
 
 function loadComment(comment) {
-    comment.date = new Date(comment.date).toString("dd/MM/yyyy à HH:mm:ss");
+    comment.date = moment(comment.date).format("DD/MM/YYYY à HH:mm:ss");
     comment.deletable = function() {
         return _config.administrator || (_config.authenticated && _config.userId == comment.user.id);
-    }
+    };
     return comment;
 }
 
@@ -309,7 +313,7 @@ function loadAlbum(data, callback, mode) {
             });
         }
         );
-    $(".chzn-select").chosen(); 
+    $(".chzn-select").select2(); 
     
     $("#album-comments").mCustomScrollbar({
         scrollInertia: 500,
@@ -349,7 +353,7 @@ function albumLoaded(mode) {
             $(".page-header .comments").addClass("active");
             $(".page-header .comments").attr("href", oldHref.replace("/comments", ""));
                     
-            $(".page-header .comments").attr("title", fr.comments.hide);
+            $(".page-header .comments").attr("title", lang.comments.hide);
                     
         } else {
             if (!/\/comments$/.test(oldHref)) {
@@ -357,7 +361,7 @@ function albumLoaded(mode) {
             }
             $("#album-content").removeClass("comments");
             $(".page-header .comments").removeClass("active");
-            $(".page-header .comments").attr("title", fr.comments.show);
+            $(".page-header .comments").attr("title", lang.comments.show);
         }
         $('.page-header .comments').tooltip();
     }
@@ -522,7 +526,7 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
         
         if (allAlbums[i]['public']) {
             p.addClass = "public";
-            p.title += fr.account.tokens.public_album;
+            p.title += lang.account.tokens.public_album;
         }
                                     
         prepareDynatree(allAlbums[i].subAlbums, accessibleAlbumsWithCurrentToken, p.children, allAlbums[i].id);
@@ -630,6 +634,9 @@ function loadTab(id, data, container, cb) {
         loadTemplate(container + "." + id, data, "#" + container, function() {
             $(".account li").removeClass("active");
             $(".account li." + id).addClass("active");
+            if ($("#account").length) {
+                $("#account")[0].className = id;
+            }
             loadFunctions(id);
             afterTabLoading(id, data);
             if (cb) {
@@ -644,6 +651,12 @@ function preprocessTabLoading(id, data) {
         data.thirdPartyActivation = data.thirdPartyActivation == "true";
         data.workingDirectory = data["working.directory"];
         
+    } else if (id == "comments") {
+        if (data.comments) {
+            for (var i = 0 ; i < data.comments.length ; i++) {
+                data.comments[i] = loadComment(data.comments[i]);
+            }
+        }
     } else if (id == "albums") {
         for (var i = 0 ; i < data.albums.length ; i++) {
             var album = data.albums[i];
@@ -662,6 +675,56 @@ function afterTabLoading(id, data) {
             location.hash = "#/account";
         });
         
+    } else if (id == "comments") {
+        if ($("#admin-comments").length) {
+            var datatable = $('.table').dataTable({
+                "oLanguage": lang.account.comments.table,
+                "iDisplayLength" : 50
+            });
+            datatable.fnSort([[0,'desc']]);
+
+            $("#admin-comments .btn-danger").click(function() {
+                var node = _("modal-comment-delete");
+                node = $(node);
+                node.attr("action", node.attr("data-action") + $(this).parents("tr").attr("id"));
+            });
+        }
+    } else if (id == "albums") {
+        var clickCallback = function() {
+            var button = $(this); 
+            var albumId = button.parents("a").attr("id");
+            button.button('loading');
+            var data = {};
+            if (button.hasClass("private")) {
+                data.visibility = "false";
+            } else if (button.hasClass("public")) {
+                data.visibility = "true";
+            } else if (button.hasClass("downloadable")) {
+                data.downloadable = "true";
+            } else if (button.hasClass("undownloadable")) {
+                data.downloadable = "false";
+            }
+            $.ajax({
+                url: "album/" + albumId,
+                type : "post",
+                data : data,
+                success : function(data) {
+                    var container = button.parents("li");
+                    loadTemplate("account.albums.album", data.album, container, function() {
+                        container.find(".btn").click(clickCallback);
+                    });
+                    button.button('reset');
+                },
+                error : function() {
+                    alert(lang.common.error);
+                    button.button('reset');
+                }
+            });
+
+            return false; 
+        };
+        $(".album.admin.thumbnail .btn").click(clickCallback);
+    
     } else if (id == "configuration") {
         $(".thirdparty-activation").change(function() {
             if($(this).attr("checked") == null) {
