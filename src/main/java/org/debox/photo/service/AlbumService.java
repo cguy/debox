@@ -175,10 +175,10 @@ public class AlbumService extends DeboxService {
         boolean isAdministrator = SessionUtils.isAdministrator(subject);
         Album album;
         boolean isLogged = SessionUtils.isLogged(subject);
-        if (!isAdministrator && isLogged) {
-            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), id);
-        } else if (isAdministrator) {
+        if (isAdministrator) {
             album = albumDao.getAlbum(id);
+        } else if (isLogged) {
+            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), id);
         } else {
             album = albumDao.getVisibleAlbum(token, id);
         }

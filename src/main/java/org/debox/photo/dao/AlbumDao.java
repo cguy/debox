@@ -366,7 +366,7 @@ public class AlbumDao {
 
             rs = statement.executeQuery();
             while (rs.next()) {
-                result += getAllPhotosCount(rs.getString("id"), c);
+                result += getAllVideosCount(rs.getString("id"), c);
             }
             
         } finally {
