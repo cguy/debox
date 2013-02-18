@@ -24,7 +24,7 @@
 
     <label class="checkbox"><input type="checkbox" class="thirdparty-activation" name="activated" {{#thirdPartyActivation}}checked{{/thirdPartyActivation}} />Activer la configuration des comptes tiers</label>
 
-    <div class="providers {{^thirdPartyActivation}}hide{{/thirdPartyActivation}}">
+    <div class="providers">
         
         <h3>Facebook</h3>
         <div class="control-group">
