@@ -45,6 +45,7 @@ import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.StringUtils;
 import org.debox.util.HttpUtils;
 import org.debux.webmotion.server.render.Render;
+import org.scribe.model.Token;
 import org.scribe.model.Verifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,7 @@ public class AccountService extends DeboxService {
             return renderRedirect("/");
         }
         
-        org.scribe.model.Token token = ServiceUtil.getFacebookService().getAccessToken(null, tokenWrapper.getCode());
+        Token token = ServiceUtil.getFacebookService().getAccessToken(null, tokenWrapper.getCode());
         
         DefaultFacebookClient client = new DefaultFacebookClient(token.getToken());
         com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
@@ -134,6 +135,9 @@ public class AccountService extends DeboxService {
         return renderRedirect("/#/account/tokens");
     }
     
+    /**
+     * TODO This method is currently unused. It will be used when debox will handle Google connection.
+     */
     public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException {
         Verifier verifier = new Verifier(code);
         ThirdPartyTokenWrapper tokenWrapper = new ThirdPartyTokenWrapper(verifier);
