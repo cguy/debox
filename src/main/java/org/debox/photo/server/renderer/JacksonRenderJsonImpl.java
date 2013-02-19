@@ -37,11 +37,17 @@ public class JacksonRenderJsonImpl extends Render {
     
     private static final Logger log = LoggerFactory.getLogger(JacksonRenderJsonImpl.class);
     
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     protected Map<String, Object> model;
-    protected static ObjectMapper objectMapper = new ObjectMapper();
+    protected Integer errorCode;
     
     public JacksonRenderJsonImpl(Map<String, Object> model) {
         this.model = model;
+    }
+    
+    public JacksonRenderJsonImpl(Integer errorCode, Map<String, Object> model) {
+        this(model);
+        this.errorCode = errorCode;
     }
 
     public Map<String, Object> getModel() {
@@ -57,13 +63,17 @@ public class JacksonRenderJsonImpl extends Render {
         
         String json;
         if (model.size() == 1 && model.containsKey(null)) {
-            json = objectMapper.writeValueAsString(model.get(null));
+            json = OBJECT_MAPPER.writeValueAsString(model.get(null));
         } else {
-            json = objectMapper.writeValueAsString(model);
+            json = OBJECT_MAPPER.writeValueAsString(model);
         }
 
-        PrintWriter out = context.getOut();
-        out.print(json);
+        if (this.errorCode != null) {
+            response.sendError(this.errorCode, json);
+        } else {
+            PrintWriter out = context.getOut();
+            out.print(json);
+        }
     }
     
 }

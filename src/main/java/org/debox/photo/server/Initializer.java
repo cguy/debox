@@ -27,14 +27,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.sql.DataSource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.debox.photo.util.DatabaseUtils;
-import org.debux.webmotion.server.WebMotionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +45,7 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         logger.info("Initializing web context");
-        File configurationFile = new File(WebMotionUtils.getUserConfigurationPath(), "debox.properties");
+        File configurationFile = DatabaseUtils.getConfigurationFilePath().toFile();
         if (configurationFile.exists()) {
             try {
                 PropertiesConfiguration configuration = new PropertiesConfiguration(configurationFile);
@@ -87,7 +84,7 @@ public class Initializer implements ServletContextListener {
         for(Thread t:threadArray) {
             if(t.getName().contains("Abandoned connection cleanup thread")) {
                 synchronized(t) {
-                    t.stop(); //don't complain, it works
+                    t.interrupt();
                 }
             }
         }

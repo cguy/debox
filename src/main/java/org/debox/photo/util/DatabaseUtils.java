@@ -23,6 +23,8 @@ package org.debox.photo.util;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 import java.beans.PropertyVetoException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -34,6 +36,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.debox.photo.dao.DeboxJdbcRealm;
+import org.debux.webmotion.server.WebMotionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +59,14 @@ public class DatabaseUtils {
         driverClasses.put("mysql", "com.mysql.jdbc.Driver");
         driverClasses.put("h2", "org.h2.Driver");
         driverClasses.put("postgresql", "org.postgresql.Driver");
+    }
+
+    public static Path getConfigurationFilePath() {
+        String strPath = System.getProperty("debox.configuration");
+        if (strPath != null) {
+            return Paths.get(strPath);
+        }
+        return Paths.get(WebMotionUtils.getUserConfigurationPath(), "debox.properties");
     }
 
     public static Configuration getConfiguration() {

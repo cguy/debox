@@ -96,15 +96,14 @@ public class InstallationService extends DeboxService {
         
         boolean connectionTest = DatabaseUtils.testConnection();
         if (!connectionTest) {
-            getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-            return renderJSON("message", "Unable to connect to the database, please see server logs.");
+            return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "message", "Unable to connect to the database, please see server logs.");
         }
         
         try {
             setupDatabaseStructure();
         } catch (SQLException | IOException ex) {
             log.error("Unable to setup database", ex);
-            return renderJSON("message", "Unable to setup the database structure, please see server logs.");
+            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "message", "Unable to setup the database structure, please see server logs.");
         }
         
         Mapping mapping = getContext().getServerContext().getMapping();
@@ -181,7 +180,7 @@ public class InstallationService extends DeboxService {
     }
     
     protected void saveDatabaseConfiguration() throws ConfigurationException {
-        Path path = Paths.get(WebMotionUtils.getUserConfigurationPath(), "debox.properties");
+        Path path = DatabaseUtils.getConfigurationFilePath();
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         configuration.append(DatabaseUtils.getConfiguration());
         configuration.save(path.toString());

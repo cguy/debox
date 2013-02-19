@@ -726,13 +726,6 @@ function afterTabLoading(id, data) {
         $(".album.admin.thumbnail .btn").click(clickCallback);
     
     } else if (id == "configuration") {
-        $(".thirdparty-activation").change(function() {
-            if($(this).attr("checked") == null) {
-                $(".providers").slideUp(500);
-            } else {
-                $(".providers").slideDown(500);
-            }
-        });
         
     } else if (id == "tokens") {
         allAlbums = data.albums;
