@@ -65,6 +65,10 @@ public class DeboxService extends WebMotionController {
     public Render renderJSON(Object... model) {
         return new JacksonRenderJsonImpl(toMap(model));
     }
+    
+    public Render renderError(int errorCode, Object... model) {
+        return new JacksonRenderJsonImpl(errorCode, toMap(model));
+    }
 
     @Override
     protected Map<String, Object> toMap(Object... model) {
