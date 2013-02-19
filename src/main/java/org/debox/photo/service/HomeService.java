@@ -27,12 +27,15 @@ import com.restfb.FacebookClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -140,8 +143,8 @@ public class HomeService extends DeboxService {
         Map<String, Object> templates = new HashMap<>();
 
         try {
-            // Note : current path is /WEB-INF/classes/
-            URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("../templates");
+            ServletContext servletContext = getContext().getServletContext();
+            URL templatesDirectoryUrl = servletContext.getResource("/WEB-INF/templates");
             URI templatesURI = templatesDirectoryUrl.toURI();
 
             File templatesDirectory = new File(templatesURI);
@@ -162,8 +165,7 @@ public class HomeService extends DeboxService {
                     }
                 }
             }
-
-        } catch (URISyntaxException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             logger.error("Unable to load templates", ex);
         }
 
