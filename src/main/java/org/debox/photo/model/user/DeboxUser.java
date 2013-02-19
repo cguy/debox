@@ -25,6 +25,8 @@ package org.debox.photo.model.user;
  */
 public class DeboxUser extends User {
     
+    private static final long serialVersionUID = 1L;
+    
     protected String username;
     protected String password;
     

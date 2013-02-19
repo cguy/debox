@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ThirdPartyAccount extends User {
     
     private static final Logger log = LoggerFactory.getLogger(ThirdPartyAccount.class);
+    private static final long serialVersionUID = 1L;
     
     protected Provider provider;
     protected String providerAccountId;

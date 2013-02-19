@@ -28,6 +28,8 @@ import java.util.Objects;
  */
 public class Provider implements Serializable {
     
+    private static final long serialVersionUID = 1L;
+    
     protected String id;
     protected String name;
     protected String url;
