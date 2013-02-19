@@ -555,6 +555,9 @@ h3 {
 #account {
     margin-left: 255px;
 }
+#install #account {
+    margin: 0;
+}
 
 #account.personaldata {
     text-align: center;
