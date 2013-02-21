@@ -23,15 +23,15 @@
 -- OVERALL CONFIGURATION --
 -- --------------------- --
 CREATE TABLE IF NOT EXISTS configurations (
-    key VARCHAR(255) PRIMARY KEY,
-    value VARCHAR(255) NOT NULL
+    ckey VARCHAR(255) PRIMARY KEY,
+    cvalue VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users_configurations (
     user_id VARCHAR(32) NOT NULL,
-    key VARCHAR(255) NOT NULL,
-    value VARCHAR(255),
-    PRIMARY KEY (user_id, key)
+    ckey VARCHAR(255) NOT NULL,
+    cvalue VARCHAR(255),
+    PRIMARY KEY (user_id, ckey)
 );
 
 -- ---------------- --
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS medias_sources (
     id VARCHAR(32) PRIMARY KEY,
     type VARCHAR(32) NOT NULL,
     data TEXT NOT NULL,
-    user_id VARCHAR(32) NOT NULL,
+    user_id VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS accounts (
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS thirdparty_accounts (
     thirdparty_account_id VARCHAR(255) NOT NULL,
     thirdparty_name VARCHAR(255) NOT NULL,
     token VARCHAR(255),
-    PRIMARY KEY (user_id, thirdparty_name),
+    PRIMARY KEY (user_id, thirdparty_name)
 );
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -76,7 +76,7 @@ ALTER TABLE roles ADD UNIQUE (name);
 CREATE TABLE IF NOT EXISTS users_roles (
     user_id VARCHAR(32) NOT NULL,
     role_id VARCHAR(32) NOT NULL,
-    PRIMARY KEY (user_id, role_id),
+    PRIMARY KEY (user_id, role_id)
 );
 
 CREATE TABLE IF NOT EXISTS users_permissions (
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS users_permissions (
     domain VARCHAR(32) NOT NULL,
     actions VARCHAR(255) NOT NULL,
     instance VARCHAR(32) NOT NULL,
-    PRIMARY KEY (user_id, domain, instance),
+    PRIMARY KEY (user_id, domain, instance)
 );
 
 -- ------------------- --
@@ -93,19 +93,19 @@ CREATE TABLE IF NOT EXISTS users_permissions (
 CREATE TABLE IF NOT EXISTS accounts_accesses (
     user_id VARCHAR(32),
     album_id VARCHAR(32),
-    PRIMARY KEY (user_id, album_id),
+    PRIMARY KEY (user_id, album_id)
 );
 
 CREATE TABLE IF NOT EXISTS tokens (
     id VARCHAR(32) PRIMARY KEY,
     label VARCHAR(255) NOT NULL,
-    owner_id VARCHAR(32) NOT NULL,
+    owner_id VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS albums_tokens (
     album_id VARCHAR(32),
     token_id VARCHAR(32),
-    PRIMARY KEY (album_id, token_id),
+    PRIMARY KEY (album_id, token_id)
 );
 
 -- ------ --

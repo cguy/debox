@@ -36,13 +36,13 @@ import org.debox.photo.util.DatabaseUtils;
  */
 public class ConfigurationDao {
 
-    protected static final String SQL_GET_CONFIGURATION = "SELECT `key`, `value` FROM configurations";
+    protected static final String SQL_GET_CONFIGURATION = "SELECT ckey, cvalue FROM configurations";
     protected static final String SQL_INSERT_CONFIGURATION = "INSERT INTO configurations VALUES (?, ?)";
-    protected static final String SQL_UPDATE_CONFIGURATION = "UPDATE configurations set value = ? WHERE `key` = ?";
+    protected static final String SQL_UPDATE_CONFIGURATION = "UPDATE configurations set cvalue = ? WHERE ckey = ?";
     
-    protected static final String SQL_GET_USER_CONFIGURATION = "SELECT `key`, `value` FROM users_configurations WHERE user_id = ?";
+    protected static final String SQL_GET_USER_CONFIGURATION = "SELECT ckey, cvalue FROM users_configurations WHERE user_id = ?";
     protected static final String SQL_INSERT_USER_CONFIGURATION = "INSERT INTO users_configurations VALUES (?, ?, ?)";
-    protected static final String SQL_UPDATE_USER_CONFIGURATION = "UPDATE users_configurations set value = ? WHERE `key` = ? AND user_id = ?";
+    protected static final String SQL_UPDATE_USER_CONFIGURATION = "UPDATE users_configurations set cvalue = ? WHERE ckey = ? AND user_id = ?";
     protected static final String SQL_DELETE_USER_CONFIGURATION = "DELETE FROM users_configurations WHERE user_id = ?";
     
     public Configuration getOverallConfiguration() throws SQLException {

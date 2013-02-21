@@ -34,7 +34,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -139,14 +138,16 @@ public class HomeService extends DeboxService {
         return renderJSON(result);
     }
 
-    protected Map<String, Object> getTemplates() {
-        Map<String, Object> templates = new HashMap<>();
+    protected Map<String, String> getTemplates() {
+        Map<String, String> templates = new HashMap<>();
 
         try {
-            ServletContext servletContext = getContext().getServletContext();
-            URL templatesDirectoryUrl = servletContext.getResource("/WEB-INF/templates");
+            URL templatesDirectoryUrl = this.getClass().getClassLoader().getResource("../templates");
+            if (templatesDirectoryUrl == null) {
+                ServletContext servletContext = getContext().getServletContext();
+                templatesDirectoryUrl = servletContext.getResource("/WEB-INF/templates");
+            }
             URI templatesURI = templatesDirectoryUrl.toURI();
-
             File templatesDirectory = new File(templatesURI);
             if (templatesDirectory != null && templatesDirectory.isDirectory()) {
                 for (File child : templatesDirectory.listFiles()) {
