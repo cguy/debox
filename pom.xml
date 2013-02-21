@@ -491,7 +491,8 @@
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>8.1.9.v20130131</version>
+                <!-- Doesn't use 8.1.9.v20130131 version because of lot of java.net.SocketException: Socket is closed -->
+                <version>8.1.8.v20121106</version>
                 <configuration>
                     <stopPort>9891</stopPort>
                     <stopKey>STOP</stopKey>
