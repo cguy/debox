@@ -27,7 +27,7 @@ app.before({except: null}, function() {
             delete allAlbums;
             delete allTokens;
         }
-        var regex = new RegExp("#\/album\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
+        var regex = new RegExp("#\/albums\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)");
         if (!regex.test(this.path) && document.getElementById("fullscreenContainer") != null) {
             exitFullscreen();
         }
@@ -44,7 +44,7 @@ app.after(function() {
     }
 });
 
-app.post('#/album/:album/comments', function() {
+app.post('#/albums/:album/comments', function() {
     var albumId = this.params['album'];
     ajax({
         url: computeUrl("album/" + albumId + "/comments"),
@@ -67,7 +67,7 @@ app.post('#/album/:album/comments', function() {
 });
 
 // Album comments
-app.get('#/album/([a-zA-Z0-9-_]*)/comments', function() {
+app.get('#/albums/([a-zA-Z0-9-_]*)/comments', function() {
     var id = this.params['splat'][0];
     if ($("h1").attr("id") == id) {
         albumLoaded("comments");
@@ -82,7 +82,7 @@ app.get('#/album/([a-zA-Z0-9-_]*)/comments', function() {
 });
 
 // Album edition
-app.get('#/album/([a-zA-Z0-9-_]*)/edition', function() {
+app.get('#/albums/([a-zA-Z0-9-_]*)/edition', function() {
     var id = this.params['splat'][0];
     if ($("h1").attr("id") == id) {
         albumLoaded("edition");
@@ -127,11 +127,11 @@ function loadSlideshow(context, mode) {
     }
 }
 
-app.get('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)', function() {
+app.get('#/albums/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)', function() {
     loadSlideshow(this);
 });
 
-app.get('#/album/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
+app.get('#/albums/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
     loadSlideshow(this, "/comments");
 });
 
@@ -205,7 +205,7 @@ app.del('#/albums/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
 });
 
 // Album loading (grid)
-app.get('#/album/([a-zA-Z0-9-_]*)', function() {
+app.get('#/albums/([a-zA-Z0-9-_]*)', function() {
     var id = this.params['splat'][0];
     if ($("h1").attr("id") == id) {
         $("#loading").addClass("hide");
@@ -246,6 +246,9 @@ app.get('#/', function() {
             for (var i = 0 ; i < data.albums.length ; i++) {
                 var album = data.albums[i];
                 createAlbum(album);
+            }
+            data.albums.size = function() {
+                return data.albums.length;
             }
             loadTemplate("home", data);
         }

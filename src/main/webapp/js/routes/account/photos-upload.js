@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.put('#/album', function() {
+app.put('#/albums', function() {
     // Note : album name is mandatory, but handled by HTML5 required attribute (modern browser)
     // Never let default behavior, we handle form submit
     $("#creationError").slideUp(500);

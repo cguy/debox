@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.post('#/album/:albumId', function() {
+app.post('#/albums/:albumId', function() {
     $("#alerts .edit.alert-success").fadeOut(250);
     $("#alerts .edit.alert-danger").fadeOut(250);
     $.ajax({
@@ -38,7 +38,7 @@ app.post('#/album/:albumId', function() {
     return false;
 });
 
-app.del('#/album/:albumId', function() {
+app.del('#/albums/:albumId', function() {
     var context = this;
     ajax({
         url: "album/" + this.params["albumId"],

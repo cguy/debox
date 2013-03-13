@@ -187,14 +187,14 @@ function Slideshow() {
     
     this.getAlbumId = function() {
         var hash = location.hash;
-        var prefix = "#/album/";
+        var prefix = "#/albums/";
         var prefixIndex = hash.indexOf(prefix) + prefix.length;
         var albumId = hash.substring(prefixIndex, hash.indexOf("/", prefixIndex));
         return albumId;
     };
     
     this.getBasePath = function() {
-        return "#/album/" + this.getAlbumId() + "/" + this.items[this.index].id; 
+        return "#/albums/" + this.getAlbumId() + "/" + this.items[this.index].id; 
     };
 
     this.refreshLinks = function() {
@@ -270,7 +270,7 @@ function Slideshow() {
 //        fullScreenApi.requestFullScreen($("#fullscreenContainer").get(0));
         
         var href = location.href;
-        href = href.substring(0, href.indexOf("/", href.indexOf("#/album/") + "#/album/".length));
+        href = href.substring(0, href.indexOf("/", href.indexOf("#/albums/") + "#/albums/".length));
         $("#slideshow-options .exit").attr("href", href);
         $("#slideshow-options .exit").click(function() {
             exitFullscreen();
