@@ -20,8 +20,10 @@
  */
 package org.debox.photo.model.comment;
 
+import java.text.SimpleDateFormat;
 import org.debox.photo.model.user.User;
 import java.util.Date;
+import org.debox.photo.util.SessionUtils;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -72,6 +74,20 @@ public class Comment<T> {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+    
+    public String getStrDate() {
+        if (this.date == null) {
+            return null;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
+        return sdf.format(this.date);
+    }
+    
+    public boolean isDeletable() {
+        boolean isAdministrator = SessionUtils.isAdministrator();
+        boolean canDelete = getUser() != null && getUser().getId().equals(SessionUtils.getUserId());
+        return isAdministrator || canDelete;
     }
 
 }
