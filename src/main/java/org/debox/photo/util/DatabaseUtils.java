@@ -53,6 +53,7 @@ public class DatabaseUtils {
     public static final String TEST_QUERY = "SELECT 1";
     protected static ComboPooledDataSource comboPooledDataSource;
     protected static Configuration properties = null;
+    protected static final Object lock = new Object();
     
     protected static final Map<String, String> driverClasses = new HashMap<>(3);
     static {
@@ -112,43 +113,47 @@ public class DatabaseUtils {
     
     public static ComboPooledDataSource getDataSource(boolean forceRefreshProperties) {
         if (comboPooledDataSource == null && hasConfiguration() || forceRefreshProperties) {
-            
-            if (comboPooledDataSource != null) {
-                try {
-                    DataSources.destroy(comboPooledDataSource);
-                } catch (SQLException ex) {
-                    logger.error("Unable to destroy datasource", ex);
+            synchronized (lock) {
+                if (comboPooledDataSource != null && !forceRefreshProperties) {
+                    return comboPooledDataSource;
                 }
-                comboPooledDataSource = null;
-            }
-            
-            Connection connection = null;
-            try {
-                String type = properties.getString(PROPERTY_DATABASE_TYPE);
-                String driverClass = getDriverClass(type);
-                
-                comboPooledDataSource = new ComboPooledDataSource();
-                comboPooledDataSource.setDriverClass(driverClass);
-                
-                String url = "jdbc:" + properties.getString(PROPERTY_JDBC_URL);
-                String user = properties.getString(PROPERTY_DATABASE_USERNAME);
-                String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
-                
-                comboPooledDataSource.setJdbcUrl(url);
-                comboPooledDataSource.setUser(user);
-                comboPooledDataSource.setPassword(password);
-                comboPooledDataSource.setIdleConnectionTestPeriod(300);
-                comboPooledDataSource.setPreferredTestQuery(TEST_QUERY);
-                comboPooledDataSource.setMinPoolSize(5);
-                comboPooledDataSource.setMaxPoolSize(20);
-                comboPooledDataSource.setInitialPoolSize(10);
+                if (forceRefreshProperties) {
+                    try {
+                        DataSources.destroy(comboPooledDataSource);
+                    } catch (SQLException ex) {
+                        logger.error("Unable to destroy datasource", ex);
+                    }
+                    comboPooledDataSource = null;
+                }
 
-                connection = comboPooledDataSource.getConnection();
-                
-            } catch (SQLException | PropertyVetoException ex) {
-                logger.error(ex.getMessage(), ex);
-            } finally {
-                DbUtils.closeQuietly(connection);
+                Connection connection = null;
+                try {
+                    String type = properties.getString(PROPERTY_DATABASE_TYPE);
+                    String driverClass = getDriverClass(type);
+
+                    comboPooledDataSource = new ComboPooledDataSource();
+                    comboPooledDataSource.setDriverClass(driverClass);
+
+                    String url = "jdbc:" + properties.getString(PROPERTY_JDBC_URL);
+                    String user = properties.getString(PROPERTY_DATABASE_USERNAME);
+                    String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
+
+                    comboPooledDataSource.setJdbcUrl(url);
+                    comboPooledDataSource.setUser(user);
+                    comboPooledDataSource.setPassword(password);
+                    comboPooledDataSource.setIdleConnectionTestPeriod(300);
+                    comboPooledDataSource.setPreferredTestQuery(TEST_QUERY);
+                    comboPooledDataSource.setMinPoolSize(5);
+                    comboPooledDataSource.setMaxPoolSize(20);
+                    comboPooledDataSource.setInitialPoolSize(10);
+
+                    connection = comboPooledDataSource.getConnection();
+
+                } catch (SQLException | PropertyVetoException ex) {
+                    logger.error(ex.getMessage(), ex);
+                } finally {
+                    DbUtils.closeQuietly(connection);
+                }
             }
         }
         return comboPooledDataSource;
