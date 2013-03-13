@@ -122,11 +122,11 @@ public class ServiceUtil {
         Configuration configuration = context.getOverallConfiguration();
         String activated = configuration.get(Configuration.Key.THIRDPARTY_ACTIVATION);
         
+        List<Provider> result = new ArrayList<>();
         if (!Boolean.parseBoolean(activated)) {
-            return null;
+            return result;
         }
         
-        List<Provider> result = new ArrayList<>();
         result.add(getProvider("facebook"));
         result.add(getProvider("google"));
         result.add(getProvider("twitter"));
