@@ -1,9 +1,3 @@
-<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
-    <span class="icon-bar"></span> 
-    <span class="icon-bar"></span> 
-    <span class="icon-bar"></span> 
-</a>
-
 {{#title}}<a class="brand" href="#/">{{title}}</a>{{/title}}
 
 <div class="nav-collapse">
@@ -18,7 +12,7 @@
     </ul>
     <ul class="nav pull-right about">
         <li>
-            <a href="#/about" rel="tooltip" data-placement="left" title="{{i18n.about.tooltip}}">
+            <a href="#/about" data-toggle="tooltip" data-placement="bottom" title="{{i18n.about.tooltip}}">
                 <i class="icon-question-sign"></i>
             </a>
         </li>

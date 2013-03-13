@@ -17,14 +17,14 @@
                 {{/beginDate}}
                 {{#videosCount}}
                 <span class="videos count">
-                    {{videosCount}}
+                    {{totalVideosCount}}
                     {{#hasSeveralTotalVideos}}{{i18n.common.videos}}{{/hasSeveralTotalVideos}}
                     {{^hasSeveralTotalVideos}}{{i18n.common.video}}{{/hasSeveralTotalVideos}}
                     <i class="icon-film"></i>
                 </span>
                 {{/videosCount}}
                 <span class="photos count">
-                    {{photosCount}}
+                    {{totalPhotosCount}}
                     {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
                     {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
                     <i class="icon-picture"></i>

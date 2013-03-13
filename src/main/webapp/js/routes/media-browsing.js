@@ -47,7 +47,7 @@ app.after(function() {
 app.post('#/albums/:album/comments', function() {
     var albumId = this.params['album'];
     ajax({
-        url: computeUrl("album/" + albumId + "/comments"),
+        url: computeUrl("albums/" + albumId + "/comments"),
         data: $("#new-album-comment").serializeArray(),
         type: "post",
         success: function(data) {
@@ -73,7 +73,7 @@ app.get('#/albums/([a-zA-Z0-9-_]*)/comments', function() {
         albumLoaded("comments");
     } else {
         ajax({
-            url: computeUrl("album/" + id),
+            url: computeUrl("albums/" + id),
             success: function(data) {
                 loadAlbum(data, albumLoaded, "comments");
             }
@@ -88,7 +88,7 @@ app.get('#/albums/([a-zA-Z0-9-_]*)/edition', function() {
         albumLoaded("edition");
     } else {
         ajax({
-            url: computeUrl("album/" + id),
+            url: computeUrl("albums/" + id),
             success: function(data) {
                 loadAlbum(data, albumLoaded, "edition");
             }
@@ -103,7 +103,7 @@ function loadSlideshow(context, mode) {
     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
     if (index == -1) {
         ajax({
-            url: computeUrl("album/" + albumId),
+            url: computeUrl("albums/" + albumId),
             success: function(data) {
                 loadAlbum(data, function() {
                     albumLoaded();
@@ -212,7 +212,7 @@ app.get('#/albums/([a-zA-Z0-9-_]*)', function() {
         albumLoaded();
     } else {
         ajax({
-            url: computeUrl("album/" + id),
+            url: computeUrl("albums/" + id),
             success: function(data) {
                 loadAlbum(data, albumLoaded);
             }

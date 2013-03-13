@@ -1,24 +1,24 @@
 <div class="page-header album">
-    <a href="#/{{#albumParent}}album/{{albumParent.id}}{{/albumParent}}" data-placement="right" rel="tooltip" 
+    <a href="#/{{#albumParent}}albums/{{albumParent.id}}{{/albumParent}}" data-placement="right" data-toggle="tooltip" 
        {{#albumParent}}title="{{i18n.album.back2album}}: {{albumParent.name}}"{{/albumParent}}
        {{^albumParent}}title="{{i18n.album.back2albums}}"{{/albumParent}}
        class="back"><i class="icon-circle-arrow-left"></i></a>
 
     {{#config.administrator}}
-    <a href="#/albums/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
-    <a href="#/albums/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
+    <a href="#/albums/{{album.id}}/edition" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i><br />{{i18n.common.modify}}</a>
+    <a href="#/albums/{{album.id}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i><br />{{i18n.common.close}}</a>
     {{/config.administrator}}
 
     {{#config.authenticated}}
-    <a href="#/albums/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
+    <a href="#/albums/{{album.id}}" class="pull-right comments">
         <span class="badge badge-info {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
-        <i class="icon-comment"></i>
+        <i class="icon-comment"></i><br />{{i18n.comments.title}}
     </a>
     {{/config.authenticated}}
 
     {{#medias.length}}{{#album.downloadable}}
     <div class="dropdown pull-right">
-        <a href="#" data-placement="bottom" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
+        <a href="#" data-placement="bottom" data-toggle="dropdown" class="dropdown-toggle"><i class="icon-download-alt"></i><br />{{i18n.album.download}}</a>
         <ul class="dropdown-menu">
             <li><a target="_blank" href="{{album.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>
             <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>
@@ -30,7 +30,7 @@
     </h1>
     <div class="information">
         {{#album.photosCount}}
-            {{album.photosCount}}
+            {{album.totalPhotosCount}}
             {{#album.hasSeveralTotalPhotos}}
                 {{i18n.common.photos}}
             {{/album.hasSeveralTotalPhotos}}
@@ -42,7 +42,7 @@
             {{/album.videosCount}}
         {{/album.photosCount}}
         {{#album.videosCount}}
-            {{album.videosCount}}
+            {{album.totalVideosCount}}
             {{#album.hasSeveralTotalVideos}}
                 {{i18n.common.videos}}
             {{/album.hasSeveralTotalVideos}}
@@ -112,14 +112,14 @@
                         </span>
                         {{#videosCount}}
                         <span class="videos count">
-                            {{videosCount}}
+                            {{totalVideosCount}}
                             {{#hasSeveralTotalVideos}}{{i18n.common.videos}}{{/hasSeveralTotalVideos}}
                             {{^hasSeveralTotalVideos}}{{i18n.common.video}}{{/hasSeveralTotalVideos}}
                             <i class="icon-film"></i>
                         </span>
                         {{/videosCount}}
                         <span class="photos count">
-                            {{photosCount}}
+                            {{totalPhotosCount}}
                             {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
                             {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
                             <i class="icon-picture"></i>

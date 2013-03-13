@@ -168,7 +168,8 @@ body > .container-fluid {
 }
 
 * a:focus { 
-    outline: none; 
+    outline: none;
+    text-decoration: none;
 }
 
 .navbar a:hover {
@@ -216,7 +217,6 @@ body > .container-fluid {
     left:0;
     right: 0;
     height: 50px;
-    font-size: 30px;
     padding: 5px 20px;
     margin: 0;
     z-index: 1029;
@@ -233,9 +233,8 @@ body > .container-fluid {
 }
 
 .page-header.album {
-    height: 70px;
-    font-size: 30px;
-    padding: 5px 15px 0;
+    height: 60px;
+    padding: 1px 0 0;
     min-width: 950px;
     border-bottom-color: #ccc;
     background-color: #eee;
@@ -262,25 +261,34 @@ body > .container-fluid {
 }
 
 .page-header.album + * {
-    margin-top: 80px;
+    margin-top: 70px;
 }
 
 .page-header.album > a.back {
     position: absolute;
-    margin-top: 18px;
+    left: 15px;
     display: block;
     width: 30px;
     height: 30px;
 }
 
 .page-header.album .pull-right {
-    margin-right: 20px;
+    height: 48px;
+    padding-right: 10px;
+    padding-left: 10px;
 }
 
 .page-header.album .pull-right.edit-album {
     margin-right: 0;
 }
 
+.page-header.album a {
+    text-align: center;
+}
+
+.page-header.album i {
+    font-size: 30px;
+}
 .page-header.album > a.back > i {
     height: 100%;
     width: 100%;
@@ -290,12 +298,14 @@ body > .container-fluid {
 
 .page-header.album > h1 {
     position: absolute;
-    margin: 3px 20px 0 0;
+    margin: 4px 20px 0 0;
+    font-size: 26px;
+    color: #444;
 }
 
 .page-header.album > h1, .page-header.album > .information {
     left: 60px;
-    right: 100px;
+    right: 300px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -303,10 +313,10 @@ body > .container-fluid {
 
 .page-header.album > .information {
     position: absolute;
-    margin: 43px 0 0 0;
+    margin: 36px 0 0 0;
     color: #999;
     height: 20px;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 20px;
 }
 
@@ -321,11 +331,17 @@ h1 {
 }
 
 .page-header > a, .page-header > .dropdown > a {
-    margin-top: 25px;
     color: #333;
     display: inline-block;
-    width: 30px;
+    /*width: 30px;*/
+    font-size: 14px;
+    line-height: 18px;
     text-align: center;
+}
+
+.page-header > a, .page-header > .dropdown {
+    padding-top: 14px;
+    margin-top: 0px;
 }
 
 .page-header > .dropdown ul li a {
@@ -552,7 +568,7 @@ h3 {
     font-style: italic;
 }
 
-#account {
+.menu + * {
     margin-left: 255px;
 }
 #install #account {
@@ -561,6 +577,10 @@ h3 {
 
 #account.personaldata {
     text-align: center;
+}
+
+#account.personaldata form, #administration form.block {
+    padding-bottom: 20px;
 }
 
 #account > .block {
@@ -586,10 +606,6 @@ h3 {
 
 #account form .control-group:first-of-type {
     margin-top: 10px;
-}
-
-#account .form-actions {
-    margin: 0;
 }
 
 #account table td {
@@ -658,7 +674,7 @@ h3 {
 
 #album-comments {
     position: fixed;
-    top: 116px;
+    top: 101px;
     right: -381px;
     bottom: 0;
     margin: 0 0 0 20px;
@@ -738,8 +754,8 @@ h3 {
 }
 
 textarea {
-    border: none;
-    border-top: 1px solid #ccc;
+    /*border: none;*/
+    /*border-top: 1px solid #ccc;*/
     margin: 0;
     -webkit-box-shadow: none;
     -o-box-shadow: none;
@@ -747,7 +763,7 @@ textarea {
     box-shadow: none;
     resize: none;
     width: 368px;
-    height: 60px;
+    /*height: 60px;*/
     font-size: 12px;
 }
 
@@ -809,7 +825,7 @@ h2.subtitle {
     font-weight: bold;
 }
 
-#account h2, #administration h2 {
+#account h2, #administration h2, #album-edition h2 {
     margin: 0;
     height: 60px;
     line-height: 60px;
@@ -872,15 +888,26 @@ h2.subtitle {
     margin: 20px auto;
 }
 
+form.block {
+    padding-bottom: 0;
+}
+
 @media screen and (max-width: 1240px) {
     .block {
         width: 640px;
     }
 }
 
-
 .block .row {
     margin-left: 0px;
+}
+
+.block > form, form.block {
+    margin-bottom: 0;
+}
+
+.block > form > .form-actions, form.block > .form-actions {
+    margin: 0 -20px -20px;
 }
 
 #personaldata, #credentials, #delete-account {
@@ -891,9 +918,7 @@ h2.subtitle {
 }
 
 #personaldata .form-actions, #credentials .form-actions, #delete-account .form-actions {
-    background: none;
-    margin: 0;
-    padding: 15px 0 0 0;
+    padding: 10px 0;
     text-align: center;
 }
 

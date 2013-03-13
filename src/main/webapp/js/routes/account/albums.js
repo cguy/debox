@@ -22,7 +22,7 @@ app.post('#/albums/:albumId', function() {
     $("#alerts .edit.alert-success").fadeOut(250);
     $("#alerts .edit.alert-danger").fadeOut(250);
     $.ajax({
-        url: "album/" + this.params["albumId"],
+        url: "albums/" + this.params["albumId"],
         type : "post",
         data : $("#edit_album form").serializeArray(),
         success: function(data) {
@@ -41,7 +41,7 @@ app.post('#/albums/:albumId', function() {
 app.del('#/albums/:albumId', function() {
     var context = this;
     ajax({
-        url: "album/" + this.params["albumId"],
+        url: "albums/" + this.params["albumId"],
         type : "delete",
         success: function() {
             $("#delete-album-modal").modal("hide");

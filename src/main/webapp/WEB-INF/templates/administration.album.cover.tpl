@@ -5,7 +5,7 @@
     <ul class="thumbnails albums">
         {{#subAlbums}}
         <li>
-            <div data-id="a.{{id}}" class="thumbnail cover" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-image:url('{{coverUrl}}')">
+            <div data-id="a.{{id}}" class="thumbnail cover" data-toggle="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-image:url('{{coverUrl}}')">
             </div>
         </li>
         {{/subAlbums}}
@@ -19,7 +19,7 @@
         <li class="span2">
             <div data-id="{{id}}"
                  class="thumbnail"
-                 rel="tooltip"
+                 data-toggle="tooltip"
                  title="{{i18n.album.admin.edit.choose_cover.tooltip}}"
             {{#photo}}
                  style="background-color:#ddd;background-image:url('{{thumbnailUrl}}')">

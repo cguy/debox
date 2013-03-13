@@ -732,7 +732,7 @@ public class AlbumDao {
     }
 
     protected void fillAlbumCoverUrl(Album album, String identifier, boolean isToken) {
-        String url = "album/" + album.getId() + "-cover.jpg";
+        String url = "albums/" + album.getId() + "-cover.jpg";
         if (identifier != null && isToken) {
             url += "?token=" + identifier;
         }

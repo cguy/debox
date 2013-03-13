@@ -21,9 +21,9 @@
         <span id="slideshow-help-label"></span>
         <!--<a class="details" href=""><i class="icon-picture"></i></a>
         <a class="share" href=""><i class="icon-share"></i></a>-->
-        <a class="exit" data-placement="left" rel="tooltip" title="{{i18n.slideshow.exit}}" href="#"><i class="icon-remove"></i></a>
+        <a class="exit" data-placement="left" data-toggle="tooltip" title="{{i18n.slideshow.exit}}" href="#"><i class="icon-remove"></i></a>
         {{#config.authenticated}}    
-        <a class="comments" data-placement="left" rel="tooltip" href="">
+        <a class="comments" data-placement="left" data-toggle="tooltip" href="">
             <span class="badge badge-info hide">0</span>
             <i class="icon-comment"></i>
         </a>

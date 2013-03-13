@@ -316,7 +316,7 @@ var fr = {
         on_date: "le",
         back2album: "Retour à l'album ",
         back2albums: "Retour à la liste des albums",
-        download: "Télécharger les photos de cet album",
+        download: "Télécharger",
         reduced_size: "Taille réduite des photos",
         original_size: "Taille originale des photos",
         subalbums: "Sous-albums",

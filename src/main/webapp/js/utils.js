@@ -91,13 +91,15 @@ function loadTemplate(templateId, data, selector, callback) {
     }
     
     if (selector == _defaultSelector) {
-        $("body > .container-fluid *[rel=tooltip]").tooltip();
-        $("body > .container-fluid a[rel=tooltip]").click(function() {
+        $("body > .container-fluid *[data-toggle=tooltip]").tooltip("destroy");
+        $("body > .container-fluid *[data-toggle=tooltip]").tooltip();
+        $("body > .container-fluid a[data-toggle=tooltip]").click(function() {
             $(this).tooltip('hide');
         });
     } else if (templateId == "header") {
-        $(".navbar a[rel=tooltip]").tooltip();
-        $(".navbar a[rel=tooltip]").click(function() {
+        $(".navbar a[data-toggle=tooltip]").tooltip("destroy");
+        $(".navbar a[data-toggle=tooltip]").tooltip();
+        $(".navbar a[data-toggle=tooltip]").click(function() {
             $(this).tooltip('hide');
         });
     }
@@ -253,7 +255,7 @@ function loadAlbum(data, callback, mode) {
                     id = $(this).parents(".thumbnail").attr("data-id");
                 }
                 ajax({
-                    url: "album/" + data.album.id + "/cover",
+                    url: "albums/" + data.album.id + "/cover",
                     type : "post",
                     data : {
                         objectId:id
@@ -270,7 +272,7 @@ function loadAlbum(data, callback, mode) {
         });
         $("button.regenerate-thumbnails").click(function() {
             ajax({
-                url: "album/" + data.album.id + "/regeneratethumbnails",
+                url: "albums/" + data.album.id + "/regeneratethumbnails",
                 type : "post",
                 success: function() {
                     manageRegenerationProgress({
@@ -457,7 +459,7 @@ function manageRegenerationProgress(data) {
                         
         var getGenerationStatus = function() {
             $.ajax({
-                url: "album/" + data.album.id + "/regeneratethumbnails",
+                url: "albums/" + data.album.id + "/regeneratethumbnails",
                 success: function(data) {
                     refreshProgressBar(data);
                 }
@@ -705,7 +707,7 @@ function afterTabLoading(id, data) {
                 data.downloadable = "false";
             }
             $.ajax({
-                url: "album/" + albumId,
+                url: "albums/" + albumId,
                 type : "post",
                 data : data,
                 success : function(data) {
