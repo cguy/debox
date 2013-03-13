@@ -33,10 +33,10 @@
                 <td><div>{{user.firstName}} {{user.lastName}}</div></td>
                 <td>
                     {{#media.albumId}}
-                    <a href="#/album/{{media.albumId}}/{{media.id}}/comments">{{content}}</a>
+                    <a href="#/albums/{{media.albumId}}/{{media.id}}/comments">{{content}}</a>
                     {{/media.albumId}}
                     {{^media.albumId}}
-                    <a href="#/album/{{media.id}}/comments">{{content}}</a>
+                    <a href="#/albums/{{media.id}}/comments">{{content}}</a>
                     {{/media.albumId}}
                 </td>
                 <td>

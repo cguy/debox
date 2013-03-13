@@ -3,7 +3,7 @@
     {{#medias}}
     <li class="span2">
         <a class="thumbnail"
-           href="#/album/{{albumId}}/{{id}}"
+           href="#/albums/{{albumId}}/{{id}}"
            data-id="{{id}}"
            data-date="{{date}}"
            data-title="{{title}}"

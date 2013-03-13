@@ -14,7 +14,7 @@
         <h3>{{i18n.account.upload.photos}}</h3>
         <input type="hidden" name="albumId" id="albumId" />
 
-        <p id="targetAlbum" class="hide alert alert-info">{{i18n.account.upload.targetDirectory}}<a href="" data-href="#/album/"></a></p>
+        <p id="targetAlbum" class="hide alert alert-info">{{i18n.account.upload.targetDirectory}}<a href="" data-href="#/albums/"></a></p>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
             <div class="span8">
@@ -54,7 +54,7 @@
 {{! ========================================================== }}
 {{! POPUP MODAL - ALBUM CREATION                               }}
 {{! ========================================================== }}
-<form id="modal-createNewAlbum" class="modal hide fade form-horizontal" action="#/album" method="put">
+<form id="modal-createNewAlbum" class="modal hide fade form-horizontal" action="#/albums" method="put">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
         <h3>{{i18n.account.upload.form.title}}</h3>

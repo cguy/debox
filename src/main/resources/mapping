@@ -46,9 +46,9 @@ GET,POST    /photo/*/comments                       AdministrationFilter.checkUs
 POST,DELETE /video/*                                AdministrationFilter.checkUserAuthentication
 GET,POST    /video/*/comments                       AdministrationFilter.checkUserAuthentication
 
-POST,DELETE /album                                  AdministrationFilter.checkUserSession
-GET,POST    /album/*/regeneratethumbnails           AdministrationFilter.checkUserSession
-POST        /album/*/comments                       AdministrationFilter.checkUserAuthentication
+POST,DELETE /albums/*                                AdministrationFilter.checkUserSession
+GET,POST    /albums/*/regeneratethumbnails           AdministrationFilter.checkUserSession
+POST        /albums/*/comments                       AdministrationFilter.checkUserAuthentication
 
 *           /comments                               AdministrationFilter.checkUserAuthentication
 
@@ -101,11 +101,11 @@ DELETE      /video/{id}                         VideoService.delete
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-PUT         /album                                  AlbumService.createAlbum
-POST        /album/{albumId}                        AlbumService.editAlbum
-DELETE      /album/{albumId}                        AlbumService.deleteAlbum
-POST        /album/{albumId}/regeneratethumbnails   AlbumService.regenerateThumbnails
-GET         /album/{albumId}/regeneratethumbnails   AlbumService.getRegenerationProgress
+PUT         /albums                                 AlbumService.createAlbum
+POST        /albums/{albumId}                       AlbumService.editAlbum
+DELETE      /albums/{albumId}                       AlbumService.deleteAlbum
+POST        /albums/{albumId}/regeneratethumbnails  AlbumService.regenerateThumbnails
+GET         /albums/{albumId}/regeneratethumbnails  AlbumService.getRegenerationProgress
 GET         /uploadProgress                         AdministrationService.getUploadProgress
 
 # -----------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ DELETE      /token/{id}                         TokenService.deleteToken
 # -----------------------------------------------------------------------------------------------
 GET    /comments                                 CommentService.getAll
 
-POST   /album/{albumId}/comments                 CommentService.createAlbumComment
+POST   /albums/{albumId}/comments                 CommentService.createAlbumComment
 
 POST   /photo/{mediaId}/comments                 CommentService.createMediaComment
 GET    /photo/{mediaId}/comments                 CommentService.getMediaComments
@@ -137,8 +137,8 @@ DELETE /comments/{commentId}                     CommentService.deleteComment
 # -----------------------------------------------------------------------------------------------
 # MEDIA - STREAMS
 # -----------------------------------------------------------------------------------------------
-GET   /album/{albumId:.+-cover\.jpg}            AlbumService.getAlbumCover
-POST  /album/{albumId}/cover                    AlbumService.setAlbumCover
+GET   /albums/{albumId:.+-cover\.jpg}           AlbumService.getAlbumCover
+POST  /albums/{albumId}/cover                   AlbumService.setAlbumCover
 GET   /photo/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
 GET   /video/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
 GET   /video/{filename}                         VideoService.getVideoStream
@@ -147,13 +147,13 @@ GET   /video/{filename}                         VideoService.getVideoStream
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
 GET         /albums                             AlbumService.getAlbums
-GET         /album/{id}                         AlbumService.getAlbum
+GET         /albums/{id}                        AlbumService.getAlbum
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DOWNLOADS
 # -----------------------------------------------------------------------------------------------
-GET /download/album/{albumId}/min               AlbumService.download        resized=true
-GET /download/album/{albumId}                   AlbumService.download        resized=false
+GET /download/albums/{albumId}/min              AlbumService.download        resized=true
+GET /download/albums/{albumId}                  AlbumService.download        resized=false
 
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES

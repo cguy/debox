@@ -1,4 +1,4 @@
-<a id="{{id}}" href="#/album/{{id}}/edition" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
+<a id="{{id}}" href="#/albums/{{id}}/edition" class="album admin thumbnail" style="background-image:url('{{coverUrl}}')">
     <ul class="unstyled">
         <li title="{{name}}"><strong>{{name}}</strong></li>
         <li>{{beginDate}}</li>

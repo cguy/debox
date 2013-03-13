@@ -5,12 +5,12 @@
        class="back"><i class="icon-circle-arrow-left"></i></a>
 
     {{#config.administrator}}
-    <a href="#/album/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
-    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
+    <a href="#/albums/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
+    <a href="#/albums/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
     {{/config.administrator}}
 
     {{#config.authenticated}}
-    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
+    <a href="#/albums/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
         <span class="badge badge-info {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
         <i class="icon-comment"></i>
     </a>
@@ -78,7 +78,7 @@
             {{/comments}}
         {{/comments.length}}
         
-        <form id="new-album-comment" method="post" action="#/album/{{album.id}}/comments">
+        <form id="new-album-comment" method="post" action="#/albums/{{album.id}}/comments">
             <textarea name="content" required placeholder="{{i18n.comments.placeholder}}"></textarea>
             <div class="form-actions">
                 <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />
@@ -101,7 +101,7 @@
         <ul class="thumbnails albums">
             {{#subAlbums}}
             <li>
-                <a class="thumbnail" href="#/album/{{id}}">
+                <a class="thumbnail" href="#/albums/{{id}}">
                     <span class="picture" style="background-image:url('{{coverUrl}}')"></span>
                     <span class="title" title="{{name}}"><span>{{name}}</span></span>
                     <span class="filter">

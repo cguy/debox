@@ -23,8 +23,6 @@ package org.debox.photo.model;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
-import static org.debox.photo.util.StringUtils.WHITESPACE;
-import org.debox.photo.util.i18n.I18nUtils;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -60,61 +58,12 @@ public class Album implements Comparable<Album> {
         return hasSeveralTotalPhotos() || hasSeveralTotalVideos();
     }
     
-    public String getInformation() {
-        StringBuilder builder = new StringBuilder();
-        
-        if (photosCount > 0) {
-            builder.append(totalPhotosCount);
-            builder.append(WHITESPACE);
-            if (photosCount > 1) {
-                builder.append(I18nUtils.get("common.photos"));
-            } else {
-                builder.append(I18nUtils.get("common.photo"));
-            }
-            
-            if (videosCount > 0) {
-                builder.append(WHITESPACE);
-                builder.append(I18nUtils.get("common.and"));
-            }
-        }
-        if (videosCount > 0) {
-            builder.append(WHITESPACE);
-            builder.append(totalVideosCount);
-            builder.append(WHITESPACE);
-            if (videosCount > 1) {
-                builder.append(I18nUtils.get("common.videos"));
-            } else {
-                builder.append(I18nUtils.get("common.video"));
-            }
-        }
-        if (totalPhotosCount > 0 || totalVideosCount > 0)  {
-            builder.append(WHITESPACE);
-            if (getStrBeginDate().equals(getStrEndDate())) {
-                builder.append(I18nUtils.get("album.on_date"));
-                builder.append(WHITESPACE);
-                builder.append(getStrBeginDate());
-            } else {
-                builder.append(I18nUtils.get("album.from_date"));
-                builder.append(WHITESPACE);
-                builder.append(getStrBeginDate());
-                builder.append(WHITESPACE);
-                builder.append(I18nUtils.get("album.to_date"));
-                builder.append(WHITESPACE);
-                builder.append(getStrEndDate());
-            }
-        } else {
-            builder.append(I18nUtils.get("common.noPhotos"));
-        }
-        
-        return builder.toString();
-    }
-    
     public String getSmallSizeDownloadUrl() {
         return getDownloadUrl() + "/min";
     }
     
     public String getDownloadUrl() {
-        return "/download/album/" + id;
+        return "/download/albums/" + id;
     }
 
     public String getOwnerId() {

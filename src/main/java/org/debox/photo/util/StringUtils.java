@@ -29,7 +29,7 @@ import org.apache.commons.codec.binary.Base64;
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
-
+    
     public static String randomUUID() {
         UUID uuid = UUID.randomUUID();
         byte[] bytes = new byte[16];

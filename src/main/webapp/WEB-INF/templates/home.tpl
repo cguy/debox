@@ -4,7 +4,7 @@
 <ul class="thumbnails albums">
     {{#albums}}
     <li>
-        <a class="thumbnail" href="#/album/{{id}}">
+        <a class="thumbnail" href="#/albums/{{id}}">
             <span class="picture" style="background-image:url('{{coverUrl}}')"></span>
             <span class="title" title="{{name}}"><span>{{name}}</span></span>
             <span class="filter">

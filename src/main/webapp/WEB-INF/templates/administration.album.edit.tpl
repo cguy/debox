@@ -18,7 +18,7 @@
     </div>
 
     <h3>{{i18n.album.admin.edit.modify}}</h3>
-    <form id="edit-album-form" class="form-horizontal" action="#/album/{{album.id}}" method="post">
+    <form id="edit-album-form" class="form-horizontal" action="#/albums/{{album.id}}" method="post">
         <p></p>
         <div class="control-group">
             <label class="control-label" for="name">{{i18n.album.admin.edit.album_name}}</label>
@@ -81,7 +81,7 @@
         <button class="btn btn-danger delete"><i class="icon-remove icon-white"></i>&nbsp;{{i18n.album.admin.delete.action}}</button>
     </div>
 
-    <form id="delete-album-modal" class="modal fade hide" method="delete" action="#/album/{{album.id}}">
+    <form id="delete-album-modal" class="modal fade hide" method="delete" action="#/albums/{{album.id}}">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>{{i18n.album.admin.delete.confirm.title}}</h3>
