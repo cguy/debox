@@ -20,8 +20,11 @@
  */
 package org.debox.photo.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
+import static org.debox.photo.util.StringUtils.WHITESPACE;
+import org.debox.photo.util.i18n.I18nUtils;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
@@ -34,14 +37,85 @@ public class Album implements Comparable<Album> {
     protected Date beginDate;
     protected Date endDate;
     protected int photosCount;
+    protected int totalPhotosCount;
     protected int videosCount;
+    protected int totalVideosCount;
     protected String relativePath;
     protected String parentId;
     protected String coverUrl;
-    protected boolean isPublic;
+    protected boolean publicAlbum;
     protected boolean downloadable;
     protected String ownerId;
     protected int subAlbumsCount;
+    
+    protected boolean hasSeveralTotalPhotos() {
+        return this.totalPhotosCount > 1;
+    }
+    
+    protected boolean hasSeveralTotalVideos() {
+        return this.totalVideosCount > 1;
+    }
+    
+    protected boolean hasMedias() {
+        return hasSeveralTotalPhotos() || hasSeveralTotalVideos();
+    }
+    
+    public String getInformation() {
+        StringBuilder builder = new StringBuilder();
+        
+        if (photosCount > 0) {
+            builder.append(totalPhotosCount);
+            builder.append(WHITESPACE);
+            if (photosCount > 1) {
+                builder.append(I18nUtils.get("common.photos"));
+            } else {
+                builder.append(I18nUtils.get("common.photo"));
+            }
+            
+            if (videosCount > 0) {
+                builder.append(WHITESPACE);
+                builder.append(I18nUtils.get("common.and"));
+            }
+        }
+        if (videosCount > 0) {
+            builder.append(WHITESPACE);
+            builder.append(totalVideosCount);
+            builder.append(WHITESPACE);
+            if (videosCount > 1) {
+                builder.append(I18nUtils.get("common.videos"));
+            } else {
+                builder.append(I18nUtils.get("common.video"));
+            }
+        }
+        if (totalPhotosCount > 0 || totalVideosCount > 0)  {
+            builder.append(WHITESPACE);
+            if (getStrBeginDate().equals(getStrEndDate())) {
+                builder.append(I18nUtils.get("album.on_date"));
+                builder.append(WHITESPACE);
+                builder.append(getStrBeginDate());
+            } else {
+                builder.append(I18nUtils.get("album.from_date"));
+                builder.append(WHITESPACE);
+                builder.append(getStrBeginDate());
+                builder.append(WHITESPACE);
+                builder.append(I18nUtils.get("album.to_date"));
+                builder.append(WHITESPACE);
+                builder.append(getStrEndDate());
+            }
+        } else {
+            builder.append(I18nUtils.get("common.noPhotos"));
+        }
+        
+        return builder.toString();
+    }
+    
+    public String getSmallSizeDownloadUrl() {
+        return getDownloadUrl() + "/min";
+    }
+    
+    public String getDownloadUrl() {
+        return "/download/album/" + id;
+    }
 
     public String getOwnerId() {
         return ownerId;
@@ -95,6 +169,22 @@ public class Album implements Comparable<Album> {
         return beginDate;
     }
 
+    public String getStrBeginDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
+        if (this.beginDate != null) {
+            return sdf.format(this.beginDate);
+        }
+        return null;
+    }
+
+    public String getStrEndDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
+        if (this.endDate != null) {
+            return sdf.format(this.endDate);
+        }
+        return null;
+    }
+
     public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
     }
@@ -139,12 +229,12 @@ public class Album implements Comparable<Album> {
         this.relativePath = relativePath;
     }
 
-    public boolean isPublic() {
-        return isPublic;
+    public boolean isPublicAlbum() {
+        return publicAlbum;
     }
 
     public void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
+        this.publicAlbum = isPublic;
     }
 
     public int getVideosCount() {
@@ -183,6 +273,22 @@ public class Album implements Comparable<Album> {
     
     public boolean isSubAlbum(Album target) {
         return target != null && this.getRelativePath().startsWith(target.getRelativePath());
+    }
+
+    public void setTotalPhotosCount(int count) {
+        this.totalPhotosCount = count;
+    }
+
+    public void setTotalVideosCount(int count) {
+        this.totalVideosCount = count;
+    }
+
+    public int getTotalPhotosCount() {
+        return totalPhotosCount;
+    }
+
+    public int getTotalVideosCount() {
+        return totalVideosCount;
     }
     
 }
