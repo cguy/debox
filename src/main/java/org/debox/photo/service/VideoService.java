@@ -22,7 +22,6 @@ package org.debox.photo.service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,8 +30,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.InternalErrorException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.FileUtils;
@@ -61,7 +62,7 @@ public class VideoService extends MediaService {
         }
         if (video == null) {
             log.warn("Not any video found with id: {} (given filename: {})", videoId, filename);
-            return renderNotFound();
+            throw new NotFoundException();
         }
         
         String path = null;
@@ -79,7 +80,7 @@ public class VideoService extends MediaService {
         }
         
         if (path == null) {
-            return renderNotFound();
+            throw new NotFoundException();
         }
         Path videoPath = Paths.get(path);
         return renderStream(new FileInputStream(videoPath.toFile()), FileUtils.getMimeType(extension));
@@ -88,9 +89,9 @@ public class VideoService extends MediaService {
     public Render delete(String id) throws SQLException {
         Video media = videoDao.getVideo(id);
         if (media == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any video with id: " + id);
+            throw new NotFoundException("There is not any video with id: " + id);
         } else if (!media.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this video");
+            throw new ForbiddenAccessException("You are not allowed to delete this video");
         }
         
         try {
@@ -119,9 +120,9 @@ public class VideoService extends MediaService {
             
         } catch (SQLException | IOException ex) {
             log.error("Unable to delete video", ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "An error has occured during deletion");
+            throw new InternalErrorException("An error has occured during deletion");
         }
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
 }

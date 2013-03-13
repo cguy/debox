@@ -1,8 +1,10 @@
+package org.debox.photo.exception;
+
 /*
  * #%L
  * debox-photos
  * %%
- * Copyright (C) 2012 Debox
+ * Copyright (C) 2012 - 2013 Debox
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,32 +20,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-/* ************** */
-/* ALL THUMBNAILS */
-/* ************** */
-.thumbnails > li {
-    float: left;
-    z-index: 0;
-}
 
-.thumbnails > li > .thumbnail {
-    border: 2px solid #ccc;
-}
+import java.net.HttpURLConnection;
 
-.thumbnails.albums > li > .thumbnail.cover > .picture {
-    position: absolute;
-    width: 160px;
-    height: 160px;
-}
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class NotFoundException extends HttpException {
+    
+    private static final long serialVersionUID = 1L;
 
-.thumbnails.albums > li > .thumbnail.cover > .picture > .count, 
-.thumbnails.albums > li > .thumbnail.cover > .picture > .title {
-    width: 160px;
-    background: rgb(12,27,30);
-    filter: alpha(opacity=100);
-}
+    public NotFoundException() {
+        super();
+    }
 
-.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .title, 
-.thumbnails.albums > li > .thumbnail.cover:hover > .picture > .count {
-    filter: alpha(opacity=0);
+    public NotFoundException(String message) {
+        super(message);
+    }
+
+    public NotFoundException(Throwable cause) {
+        super(cause);
+    }
+    
+    @Override
+    public int getHttpStatus() {
+        return HttpURLConnection.HTTP_NOT_FOUND;
+    }
+
 }

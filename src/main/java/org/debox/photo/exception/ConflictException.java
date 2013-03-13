@@ -1,8 +1,10 @@
+package org.debox.photo.exception;
+
 /*
  * #%L
  * debox-photos
  * %%
- * Copyright (C) 2012 Debox
+ * Copyright (C) 2012 - 2013 Debox
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +20,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-.thumbnails.albums > li > .thumbnail:hover {
-    width:170px;
-    height:170px;
-}
 
-.thumbnails > li > .thumbnail:hover {
-    z-index: 10;
+import java.net.HttpURLConnection;
+
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class ConflictException extends HttpException {
     
-    margin-top: 0;
-    margin-left: 0;
-    width:140px;
-    height:140px;
+    private static final long serialVersionUID = 1L;
+
+    public ConflictException() {
+        super();
+    }
+
+    public ConflictException(String message) {
+        super(message);
+    }
+
+    public ConflictException(Throwable cause) {
+        super(cause);
+    }
+    
+    @Override
+    public int getHttpStatus() {
+        return HttpURLConnection.HTTP_CONFLICT;
+    }
+    
 }

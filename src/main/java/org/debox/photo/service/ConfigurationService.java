@@ -22,7 +22,6 @@ package org.debox.photo.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +29,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.shiro.SecurityUtils;
+import org.debox.photo.exception.BadRequestException;
+import org.debox.photo.exception.InternalErrorException;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.configuration.ThirdPartyConfiguration;
 import org.debox.photo.server.ApplicationContext;
@@ -46,7 +47,7 @@ public class ConfigurationService extends DeboxService {
     
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
-    public Render getConfiguration() {
+    public Map<String, Object> getConfiguration() {
         Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         
         Configuration.Key[] dontTransform = new Configuration.Key[] {Configuration.Key.TITLE, Configuration.Key.WORKING_DIRECTORY};
@@ -76,7 +77,7 @@ public class ConfigurationService extends DeboxService {
 //        twitter.setCallbackURL(configuration.get(Configuration.Key.TWITTER_CALLBACK_URL));
 //        model.put("twitter", twitter);
         
-        return renderJSON(model);
+        return model;
     }
 
     public Render editConfiguration(String title, String workingDirectory) throws IOException, SQLException {
@@ -93,7 +94,7 @@ public class ConfigurationService extends DeboxService {
         }
 
         if (error) {
-            return renderStatus(500);
+            throw new InternalErrorException();
         }
 
         getContext().addInfoMessage("success", "configuration.edit.success");
@@ -126,7 +127,7 @@ public class ConfigurationService extends DeboxService {
         
         ApplicationContext.getInstance().saveConfiguration(configuration);
         
-        return renderStatus(HttpURLConnection.HTTP_OK);
+        return renderSuccess();
     }
 
     public Render getUserSettings() {
@@ -140,7 +141,7 @@ public class ConfigurationService extends DeboxService {
             
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
-            return renderError(500);
+            throw new InternalErrorException();
         }
     }
 
@@ -158,7 +159,7 @@ public class ConfigurationService extends DeboxService {
                     boolean isCreatable = !directory.exists() && directory.mkdirs();
                     boolean isWritable = directory.exists() && directory.canWrite();
                     if (!isWritable && !isCreatable) {
-                        return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Directory " + strDirectory + " is not writable");
+                        throw new BadRequestException("Directory " + strDirectory + " is not writable");
                     }
                 }
                 
@@ -168,7 +169,8 @@ public class ConfigurationService extends DeboxService {
             }
             ApplicationContext.getInstance().saveUserConfiguration(userId, configuration);
         } catch (SQLException ex) {
-            return renderError(500);
+            logger.error("Unable to save user configuration", ex);
+            throw new InternalErrorException();
         }
         return renderSuccess();
     }

@@ -29,6 +29,8 @@ import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +49,9 @@ import org.debox.photo.dao.CommentDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.VideoDao;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.InternalErrorException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.job.RegenerateThumbnailsJob;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.comment.Comment;
@@ -88,7 +93,7 @@ public class AlbumService extends DeboxService {
     
     public Render createAlbum(String albumName, String parentId) throws SQLException {
         if (StringUtils.isEmpty(albumName)) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The name of the album is mandatory.");
+            throw new InternalErrorException("The name of the album is mandatory.");
         }
         Album album = new Album();
         album.setId(StringUtils.randomUUID());
@@ -104,7 +109,7 @@ public class AlbumService extends DeboxService {
         } else {
             Album parent = albumDao.getAlbum(parentId);
             if (parent == null) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is not any album with id " + parentId);
+                throw new InternalErrorException("There is not any album with id " + parentId);
             }
             album.setParentId(parentId);
             album.setRelativePath(parent.getRelativePath() + File.separatorChar + album.getName());
@@ -112,14 +117,14 @@ public class AlbumService extends DeboxService {
         
         Album existingAtPath = albumDao.getAlbumByPath(album.getRelativePath());
         if (existingAtPath != null) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "There is already an album at path (" + album.getRelativePath() + ")");
+            throw new InternalErrorException("There is already an album at path (" + album.getRelativePath() + ")");
         }
         
         String[] paths = {ImageUtils.getAlbumsBasePath(album.getOwnerId()), ImageUtils.getThumbnailsBasePath(album.getOwnerId())};
         for (String path : paths) {
             File targetDirectory = new File(path + album.getRelativePath());
             if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-                return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Error during directory creation (" + targetDirectory.getAbsolutePath() + ")");
+                throw new InternalErrorException("Error during directory creation (" + targetDirectory.getAbsolutePath() + ")");
             }
         }
         
@@ -130,17 +135,17 @@ public class AlbumService extends DeboxService {
     public Render deleteAlbum(String albumId) throws SQLException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any album with id " + albumId);
+            throw new NotFoundException("There is not any album with id " + albumId);
         }
         
         String originalDirectory = ImageUtils.getSourcePath(album);
         String workingDirectory = ImageUtils.getTargetPath(album);
         if (!FileUtils.deleteQuietly(new File(workingDirectory)) || !FileUtils.deleteQuietly(new File(originalDirectory))) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to delete directories from file system.");
+            throw new InternalErrorException("Unable to delete directories from file system.");
         }
 
         albumDao.delete(album);
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
     public List<Album> albums(String parentId, String token) throws SQLException {
@@ -156,7 +161,7 @@ public class AlbumService extends DeboxService {
         return albums;
     }
 
-    public Render getAlbums(String parentId, String token, String criteria) throws SQLException {
+    public List<Album> getAlbums(String parentId, String token, String criteria) throws SQLException {
         Subject subject = SecurityUtils.getSubject();
         boolean isAdministrator = SessionUtils.isAdministrator(subject);
         List<Album> albums;
@@ -165,10 +170,14 @@ public class AlbumService extends DeboxService {
         } else {
             albums = albums(parentId, token);
         }
-        return renderJSON("albums", albums);
+        return albums;
     }
 
-    public Render getAlbum(String token, String id) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
+    public Render renderAlbums(String parentId, String token, String criteria) throws SQLException {
+        return render("home", "albums", getAlbums(parentId, token, criteria));
+    }
+    
+    public Map<String, Object> getAlbumData(String token, String id) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
         
@@ -183,7 +192,7 @@ public class AlbumService extends DeboxService {
             album = albumDao.getVisibleAlbum(token, id);
         }
         if (album == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
         }
 
         List<Token> tokens = null;
@@ -253,39 +262,21 @@ public class AlbumService extends DeboxService {
             comments = commentDao.getByAlbum(album.getId());
         }
         
-        return renderJSON("album", album, "albumParent", parent,
-                "subAlbums", subAlbums, "medias", medias,
-                "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts, "comments", comments);
+        Map<String, Object> result = new HashMap<>();
+        result.put("album", album);
+        result.put("albumParent", parent);
+        result.put("subAlbums", subAlbums);
+        result.put("medias", medias);
+        result.put("regeneration", getRegenerationData());
+        result.put("tokens", tokens);
+        result.put("contacts", contacts);
+        result.put("comments", comments);
+        return result;
     }
-    
-//    private List<Contact> convert(Iterator<SyndEntry> contactsIterator) {
-//        List<Contact> list = new ArrayList<>();
-//        while (contactsIterator.hasNext()) {
-//            SyndEntry entry = contactsIterator.next();
-//            
-//            Contact contact = new Contact();
-//            contact.setName(entry.getTitle());
-//            contact.setProvider(ServiceUtil.getProvider("google"));
-//            
-//            List<Element> elements = (List<Element>) entry.getForeignMarkup();
-//            for (Element element : elements) {
-//                String prefix = element.getNamespacePrefix();
-//                String name = element.getName();
-//                if ("gd".equals(prefix) && "email".equals(name)) {
-//                    String mail = element.getAttributeValue("address");
-//                    contact.setId(mail);
-//                    if (StringUtils.isEmpty(contact.getName())) {
-//                        contact.setName(mail);
-//                    }
-//                    break;
-//                }
-//            }
-//            if (StringUtils.isNotEmpty(contact.getId())) {
-//                list.add(contact);
-//            }
-//        }
-//        return list;
-//    }
+
+    public Render getAlbum(String token, String id) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
+        return render("album", getAlbumData(token, id));
+    }
     
     public List<Contact> convert(List<com.restfb.types.User> list) {
         if (list == null) {
@@ -302,25 +293,14 @@ public class AlbumService extends DeboxService {
         return result;
     }
     
-    public Render editAlbum(String albumId, String name, String description, String visibility, String downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+    public Render editAlbumPermissions(String albumId, String visibility, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        if (name != null) {
-            album.setName(name);
-        }
-        if (description != null) {
-            album.setDescription(description);
+            throw new NotFoundException();
         }
         if (visibility != null) {
             album.setPublic(Boolean.parseBoolean(visibility));
         }
-        if (downloadable != null) {
-            album.setDownloadable(Boolean.parseBoolean(downloadable));
-        }
-
-        albumDao.save(album);
         
         if (authorizedTokens != null) {
             List<Token> tokens = tokenDao.getAll(album.getOwnerId());
@@ -362,7 +342,77 @@ public class AlbumService extends DeboxService {
             }
         }
         
+        albumDao.save(album);
         return getAlbum(null, albumId);
+    }
+    
+    public Render editAlbum(String albumId, String name, String beginDate, String endDate, String description, String downloadable) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        Album album = albumDao.getAlbum(albumId);
+        if (album == null) {
+            throw new NotFoundException();
+        }
+        if (name != null) {
+            album.setName(name);
+        }
+        if (description != null) {
+            album.setDescription(description);
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (beginDate != null) {
+            try {
+                album.setBeginDate(sdf.parse(beginDate));
+            } catch (ParseException ex) {
+                logger.info("Unable to parse string: {}", beginDate, ex);
+                getContext().addErrorMessage("edition", "beginDateFormat");
+                return renderRedirect("/albums/" + albumId + "/edition");
+            }
+        }
+        if (endDate != null) {
+            try {
+                album.setEndDate(sdf.parse(endDate));
+            } catch (ParseException ex) {
+                logger.info("Unable to parse string: {}", endDate, ex);
+                getContext().addErrorMessage("edition", "endDateFormat");
+                return renderRedirect("/albums/" + albumId + "/edition");
+            }
+        }
+        if (downloadable != null) {
+            album.setDownloadable(Boolean.parseBoolean(downloadable));
+        }
+
+        try {
+            throw new SQLException();
+//            albumDao.save(album);
+//            getContext().addInfoMessage("edition", "success");
+        } catch(SQLException ex) {
+            getContext().addErrorMessage("edition", "internal");
+        }
+        return renderRedirect("/albums/" + albumId + "/edition");
+    }
+    
+    public Render getAlbumEditionPage(String albumId) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        Map<String, Object> albumData = getAlbumData(null, albumId);
+        albumData.put("page", "administration.album.edit");
+        return render("administration.album", albumData);
+    }
+    
+    public Render getAlbumVisitorAccessesPage(String albumId) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        Map<String, Object> albumData = getAlbumData(null, albumId);
+        albumData.put("page", "administration.album.permissions");
+        return render("administration.album", albumData);
+    }
+    
+    public Render getAlbumCoverPage(String albumId) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        Map<String, Object> albumData = getAlbumData(null, albumId);
+        albumData.put("page", "administration.album.cover");
+        return render("administration.album", albumData);
+    }
+    
+    public Render getAlbumMediasPage(String albumId) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        Map<String, Object> albumData = getAlbumData(null, albumId);
+        albumData.put("page", "administration.album.medias");
+        return render("administration.album", albumData);
     }
     
     protected void addParentAlbumsToToken(Album album, Token token) throws SQLException {
@@ -389,7 +439,7 @@ public class AlbumService extends DeboxService {
         boolean isSubAlbum = !emptyId && objectId.startsWith("a.") && albumDao.getAlbumCover(objectId.substring(2)) != null;
         
         if (!isPhoto && !isVideo && !isSubAlbum) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "The objectId parameter must correspond with a valid media.");
+            throw new InternalErrorException("The objectId parameter must correspond with a valid media.");
         }
         
         String id;
@@ -402,7 +452,7 @@ public class AlbumService extends DeboxService {
         
         photoDao.saveThumbnailGenerationTime("a." + albumId, ThumbnailSize.SQUARE, new Date().getTime());
         albumDao.setAlbumCover(albumId, id);
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
 
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
@@ -417,7 +467,7 @@ public class AlbumService extends DeboxService {
 
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+            throw new NotFoundException("");
         } else if (media == null) {
             return renderRedirect("/img/default_album.png");
         }
@@ -455,10 +505,10 @@ public class AlbumService extends DeboxService {
         }
         
         if (album == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
 
         } else if (!album.isDownloadable() && !isAdministrator) {
-            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+            throw new ForbiddenAccessException();
         }
 
         if (resized) {
@@ -475,7 +525,7 @@ public class AlbumService extends DeboxService {
     public Render regenerateThumbnails(String albumId) throws SQLException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
         }
 
         String strSource = ImageUtils.getSourcePath(album);
@@ -499,12 +549,12 @@ public class AlbumService extends DeboxService {
             threadPool.execute(regenerateThumbnailsJob);
         }
 
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
     public Render getRegenerationProgress() throws SQLException {
         if (regenerateThumbnailsJob == null) {
-            return renderStatus(404);
+            throw new NotFoundException();
         }
         return renderJSON(getRegenerationData());
     }
@@ -532,6 +582,31 @@ public class AlbumService extends DeboxService {
             }
         }
         return regeneration;
+    }
+    
+    protected RenderStatus handleLastModifiedHeader(Album album) {
+        try {
+            String id = "a." + album.getId();
+            long lastModified = photoDao.getGenerationTime(id, ThumbnailSize.SQUARE);
+            long ifModifiedSince = getContext().getRequest().getDateHeader("If-Modified-Since");
+
+            if (lastModified == -1) {
+                photoDao.saveThumbnailGenerationTime(id, ThumbnailSize.SQUARE, new Date().getTime());
+                logger.warn("Get -1 value for album " + album.getId() + " and size " + ThumbnailSize.SQUARE.name());
+            }
+
+            if (lastModified != -1) {
+                getContext().getResponse().addDateHeader("Last-Modified", lastModified);
+                if (lastModified <= ifModifiedSince) {
+                    return new RenderStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error("Unable to handle Last-Modified header, cause : " + ex.getMessage(), ex);
+        }
+
+        return new RenderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
 }

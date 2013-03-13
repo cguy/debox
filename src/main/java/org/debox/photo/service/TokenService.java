@@ -20,7 +20,6 @@
  */
 package org.debox.photo.service;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
@@ -31,11 +30,9 @@ import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.Token;
-import org.debox.photo.model.user.User;
-import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debux.webmotion.server.render.Render;
@@ -62,20 +59,10 @@ public class TokenService extends DeboxService {
         return renderJSON(token);
     }
     
-    public Render getTokens() throws SQLException, IOException {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(user);
-        return renderJSON(
-                "tokens", tokenDao.getAll(user.getId()),
-                "albums", albumDao.getAlbums(null),
-                "providers", ServiceUtil.getAuthenticationUrls(),
-                "accounts", accounts);
-    }
-    
     public Render getToken(String id) throws SQLException {
         Token token = tokenDao.getById(id);
         if (token == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+            throw new NotFoundException();
         }
         
         return renderJSON(
@@ -86,7 +73,7 @@ public class TokenService extends DeboxService {
     public Render editToken(String id, String label, List<String> albums, List<String> ignore) throws SQLException {
         Token token = tokenDao.getById(id);
         if (token == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+            throw new NotFoundException();
         }
         
         if (label != null) {
@@ -126,13 +113,13 @@ public class TokenService extends DeboxService {
     
     public Render deleteToken(String id) throws SQLException {
         tokenDao.delete(id);
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
     public Render reinitToken(String id) throws SQLException {
         Token token = tokenDao.getById(id);
         if (token == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+            throw new NotFoundException("");
         }
         
         Token newToken = new Token();

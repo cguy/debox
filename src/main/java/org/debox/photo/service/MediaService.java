@@ -29,6 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.VideoDao;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.model.Media;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
@@ -57,7 +59,7 @@ public class MediaService extends DeboxService {
         mediaId = StringUtils.substringBeforeLast(mediaId, ".jpg");
         Media media = getMediaById(mediaId, token);
         if (media == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
         }
         
         FileInputStream fis = null;
@@ -94,12 +96,12 @@ public class MediaService extends DeboxService {
     public Render editMedia(String id, String title) throws SQLException {
         // This test can't be put in mapping file
         if (!SessionUtils.isLogged(SecurityUtils.getSubject())) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in.");
+            throw new ForbiddenAccessException("You must be logged-in.");
         }
         
         Media media = getMediaById(id, null);
         if (media == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any media with id: " + id);
+            throw new NotFoundException("There is not any media with id: " + id);
         }
         if (StringUtils.isBlank(title)) {
             title = media.getFilename();
@@ -110,7 +112,7 @@ public class MediaService extends DeboxService {
         } else {
             photoDao.save((Photo)media);
         }
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
 }

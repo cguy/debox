@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Video extends Media {
     
     protected static final String type = "video";
-    protected static final boolean isVideo = true;
+    protected final boolean video = true;
     
     protected boolean supportsOgg;
     protected boolean supportsH264;
@@ -76,7 +76,7 @@ public class Video extends Media {
     }
     
     public boolean isVideo() {
-        return isVideo;
+        return video;
     }
     
     public String getOggFilename() {

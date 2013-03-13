@@ -24,10 +24,14 @@ import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.comment.Comment;
 import org.debox.photo.model.Media;
@@ -59,7 +63,7 @@ public class CommentService extends DeboxService {
     public Render createAlbumComment(String albumId, String content) throws SQLException {
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderNotFound();
+            throw new NotFoundException();
         }
         Comment comment = create(content);
         commentDao.save(album, comment);
@@ -69,7 +73,7 @@ public class CommentService extends DeboxService {
     public Render createMediaComment(String mediaId, String content) throws SQLException {
         Media media = mediaService.getMediaById(mediaId, null);
         if (media == null) {
-            return renderNotFound();
+            throw new NotFoundException();
         }
         Comment comment = create(content);
         commentDao.save(media, comment);
@@ -79,15 +83,15 @@ public class CommentService extends DeboxService {
     public Render getMediaComments(String mediaId) throws SQLException {
         Media media = mediaService.getMediaById(mediaId, null);
         if (media == null) {
-            return renderNotFound();
+            throw new NotFoundException();
         }
         return renderJSON("mediaId", mediaId, "comments", commentDao.getByMedia(media));
     }
     
-    public Render getAll(String mediaOwnerId) throws SQLException {
+    public Map<String, Object> getAll(String mediaOwnerId) throws SQLException {
         String userId = SessionUtils.getUserId();
         if (!userId.equals(mediaOwnerId)) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN);
+            throw new ForbiddenAccessException();
         }
         
         List<Comment> videoComments = commentDao.getVideoCommentsByMediaOwner(mediaOwnerId);
@@ -103,13 +107,15 @@ public class CommentService extends DeboxService {
         comments.addAll(videoComments);
         comments.addAll(photoComments);
         comments.addAll(albumComments);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("total", total);
+        result.put("videos", videoCommentsCount);
+        result.put("photos", photoCommentsCount);
+        result.put("albums", albumCommentsCount);
+        result.put("comments", comments);
 
-        return renderJSON(
-                "total", total,
-                "videos", videoCommentsCount,
-                "photos", photoCommentsCount,
-                "albums", albumCommentsCount,
-                "comments", comments);
+        return result;
     }
     
     public Render editComment(String commentId, String content) throws SQLException {
@@ -117,14 +123,14 @@ public class CommentService extends DeboxService {
         String userId = SessionUtils.getUserId();
         String ownerId = comment.getUser().getId();
         if (!userId.equals(ownerId) && !SessionUtils.isAdministrator()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not autorized to modify this comment.");
+            throw new ForbiddenAccessException("You are not autorized to modify this comment.");
         }
         if (StringUtils.isNotEmpty(content)) {
             comment.setContent(content);
             commentDao.save(comment);
         }
         
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
     public Render deleteComment(String commentId) throws SQLException {
@@ -132,11 +138,11 @@ public class CommentService extends DeboxService {
         String userId = SessionUtils.getUserId();
         String ownerId = comment.getUser().getId();
         if (!userId.equals(ownerId) && !SessionUtils.isAdministrator()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not autorized to delete this comment.");
+            throw new ForbiddenAccessException("You are not autorized to delete this comment.");
         }
         
         commentDao.delete(commentId);
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
 }

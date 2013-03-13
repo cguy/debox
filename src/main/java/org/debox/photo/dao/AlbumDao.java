@@ -211,7 +211,7 @@ public class AlbumDao {
         columnsMapping.put("videos_count", "videosCount");
         columnsMapping.put("relative_path", "relativePath");
         columnsMapping.put("parent_id", "parentId");
-        columnsMapping.put("public", "public");
+        columnsMapping.put("public", "publicAlbum");
         columnsMapping.put("owner_id", "ownerId");
         columnsMapping.put("subAlbumsCount", "subAlbumsCount");
     }
@@ -480,7 +480,7 @@ public class AlbumDao {
                 int changedRows = queryRunner.update(connection, SQL_UPDATE_ALBUM,
                         album.getName(),
                         album.getDescription(),
-                        album.isPublic(),
+                        album.isPublicAlbum(),
                         album.getPhotosCount(),
                         album.getVideosCount(),
                         album.isDownloadable(),
@@ -500,7 +500,7 @@ public class AlbumDao {
                             album.isDownloadable(),
                             album.getRelativePath(),
                             album.getParentId(),
-                            album.isPublic(),
+                            album.isPublicAlbum(),
                             album.getOwnerId());
                 }
             }
@@ -716,7 +716,7 @@ public class AlbumDao {
         } else {
             count = getAllPhotosCount(album.getId());
         }
-        album.setPhotosCount(count);
+        album.setTotalPhotosCount(count);
     }
     
     protected void fillVideosCount(Album album, String identifier, boolean isToken) throws SQLException {
@@ -728,7 +728,7 @@ public class AlbumDao {
         } else {
             count = getAllVideosCount(album.getId());
         }
-        album.setVideosCount(count);
+        album.setTotalVideosCount(count);
     }
         
     protected void fillAlbumCoverUrl(Album album, String identifier, boolean isToken) {

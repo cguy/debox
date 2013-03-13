@@ -1,8 +1,10 @@
+package org.debox.photo.exception;
+
 /*
  * #%L
  * debox-photos
  * %%
- * Copyright (C) 2012 Debox
+ * Copyright (C) 2012 - 2013 Debox
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +20,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-/* ***************************** */
-/* Administration tab navigation */
-/* ***************************** */
-app.get('#/accounts/:accountId/delete', function() {
-    if ($("#delete-account-confirm").length) {
-        $("#delete-account-confirm").modal();
-    } else {
-        ajax({
-            url: "account",
-            success: function(data) {
-                loadTab("personaldata", data, "account", function() {
-                    $("#delete-account-confirm").modal();
-                });
-            }
-        });
+
+import java.net.HttpURLConnection;
+
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class BadRequestException extends HttpException {
+    
+    private static final long serialVersionUID = 1L;
+
+    public BadRequestException() {
+        super();
     }
-});
+
+    public BadRequestException(String message) {
+        super(message);
+    }
+
+    public BadRequestException(Throwable cause) {
+        super(cause);
+    }
+    
+    @Override
+    public int getHttpStatus() {
+        return HttpURLConnection.HTTP_BAD_REQUEST;
+    }
+    
+}

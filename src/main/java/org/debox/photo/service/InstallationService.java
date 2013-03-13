@@ -39,13 +39,14 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.debox.photo.dao.UserDao;
+import org.debox.photo.exception.BadRequestException;
+import org.debox.photo.exception.InternalErrorException;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Role;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionUtils;
 import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class InstallationService extends DeboxService {
         boolean isCreatable = !workingDirectory.exists() && workingDirectory.mkdirs();
         boolean isWritable = workingDirectory.exists() && workingDirectory.canWrite();
         if (!isWritable && !isCreatable) {
-            return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "Given path is not writable");
+            throw new InternalErrorException("Given path is not writable");
         }
         
         ApplicationContext.getInstance().getOverallConfiguration().set(Configuration.Key.WORKING_DIRECTORY, workingPath.toString());
@@ -96,14 +97,14 @@ public class InstallationService extends DeboxService {
         
         boolean connectionTest = DatabaseUtils.testConnection();
         if (!connectionTest) {
-            return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "message", "Unable to connect to the database, please see server logs.");
+            throw new InternalErrorException("Unable to connect to the database, please see server logs.");
         }
         
         try {
             setupDatabaseStructure();
         } catch (SQLException | IOException ex) {
             log.error("Unable to setup database", ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "message", "Unable to setup the database structure, please see server logs.");
+            throw new InternalErrorException("Unable to setup the database structure, please see server logs.");
         }
         
         Mapping mapping = getContext().getServerContext().getMapping();
@@ -133,9 +134,9 @@ public class InstallationService extends DeboxService {
     
     public Render createUserAndRoles(String username, String password, String confirm, String firstname, String lastname) throws SQLException {
         if (StringUtils.atLeastOneIsEmpty(username, password, confirm, firstname, lastname)) {
-            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, password, confirm, firstname and lastname are mandatory.");
+            throw new BadRequestException("Username, password, confirm, firstname and lastname are mandatory.");
         } else if (!password.equals(confirm)) {
-            return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "The password and its confirm must match.");
+            throw new BadRequestException("The password and its confirm must match.");
         }
         
         DeboxUser user = new DeboxUser();
@@ -168,12 +169,10 @@ public class InstallationService extends DeboxService {
             
         } catch (ConfigurationException ex) {
             log.error("Unable to save database configuration, cause: {}", ex.getMessage(), ex);
-            getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-            return renderJSON("message", ex.getMessage());
+            throw new BadRequestException();
         } catch (SQLException ex) {
             log.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage(), ex);
-            getContext().getResponse().setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-            return renderJSON("message", ex.getMessage());
+            throw new BadRequestException();
         }
         
         return renderSuccess();

@@ -24,8 +24,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -34,14 +35,22 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.debox.connector.api.exception.ProviderException;
 import org.debox.model.OAuth2Token;
+import org.debox.photo.dao.TokenDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.thirdparty.ThirdPartyTokenWrapper;
+import org.debox.photo.exception.BadRequestException;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.InternalErrorException;
+import org.debox.photo.exception.NotFoundException;
+import org.debox.photo.exception.UnauthorizedException;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Provider;
 import org.debox.photo.model.Role;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.debox.util.HttpUtils;
 import org.debux.webmotion.server.render.Render;
@@ -58,7 +67,10 @@ public class AccountService extends DeboxService {
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     
     protected UserDao userDao = new UserDao();
-    protected HomeService homeController = new HomeService();
+    protected HomeService homeService = new HomeService();
+    protected AlbumService albumService = new AlbumService();
+    protected TokenDao tokenDao = new TokenDao();
+    protected CommentService commentService = new CommentService();
     
     public Render authenticate(String username, String password) {
         Subject currentUser = SecurityUtils.getSubject();
@@ -70,16 +82,24 @@ public class AccountService extends DeboxService {
 
         } catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
-            return renderRedirect("/#/sign-in?error");
+            return renderTemplatedPage("register", "isSignIn", true, "error", true);
         }
         return renderRedirect("/");
     }
     
+    public Render renderSignInPage() {
+        return renderTemplatedPage("register", "isSignIn", true);
+    }
+    
+    public Render renderRegisterPage() {
+        return renderTemplatedPage("register", "isSignIn", false);
+    }
+    
     public Render register(String username, String password, String confirm, String firstname, String lastname) throws SQLException {
         if (StringUtils.atLeastOneIsEmpty(username, password, confirm, firstname, lastname)) {
-            return renderRedirect("/#/register?mandatory.fields");
+            return renderTemplatedPage("register", "mandatory.fields", true);
         } else if (!password.equals(confirm)) {
-            return renderRedirect("/#/register?password.match");
+            return renderTemplatedPage("register", "password.match", true);
         }
         
         DeboxUser user = new DeboxUser();
@@ -95,14 +115,14 @@ public class AccountService extends DeboxService {
         } catch (SQLException ex) {
             logger.error("Unable to register user {}, cause: {}", username, ex.getErrorCode() + " - " + ex.getMessage());
             if (ex.getErrorCode() == 1062) {
-                return renderRedirect("/#/register?alreadyRegistered");
+                return renderTemplatedPage("register", "alreadyRegistered", true);
             } else {
-                return renderRedirect("/#/register?error");
+                return renderTemplatedPage("register", "error", true);
             }
         }
         
         this.authenticate(username, password);
-        return renderRedirect("#/account");
+        return renderRedirect("/account");
     }
     
     public Render handleFacebookCallback(String code) throws SQLException {
@@ -172,12 +192,12 @@ public class AccountService extends DeboxService {
         
         Provider provider = ServiceUtil.getProvider(providerId);
         if (provider == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
         }
         
         ThirdPartyAccount account = userDao.getUser(providerId, providerAccountId);
         if (account == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND);
+            throw new NotFoundException();
         }
         
         userDao.delete(account);
@@ -185,23 +205,60 @@ public class AccountService extends DeboxService {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         user.removeThirdPartyAccount(account);
         
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
+    }
+    
+    public Render renderAccountSettingsPage() throws SQLException {
+        return renderAccountPage("settings");
+    }
+    
+    public Render renderMediaSynchronizationPage() throws SQLException {
+        return renderAccountPage("synchronization", "albums", albumService.getAlbums(null, null, "all"));
+    }
+    
+    public Render renderTokensManagementPage() throws SQLException, IOException {
+        List<org.debox.photo.model.Token> tokens = tokenDao.getAll(SessionUtils.getUserId());
+        List<Album> albums = albumService.getAlbums(null, null, null);
+        List<Provider> authenticationUrls = ServiceUtil.getAuthenticationUrls();
+        List<ThirdPartyAccount> thirdPartyAccounts = userDao.getThirdPartyAccounts(SessionUtils.getUser());
+        return renderAccountPage("tokens", 
+                "tokens", tokens,
+                "albums", albums,
+                "providers", authenticationUrls,
+                "accounts", thirdPartyAccounts);
+    }
+    
+    public Render renderCommentsManagementPage() throws SQLException {
+        return renderAccountPage("comments", commentService.getAll(SessionUtils.getUserId()));
+    }
+    
+    public Render renderCurrentAccountPage() throws SQLException {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        return renderAccountPage("personaldata", "user", user);
+    }
+    
+    public Render renderAlbumsOverviewPage() throws SQLException {
+        return renderAccountPage("albums", "albums", albumService.getAlbums(null, null, "all"));
+    }
+    
+    public Render renderPhotosUploadPage() throws SQLException {
+        return renderAccountPage("upload", "albums", albumService.getAlbums(null, null, null));
     }
 
-    public Render getLoggedUser() {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        return renderJSON(user);
+    public Render renderAccountPage(String page, Object... model) {
+        Object[] newModel = Arrays.copyOf(model, model.length + 2);
+        newModel[newModel.length - 2] = "page";
+        newModel[newModel.length - 1] = "account." + page;
+        return renderTemplatedPage("account", newModel);
     }
 
     public Render editPersonalData(String userId, String username, String firstname, String lastname) {
         try {
-            DeboxUser user = (DeboxUser) SecurityUtils.getSubject().getPrincipal();
+            DeboxUser user = (DeboxUser) SessionUtils.getUser();
             if (!user.getId().equals(userId)) {
-                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
-            }
-            
-            if (StringUtils.atLeastOneIsEmpty(username, firstname, lastname)) {
-                return renderError(HttpURLConnection.HTTP_PRECON_FAILED, "Username, firstname and lastname are mandatory.");
+                throw new ForbiddenAccessException();
+            } else if (StringUtils.atLeastOneIsEmpty(username, firstname, lastname)) {
+                throw new BadRequestException("Username, firstname and lastname are mandatory.");
             }
 
             user.setUsername(username);
@@ -214,15 +271,15 @@ public class AccountService extends DeboxService {
 
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+            throw new InternalErrorException();
         }
     }
     
     public Render editCredentials(String userId, String oldPassword, String password) {
         try {
-            DeboxUser user = (DeboxUser) SecurityUtils.getSubject().getPrincipal();
+            DeboxUser user = (DeboxUser) SessionUtils.getUser();
             if (!user.getId().equals(userId)) {
-                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
+                throw new ForbiddenAccessException();
             }
 
             // Check current credentials
@@ -232,18 +289,18 @@ public class AccountService extends DeboxService {
 
             } catch (UnknownAccountException | IncorrectCredentialsException e) {
                 logger.info("Given credentials are wrong, reason: " + e.getMessage());
-                return renderError(HttpURLConnection.HTTP_UNAUTHORIZED, "Given credentials are wrong");
+                throw new UnauthorizedException();
             }
 
             user.setPassword(password);
             userDao.update(user);
-
-            return renderSuccess();
-
+            
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, null);
+            throw new InternalErrorException();
         }
+
+        return renderSuccess();
     }
 
     public Render logout() {
@@ -252,7 +309,7 @@ public class AccountService extends DeboxService {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        return renderLastPage();
+        return renderRedirect("/");
     }
 
     public Render deleteAccount(String userId) {
@@ -260,18 +317,18 @@ public class AccountService extends DeboxService {
             Subject subject = SecurityUtils.getSubject();
             DeboxUser user = (DeboxUser) subject.getPrincipal();
             if (!user.getId().equals(userId)) {
-                return renderError(HttpURLConnection.HTTP_FORBIDDEN, "Access denied");
+                throw new ForbiddenAccessException();
             }
 
             userDao.deleteUser(user);
             SecurityUtils.getSecurityManager().logout(subject);
 
-            return renderRedirect("/");
-
         } catch (SQLException ex) {
             logger.error(ex.getMessage(), ex);
             return renderRedirect("/#/account/" + userId + "/delete?error");
         }
+
+        return renderRedirect("/");
     }
     
 }

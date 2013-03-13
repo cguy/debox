@@ -1,40 +1,37 @@
-<div class="page-header"><h1>{{i18n.home.title}}</h1></div>
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+        <link rel="stylesheet" th:href="@{/static/css/thumbnails.css}" />
+    </head>
+    <body th:fragment="body">
+        <div class="page-header"><h1 th:text="#{home.title}"></h1></div>
 
-{{#albums.length}}
-<ul class="thumbnails albums">
-    {{#albums}}
-    <li>
-        <a class="thumbnail" href="#/album/{{id}}">
-            <span class="picture" style="background-image:url('{{coverUrl}}')"></span>
-            <span class="title" title="{{name}}"><span>{{name}}</span></span>
-            <span class="filter">
-                <i class="icon-plus-sign"></i>
-                {{#beginDate}}
-                <span class="date">
-                    <i class="icon-calendar"></i>
-                    {{beginDate}}
-                </span>
-                {{/beginDate}}
-                {{#videosCount}}
-                <span class="videos count">
-                    {{videosCount}}
-                    {{#hasSeveralTotalVideos}}{{i18n.common.videos}}{{/hasSeveralTotalVideos}}
-                    {{^hasSeveralTotalVideos}}{{i18n.common.video}}{{/hasSeveralTotalVideos}}
-                    <i class="icon-film"></i>
-                </span>
-                {{/videosCount}}
-                <span class="photos count">
-                    {{photosCount}}
-                    {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
-                    {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
-                    <i class="icon-picture"></i>
-                </span>
-            </span>
-        </a>
-    </li>
-    {{/albums}}
-</ul>
-{{/albums.length}}
-{{^albums}}
-    <p class="alert"><strong>{{i18n.common.warning}}: </strong>{{i18n.common.no_album}}</p>
-{{/albums}}
+        <ul class="thumbnails albums" th:if="${not #lists.isEmpty(albums)}">
+            <li th:each="album : ${albums}">
+                <a class="thumbnail" th:href="@{'/albums/'+ ${album.id}}">
+                    <span class="picture" th:style="${'background-image:url('} + @{'/' + ${album.coverUrl}} + ${')'}"></span>
+                    <span class="title" th:title="${album.name}"><span th:text="${album.name}"></span></span>
+                    <span class="filter">
+                        <i class="icon-plus-sign"></i>
+                        <span class="date" th:if="${album.beginDate != null}" th:inline="text">
+                            <i class="icon-calendar"></i>
+                            [[${album.strBeginDate}]]
+                        </span>
+                        <span class="videos count" th:if="${album.videosCount > 0}" th:inline="text">
+                            [[${album.totalVideosCount}]]
+                            [[${album.totalVideosCount > 1 ? #messages.msg('common.videos') : #messages.msg('common.video')}]]
+                            <i class="icon-film"></i>
+                        </span>
+                        <span class="photos count" th:if="${album.totalPhotosCount > 0}" th:inline="text">
+                            [[${album.totalPhotosCount}]]
+                            [[${album.totalPhotosCount > 1 ? #messages.msg('common.photos') : #messages.msg('common.photo')}]]
+                            <i class="icon-picture"></i>
+                        </span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <p class="alert" th:if="${#lists.isEmpty(albums)}" th:inline="text"><strong th:text="#{common.warning} + ': '"></strong>[[#{common.no_album}]]</p>
+    </body>
+</html>
+

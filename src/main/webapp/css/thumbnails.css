@@ -167,9 +167,30 @@
 /* ************ */
 /* COVER CHOICE */
 /* ************ */
-#cover-photos > .albums > li > .cover {
+#cover-photos ul {
+    text-align: center;
+}
+
+#cover-photos .albums > li > .cover {
     background-repeat: no-repeat;
     background-position: center center;
+}
+
+#cover-photos > .current-cover > .thumbnails.albums > li > .thumbnail {
+    box-shadow: 0 0 5px 5px #f0f0f0;
+}
+
+#cover-photos > .current-cover > .thumbnails.albums, #cover-photos .thumbnails.albums > li {
+    margin: 0;
+    padding: 0;
+}
+
+#cover-photos > .list > .thumbnails.albums, #cover-photos > .list > .thumbnails.albums > li {
+    margin: 5px;
+}
+
+#cover-photos .thumbnail {
+    cursor: pointer;
 }
 
 /* ************** */
@@ -269,8 +290,6 @@ h2 + .thumbnails.albums {
 
 .thumbnails > li > .thumbnail {
     position: absolute;
-    display: inline-block;
-    
     width: 140px;
     height: 140px;
     

@@ -1,86 +1,45 @@
-<div class="page-header">
-    <h1>
-        {{#isSignIn}}
-            {{i18n.signin.title}}
-        {{/isSignIn}}
-        {{^isSignIn}}
-            {{i18n.registration.title}}
-        {{/isSignIn}}
-    </h1>
-</div>
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head></head>
+    <body th:fragment="body">
+        <div class="page-header">
+            <h1 th:if="${isSignIn}" th:text="#{signin.title}"></h1>
+            <h1 th:if="${not isSignIn}" th:text="#{registration.title}"></h1>
+        </div>
 
-<h2 class="subtitle">
-    {{#isSignIn}}
-        {{i18n.signin.subtitle}}
-    {{/isSignIn}}
-    {{^isSignIn}}
-        {{i18n.registration.subtitle}}
-    {{/isSignIn}}
-</h2>
-{{#config.providers.length}}
-    <p class="center">
-        {{#config.providers}}
-            {{#enabled}}
-                <a href="{{url}}" class="btn social {{id}}">
-                    <span class="logo"></span>
-                    {{#isSignIn}}
-                        {{i18n.signin.providerPrefix}}
-                    {{/isSignIn}}
-                    {{^isSignIn}}
-                        {{i18n.registration.providerPrefix}}
-                    {{/isSignIn}}
-                    {{name}}
-                </a>
-            {{/enabled}}
-        {{/config.providers}}
-    </p>
-    <p class="mail">
-        {{#isSignIn}}
-            {{i18n.signin.altChoice}}
-        {{/isSignIn}}
-        {{^isSignIn}}
-            {{i18n.registration.altChoice}}
-        {{/isSignIn}}
-    </p>
-{{/config.providers.length}}
-<form id="register" class="form-horizontal" action="{{#isSignIn}}authenticate{{/isSignIn}}{{^isSignIn}}register{{/isSignIn}}" method="post">
-    {{#alreadyRegistered}}
-    <p class="alert alert-danger">{{i18n.registration.errors.alreadyRegistered}}</p>
-    {{/alreadyRegistered}}
-    {{#error}}
-    <p class="alert alert-danger">{{i18n.registration.errors.internal}}</p>
-    {{/error}}
-    {{#signInError}}
-    <p class="alert alert-danger">{{i18n.signin.errors.500}}</p>
-    {{/signInError}}
-    {{#mandatoryFields}}
-    <p class="alert alert-danger">{{i18n.registration.errors.mandatoryFields}}</p>
-    {{/mandatoryFields}}
-    {{#passwordMatch}}
-    <p class="alert alert-danger">{{i18n.registration.errors.passwordMatch}}</p>
-    {{/passwordMatch}}
-    {{#success}}
-    <p class="alert alert-success">{{{i18n.registration.success}}}</p>
-    {{/success}}
-    {{^success}}
-    <p>
-        <input type="email" name="username" required placeholder="{{i18n.registration.placeholder.mail}}">
-    </p>
-    <p>
-        <input type="password" name="password" required placeholder="{{i18n.registration.placeholder.password}}">
-    </p>
-    {{^isSignIn}}
-    <p>
-        <input type="password" name="confirm" required placeholder="{{i18n.registration.placeholder.confirm}}">
-    </p>
-    <p>
-        <input type="text" name="firstname" class="firstname" required placeholder="{{i18n.registration.placeholder.firstname}}">
-        <input type="text" name="lastname" class="lastname" required placeholder="{{i18n.registration.placeholder.lastname}}">
-    </p>
-    <p class="small">{{i18n.registration.note}}</p>
-    {{/isSignIn}}
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{{#isSignIn}}{{i18n.common.connection}}{{/isSignIn}}{{^isSignIn}}{{i18n.registration.finish}}{{/isSignIn}}" />
-    </div>
-    {{/success}}
-</form>
+        <h2 class="subtitle" th:if="${isSignIn}" th:text="#{signin.subtitle}"></h2>
+        <h2 class="subtitle" th:if="${not isSignIn}" th:text="#{registration.subtitle}"></h2>
+        <p class="center" th:if="${not #lists.isEmpty(config.providers)}">
+            <a th:href="${provider.url}" th:class="'btn social ' + ${provider.id}" th:each="provider : ${config.providers}" th:if="${provider.enabled}" th:inline="text">
+                <span class="logo"></span>
+                [[${isSignIn} ? #{signin.providerPrefix} : #{registration.providerPrefix}]]
+                [[#{name}]]
+            </a>
+        </p>
+        <p class="mail" th:if="${not #lists.isEmpty(config.providers)}" th:text="${isSignIn} ? #{signin.altChoice} : #{registration.altChoice}"></p>
+        <form id="register" class="form-horizontal" th:action="${isSignIn} ? 'login' : 'register'" method="post">
+            <p class="alert alert-danger" th:text="#{registration.errors.alreadyRegistered}" th:if="${alreadyRegistered}"></p>
+            <p class="alert alert-danger" th:text="#{registration.errors.internal}" th:if="${error}"></p>
+            <p class="alert alert-danger" th:text="#{signin.errors.500}" th:if="${signInError}"></p>
+            <p class="alert alert-danger" th:text="#{registration.errors.mandatoryFields}" th:if="${mandatoryFields}"></p>
+            <p class="alert alert-danger" th:text="#{registration.errors.passwordMatch}" th:if="${passwordMatch}"></p>
+            <p>
+                <input type="email" name="username" required="required" th:placeholder="#{registration.placeholder.mail}" />
+            </p>
+            <p>
+                <input type="password" name="password" required="required" th:placeholder="#{registration.placeholder.password}" />
+            </p>
+            <p th:if="${not isSignIn}">
+                <input type="password" name="confirm" required="required" th:placeholder="#{registration.placeholder.confirm}" />
+            </p>
+            <p th:if="${not isSignIn}">
+                <input type="text" name="firstname" class="firstname" required="required" th:placeholder="#{registration.placeholder.firstname}" />
+                <input type="text" name="lastname" class="lastname" required="required" th:placeholder="#{registration.placeholder.lastname}" />
+            </p>
+            <p th:if="${not isSignIn}" class="small" th:text="#{registration.note}"></p>
+            <div class="form-actions">
+                <input type="submit" class="btn btn-primary" th:value="${isSignIn} ? #{common.connection} : #{registration.finish}" />
+            </div>
+        </form>
+    </body>
+</html>

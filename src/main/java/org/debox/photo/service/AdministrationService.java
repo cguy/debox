@@ -24,7 +24,6 @@ import java.io.File;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.model.configuration.SynchronizationMode;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +35,9 @@ import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.TokenDao;
+import org.debox.photo.exception.ConflictException;
+import org.debox.photo.exception.InternalErrorException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
 import org.debox.photo.model.user.User;
@@ -60,10 +62,11 @@ public class AdministrationService extends DeboxService {
     protected static AlbumDao albumDao = new AlbumDao();
     protected static TokenDao tokenDao = new TokenDao();
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    protected ConfigurationService configurationService = new ConfigurationService();
 
     public Render getSyncProgress() throws SQLException {
         if (syncJob == null) {
-            return renderStatus(404);
+            throw new NotFoundException();
         }
         return renderJSON(getSyncData());
     }
@@ -73,7 +76,7 @@ public class AdministrationService extends DeboxService {
         // Get existing album
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Album identifier " + albumId + " is not corresponding with any existing album.");
+            throw new NotFoundException("Album identifier " + albumId + " is not corresponding with any existing album.");
         }
         
         Path originalFile = Paths.get(photo.getFile().getAbsolutePath());
@@ -95,14 +98,14 @@ public class AdministrationService extends DeboxService {
         String thumbnailPath = ImageUtils.getThumbnailPath(addedPhoto, ThumbnailSize.LARGE);
         if (!ImageUtils.thumbnail(targetFile.toString(), thumbnailPath, ThumbnailSize.LARGE)) {
             FileUtils.deleteQuietly(targetFile.toFile());
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to create large thumbnail for photo " + photo.getName());
+            throw new InternalErrorException("Unable to create large thumbnail for photo " + photo.getName());
         }
         
         String squarePath = ImageUtils.getThumbnailPath(addedPhoto, ThumbnailSize.SQUARE);
         if (!ImageUtils.thumbnail(targetFile.toString(), squarePath.toString(), ThumbnailSize.SQUARE)) {
             FileUtils.deleteQuietly(new File(thumbnailPath));
             FileUtils.deleteQuietly(targetFile.toFile());
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to create square thumbnail for photo " + photo.getName());
+            throw new InternalErrorException("Unable to create square thumbnail for photo " + photo.getName());
         }
         
         try {
@@ -141,14 +144,14 @@ public class AdministrationService extends DeboxService {
     public Render synchronize(String mode, boolean forceCheckDates) throws SQLException {
         SynchronizationMode syncMode = SynchronizationMode.valueOf(StringUtils.upperCase(mode));
         if (syncMode == null) {
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
+            throw new InternalErrorException("Unable to handle mode: " + mode);
         }
 
         String ownerId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
         String strSource = ImageUtils.getAlbumsBasePath(ownerId);
         String strTarget = ImageUtils.getThumbnailsBasePath(ownerId);
         if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
-            return renderError(HttpURLConnection.HTTP_CONFLICT, "Work paths are not defined.");
+            throw new ConflictException("Work paths are not defined.");
         }
 
         Path source = Paths.get(strSource);
@@ -177,19 +180,19 @@ public class AdministrationService extends DeboxService {
             threadPool.execute(syncJob);
         }
 
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
 
     public Render cancelSynchronization() {
         if (syncJob != null) {
             syncJob.abort();
-            return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+            return renderSuccess();
         }
-        return renderError(HttpURLConnection.HTTP_NOT_FOUND, "Error during cancel.");
+        throw new NotFoundException("Error during cancel.");
     }
 
     public Render getData() throws SQLException {
-        String username = HomeService.getUsername();
+        String username = getUsername();
         User user = SessionUtils.getUser(SecurityUtils.getSubject());
         
         if (syncJob != null && !syncJob.isTerminated()) {
@@ -227,6 +230,17 @@ public class AdministrationService extends DeboxService {
             sync.put("percent", Double.valueOf(Math.floor(current * 100 / total)).longValue());
         }
         return sync;
+    }
+    
+    public Render renderSettingsPage() throws SQLException {
+        return renderAdministrationPage("configuration", configurationService.getConfiguration());
+    }
+
+    public Render renderAdministrationPage(String page, Object... model) {
+        Object[] newModel = Arrays.copyOf(model, model.length + 2);
+        newModel[newModel.length - 2] = "page";
+        newModel[newModel.length - 1] = "administration." + page;
+        return renderTemplatedPage("administration", newModel);
     }
 
 }

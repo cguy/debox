@@ -21,12 +21,14 @@
 package org.debox.photo.service;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
+import org.debox.photo.exception.ForbiddenAccessException;
+import org.debox.photo.exception.InternalErrorException;
+import org.debox.photo.exception.NotFoundException;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
@@ -47,9 +49,9 @@ public class PhotoService extends MediaService {
     public Render delete(String id) throws SQLException {
         Photo photo = photoDao.getPhoto(id);
         if (photo == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
+            throw new NotFoundException("There is not any photo with id: " + id);
         } else if (!photo.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
-            return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this photo");
+            throw new ForbiddenAccessException("You are not allowed to delete this photo");
         }
         
         String originalPath = ImageUtils.getSourcePath(photo);
@@ -71,9 +73,9 @@ public class PhotoService extends MediaService {
             
         } catch (SQLException | IOException ex) {
             log.error("Unable to delete photo (original file: " + originalPath + ")", ex);
-            return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "An error has occured during deletion");
+            throw new InternalErrorException("An error has occured during deletion");
         }
-        return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
+        return renderSuccess();
     }
     
 }

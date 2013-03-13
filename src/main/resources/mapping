@@ -5,7 +5,7 @@ package.actions=service
 package.errors=service
 package.views=WEB-INF/
 
-server.error.page=disabled
+# server.error.page=disabled
 
 [debox.properties]
 database.type=
@@ -16,6 +16,13 @@ database.password=
 [errors]
 com.restfb.exception.FacebookOAuthException         ThirdPartyService.handleOAuthException
 org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAuthException
+
+org.debox.photo.exception.ForbiddenAccessException      DeboxService.renderHttpError
+org.debox.photo.exception.InternalErrorException        DeboxService.renderHttpError
+org.debox.photo.exception.NotFoundException             DeboxService.renderHttpError
+org.debox.photo.exception.ConflictException             DeboxService.renderHttpError
+org.debox.photo.exception.BadRequestException           DeboxService.renderHttpError
+org.debox.photo.exception.UnauthorizedException         DeboxService.renderHttpError
 
 [filters]
 # -----------------------------------------------------------------------------------------------
@@ -72,12 +79,26 @@ POST        /administration/sync                AdministrationService.synchroniz
 DELETE      /administration/sync                AdministrationService.cancelSynchronization
 POST        /administration/upload              AdministrationService.upload
 
+GET         /administration/settings            AdministrationService.renderSettingsPage
+GET         /administration                     redirect:/administration/settings
+
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - USER
 # -----------------------------------------------------------------------------------------------
+GET         /register                           AccountService.renderRegisterPage
 POST        /register                           AccountService.register
-POST        /authenticate                       AccountService.authenticate
-GET         /account                            AccountService.getLoggedUser
+GET         /login                              AccountService.renderSignInPage
+POST        /login                              AccountService.authenticate
+
+GET         /account/settings                   AccountService.renderAccountSettingsPage
+GET         /account/about-me                   AccountService.renderCurrentAccountPage
+GET         /account/synchronization            AccountService.renderMediaSynchronizationPage
+GET         /account/tokens                     AccountService.renderTokensManagementPage
+GET         /account/comments                   AccountService.renderCommentsManagementPage
+GET         /account/albums                     AccountService.renderAlbumsOverviewPage
+GET         /account/upload                     AccountService.renderPhotosUploadPage
+GET         /account                            redirect:/account/albums
+
 GET         /accounts/{userId}/settings         ConfigurationService.getUserSettings
 POST        /accounts/{userId}/settings         ConfigurationService.setUserSettings
 POST        /accounts/{userId}/credentials      AccountService.editCredentials
@@ -101,11 +122,18 @@ DELETE      /video/{id}                         VideoService.delete
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION - ALBUMS
 # -----------------------------------------------------------------------------------------------
-PUT         /album                                  AlbumService.createAlbum
-POST        /album/{albumId}                        AlbumService.editAlbum
-DELETE      /album/{albumId}                        AlbumService.deleteAlbum
-POST        /album/{albumId}/regeneratethumbnails   AlbumService.regenerateThumbnails
-GET         /album/{albumId}/regeneratethumbnails   AlbumService.getRegenerationProgress
+GET         /albums/{albumId}/edition/medias        AlbumService.getAlbumMediasPage
+GET         /albums/{albumId}/edition/cover         AlbumService.getAlbumCoverPage
+GET         /albums/{albumId}/edition/permissions   AlbumService.getAlbumVisitorAccessesPage
+GET         /albums/{albumId}/edition               AlbumService.getAlbumEditionPage
+
+DELETE      /albums/{albumId}                       AlbumService.deleteAlbum
+POST        /albums/{albumId}                       AlbumService.editAlbum
+
+PUT         /albums                                 AlbumService.createAlbum
+
+POST        /albums/{albumId}/regeneratethumbnails  AlbumService.regenerateThumbnails
+GET         /albums/{albumId}/regeneratethumbnails  AlbumService.getRegenerationProgress
 GET         /uploadProgress                         AdministrationService.getUploadProgress
 
 # -----------------------------------------------------------------------------------------------
@@ -146,7 +174,7 @@ GET   /video/{filename}                         VideoService.getVideoStream
 # -----------------------------------------------------------------------------------------------
 # MEDIA - DESCRIPTIONS
 # -----------------------------------------------------------------------------------------------
-GET         /albums                             AlbumService.getAlbums
+GET         /albums                             AlbumService.renderAlbums
 GET         /album/{id}                         AlbumService.getAlbum
 
 # -----------------------------------------------------------------------------------------------
@@ -167,10 +195,15 @@ GET   /facebook                                 AccountService.handleFacebookCal
 # GET   /google                                   AccountService.handleGoogleCallback
 
 # -----------------------------------------------------------------------------------------------
+# STATIC PAGES
+# -----------------------------------------------------------------------------------------------
+GET   /about                                    DeboxService.renderTemplatedPage    templateName=about
+
+# -----------------------------------------------------------------------------------------------
 # HOME
 # -----------------------------------------------------------------------------------------------
-GET   /{token}                                  view:index.html
-GET   /                                         view:index.html
+GET   /{token}                                  AlbumService.renderAlbums
+GET   /                                         AlbumService.renderAlbums
 
 [extensions]
 /    install.wm

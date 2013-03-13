@@ -1,35 +1,41 @@
-<div id="cover-photos" class="hide">
-    <h2>{{i18n.album.admin.edit.choose_cover.title}}</h2>
-    {{#subAlbums.length}}
-    <h3>{{i18n.album.subalbums}}</h3>
-    <ul class="thumbnails albums">
-        {{#subAlbums}}
-        <li>
-            <div data-id="a.{{id}}" class="thumbnail cover" rel="tooltip" title="{{i18n.album.admin.edit.choose_cover.tooltip}}" style="background-image:url('{{coverUrl}}')">
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+        <link rel="stylesheet" th:href="@{/static/css/thumbnails.css}" />
+    </head>
+    <body th:fragment="body">
+        <h2 class="subtitle" th:text="#{album.admin.edit.choose_cover.title}"></h2>
+        <div id="cover-photos">
+            <div class="block current-cover">
+                <h3 th:text="#{album.admin.edit.cover.current}"></h3>
+                <ul class="thumbnails albums center">
+                    <li>
+                        <div class="thumbnail" th:href="@{'/albums/'+ ${album.id}}">
+                            <span class="picture" th:style="'background-image:url(' + @{'/' + ${album.coverUrl}} + '?_=' + ${#dates.createNow().getTime()} + ')'"></span>
+                            <span class="title" th:title="${album.name}"><span th:text="${album.name}"></span></span>
+                        </div>
+                    </li>
+                </ul>
             </div>
-        </li>
-        {{/subAlbums}}
-    </ul>
-    {{/subAlbums.length}}
+            <div class="block list">
+                <p class="alert alert-info" th:text="#{album.admin.edit.cover.instructions}"></p>
+                <h3 th:text="#{album.subalbums}" th:if="${not #lists.isEmpty(subAlbums)}"></h3>
+                <ul class="thumbnails albums" th:if="${not #lists.isEmpty(subAlbums)}">
+                    <li th:each="subAlbum : ${subAlbums}">
+                        <div data:id="'a.' + ${subAlbum.id}" class="thumbnail cover" th:style="${'background-image:url('} + @{'/' + ${subAlbum.coverUrl}} + ${')'}"></div>
+                    </li>
+                </ul>
 
-    {{#medias.length}}
-    {{#subAlbums.length}}<h3>{{i18n.album.admin.edit.choose_cover.photos}}</h3>{{/subAlbums.length}}
-    <ul class="thumbnails photos">
-        {{#medias}}
-        <li class="span2">
-            <div data-id="{{id}}"
-                 class="thumbnail"
-                 rel="tooltip"
-                 title="{{i18n.album.admin.edit.choose_cover.tooltip}}"
-            {{#photo}}
-                 style="background-color:#ddd;background-image:url('{{thumbnailUrl}}')">
-            {{/photo}}
-            {{#video}}
-                 style="background-color:#ddd;background-image:url('{{squareThumbnailUrl}}')">
-            {{/video}}
+                <h3 th:if="${not #lists.isEmpty(medias) and not #lists.isEmpty(subAlbums)}" th:text="#{album.admin.edit.choose_cover.medias}"></h3>
+                <ul th:if="${not #lists.isEmpty(medias)}" class="thumbnails photos">
+                    <li th:each="media : ${medias}">
+                        <div data:id="${media.id}"
+                             class="thumbnail"
+                             th:style="'background-image:url(' + (${media instanceof org.debox.photo.model.Photo} ? @{'/'+${media.thumbnailUrl}} :  @{'/'+${media.squareThumbnailUrl}})  + ')'">
+                        </div>
+                    </li>
+                </ul>
             </div>
-        </li>
-        {{/medias}}
-    </ul>
-    {{/medias.length}}
-</div>
+        </div>
+    </body>
+</html>

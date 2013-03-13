@@ -1,166 +1,128 @@
-<div class="page-header album">
-    <a href="#/{{#albumParent}}album/{{albumParent.id}}{{/albumParent}}" data-placement="right" rel="tooltip" 
-       {{#albumParent}}title="{{i18n.album.back2album}}: {{albumParent.name}}"{{/albumParent}}
-       {{^albumParent}}title="{{i18n.album.back2albums}}"{{/albumParent}}
-       class="back"><i class="icon-circle-arrow-left"></i></a>
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+        <link rel="stylesheet" th:href="@{/static/css/thumbnails.css}" />
+    </head>
+    <body>
+        <div th:fragment="body">
+            <div class="page-header album">
+                <a th:href="@{${albumParent != null} ? ${albumParent.id} : '/'}" class="back"><i class="icon-circle-arrow-left"></i></a>
 
-    {{#config.administrator}}
-    <a href="#/album/{{album.id}}/edition" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.modify_this}}" class="pull-right edit-album {{#inEdition}}hide{{/inEdition}}"><i class="icon-cog"></i></a>
-    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" title="{{i18n.album.admin.edit.close_notif_zone}}" class="pull-right edit-album-cancel {{^inEdition}}hide{{/inEdition}}"><i class="icon-remove"></i></a>
-    {{/config.administrator}}
+                <h1 th:id="${album.id}" th:text="${album.name}"></h1>
+                <div class="information" th:text="${album.information}"></div>
 
-    {{#config.authenticated}}
-    <a href="#/album/{{album.id}}" data-placement="left" rel="tooltip" class="pull-right comments">
-        <span class="badge badge-info {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
-        <i class="icon-comment"></i>
-    </a>
-    {{/config.authenticated}}
-
-    {{#medias.length}}{{#album.downloadable}}
-    <div class="dropdown pull-right">
-        <a href="#" data-placement="bottom" data-toggle="dropdown" rel="tooltip" title="{{i18n.album.download}}" class="dropdown-toggle"><i class="icon-download-alt"></i></a>
-        <ul class="dropdown-menu">
-            <li><a target="_blank" href="{{album.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>
-            <li><a target="_blank" href="{{album.downloadUrl}}">{{i18n.album.original_size}}</a></li>
-        </ul>
-    </div>
-    {{/album.downloadable}}{{/medias.length}}
-    <h1 id="{{album.id}}">
-        {{album.name}}
-    </h1>
-    <div class="information">
-        {{#album.photosCount}}
-            {{album.photosCount}}
-            {{#album.hasSeveralTotalPhotos}}
-                {{i18n.common.photos}}
-            {{/album.hasSeveralTotalPhotos}}
-            {{^album.hasSeveralTotalPhotos}}
-                {{i18n.common.photo}}
-            {{/album.hasSeveralTotalPhotos}}
-            {{#album.videosCount}}
-                {{i18n.common.and}}
-            {{/album.videosCount}}
-        {{/album.photosCount}}
-        {{#album.videosCount}}
-            {{album.videosCount}}
-            {{#album.hasSeveralTotalVideos}}
-                {{i18n.common.videos}}
-            {{/album.hasSeveralTotalVideos}}
-            {{^album.hasSeveralTotalVideos}}
-                {{i18n.common.video}}
-            {{/album.hasSeveralTotalVideos}}
-        {{/album.videosCount}}
-        {{#album.hasMedias}}
-            {{#album.beginDate}}
-                {{#album.isInterval}}
-                    {{#album.endDate}}
-                        {{i18n.album.from_date}} {{album.beginDate}} {{i18n.album.to_date}} {{album.endDate}}
-                    {{/album.endDate}}
-                {{/album.isInterval}}
-                {{^album.isInterval}}
-                    {{i18n.album.on_date}} {{album.beginDate}}
-                {{/album.isInterval}}
-            {{/album.beginDate}}
-        {{/album.hasMedias}}
-        {{^album.photosCount}}{{^album.videosCount}}
-            {{i18n.common.noPhotos}}
-        {{/album.videosCount}}{{/album.photosCount}}
-    </div>
-</div>
-
-<div id="album-content">
-    {{#config.authenticated}}
-    <div id="album-comments">
-        <div class="alert alert-heading no-comments {{#comments.length}}hide{{/comments.length}}">{{i18n.comments.empty.album}}</div>
-        {{#comments.length}}
-            {{#comments}}
-                {{> comment}}
-            {{/comments}}
-        {{/comments.length}}
-        
-        <form id="new-album-comment" method="post" action="#/album/{{album.id}}/comments">
-            <textarea name="content" required placeholder="{{i18n.comments.placeholder}}"></textarea>
-            <div class="form-actions">
-                <input type="submit" class="btn btn-primary btn-small" value="{{i18n.common.validate}}" />
-            </div>
-        </form>
-    </div>
-    {{/config.authenticated}}
-
-    {{#album.description}}
-    <div class="album_description">
-        {{album.description}}
-    </div>
-    {{/album.description}}
-
-    {{> administration.album.edit}}
-
-    <div id="photos">
-        {{#subAlbums.length}}
-        {{#medias.length}}<h2>{{i18n.album.subalbums}}</h2>{{/medias.length}}
-        <ul class="thumbnails albums">
-            {{#subAlbums}}
-            <li>
-                <a class="thumbnail" href="#/album/{{id}}">
-                    <span class="picture" style="background-image:url('{{coverUrl}}')"></span>
-                    <span class="title" title="{{name}}"><span>{{name}}</span></span>
-                    <span class="filter">
-                        <i class="icon-plus-sign"></i>
-                        <span class="date">
-                            <i class="icon-calendar"></i>
-                            {{beginDate}}
-                        </span>
-                        {{#videosCount}}
-                        <span class="videos count">
-                            {{videosCount}}
-                            {{#hasSeveralTotalVideos}}{{i18n.common.videos}}{{/hasSeveralTotalVideos}}
-                            {{^hasSeveralTotalVideos}}{{i18n.common.video}}{{/hasSeveralTotalVideos}}
-                            <i class="icon-film"></i>
-                        </span>
-                        {{/videosCount}}
-                        <span class="photos count">
-                            {{photosCount}}
-                            {{#hasSeveralTotalPhotos}}{{i18n.common.photos}}{{/hasSeveralTotalPhotos}}
-                            {{^hasSeveralTotalPhotos}}{{i18n.common.photo}}{{/hasSeveralTotalPhotos}}
-                            <i class="icon-picture"></i>
-                        </span>
-                    </span>
+                <a th:inline="text" th:if="${config.administrator}" th:href="@{'/albums/' + ${album.id} + '/edition'}" th:title="#{album.admin.edit.modify_this}" th:class="'pull-right edit-album ' + (${inEdition != null} ? ' hide')">
+                    <i class="icon-cog"></i><br />[[#{common.modify}]]
                 </a>
-            </li>
-            {{/subAlbums}}
-        </ul>
-        {{/subAlbums.length}}
-        {{#medias.length}}
-        {{#subAlbums.length}}
-        <h2>{{medias.length}} 
-            {{#album.hasSeveralPhotos}}{{i18n.common.photos}}{{/album.hasSeveralPhotos}}
-            {{^album.hasSeveralPhotos}}{{i18n.common.photo}}{{/album.hasSeveralPhotos}}
-        </h2>{{/subAlbums.length}}
-        {{> album.medias}}
-        {{/medias.length}}
+                
+                <a th:if="${config.authenticated}" th:href="@{'/albums/' + ${album.id}}" data:href="@{'/albums/' + ${album.id}}" class="pull-right comments" th:inline="text">
+                    <span th:class="'badge badge-info' + ${#lists.isEmpty(comments)} ? ' hide'" th:text="${comments.size}"></span>
+                    <i class="icon-comment"></i><br />[[#{comments.title}]]
+                </a>
 
-        {{^subAlbums}}
-        {{^medias}}
-        <p class="alert alert-danger">{{i18n.album.no_photos}}</p>
-        {{/medias}}
-        {{/subAlbums}}
-    </div>
+                <div th:if="${#bools.isTrue(album.downloadable) and not #lists.isEmpty(medias)}" class="download dropdown pull-right">
+                    <a href="#" data-placement="bottom" data-toggle="dropdown" th:title="#{album.download}" class="dropdown-toggle" th:inline="text">
+                        <i class="icon-download-alt"></i><br />[[#{common.download}]]
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="@{${album.smallSizeDownloadUrl}}" th:text="#{album.reduced_size}"></a></li>
+                        <li><a th:href="@{${album.downloadUrl}}" th:text="#{album.original_size}"></a></li>
+                    </ul>
+                </div>
+            </div>
 
-    {{> administration.album.cover}}
-    {{> administration.album.medias}}
+            <div id="album-content">
+                <div id="album-comments" th:if="${#bools.isTrue(config.authenticated)}">
+                    <div th:class="'alert alert-heading no-comments' + (${not #lists.isEmpty(comments)} ? ' hide')" th:text="#{comments.empty.album}"></div>
 
-</div>
-<a id="top"></a>
+                    <div th:each="comment : ${comments}">
+                        <div th:substituteby="comment::body"></div>
+                    </div>
 
-<form id="remove-comment" class="modal hide fade" action="#/albums/{{album.id}}/comments/" data-action="#/albums/{{album.id}}/comments/" method="delete">
-    <div class="modal-header">
-        <h3>{{i18n.common.deletion}}</h3>
-    </div>
-    <div class="modal-body">
-        {{i18n.comments.confirm}}
-    </div>
-    <div class="modal-footer">
-        <input type="submit" class="btn btn-danger" data-loading-text="{{i18n.common.deletion_in_progress}}" value="{{i18n.common.delete}}" />
-        <button type="reset" class="btn" data-dismiss="modal">{{i18n.common.cancel}}</button>
-    </div>
-</form>
+                    <form id="new-album-comment" method="post" action="@{'/albums/' + ${album.id} + '/comments'}">
+                        <textarea name="content" required="required" th:placeholder="#{comments.placeholder}"></textarea>
+                        <div class="form-actions">
+                            <input type="submit" class="btn btn-primary btn-small" th:value="#{common.validate}" />
+                        </div>
+                    </form>
+                </div>
+
+                <div class="album_description" th:if="${not #strings.isEmpty(album.description)}" th:text="${album.description}"></div>
+                <!--<div substituteby="administration.album.edit::body"></div>-->
+
+                <div id="photos">
+                    <h2 th:if="${not #lists.isEmpty(subAlbums) and not #lists.isEmpty(medias)}" th:text="#{album.subalbums}"></h2>
+                    <ul class="thumbnails albums" th:if="${not #lists.isEmpty(subAlbums)}">
+                        <li th:each="subAlbum : ${subAlbums}">
+                            <a class="thumbnail" th:href="@{'/albums/' + ${subAlbum.id}}">
+                                <span class="picture" th:style="${'background-image:url('} + @{'/' + ${subAlbum.coverUrl}} + ${')'}"></span>
+                                <span class="title" th:title="${subAlbum.name}"><span th:text="${subAlbum.name}"></span></span>
+                                <span class="filter">
+                                    <i class="icon-plus-sign"></i>
+                                    <span class="date" th:if="${subAlbum.beginDate != null}" th:inline="text">
+                                        <i class="icon-calendar"></i>
+                                        [[${subAlbum.strBeginDate}]]
+                                    </span>
+                                    <span class="videos count" th:if="${subAlbum.videosCount > 0}" th:inline="text">
+                                        [[${subAlbum.totalVideosCount}]]
+                                        [[${subAlbum.totalVideosCount > 1 ? #messages.msg('common.videos') : #messages.msg('common.video')}]]
+                                        <i class="icon-film"></i>
+                                    </span>
+                                    <span class="photos count" th:if="${subAlbum.totalPhotosCount > 0}" th:inline="text">
+                                        [[${subAlbum.totalPhotosCount}]]
+                                        [[${subAlbum.totalPhotosCount > 1 ? #messages.msg('common.photos') : #messages.msg('common.photo')}]]
+                                        <i class="icon-picture"></i>
+                                    </span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <h2  th:if="${not #lists.isEmpty(medias) and not #lists.isEmpty(subAlbums)}" th:text="${album.photosCount} + ' ' + (${album.photosCount > 1} ? #{common.photos} : #{common.photo})"></h2>
+                    <div th:if="${not #lists.isEmpty(medias)}" th:substituteby="album.medias::body"></div>
+
+                    <p   th:if="${#lists.isEmpty(medias) and #lists.isEmpty(subAlbums)}" class="alert alert-danger" th:text="#{album.no_photos}" ></p>
+                </div>
+
+                <!--<div substituteby="administration.album.cover::body"></div>
+                <div substituteby="administration.album.medias::body"></div>-->
+            </div>
+            <a id="top"></a>
+
+            <form id="remove-comment" class="modal hide fade" th:action="@{'/albums/' + ${album.id} + '/comments/'}" data:action="@{'/albums/' + ${album.id} + '/comments/'}" method="delete">
+                <div class="modal-header">
+                    <h3 th:text="#{common.deletion}"></h3>
+                </div>
+                <div class="modal-body" tx:text="#{comments.confirm}"></div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-danger" data:loading-text="#{common.deletion_in_progress}" th:value="#{common.delete}" />
+                    <button type="reset" class="btn" data-dismiss="modal" th:text="#{common.cancel}"></button>
+                </div>
+            </form>
+        </div>
+        
+        
+        <div th:fragment="script">
+            <script th:src="@{/static/js/lib/modernizr.custom.77358.js}"></script>
+            <script th:src="@{/static/js/lib/jquery-1.9.1.min.js}"></script>
+            <script th:src="@{/static/js/lib/TweenLite.min.js}"></script>
+            <script th:src="@{/static/js/lib/jquery.mousewheel.min.js}"></script>
+            <script th:src="@{/static/js/lib/jquery.mCustomScrollbar.min.js}"></script>
+            <script th:src="@{/static/js/lib/jwerty.js}"></script>
+            <script th:src="@{/static/js/lib/bootstrap.min.js}"></script>
+            <script th:src="@{/static/js/slideshow.js}"></script>
+            <script th:src="@{/static/js/utils.js}"></script>
+            <script th:src="@{/static/js/album.js}"></script>
+            <script type="text/javascript">
+                function reload() {
+                    var hash = location.hash;
+                    if (hash) {
+                        hash = hash.substr(1);
+                    }
+                    loadAlbum(hash);
+                }
+                window.onhashchange = reload;
+                reload();
+            </script>
+        </div>
+    </body>
+</html>

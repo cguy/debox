@@ -28,7 +28,7 @@ import org.debox.photo.model.configuration.ThumbnailSize;
 public class Photo extends Media {
 
     protected static final String type = "photo";
-    protected static final boolean isPhoto = true;
+    protected final boolean photo = true;
     
     protected String url;
     
@@ -43,12 +43,12 @@ public class Photo extends Media {
         this.setUrl(baseUrl + separator + "size=" + ThumbnailSize.LARGE.getLowerCaseName());
     }
     
-    public boolean isPhoto() {
-        return isPhoto;
-    }
-
     public String getUrl() {
         return url;
+    }
+    
+    public boolean isPhoto() {
+        return photo;
     }
 
     public void setUrl(String url) {
