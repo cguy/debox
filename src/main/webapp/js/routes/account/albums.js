@@ -24,7 +24,7 @@ app.post('#/albums/:albumId', function() {
     $.ajax({
         url: "albums/" + this.params["albumId"],
         type : "post",
-        data : $("#edit_album form").serializeArray(),
+        data : _("edit_album form").serializeArray(),
         success: function(data) {
             data.inEdition = true;
             loadAlbum(data, function(){
@@ -44,11 +44,11 @@ app.del('#/albums/:albumId', function() {
         url: "albums/" + this.params["albumId"],
         type : "delete",
         success: function() {
-            $("#delete-album-modal").modal("hide");
+            _("delete-album-modal").modal("hide");
             context.redirect("#/");
         },
         error : function() {
-            $("#delete-album-modal").modal("hide");
+            _("delete-album-modal").modal("hide");
             $("#alerts .delete.alert-danger").fadeIn(250);
         }
     });

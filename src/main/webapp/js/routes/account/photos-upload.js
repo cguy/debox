@@ -21,10 +21,10 @@
 app.put('#/albums', function() {
     // Note : album name is mandatory, but handled by HTML5 required attribute (modern browser)
     // Never let default behavior, we handle form submit
-    $("#creationError").slideUp(500);
+    _("#reationError").slideUp(500);
 
     var parentId = null;
-    var formData = $("#modal-createNewAlbum").serializeArray();
+    var formData = _("modal-createNewAlbum").serializeArray();
     var params = "";
     for (var k in formData) {
         var param = formData[k];
@@ -61,11 +61,11 @@ app.put('#/albums', function() {
             updateAlbumTreeAfterAlbumCreation(parentPath, item);
             updateParentTreeAfterAlbumCreation(parentId, item);
 
-            $("#modal-createNewAlbum #albumName").val("");
-            $("#modal-createNewAlbum").modal("hide");
+            _("albumName").val("");
+            _("modal-createNewAlbum").modal("hide");
         },
         error: function() {
-            $("#creationError").slideDown(500);
+            _("creationError").slideDown(500);
         }
     });
     return false;

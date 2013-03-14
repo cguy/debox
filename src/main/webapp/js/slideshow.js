@@ -181,7 +181,7 @@ function Slideshow() {
         for (i = nextIndex + 1; i < this.getMedias().length - 1; i++) {
             this.getMedias()[i].className = "undisplayed next";
         }
-        $("#slideshow-label").text(this.items[this.index].name);
+        _("slideshow-label").text(this.items[this.index].name);
         this.refreshLinks();
     };
     
@@ -199,8 +199,8 @@ function Slideshow() {
 
     this.refreshLinks = function() {
         var hash = location.hash;
-        $("#slideshow-previous").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getPreviousIndex())));
-        $("#slideshow-next").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getNextIndex())));
+        _("slideshow-previous").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getPreviousIndex())));
+        _("slideshow-next").attr("href", hash.replace(this.getCurrentId(), this.getId(this.getNextIndex())));
         
         var isCommentsMode = /\/comments$/.test(hash);
         var path = this.getBasePath();
@@ -213,26 +213,22 @@ function Slideshow() {
         if (isVideo) {
             path = "videos";
         }
-        $("#new-media-comment").attr("action", "#/" + path + "/" + currentItem.id + "/comments");
+        _("new-media-comment").attr("action", "#/" + path + "/" + currentItem.id + "/comments");
         
         var commentsText = lang.comments.show;
         if (isCommentsMode) {
             commentsText = lang.comments.hide;
         }
-        $("#slideshow-options > a.comments").attr("title", commentsText);
-        $("#slideshow-help-label").text(commentsText);
-        $("#slideshow-options > a.comments").unbind("mouseenter");
-        $("#slideshow-options > a.comments").unbind("mouseout");
-        $("#slideshow-options *").mouseenter(function() {
+        _("slideshow-help-label").text(commentsText);
+        $("#slideshow-options > a.comments").attr("title", commentsText).unbind("mouseenter").unbind("mouseout").mouseenter(function() {
             var title = $(this).attr("title");
             if (!title) {
                 title = $(this).parents("a").attr("title");
             }
-            $("#slideshow-options").addClass("show");
-            $("#slideshow-help-label").text(title);
-        });
-        $("#slideshow-options").mouseout(function() {
-            $("#slideshow-options").removeClass("show");
+            _("slideshow-options").addClass("show");
+            _("slideshow-help-label").text(title);
+        }).mouseout(function() {
+            _("slideshow-options").removeClass("show");
         });
     };
 
@@ -245,8 +241,8 @@ function Slideshow() {
     };
     
     this.setLabel = function() {
-        $("#slideshow-label").text(this.items[this.index].name);
-        $("#slideshow-label").get(0).className = "";
+        _("slideshow-label").text(this.items[this.index].name);
+        _("slideshow-label").get(0).className = "";
     };
 
     this.setItems = function(items) {
@@ -256,7 +252,7 @@ function Slideshow() {
         $(document.body).append(html);
         
         var self = this;
-        addTransitionListener($("#slideshow-label").get(0), function() {self.setLabel();});
+        addTransitionListener(_("slideshow-label").get(0), function() {self.setLabel();});
     };
 
     this.setSize = function(id, w, h) {
@@ -271,11 +267,10 @@ function Slideshow() {
         
         var href = location.href;
         href = href.substring(0, href.indexOf("/", href.indexOf("#/albums/") + "#/albums/".length));
-        $("#slideshow-options .exit").attr("href", href);
-        $("#slideshow-options .exit").click(function() {
+        $("#slideshow-options .exit").attr("href", href).click(function() {
             exitFullscreen();
         });
-        $("#slideshow-comments").mCustomScrollbar({
+        _("slideshow-comments").mCustomScrollbar({
             scrollInertia: 500,
             mouseWheel: 50,
             advanced:{
@@ -294,7 +289,7 @@ function Slideshow() {
     
     this._showComments = function() {
         this._displayDrawer();
-        $("#fullscreenContainer").addClass("comments");
+        _("fullscreenContainer").addClass("comments");
         this.refreshLinks();
         this._loadComments();
     };
@@ -328,8 +323,7 @@ function Slideshow() {
                 } else {
                     $("#slideshow-comments .no-comments").addClass("hide");
                     $("#slideshow-comments").mCustomScrollbar("update");
-                    $("#slideshow-options .comments .badge").removeClass("hide");
-                    $("#slideshow-options .comments .badge").text(data.comments.length);
+                    $("#slideshow-options .comments .badge").removeClass("hide").text(data.comments.length);
                 }
                 bindPhotoCommentDeletion();
             },
@@ -340,14 +334,14 @@ function Slideshow() {
     };
     
     this._displayDrawer = function() {
-        $("#fullscreenContainer").addClass("drawer");
-        $("#slideshow-drawer").removeClass("hide");
+        _("fullscreenContainer").addClass("drawer");
+        _("slideshow-drawer").removeClass("hide");
         this._resetMargin();
     };
     
     this._hideDrawer = function() {
-        $("#slideshow-drawer").addClass("hide");
-        $("#fullscreenContainer").removeClass("drawer");
+        _("slideshow-drawer").addClass("hide");
+        _("fullscreenContainer").removeClass("drawer");
         this.getMedias()[this.index].style.right = "34%";
         this.getMedias()[this.index].style.maxWidth = "90%";
         this.refreshLinks();
@@ -364,11 +358,11 @@ function Slideshow() {
     };
 
     this.hide = function() {
-        document.body.removeChild($("#fullscreenContainer"));
+        document.body.removeChild(document.getElementById("fullscreenContainer"));
     };
     
     this.getMediasNode = function() {
-        return $("#fullscreenContainer_photos").get(0);
+        return _("fullscreenContainer_photos").get(0);
     };
     
     this.getMedias = function() {
@@ -393,7 +387,7 @@ function Slideshow() {
         if (!Modernizr.csstransitions) {
             this.setLabel();
         } else {
-            $("#slideshow-label").get(0).className = "hide";
+            _("slideshow-label").get(0).className = "hide";
         }
         
         this.index = prevIndex;
@@ -420,7 +414,7 @@ function Slideshow() {
         if (!Modernizr.csstransitions) {
             this.setLabel();
         } else {
-            $("#slideshow-label").get(0).className = "hide";
+            _("slideshow-label").get(0).className = "hide";
         }
 
         this.index = nextIndex;

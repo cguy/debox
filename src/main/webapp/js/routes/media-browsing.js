@@ -170,7 +170,7 @@ app.del("#/comments/:commentId", function(context) {
         url: "comments/" + commentId,
         type: "delete",
         success: function() {
-            $(_("modal-comment-delete")).modal("hide");
+            _("modal-comment-delete").modal("hide");
             context.redirect("#/account/comments");
         },
         error : function() {
@@ -208,7 +208,7 @@ app.del('#/albums/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
 app.get('#/albums/([a-zA-Z0-9-_]*)', function() {
     var id = this.params['splat'][0];
     if ($("h1").attr("id") == id) {
-        $("#loading").addClass("hide");
+        _("loading").addClass("hide");
         albumLoaded();
     } else {
         ajax({

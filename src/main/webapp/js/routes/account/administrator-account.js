@@ -19,60 +19,52 @@
  * #L%
  */
 app.post('#/accounts/:accountId', function() {
-    $("#personaldata input[type=submit]").button('loading');
-    $("#personaldata p").addClass("hide");
-    $("#personaldata p").removeClass("alert alert-error alert-success");
-    $("#personaldata p").html("");
+    var submitButton = $("#personaldata input[type=submit]");
+    var msgNode = $("#personaldata p");
+    submitButton.button('loading');
+    msgNode.removeClass("alert alert-error alert-success").addClass("hide").html("");
     $.ajax({
         url: "accounts/" + this.params['accountId'],
         type : "post",
-        data : $("#personaldata").serializeArray(),
+        data : _("personaldata").serializeArray(),
         success: function(data) {
             loadTemplate("header", {
                 "username" : data.username,
                 "title" : $("a.brand").text()
-            }, ".navbar .container-fluid", headerTemplateLoaded);
+            }, ".navbar .container-fluid");
 
-            $("#personaldata p").text("Vos informations personnelles ont été modifiées avec succès !");
-            $("#personaldata input[type=submit]").button('reset');
-            $("#personaldata p").addClass("alert alert-success");
-            $("#personaldata p").removeClass("hide");
+            msgNode.text("Vos informations personnelles ont été modifiées avec succès !").removeClass("hide").addClass("alert alert-success");
+            submitButton.button('reset');
         },
         error: function(xhr) {
-            $("#personaldata p").text("Erreur pendant l'opération.");
-            $("#personaldata input[type=submit]").button('reset');
-            $("#personaldata p").addClass("alert alert-error");
-            $("#personaldata p").removeClass("hide");
+            msgNode.text("Erreur pendant l'opération.").removeClass("hide").addClass("alert alert-error");
+            submitButton.button('reset');
         }
     });
     return false;
 });
 
 app.post('#/accounts/:accountId/credentials', function() {
-    $("#credentials input[type=submit]").button('loading');
-    $("#credentials p").addClass("hide");
-    $("#credentials p").removeClass("alert alert-error alert-success");
-    $("#credentials p").html("");
+    var submitButton = $("#credentials input[type=submit]");
+    var msgNode = $("#credentials p");
+    submitButton.button('loading');
+    msgNode.addClass("hide").removeClass("alert alert-error alert-success").html("");
     $.ajax({
         url: "accounts/" + this.params['accountId'] + "/credentials",
         type : "post",
-        data : $("#credentials").serializeArray(),
+        data : _("credentials").serializeArray(),
         success: function() {
-            $("#credentials p").text("Mot de passe modifié avec succès !");
-            $("#credentials input[type=submit]").button('reset');
-            $("#credentials p").addClass("alert alert-success");
-            $("#credentials p").removeClass("hide");
+            msgNode.text("Mot de passe modifié avec succès !").addClass("alert alert-success").removeClass("hide");
+            submitButton.button('reset');
         },
         error: function(xhr) {
             if (xhr.status == 401) {
-                $("#personaldata p").text("Erreur durant l'opération, le mot de passe saisi est incorrect.");
+                msgNode.text("Erreur durant l'opération, le mot de passe saisi est incorrect.");
             } else {
-                $("#personaldata p").text("Erreur pendant l'opération.");
+                msgNode.text("Erreur pendant l'opération.");
             }
-            
-            $("#credentials input[type=submit]").button('reset');
-            $("#credentials p").addClass("alert alert-error");
-            $("#credentials p").removeClass("hide");
+            msgNode.addClass("alert alert-error").removeClass("hide");
+            submitButton.button('reset');
         }
     });
     return false;
@@ -82,7 +74,7 @@ app.post('#/accounts/:accountId/settings', function() {
     $.ajax({
         url: "accounts/" + this.params['accountId'] + "/settings",
         type : "post",
-        data : $("#accountSettings").serializeArray(),
+        data : _("accountSettings").serializeArray(),
         success: function(data) {
             alert("ok")
         },

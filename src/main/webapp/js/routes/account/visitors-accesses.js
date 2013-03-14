@@ -28,7 +28,7 @@ app.del("#/third-party-account", function() {
             if ($("#thirdparty_accounts tr").length == 1) {
                 $("#thirdparty_accounts").remove();
             }
-            $("#delete-third-party-account").modal("hide");
+            _("delete-third-party-account").modal("hide");
         }
     });
 });
@@ -38,7 +38,7 @@ app.put('#/token', function() {
         url: "token?label=" + encodeURIComponent(this.params["label"]),
         type : "put",
         success: function(data) {
-            $("#administration_tokens").removeClass("hide");
+            _("administration_tokens").removeClass("hide");
             $("#tokens p.alert-warning").addClass("hide");
 
             var treeChildren = [];
@@ -70,7 +70,7 @@ app.post('#/token/reinit', function() {
 
             var form = $("#" + data.id + " .album-access-form");
             form.attr("action", form.attr("action").replace(id, data.id));
-            $("#modal-token-reinit").modal("hide");
+            _("modal-token-reinit").modal("hide");
             loadFunctions("tokens");
         },
         error : function(xhr) {
@@ -137,10 +137,10 @@ app.post('#/token', function() {
     $.ajax({
         url: "token",
         type : "post",
-        data: $("#edit_token").serializeArray(),
+        data: _("edit_token").serializeArray(),
         success: function(data) {
             $("#" + data.id + " .access_label").text(data.label);
-            $("#edit_token").modal("hide");
+            _("edit_token").modal("hide");
         }
     });
     return false;
@@ -153,11 +153,11 @@ app.del('#/token', function() {
         type: "delete",
         success: function() {
             $("#" + id).remove();
-            if ($("#administration_tokens").find("tbody tr").length == 0) {
-                $("#administration_tokens").addClass("hide");
+            if (_("administration_tokens").find("tbody tr").length == 0) {
+                _("administration_tokens").addClass("hide");
                 $("#tokens p.alert-warning").removeClass("hide");
             }
-            $("#modal-token-delete").modal("hide");
+            _("modal-token-delete").modal("hide");
         },
         error : function(xhr) {
             $("#modal-token-delete input[type=submit]").button('reset');

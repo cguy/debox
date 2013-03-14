@@ -25,9 +25,9 @@ app.post(/^#\/(photo|video)\/(.*)/, function() {
     $.ajax({
         url: type + "/" + id,
         type : "post",
-        data : $("#edit-media").serializeArray(),
+        data : _("edit-media").serializeArray(),
         success: function() {
-            $("#edit-media").modal("hide");
+            _("edit-media").modal("hide");
         },
         error : function() {
             $("#edit-media .alert").show();
@@ -45,7 +45,7 @@ app.del(/^#\/(photo|video)\/(.*)/, function() {
         type : "delete",
         success: function() {
             $("*[data-id=" + id + "]").parent().remove();
-            $("#delete-media").modal("hide");
+            _("delete-media").modal("hide");
         },
         error : function() {
             $("#delete-media .alert").show();

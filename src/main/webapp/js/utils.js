@@ -53,13 +53,13 @@ function loadTemplates(callback) {
 }
 
 function _(nodeId) {
-    return document.getElementById(nodeId);
+    return $(document.getElementById(nodeId));
 }
 
-var _defaultSelector = "body > .container-fluid";
 var _config = {
     administrator : false
-}
+};
+
 function loadTemplate(templateId, data, selector, callback) {
     if (!templatesLoaded) {
         templatesToLoad.push({
@@ -80,6 +80,8 @@ function loadTemplate(templateId, data, selector, callback) {
     if (!templates[templateId]) {
         throw "Template \""+templateId+"\" doesn't exist.";
     }
+    
+    var _defaultSelector = "body > .container-fluid";
     var html = templates[templateId].render(data, templates);
     if (!selector) {
         selector = _defaultSelector;
@@ -90,22 +92,23 @@ function loadTemplate(templateId, data, selector, callback) {
         callback();
     }
     
+    var tooltipNodes = null;
     if (selector == _defaultSelector) {
-        $("body > .container-fluid *[data-toggle=tooltip]").tooltip("destroy");
-        $("body > .container-fluid *[data-toggle=tooltip]").tooltip();
-        $("body > .container-fluid a[data-toggle=tooltip]").click(function() {
-            $(this).tooltip('hide');
-        });
+        tooltipNodes = $("body > .container-fluid *[data-toggle=tooltip]");
     } else if (templateId == "header") {
-        $(".navbar a[data-toggle=tooltip]").tooltip("destroy");
-        $(".navbar a[data-toggle=tooltip]").tooltip();
-        $(".navbar a[data-toggle=tooltip]").click(function() {
+        tooltipNodes = $(".navbar a[data-toggle=tooltip]");
+    }
+    
+    if (tooltipNodes) {
+        tooltipNodes.tooltip("destroy");
+        tooltipNodes.tooltip();
+        tooltipNodes.click(function() {
             $(this).tooltip('hide');
         });
     }
     
     if (templateId != "header") {
-        setTimeout('$("#loading").addClass("hide");', 300);
+        setTimeout('_("loading").addClass("hide");', 100);
     }
 }
 
@@ -127,15 +130,15 @@ function ajax(object) {
                     loadTemplate("header", {
                         "username" : null,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid", headerTemplateLoaded);
+                    }, ".navbar .container-fluid");
                 }
             } else {
-            //                alert(xhr.status + " : " + xhr.responseText);
+                console.log(xhr.status, xhr.responseText);
             }
         }
     }
     if (!object.type || object.type == "get") {
-        $("#loading").removeClass("hide");
+        _("loading").removeClass("hide");
     }
     object.cache = false;
     $.ajax(object);
@@ -164,7 +167,7 @@ function editTitle(title) {
 
 function initHeader(data) {
     editTitle(data.title + " - Accueil");
-    loadTemplate("header", data, ".navbar .container-fluid", headerTemplateLoaded);
+    loadTemplate("header", data, ".navbar .container-fluid");
 }
 
 function hideModal() {
@@ -178,8 +181,9 @@ function handleAlertsClose() {
 }
 
 function resetModalForm() {
-    $(this).find("p.alert-error").text("");
-    $(this).find("p.alert-error").removeClass("alert alert-error");
+    var alertBlocks = $(this).find("p.alert-error");
+    alertBlocks.text("");
+    alertBlocks.removeClass("alert alert-error");
     $(this).each(function(){
         this.reset();
     });
@@ -189,9 +193,9 @@ function hideAlbumChoose() {
     $("button.choose-cover-cancel").fadeOut(250, function() {
         $("button.choose-cover").fadeIn(250);
     });
-    $("#cover-photos").addClass("hide");
-    $("#cover-photos *[rel|=tooltip]").tooltip('hide');
-    $("#photos-edition").removeClass("hide");
+    _("cover-photos").addClass("hide");
+    $("#cover-photos *[data-toggle=tooltip]").tooltip('hide');
+    _("photos-edition").removeClass("hide");
 }
 
 function loadComment(comment) {
@@ -288,22 +292,22 @@ function loadAlbum(data, callback, mode) {
         });
         $("select#visibility").change(function() {
             if ($(this).val() == "false") {
-                $("#authorizedTokensGroup").removeClass("hide")
+                _("authorizedTokensGroup").removeClass("hide")
             } else {
-                $("#authorizedTokensGroup").addClass("hide")
+                _("authorizedTokensGroup").addClass("hide")
             }
         });
         if (callback && $.isFunction(callback)) {
             callback(mode);
         }
     });
-    $("#top").click(function() {
+    _("top").click(function() {
         $("html, body").animate({
             scrollTop: 0
         });
         return false;
     })
-    $("#top").hover(
+    _("top").hover(
         function () {
             $(this).animate({
                 opacity: 0.6
@@ -317,7 +321,7 @@ function loadAlbum(data, callback, mode) {
         );
     $(".chzn-select").select2(); 
     
-    $("#album-comments").mCustomScrollbar({
+    _("album-comments").mCustomScrollbar({
         scrollInertia: 500,
         mouseWheel: 50,
         advanced:{
@@ -409,37 +413,38 @@ function albumLoaded(mode) {
 }
 
 function bindAlbumCommentDeletion() {
-    $("#album-comments .comment .remove").tooltip("destroy");
-    $("#album-comments .comment .remove").tooltip();
-    $("#album-comments .comment .remove").unbind("click");
-    $("#album-comments .comment .remove").click(function() {
+    var removeButton = $("#album-comments .comment .remove");
+    removeButton.tooltip("destroy");
+    removeButton.tooltip();
+    removeButton.unbind("click");
+    removeButton.click(function() {
         var commentId = $(this).parents(".comment").attr("id");
-        var oldUrl = $("#remove-comment").attr("data-action");
-        $("#remove-comment").attr("action", oldUrl.substring(0, oldUrl.lastIndexOf("/") + 1) + commentId);
-        $("#remove-comment").modal();
+        var modal = _("remove-comment");
+        var oldUrl = modal.attr("data-action");
+        modal.attr("action", oldUrl.substring(0, oldUrl.lastIndexOf("/") + 1) + commentId);
+        modal.modal();
         return false;
     });
 }
 
 function bindPhotoCommentDeletion() {
-    $("#slideshow-comments .comment .remove").tooltip("destroy");
-    $("#slideshow-comments .comment .remove").tooltip();
-    $("#slideshow-comments .comment .remove").unbind("click");
-    $("#slideshow-comments .comment .remove").click(function() {
+    var removeButton = $("#slideshow-comments .comment .remove");
+    removeButton.tooltip("destroy");
+    removeButton.tooltip();
+    removeButton.unbind("click");
+    removeButton.click(function() {
         var commentId = $(this).parents(".comment").attr("id");
-        $("#remove-comment").attr("action", "#/photos/" + s.items[s.index].id + "/comments/" + commentId);
-        $("#remove-comment").modal();
+        var modal = _("remove-comment");
+        modal.attr("action", "#/photos/" + s.items[s.index].id + "/comments/" + commentId);
+        modal.modal();
         return false;
     });
 }
 
 function manageRegenerationProgress(data) {
     if (data.regeneration) {
-        $("#regeneration-progress").show();
-        $("#regeneration-progress").addClass("alert-info");
-        $("#regeneration-progress .progress").addClass("progress-info active");
-        $("#regeneration-progress").removeClass("alert-success alert-danger");
-        $("#regeneration-progress .progress").removeClass("progress-success progress-danger");
+        _("regeneration-progress").removeClass("alert-success alert-danger").addClass("alert-info").show();
+        $("#regeneration-progress .progress").removeClass("progress-success progress-danger").addClass("progress-info active");
         $("#regeneration-progress h3 #progress-label").text("Regénération en cours...");
             
         var refreshProgressBar = function(data) {
@@ -449,11 +454,9 @@ function manageRegenerationProgress(data) {
                 generationTimeout = setTimeout(getGenerationStatus, 3000);
             } else {
                 generationTimeout = null;
-                $("#regeneration-progress").removeClass("alert-info");
+                _("regeneration-progress").removeClass("alert-info").addClass("alert-success");
+                $("#regeneration-progress .progress").removeClass("progress-info active").addClass("progress-success");
                 $("#regeneration-progress h3 #progress-label").text("Regénération terminée");
-                $("#regeneration-progress .progress").removeClass("progress-info active");
-                $("#regeneration-progress").addClass("alert-success");
-                $("#regeneration-progress .progress").addClass("progress-success");
             }
         }
                         
@@ -468,14 +471,14 @@ function manageRegenerationProgress(data) {
         refreshProgressBar(data.regeneration);
         
     } else {
-        $("#regeneration-progress").hide();
+        _("regeneration-progress").hide();
     }
 }
 
 var generationTimeout = null;
 
 function onBodyScroll() {
-    var top = $("#top");
+    var top = _("top");
     if (top) {
         if ($(window).scrollTop() > 200) {
             top.animate({
@@ -486,22 +489,6 @@ function onBodyScroll() {
             top.fadeOut();
         }
     }
-}
-
-function headerTemplateLoaded() {
-    $('#login-dropdown').on('click', '*', function(event){
-        /* stop propagation otherwise the dropdown hides */
-        event.stopPropagation();
-        /* return true if the submit is clicked, false otherwise */
-        return event.target && event.target.id == "connect";
-    });
-    var resetForm = function () {
-        $("#login p").html("").removeClass("alert alert-error");
-        $("#login :text, #login :password").val('');
-    };
-    $('#login a').on('click', resetForm);
-    $('html').on('click.dropdown.data-api', resetForm);
-
 }
 
 function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData, parentId) {
@@ -627,7 +614,7 @@ function loadTab(id, data, container, cb) {
     if (!container) {
         container = "administration";
     }
-    if ($("#" + container).length == 0) {
+    if (_(container).length == 0) {
         loadTemplate(container, null, null, function() {
             loadTab(id, data, container, cb);
         });
@@ -636,8 +623,8 @@ function loadTab(id, data, container, cb) {
         loadTemplate(container + "." + id, data, "#" + container, function() {
             $(".account li").removeClass("active");
             $(".account li." + id).addClass("active");
-            if ($("#account").length) {
-                $("#account")[0].className = id;
+            if (_("account").length) {
+                _("account")[0].className = id;
             }
             loadFunctions(id);
             afterTabLoading(id, data);
@@ -673,7 +660,7 @@ function preprocessTabLoading(id, data) {
 
 function afterTabLoading(id, data) {
     if (id == "personaldata") {
-        $('#delete-account-confirm').on('hidden', function () {
+        _('delete-account-confirm').on('hidden', function () {
             location.hash = "#/account";
         });
         
@@ -687,7 +674,6 @@ function afterTabLoading(id, data) {
 
             $("#admin-comments .btn-danger").click(function() {
                 var node = _("modal-comment-delete");
-                node = $(node);
                 node.attr("action", node.attr("data-action") + $(this).parents("tr").attr("id"));
             });
         }
@@ -854,8 +840,8 @@ function afterTabLoading(id, data) {
         $(".dynatree.albumId").dynatree(albumIdDynatreeInit);
         $(".dynatree.parentId").dynatree(parentIdDynatreeInit);
         
-        $('#fileupload').fileupload();
-        $('#fileupload').fileupload('option', {
+        _('fileupload').fileupload();
+        _('fileupload').fileupload('option', {
             maxFileSize: 20000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
             process: [
@@ -873,19 +859,19 @@ function afterTabLoading(id, data) {
 }
 
 function setTargetAlbum(id, name) {
-    $("#albumId").val(id);
-    var base = $("#targetAlbum a").attr("data-href");
-    $("#targetAlbum a").attr("href", base + id);
-    $("#targetAlbum a").text(name);
-    $("#targetAlbum").slideDown(500);
+    _("albumId").val(id);
+    var targetAlbumLink = $("#targetAlbum a");
+    var base = targetAlbumLink.attr("data-href");
+    targetAlbumLink.attr("href", base + id).text(name);
+    _("targetAlbum").slideDown(500);
     $("#fileupload input").removeAttr("disabled");
     $("#fileupload .btn").removeClass("disabled");
 }
 
 function resetTargetAlbum() {
-    $("#albumId").val("");
+    _("albumId").val("");
     $("#targetAlbum strong").text("");
-    $("#targetAlbum").slideUp(500);
+    _("targetAlbum").slideUp(500);
     $("#fileupload input").attr("disabled", true);
     $("#fileupload .btn").addClass("disabled");
 }
@@ -953,31 +939,31 @@ function loadFunctions(partId) {
 
 function loadSettingsTabFunctions() {
     $("#configuration .btn-danger").click(function() {
-        $(this).parents("form").find("input[type=hidden]").val(true);
-        $(this).parents("form").submit();
+        var form = $(this).parents("form");
+        form.find("input[type=hidden]").val(true);
+        form.parents("form");
     });
 }
 
 function loadTokensTabFunctions() {
-    $("#administration_tokens .albums button.show-tree").unbind('click');
-    $("#administration_tokens .albums button.show-tree").click(function() {
+    $("#administration_tokens .albums button.show-tree").unbind('click').click(function() {
         $(this).hide();
-        $(this).parents(".albums").find("span, .albums-access").show();
-        $(this).parents(".albums").find(".alert-success").hide();
-        $(this).parents(".albums").find(".alert-error").hide();
+        var albums = $(this).parents(".albums");
+        albums.find("span, .albums-access").show();
+        albums.find(".alert-success").hide();
+        albums.find(".alert-error").hide();
     });
 
-    $("#administration_tokens .albums button.cancel").unbind('click');
-    $("#administration_tokens .albums button.cancel").click(function() {
-        $(this).parents(".albums").find(".alert-success").hide();
-        $(this).parents(".albums").find(".alert-error").hide();
-        $(this).parents(".albums").find(".albums-access").hide();
-        $(this).parents(".albums").find("button.btn").show();
+    $("#administration_tokens .albums button.cancel").unbind('click').click(function() {
+        var albums = $(this).parents(".albums");
+        albums.find(".alert-success").hide();
+        albums.find(".alert-error").hide();
+        albums.find(".albums-access").hide();
+        albums.find("button.btn").show();
         $(this).parents("span").hide();
     });
 
-    $("#administration_tokens button.edit").unbind('click');
-    $("#administration_tokens button.edit").click(function() {
+    $("#administration_tokens button.edit").unbind('click').click(function() {
         var id = $(this).parents("tr").attr("id");
         $.ajax({
             url: "token/" + id,
@@ -996,21 +982,17 @@ function loadTokensTabFunctions() {
     });
 
     // Need to refresh binding because of DOM operations
-    $("button[type=reset]").unbind('click');
-    $("button[type=reset]").click(hideModal);
-    $('form.modal').unbind('hidden');
-    $('form.modal').on('hidden', resetModalForm);
+    $("button[type=reset]").unbind('click').click(hideModal);
+    $('form.modal').unbind('hidden').on('hidden', resetModalForm);
 
-    $("#administration_tokens button.delete").unbind('click');
-    $("#administration_tokens button.delete").click(function() {
+    $("#administration_tokens button.delete").unbind('click').click(function() {
         var id = $(this).parents("tr").attr("id");
         var name = $(this).parents("tr").find(".access_label").text();
         $("#modal-token-delete input[type=hidden]").val(id);
         $("#modal-token-delete p strong").text(name);
     });
     
-    $("#administration_tokens button.reinit").unbind('click');
-    $("#administration_tokens button.reinit").click(function() {
+    $("#administration_tokens button.reinit").unbind('click').click(function() {
         var id = $(this).parents("tr").attr("id");
         $("#" + id + " .access_link .alert-success").hide();
         var name = $(this).parents("tr").find(".access_label").text();
@@ -1018,21 +1000,18 @@ function loadTokensTabFunctions() {
         $("#modal-token-reinit p strong").text(name);
     });
     
-    $(".accessShare").unbind('click');
-    $(".accessShare").click(function() {
+    $(".accessShare").unbind('click').click(function() {
         $(this).select();
     });
     
-    $(".accessShare").unbind('keydown');
-    $(".accessShare").keydown(function(event) {
+    $(".accessShare").unbind('keydown').keydown(function(event) {
         // do nothing if the user did not press ctrl+c
         if (!event.ctrlKey || event.which != 67) {
             event.preventDefault();
         }
     });
 
-    $(".accessShare").unbind('change');
-    $(".accessShare").change(function() {
+    $(".accessShare").unbind('change').change(function() {
         $(this).val($(this).attr("data-original"));
     });
 }
@@ -1049,11 +1028,9 @@ function handleAdmin() {
                     syncTimeout = null;
                 }
                 $("#synchronization input").removeAttr("disabled");
-                $("#cancel-sync").hide();
-                $("#sync-progress").removeClass("alert-info");
-                $("#sync-progress .progress").removeClass("progress-info active");
-                $("#sync-progress").addClass("alert-danger");
-                $("#sync-progress .progress").addClass("progress-danger");
+                _("cancel-sync").hide();
+                _("sync-progress").removeClass("alert-info").addClass("alert-danger");
+                $("#sync-progress .progress").removeClass("progress-info active").addClass("progress-danger");
             },
             error: function() {
                 alert("Erreur pendant l'annulation de la synchronisation");
@@ -1064,14 +1041,11 @@ function handleAdmin() {
     
 function manageSync(data) {
     if (data.sync) {
-        $("#sync-progress").show();
-        $("#sync-progress").addClass("alert-info");
-        $("#sync-progress .progress").addClass("progress-info active");
-        $("#sync-progress").removeClass("alert-success alert-danger");
-        $("#sync-progress .progress").removeClass("progress-success progress-danger");
+        _("#sync-progress").show().removeClass("alert-success alert-danger").addClass("alert-info");
+        _("cancel-sync").show();
+        $("#sync-progress .progress").removeClass("progress-success progress-danger").addClass("progress-info active");
         $("#progress-label").text("Synchronisation en cours...");
         $("#synchronization input").attr("disabled", "disabled");
-        $("#cancel-sync").show();
             
         var refreshProgressBar = function(data) {
             $("#sync-progress h3 #progress-percentage").html(data.percent + "&nbsp;%");
@@ -1079,14 +1053,14 @@ function manageSync(data) {
             if (data.percent < 100) {
                 syncTimeout = setTimeout(getSyncStatus, 3000);
             } else {
+                clearTimeout(syncTimeout);
                 syncTimeout = null;
                 $("#synchronization input").removeAttr("disabled");
                 $("#sync-progress").removeClass("alert-info");
                 $("#progress-label").text("Synchronisation terminée");
-                $("#sync-progress .progress").removeClass("progress-info active");
-                $("#sync-progress").addClass("alert-success");
-                $("#sync-progress .progress").addClass("progress-success");
-                $("#cancel-sync").hide();
+                $("#sync-progress .progress").removeClass("progress-info active").addClass("progress-success");
+                _("sync-progress").addClass("alert-success");
+                _("cancel-sync").hide();
             }
         }
                         

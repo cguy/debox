@@ -25,15 +25,11 @@ app.post('#/administration/configuration/social', function() {
         type : "post",
         data : data,
         success: function() {
-            $("#thirdparty-configuration p").text("Configuration enregistrée avec succès !");
-            $("#thirdparty-configuration p").addClass("alert-success");
-            $("#thirdparty-configuration p").removeClass("hide");
+            $("#thirdparty-configuration p").text("Configuration enregistrée avec succès !").addClass("alert-success").removeClass("hide");
             $("#thirdparty-configuration input[type=submit]").button("reset");
         },
         error: function() {
-            $("#thirdparty-configuration p").text("Erreur durant l'enregistrement de la configuration.");
-            $("#thirdparty-configuration p").addClass("alert-danger");
-            $("#thirdparty-configuration p").removeClass("hide");
+            $("#thirdparty-configuration p").text("Erreur durant l'enregistrement de la configuration.").addClass("alert-danger").removeClass("hide");
             $("#thirdparty-configuration input[type=submit]").button("reset");
         }
     });
@@ -68,20 +64,16 @@ app.post('#/administration/configuration', function() {
                 "title" : data.title,
                 "authenticated" : _config.authenticated,
                 "administrator" : _config.administrator
-            }, ".navbar .container-fluid", headerTemplateLoaded);
+            }, ".navbar .container-fluid");
 
             if (force) {
                 $("#synchronization input[type=checkbox]").attr("checked", "checked");
-                $("#synchronization").submit();
+                _("synchronization").submit();
             }
-            $("#overall-configuration p").text("Configuration enregistrée avec succès !");
-            $("#overall-configuration p").addClass("alert-success");
-            $("#overall-configuration p").removeClass("hide");
+            $("#overall-configuration p").text("Configuration enregistrée avec succès !").addClass("alert-success").removeClass("hide");
         },
         error: function() {
-            $("#overall-configuration p").text("Erreur durant l'enregistrement de la configuration.");
-            $("#overall-configuration p").addClass("alert-danger");
-            $("#overall-configuration p").removeClass("hide");
+            $("#overall-configuration p").text("Erreur durant l'enregistrement de la configuration.").addClass("alert-danger").removeClass("hide");
             targetBtn.button("reset");
         }
     });

@@ -22,14 +22,14 @@
 /* Administration tab navigation */
 /* ***************************** */
 app.get('#/accounts/:accountId/delete', function() {
-    if ($("#delete-account-confirm").length) {
-        $("#delete-account-confirm").modal();
+    if (_("delete-account-confirm").length) {
+        _("delete-account-confirm").modal();
     } else {
         ajax({
             url: "account",
             success: function(data) {
                 loadTab("personaldata", data, "account", function() {
-                    $("#delete-account-confirm").modal();
+                    _("delete-account-confirm").modal();
                 });
             }
         });

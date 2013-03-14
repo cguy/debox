@@ -44,61 +44,54 @@
                         loadTemplate("install", null, null, function() {
                             editTitle("Installation - debox");
                             $(".step .next").click(function() {
-                                $(this).parents(".step").addClass("hide");
-                                $(this).parents(".step").next().removeClass("hide");
+                                $(this).parents(".step").addClass("hide").next().removeClass("hide");
                             })
-                            $("#jdbc").val($("#database-type option[selected]").attr("data-jdbc"));
-                            $("#database-type").change(function() {
-                                $("#jdbc").val($(this).find("option[value=" + $(this).val() + "]").attr("data-jdbc"));
+                            _("jdbc").val(_("database-type option[selected]").attr("data-jdbc"));
+                            _("database-type").change(function() {
+                                _("jdbc").val($(this).find("option[value=" + $(this).val() + "]").attr("data-jdbc"));
                             });
-                            $("#datasource").submit(function(event) {
+                            _("datasource").submit(function(event) {
                                 var context = $(this);
                                 $.ajax({
                                     url: "datasource",
                                     type: "post",
-                                    data: $("#datasource").serializeArray(),
+                                    data: _("datasource").serializeArray(),
                                     success: function() {
-                                        context.parents(".step").addClass("hide");
-                                        context.parents(".step").next().removeClass("hide");
+                                        context.parents(".step").addClass("hide").next().removeClass("hide")
                                     },
                                     error : function(data) {
-                                        // TODO show error
                                         console.log("error", data);
                                     }
                                 });
                                 return false;
                             });
-                            $("#workingDirectory").submit(function(event) {
+                            $("_workingDirectory").submit(function(event) {
                                 var context = $(this);
                                 $.ajax({
                                     url: "working-directory",
                                     type: "post",
-                                    data: $("#workingDirectory").serializeArray(),
+                                    data: _("workingDirectory").serializeArray(),
                                     success: function() {
-                                        context.parents(".step").addClass("hide");
-                                        context.parents(".step").next().removeClass("hide");
+                                        context.parents(".step").addClass("hide").next().removeClass("hide");
                                     },
                                     error : function(data) {
-                                        // TODO show error
                                         console.log("error", data);
                                     }
                                 });
                                 return false;
                             });
-                            $("#account").submit(function(event) {
+                            _("account").submit(function(event) {
                                 var context = $(this);
                                 $.ajax({
                                     url: "register-administrator",
                                     type: "post",
-                                    data: $("#account").serializeArray(),
+                                    data: _("account").serializeArray(),
                                     success: function() {
-                                        context.parents(".step").addClass("hide");
-                                        context.parents(".step").next().removeClass("hide");
+                                        context.parents(".step").addClass("hide").next().removeClass("hide");
                                         $("#authenticate input[name=username]").val($("#account input[name=username]").val());
                                         $("#authenticate input[name=password]").val($("#account input[name=password]").val());
                                     },
                                     error : function(data) {
-                                        // TODO show error
                                         console.log("error", data);
                                     }
                                 });
