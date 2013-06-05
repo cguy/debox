@@ -56,10 +56,6 @@ public class VideoDao {
     protected static String SQL_GET_VISIBLE_VIDEOS_BY_ALBUM_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.album_id = ? AND (t.token_id = ? OR public = 1) ORDER BY date";
     
     protected static String SQL_GET_VIDEO_BY_ID = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE p.id = ?";
-    protected static String SQL_GET_VISIBLE_VIDEO_BY_ID = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN albums_tokens t ON p.album_id = t.album_id WHERE p.id = ? AND (t.token_id = ? OR public = 1))"
-            + " UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id,p.ogg, p.webm, p.h264, p.thumbnail,  a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id INNER JOIN accounts_accesses aa ON p.album_id = aa.album_id WHERE p.id = ?)";
     protected static String SQL_GET_VIDEO_BY_SOURCE_PATH = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, p.ogg, p.webm, p.h264, p.thumbnail, a.owner_id owner_id FROM videos p INNER JOIN albums a ON p.album_id = a.id WHERE source_path = ?";
 
     public List<Video> getAll() throws SQLException {
@@ -84,12 +80,6 @@ public class VideoDao {
         return result;
     }
     
-    public Video getVisibleVideo(String token, String videoId) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Video result = queryRunner.query(SQL_GET_VISIBLE_VIDEO_BY_ID, getBeanHandler(token), videoId, token, videoId);
-        return result;
-    }
-
     public void save(List<Video> videos) throws SQLException {
         try (Connection connection = DatabaseUtils.getConnection()) {
             connection.setAutoCommit(false);

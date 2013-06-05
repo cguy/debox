@@ -37,7 +37,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.AlbumDateReader;
 import org.debox.imaging.DefaultFileDateReader;
 import org.debox.imaging.ImageUtils;
@@ -104,7 +103,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             photos.clear();
             
             // Get existing photos & albums from DB
-            List<Album> existingAlbums = albumDao.getAllAlbums();
+            List<Album> existingAlbums = albumDao.getAllAlbums(SessionUtils.getUserId());
             for (Album existing : existingAlbums) {
                 albums.put(existing, Boolean.FALSE);
             }
@@ -450,7 +449,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
             }
         }
         
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String userId = SessionUtils.getUserId();
         
         Photo photo = new Photo();
         photo.setId(StringUtils.randomUUID());
@@ -483,7 +482,7 @@ public class SyncJob implements FileVisitor<Path>, Runnable {
                 album = current;
             }
         }
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String userId = SessionUtils.getUserId();
         
 
         Video video = new Video();

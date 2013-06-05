@@ -279,7 +279,7 @@ h2 + .thumbnails.albums {
     background-color: #FEFEFE;
     border:none;
     border-radius: 0;
-    box-shadow: none;
+    box-shadow: 0 0 4px #ccc;
 }
 
 .thumbnails.albums > li > .thumbnail {

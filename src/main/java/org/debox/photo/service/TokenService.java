@@ -27,13 +27,12 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.shiro.SecurityUtils;
 import org.debox.photo.dao.AlbumDao;
-import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.PermissionDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.model.Album;
+import org.debox.photo.model.user.AnonymousUser;
 import org.debox.photo.model.user.ThirdPartyAccount;
-import org.debox.photo.model.Token;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
@@ -48,43 +47,45 @@ import org.slf4j.LoggerFactory;
 public class TokenService extends DeboxService {
     
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
+    
     protected static AlbumDao albumDao = new AlbumDao();
-    protected static TokenDao tokenDao = new TokenDao();
+    
     protected UserDao userDao = new UserDao();
+    protected PermissionDao permissionDao = new PermissionDao();
     
     public Render createToken(String label) throws SQLException, UnsupportedEncodingException {
-        Token token = new Token();
-        token.setId(StringUtils.randomUUID());
-        token.setLabel(URLDecoder.decode(label, "UTF-8"));
-        token.setOwner(SessionUtils.getUser(SecurityUtils.getSubject()));
+        AnonymousUser user = new AnonymousUser();
+        user.setId(StringUtils.randomUUID());
+        user.setLabel(URLDecoder.decode(label, "UTF-8"));
+        user.setOwnerId(SessionUtils.getUserId());
         
-        tokenDao.save(token);
-        return renderJSON(token);
+        userDao.save(user);
+        return renderJSON(user);
     }
     
     public Render getTokens() throws SQLException, IOException {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        User user = SessionUtils.getUser();
         List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(user);
         return renderJSON(
-                "tokens", tokenDao.getAll(user.getId()),
-                "albums", albumDao.getAlbums(null),
+                "tokens", userDao.getAllAnonymousUsersByCreator(user.getId()),
+                "albums", albumDao.getAlbums(user.getId(), null),
                 "providers", ServiceUtil.getAuthenticationUrls(),
                 "accounts", accounts);
     }
     
     public Render getToken(String id) throws SQLException {
-        Token token = tokenDao.getById(id);
+        AnonymousUser token = userDao.getAnonymousUser(id);
         if (token == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
         
         return renderJSON(
-                "albums", albumDao.getAlbums(null),
+                "albums", albumDao.getAlbums(SessionUtils.getUserId(), null),
                 "token", token);
     }
     
     public Render editToken(String id, String label, List<String> albums, List<String> ignore) throws SQLException {
-        Token token = tokenDao.getById(id);
+        AnonymousUser token = userDao.getAnonymousUser(id);
         if (token == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
@@ -92,9 +93,16 @@ public class TokenService extends DeboxService {
         if (label != null) {
             token.setLabel(label);
         }
+        List<Album> newVisibleAlbums = new ArrayList<>();
         if (albums != null || ignore != null) {
-            List<Album> currentVisibleAlbums = new ArrayList<>(token.getAlbums());
-            token.getAlbums().clear();
+            // TODO FIX that
+            List<Album> currentVisibleAlbums = albumDao.getAllAlbums(token.getId());
+            List<Album> toUnauthorizeAlbums = new ArrayList<>(currentVisibleAlbums);
+            for (String albumId : albums) {
+                Album album = albumDao.getAlbum(albumId);
+               toUnauthorizeAlbums.remove(album);
+            }
+            
             if (albums != null) {
                 if (ignore != null) {
                     // Convert String list to Album list
@@ -107,7 +115,7 @@ public class TokenService extends DeboxService {
                     for (Album visibleAlbum : currentVisibleAlbums) {
                         for (Album albumToIgnore : albumsToIgnore) {
                             if (visibleAlbum.isSubAlbum(albumToIgnore) && albums.contains(albumToIgnore.getId())) {
-                                token.getAlbums().add(visibleAlbum);
+                                newVisibleAlbums.add(visibleAlbum);
                             }
                         }
                     }
@@ -115,35 +123,44 @@ public class TokenService extends DeboxService {
                 
                 for (String albumId : albums) {
                     Album album = albumDao.getAlbum(albumId);
-                    token.getAlbums().add(album);
+                    newVisibleAlbums.add(album);
                 }
+            }
+            
+            for (Album toUnauthorizeAlbum : toUnauthorizeAlbums) {
+                permissionDao.deleteReadPermission(id, toUnauthorizeAlbum);
             }
         }
         
-        tokenDao.save(token);
+        userDao.save(token, token.getId());
+        for (Album toAutorizeAlbum : newVisibleAlbums) {
+            permissionDao.saveReadPermission(id, toAutorizeAlbum);
+        }
+        
         return renderJSON(token);
     }
     
     public Render deleteToken(String id) throws SQLException {
-        tokenDao.delete(id);
+        AnonymousUser token = userDao.getAnonymousUser(id);
+        if (token == null) {
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
+        }
+        userDao.delete(token);
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
     public Render reinitToken(String id) throws SQLException {
-        Token token = tokenDao.getById(id);
+        AnonymousUser token = userDao.getAnonymousUser(id);
         if (token == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
         }
         
-        Token newToken = new Token();
+        AnonymousUser newToken = new AnonymousUser();
         newToken.setLabel(token.getLabel());
-        newToken.setAlbums(token.getAlbums());
         newToken.setId(StringUtils.randomUUID());
-        newToken.setOwner(SessionUtils.getUser(SecurityUtils.getSubject()));
+        newToken.setOwnerId(SessionUtils.getUserId());
         
-        tokenDao.save(newToken);
-        tokenDao.delete(id);
-        
+        userDao.save(newToken, id);
         return renderJSON(newToken);
     }
 }

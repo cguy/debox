@@ -1,18 +1,5 @@
 <div id="fullscreenContainer">
-    <div id="fullscreenContainer_photos">
-        {{#data}}
-            {{#photo}}
-                <img id="{{id}}" src="{{url}}" class="undisplayed" />
-            {{/photo}}
-            {{#video}}
-            <video id="{{id}}" class="undisplayed" controls preload="none" poster="{{thumbnailurl}}">
-                {{#oggurl}}<source src="{{oggurl}}" type="video/ogg"/>{{/oggurl}}
-                {{#webmurl}}<source src="{{webmurl}}" type="video/webm" />{{/webmurl}}
-                {{#h264url}}<source src="{{h264url}}" type="video/mp4" />{{/h264url}}
-            </video>
-            {{/video}}
-        {{/data}}
-    </div>
+    <div id="fullscreenContainer_photos"></div>
     <a id="slideshow-previous"><i class="icon-chevron-left"></i></a>
     <a id="slideshow-next"><i class="icon-chevron-right"></i></a>
     <div id="slideshow-label"></div>
@@ -23,11 +10,12 @@
         <a class="share" href=""><i class="icon-share"></i></a>-->
         <a class="exit" data-placement="left" data-toggle="tooltip" title="{{i18n.slideshow.exit}}" href="#"><i class="icon-remove"></i></a>
         {{#config.authenticated}}    
-        <a class="comments" data-placement="left" data-toggle="tooltip" href="">
-            <span class="badge badge-info hide">0</span>
+<!--        <a class="comments" data-placement="left" data-toggle="tooltip" href="">
+            <span class="commentsCount hide">0</span>
             <i class="icon-comment"></i>
-        </a>
-        {{/config.authenticated}}    
+        </a>-->
+        {{/config.authenticated}}
+        <!--<a class="download" data-placement="left" data-toggle="tooltip"  title="{{i18n.slideshow.download.photo}}" href=""><i class="icon-download-alt"></i></a>-->
     </div>
 
     <div id="slideshow-drawer" class="hide">

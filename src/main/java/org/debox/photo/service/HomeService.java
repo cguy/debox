@@ -20,8 +20,6 @@
  */
 package org.debox.photo.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import java.io.File;
@@ -38,18 +36,16 @@ import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Provider;
+import org.debox.photo.model.user.AnonymousUser;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.SessionUtils;
-import org.debox.util.HttpUtils;
 import org.debux.webmotion.server.render.Render;
-import org.scribe.exceptions.OAuthException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +57,9 @@ public class HomeService extends DeboxService {
     private static final Logger logger = LoggerFactory.getLogger(HomeService.class);
     
     public static String getUsername() {
-        Subject subject = SecurityUtils.getSubject();
         String username = null;
-        Object principal = subject.getPrincipal();
-        if (SessionUtils.isLogged(subject)) {
+        User principal = SessionUtils.getUser();
+        if (SessionUtils.isLogged()) {
             if (principal instanceof DeboxUser) {
                 DeboxUser user = (DeboxUser) principal;
                 if (user.getFirstName() != null && user.getLastName() != null) {
@@ -81,22 +76,6 @@ public class HomeService extends DeboxService {
                         com.restfb.types.User me = client.fetchObject("me", com.restfb.types.User.class);
                         username = me.getFirstName() + " " + me.getLastName();
                         break;
-                    case "google":
-                        try {
-                            String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + user.getToken());
-                            ObjectMapper mapper = new ObjectMapper();
-                            JsonNode node = mapper.readTree(response);
-                            if (node.get("error") != null && node.get("error").get("code") != null) {
-                                if (node.get("error").get("code").asInt() == 401) {
-                                    throw new OAuthException("google");
-                                }
-                            }
-                            username = node.get("name").asText();
-                            
-                        } catch (IOException ex) {
-                            logger.error("Unable to get Google session", ex);
-                        }
-                        break;
                 }
                 
             }
@@ -112,21 +91,17 @@ public class HomeService extends DeboxService {
         Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         String title = configuration.get(Configuration.Key.TITLE);
         
-        Subject subject = SecurityUtils.getSubject();
         String username = getUsername();
-        User user = SessionUtils.getUser(subject);
-        String userId = null;
-        if (user != null) {
-            userId = user.getId();
-        }
+        String userId = SessionUtils.getUserId();
         
-        Map<String, Object> headerData = new HashMap<>(6);
+        Map<String, Object> headerData = new HashMap<>(7);
         headerData.put("title", title);
         headerData.put("avatar", null);
         headerData.put("username", username);
         headerData.put("userId", userId);
-        headerData.put("administrator", subject.hasRole("administrator"));
-        headerData.put("authenticated", SessionUtils.isLogged(subject));
+        headerData.put("administrator", SecurityUtils.getSubject().hasRole("administrator"));
+        headerData.put("authenticated", SessionUtils.isLogged() && !SessionUtils.isAnonymousUser());
+        headerData.put("isAnonymousUser", SessionUtils.isAnonymousUser());
         
         Map<String, Object> result = new HashMap<>(2);
         result.put("config", headerData);
@@ -149,13 +124,21 @@ public class HomeService extends DeboxService {
             }
             URI templatesURI = templatesDirectoryUrl.toURI();
             File templatesDirectory = new File(templatesURI);
-            if (templatesDirectory != null && templatesDirectory.isDirectory()) {
+            if (templatesDirectory.isDirectory()) {
                 for (File child : templatesDirectory.listFiles()) {
                     try (FileInputStream fis = new FileInputStream(child)) {
-                        
                         String filename = StringUtils.substringBeforeLast(child.getName(), ".");
                         String content = IOUtils.toString(fis, "UTF-8");
-                        if ((SessionUtils.isAdministrator(SecurityUtils.getSubject()) && filename.startsWith("administration")) || !filename.startsWith("administration")) {
+                        
+                        boolean isAdministrator = SessionUtils.isAdministrator();
+                        boolean isAdministrationTemplate = filename.startsWith("administration");
+                        boolean isLoggedUser = SessionUtils.isLogged();
+                        boolean isAccountTemplate = filename.startsWith("account");
+                        
+                        if ((!isAdministrationTemplate && !isAccountTemplate) ||
+                            (isAdministrationTemplate && isAdministrator) || 
+                            (isAccountTemplate && isLoggedUser)) {
+                            
                             templates.put(filename, content);
                         } else {
                             templates.put(filename, "");

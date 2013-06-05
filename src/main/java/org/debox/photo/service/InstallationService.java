@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.debox.photo.dao.UserDao;
@@ -44,8 +43,8 @@ import org.debox.photo.model.Role;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.util.DatabaseUtils;
+import org.debox.photo.util.PropertiesUtils;
 import org.debox.photo.util.StringUtils;
-import org.debux.webmotion.server.WebMotionUtils;
 import org.debux.webmotion.server.mapping.Mapping;
 import org.debux.webmotion.server.render.Render;
 import org.slf4j.Logger;
@@ -180,10 +179,8 @@ public class InstallationService extends DeboxService {
     }
     
     protected void saveDatabaseConfiguration() throws ConfigurationException {
-        Path path = DatabaseUtils.getConfigurationFilePath();
-        PropertiesConfiguration configuration = new PropertiesConfiguration();
-        configuration.append(DatabaseUtils.getConfiguration());
-        configuration.save(path.toString());
+        PropertiesUtils.getConfiguration().append(DatabaseUtils.getConfiguration());
+        PropertiesUtils.save();
     }
     
 }

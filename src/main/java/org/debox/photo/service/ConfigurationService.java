@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.shiro.SecurityUtils;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.configuration.ThirdPartyConfiguration;
 import org.debox.photo.server.ApplicationContext;
@@ -64,18 +63,6 @@ public class ConfigurationService extends DeboxService {
         facebook.setCallbackURL(configuration.get(Configuration.Key.FACEBOOK_CALLBACK_URL));
         model.put("facebook", facebook);
         
-//        ThirdPartyConfiguration google = new ThirdPartyConfiguration();
-//        google.setApiKey(configuration.get(Configuration.Key.GOOGLE_API_KEY));
-//        google.setSecret(configuration.get(Configuration.Key.GOOGLE_SECRET));
-//        google.setCallbackURL(configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL));
-//        model.put("google", google);
-//        
-//        ThirdPartyConfiguration twitter = new ThirdPartyConfiguration();
-//        twitter.setApiKey(configuration.get(Configuration.Key.TWITTER_API_KEY));
-//        twitter.setSecret(configuration.get(Configuration.Key.TWITTER_SECRET));
-//        twitter.setCallbackURL(configuration.get(Configuration.Key.TWITTER_CALLBACK_URL));
-//        model.put("twitter", twitter);
-        
         return renderJSON(model);
     }
 
@@ -106,8 +93,7 @@ public class ConfigurationService extends DeboxService {
         return renderJSON(configuration.get());
     }
     
-    public Render editThirdPartyConfiguration(boolean activated, ThirdPartyConfiguration facebook, 
-            ThirdPartyConfiguration google, ThirdPartyConfiguration twitter) throws SQLException {
+    public Render editThirdPartyConfiguration(boolean activated, ThirdPartyConfiguration facebook) throws SQLException {
         
         Configuration configuration = ApplicationContext.getInstance().getOverallConfiguration();
         configuration.set(Configuration.Key.THIRDPARTY_ACTIVATION, Boolean.toString(activated));
@@ -116,21 +102,13 @@ public class ConfigurationService extends DeboxService {
         configuration.set(Configuration.Key.FACEBOOK_SECRET, facebook.getSecret());
         configuration.set(Configuration.Key.FACEBOOK_CALLBACK_URL, facebook.getCallbackURL());
         
-//        configuration.set(Configuration.Key.GOOGLE_API_KEY, google.getApiKey());
-//        configuration.set(Configuration.Key.GOOGLE_SECRET, google.getSecret());
-//        configuration.set(Configuration.Key.GOOGLE_CALLBACK_URL, google.getCallbackURL());
-//        
-//        configuration.set(Configuration.Key.TWITTER_API_KEY, twitter.getApiKey());
-//        configuration.set(Configuration.Key.TWITTER_SECRET, twitter.getSecret());
-//        configuration.set(Configuration.Key.TWITTER_CALLBACK_URL, twitter.getCallbackURL());
-        
         ApplicationContext.getInstance().saveConfiguration(configuration);
         
         return renderStatus(HttpURLConnection.HTTP_OK);
     }
 
     public Render getUserSettings() {
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String userId = SessionUtils.getUserId();
         try {
             Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
             String albums = configuration.get(Configuration.Key.ALBUMS_DIRECTORY);
@@ -145,7 +123,7 @@ public class ConfigurationService extends DeboxService {
     }
 
     public Render setUserSettings(String hostingOption, String albums, String thumbnails) {
-        String userId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String userId = SessionUtils.getUserId();
         try {
             Configuration configuration = ApplicationContext.getInstance().getUserConfiguration(userId);
             if ("local".equals(hostingOption)) {

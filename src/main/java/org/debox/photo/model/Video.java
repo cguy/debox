@@ -45,7 +45,7 @@ public class Video extends Media {
     protected String squareThumbnailUrl;
     
     public void computeAccessUrl(String token) {
-        String baseUrl = "video/" + this.getId();
+        String baseUrl = "videos/" + this.getId();
         String suffix = StringUtils.EMPTY;
         char separator = '?';
         if (token != null) {

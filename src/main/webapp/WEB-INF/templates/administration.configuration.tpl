@@ -45,48 +45,6 @@
                 <input class="span5" type="text" id="facebookCallbackURL" name="facebook.callbackURL" value="{{facebook.callbackURL}}" />
             </div>
         </div>
-
-        <!--
-        <h3>Google</h3>
-        <div class="control-group">
-            <label class="control-label" for="googleApiKey">ID Client :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="googleApiKey" name="google.apiKey" value="{{google.apiKey}}" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="googleSecret">Clé secrète :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="googleSecret" name="google.secret" value="{{google.secret}}" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="googleCallbackURL">Adresse de callback :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="googleCallbackURL" name="google.callbackURL" value="{{google.callbackURL}}" />
-            </div>
-        </div>
-
-        <h3>Twitter</h3>
-        <div class="control-group">
-            <label class="control-label" for="twitterApiKey">Consumer key :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="twitterApiKey" name="twitter.apiKey" value="{{twitter.apiKey}}" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="twitterSecret">Consumer secret :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="twitterSecret" name="twitter.secret" value="{{twitter.secret}}" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="twitterCallbackURL">Adresse de callback :</label>
-            <div class="controls">
-                <input class="span5" type="text" id="twitterCallbackURL" name="twitter.callbackURL" value="{{twitter.callbackURL}}" />
-            </div>
-        </div>
-        -->
     </div>
 
     <div class="form-actions">

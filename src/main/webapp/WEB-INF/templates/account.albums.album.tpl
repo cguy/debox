@@ -13,16 +13,16 @@
             <i class="icon-download-alt"></i>&nbsp;{{i18n.account.albums.not_downloadable}}
         </li>
         {{/downloadable}}
-        {{#public}}
+        {{#publicAlbum}}
         <li class="public">
             <i class="icon-ok"></i>&nbsp;{{i18n.common.public}}
         </li>
-        {{/public}}
-        {{^public}}
+        {{/publicAlbum}}
+        {{^publicAlbum}}
         <li class="private">
             <i class="icon-ban-circle"></i>&nbsp;{{i18n.common.private}}
         </li>
-        {{/public}}
+        {{/publicAlbum}}
     </ul>
     <div class="btn-group-vertical">
         {{#downloadable}}
@@ -35,15 +35,15 @@
             <i class="icon-download-alt"></i>&nbsp;{{i18n.account.albums.make_downloadable}}
         </button>
         {{/downloadable}}
-        {{#public}}
+        {{#publicAlbum}}
         <button class="btn btn-small private" data-loading-text="{{i18n.common.modification_in_progress}}">
             <i class="icon-ban-circle"></i>&nbsp;{{i18n.account.albums.make_private}}
         </button>
-        {{/public}}
-        {{^public}}
+        {{/publicAlbum}}
+        {{^publicAlbum}}
         <button class="btn btn-small public" data-loading-text="{{i18n.common.modification_in_progress}}">
             <i class="icon-ok"></i>&nbsp;{{i18n.account.albums.make_public}}
         </button>
-        {{/public}}
+        {{/publicAlbum}}
     </div>
 </a>

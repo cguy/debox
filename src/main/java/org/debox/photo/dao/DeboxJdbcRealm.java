@@ -20,12 +20,14 @@
  */
 package org.debox.photo.dao;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -34,6 +36,7 @@ import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
 import org.apache.shiro.util.SimpleByteSource;
+import org.debox.photo.model.user.DeboxPermission;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.user.User;
 import org.slf4j.Logger;
@@ -47,12 +50,17 @@ public class DeboxJdbcRealm extends JdbcRealm {
     private static final Logger logger = LoggerFactory.getLogger(DeboxJdbcRealm.class);
     protected static final String SALTED_AUTHENTICATION_QUERY = "select password, password_salt, a.id id, firstname, lastname, avatar from accounts a INNER JOIN users u on u.id = a.id where username = ?";
     protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur INNER JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
-    protected UserDao userDao = new UserDao();
-
+    
+    protected static final String PERMISSIONS_QUERY = ""
+            + "(select 'album', actions, instance from users_albums_permissions where user_id = ?) UNION "
+            + "(select 'photo', actions, instance from users_photos_permissions where user_id = ?) UNION "
+            + "(select 'video', actions, instance from users_videos_permissions where user_id = ?)";
+    
     public DeboxJdbcRealm() {
         this.setAuthenticationQuery(SALTED_AUTHENTICATION_QUERY);
         this.setUserRolesQuery(USER_ROLES_QUERY);
         this.setSaltStyle(SaltStyle.COLUMN);
+        this.setPermissionsQuery(PERMISSIONS_QUERY);
     }
     
     @Override
@@ -85,7 +93,6 @@ public class DeboxJdbcRealm extends JdbcRealm {
             DeboxUser user = new DeboxUser();
             user.setId(id);
             user.setUsername(username);
-            user.setThirdPartyAccounts(userDao.getThirdPartyAccounts(user));
             user.setFirstName(firstname);
             user.setLastName(lastname);
             user.setAvatar(avatar);
@@ -96,7 +103,7 @@ public class DeboxJdbcRealm extends JdbcRealm {
                 info.setCredentialsSalt(new SimpleByteSource(salt));
             }
 
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             final String message = "There was a SQL error while authenticating user [" + username + "]";
             logger.error(message, e);
 
@@ -115,19 +122,25 @@ public class DeboxJdbcRealm extends JdbcRealm {
             throw new AuthorizationException("PrincipalCollection method argument cannot be null.");
         }
         try {
-
             User user = (User) getAvailablePrincipal(principals);
-            Connection conn = null;
-            Set<String> roleNames = null;
             Set<String> permissions = null;
             try {
-                conn = dataSource.getConnection();
-
-                // Retrieve roles and permissions from database
-                roleNames = getRoleNamesForUser(conn, user.getId());
-                if (permissionsLookupEnabled) {
-                    permissions = getPermissions(conn, user.getId(), roleNames);
-                }
+                // Retrieve permissions from database
+                QueryRunner runner = new QueryRunner(dataSource);
+                permissions = runner.query(permissionsQuery, new ResultSetHandler<Set<String>>() {
+                    @Override
+                    public Set<String> handle(ResultSet rs) throws SQLException {
+                        Set<String> result = new LinkedHashSet<>();
+                        while (rs.next()) {
+                            String domain = rs.getString(1);
+                            String action = rs.getString(2);
+                            String instance = rs.getString(3);
+                            DeboxPermission permission = new DeboxPermission(domain, action, instance);
+                            result.add(permission.toString());
+                        }
+                        return result;
+                    }
+                }, user.getId(), user.getId(), user.getId());
 
             } catch (SQLException e) {
                 final String message = "There was a SQL error while authorizing user [" + user.getId() + "]";
@@ -137,11 +150,9 @@ public class DeboxJdbcRealm extends JdbcRealm {
 
                 // Rethrow any SQL errors as an authorization exception
                 throw new AuthorizationException(message, e);
-            } finally {
-                JdbcUtils.closeConnection(conn);
             }
 
-            SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roleNames);
+            SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
             info.setStringPermissions(permissions);
             return info;
         } catch (Exception ex) {
@@ -149,7 +160,7 @@ public class DeboxJdbcRealm extends JdbcRealm {
         }
         return null;
     }
-
+    
     private String[] getPasswordForUser(Connection conn, String username) throws SQLException {
         String[] result = new String[6];
         PreparedStatement ps = null;

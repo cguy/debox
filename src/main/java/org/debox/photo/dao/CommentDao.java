@@ -158,7 +158,7 @@ public class CommentDao {
     }
     
     public List<Comment> getAlbumCommentsByMediaOwner(String mediaOwnerId) throws SQLException {
-        return getCommentsByMediaOwner(mediaOwnerId, ALBUM_COMMENTS_BY_MEDIA_OWNER_ID, Album.class, albumDao.getRowProcessor(mediaOwnerId, false));
+        return getCommentsByMediaOwner(mediaOwnerId, ALBUM_COMMENTS_BY_MEDIA_OWNER_ID, Album.class, albumDao.getRowProcessor(mediaOwnerId));
     }
     
     public <M> List<Comment> getCommentsByMediaOwner(String mediaOwnerId, String sql, final Class<M> clazz, final RowProcessor mediaRowProcessor) throws SQLException {

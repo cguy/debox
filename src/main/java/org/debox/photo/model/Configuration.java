@@ -36,13 +36,7 @@ public class Configuration {
         THIRDPARTY_ACTIVATION("thirdparty.activation"),
         FACEBOOK_API_KEY("facebook.apiKey"),
         FACEBOOK_SECRET("facebook.secret"),
-        FACEBOOK_CALLBACK_URL("facebook.callback.url"),
-        GOOGLE_API_KEY("google.apiKey"),
-        GOOGLE_SECRET("google.secret"),
-        GOOGLE_CALLBACK_URL("google.callback.url"),
-        TWITTER_API_KEY("twitter.apiKey"),
-        TWITTER_SECRET("twitter.secret"),
-        TWITTER_CALLBACK_URL("twitter.callback.url");
+        FACEBOOK_CALLBACK_URL("facebook.callback.url");
         
         protected String id;
         

@@ -1,8 +1,10 @@
+package org.debox.photo.model.user;
+
 /*
  * #%L
  * debox-photos
  * %%
- * Copyright (C) 2012 Debox
+ * Copyright (C) 2012 - 2013 Debox
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,47 +20,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.model;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.debox.photo.model.user.User;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class Token {
-
-    protected String id;
-    protected String label;
-    protected User owner;
-    protected List<Album> albums = new ArrayList<>();
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public List<Album> getAlbums() {
-        return albums;
-    }
-
-    public void setAlbums(List<Album> albums) {
-        if (albums == null) {
-            albums = new ArrayList<>();
-        }
-        this.albums = albums;
-    }
+public class AnonymousUser extends User {
     
-    public String getId() {
-        return id;
+    protected String label;
+    protected String ownerId;
+
+    public String getOwnerId() {
+        return ownerId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setOwnerId(String owner) {
+        this.ownerId = owner;
     }
 
     public String getLabel() {
@@ -67,6 +43,11 @@ public class Token {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    @Override
+    public String getToken() {
+        return getId();
     }
     
 }

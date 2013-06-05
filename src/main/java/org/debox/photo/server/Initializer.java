@@ -21,7 +21,6 @@
 package org.debox.photo.server;
 
 import com.mchange.v2.c3p0.DataSources;
-import java.io.File;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,6 +31,7 @@ import javax.servlet.ServletContextListener;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.debox.photo.util.DatabaseUtils;
+import org.debox.photo.util.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +45,15 @@ public class Initializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         logger.info("Initializing web context");
-        File configurationFile = DatabaseUtils.getConfigurationFilePath().toFile();
-        if (configurationFile.exists()) {
+        if (PropertiesUtils.isConfigured()) {
             try {
-                PropertiesConfiguration configuration = new PropertiesConfiguration(configurationFile);
+                PropertiesConfiguration configuration = PropertiesUtils.getConfigurationCopy();
                 DatabaseUtils.setDataSourceConfiguration(configuration);
             } catch (ConfigurationException ex) {
-                logger.error("Unable to load debox configuration from file {}", configurationFile.getAbsolutePath(), ex);
+                logger.error("Unable to load debox configuration", ex);
             }
         } else {
-            logger.warn("Configuration file {} doesn't exist.", configurationFile.getAbsolutePath());
+            logger.warn("Application configuration file doesn't exist.");
         }
         logger.info("Web context initialized");
     }

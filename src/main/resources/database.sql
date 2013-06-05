@@ -59,6 +59,12 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 ALTER TABLE accounts ADD UNIQUE (username);
 
+CREATE TABLE IF NOT EXISTS users_anonymous (
+    id VARCHAR(32) PRIMARY KEY,
+    label VARCHAR(255) NOT NULL,
+    creator VARCHAR(32) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS thirdparty_accounts (
     user_id VARCHAR(32) NOT NULL,
     thirdparty_account_id VARCHAR(255) NOT NULL,
@@ -79,33 +85,25 @@ CREATE TABLE IF NOT EXISTS users_roles (
     PRIMARY KEY (user_id, role_id)
 );
 
-CREATE TABLE IF NOT EXISTS users_permissions (
+CREATE TABLE IF NOT EXISTS users_albums_permissions (
     user_id VARCHAR(32) NOT NULL,
-    domain VARCHAR(32) NOT NULL,
-    actions VARCHAR(255) NOT NULL,
     instance VARCHAR(32) NOT NULL,
-    PRIMARY KEY (user_id, domain, instance)
+    actions VARCHAR(255) NOT NULL,
+    PRIMARY KEY (user_id, instance, actions)
 );
 
--- ------------------- --
--- ACCESSES MANAGEMENT --
--- ------------------- --
-CREATE TABLE IF NOT EXISTS accounts_accesses (
-    user_id VARCHAR(32),
-    album_id VARCHAR(32),
-    PRIMARY KEY (user_id, album_id)
+CREATE TABLE IF NOT EXISTS users_photos_permissions (
+    user_id VARCHAR(32) NOT NULL,
+    instance VARCHAR(32) NOT NULL,
+    actions VARCHAR(255) NOT NULL,
+    PRIMARY KEY (user_id, instance, actions)
 );
 
-CREATE TABLE IF NOT EXISTS tokens (
-    id VARCHAR(32) PRIMARY KEY,
-    label VARCHAR(255) NOT NULL,
-    owner_id VARCHAR(32) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS albums_tokens (
-    album_id VARCHAR(32),
-    token_id VARCHAR(32),
-    PRIMARY KEY (album_id, token_id)
+CREATE TABLE IF NOT EXISTS users_videos_permissions (
+    user_id VARCHAR(32) NOT NULL,
+    instance VARCHAR(32) NOT NULL,
+    actions VARCHAR(255) NOT NULL,
+    PRIMARY KEY (user_id, instance, actions)
 );
 
 -- ------ --
@@ -239,12 +237,14 @@ ALTER TABLE accounts ADD FOREIGN KEY (id) REFERENCES users(id) ON UPDATE CASCADE
 ALTER TABLE thirdparty_accounts ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE users_roles ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE users_roles ADD FOREIGN KEY (role_id) REFERENCES roles(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE users_permissions ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE accounts_accesses ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE accounts_accesses ADD FOREIGN KEY (album_id) REFERENCES albums(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE tokens ADD FOREIGN KEY (owner_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE albums_tokens ADD FOREIGN KEY (album_id) REFERENCES albums(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE albums_tokens ADD FOREIGN KEY (token_id) REFERENCES tokens(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_albums_permissions ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_albums_permissions ADD FOREIGN KEY (instance) REFERENCES albums(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_photos_permissions ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_photos_permissions ADD FOREIGN KEY (instance) REFERENCES photos(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_videos_permissions ADD FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_videos_permissions ADD FOREIGN KEY (instance) REFERENCES videos(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_anonymous ADD FOREIGN KEY (id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE users_anonymous ADD FOREIGN KEY (creator) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE albums ADD FOREIGN KEY (owner_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE albums ADD FOREIGN KEY (parent_id) REFERENCES albums(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE photos ADD FOREIGN KEY (album_id) REFERENCES albums(id) ON UPDATE CASCADE ON DELETE CASCADE;

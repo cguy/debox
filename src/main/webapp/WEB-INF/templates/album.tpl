@@ -10,14 +10,14 @@
     {{/config.administrator}}
 
     {{#config.authenticated}}
-    <a href="#/albums/{{album.id}}" class="pull-right comments">
-        <span class="badge badge-info {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
+<!--    <a href="#/albums/{{album.id}}" class="pull-right comments">
+        <span class="commentsCount {{^comments.length}}hide{{/comments.length}}">{{comments.length}}</span>
         <i class="icon-comment"></i><br />{{i18n.comments.title}}
-    </a>
+    </a>-->
     {{/config.authenticated}}
 
     {{#medias.length}}{{#album.downloadable}}
-    <div class="dropdown pull-right">
+    <div class="dropdown pull-right albumDownload">
         <a href="#" data-placement="bottom" data-toggle="dropdown" class="dropdown-toggle"><i class="icon-download-alt"></i><br />{{i18n.album.download}}</a>
         <ul class="dropdown-menu">
             <li><a target="_blank" href="{{album.minDownloadUrl}}">{{i18n.album.reduced_size}} (1600px)</a></li>

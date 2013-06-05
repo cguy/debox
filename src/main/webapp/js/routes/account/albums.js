@@ -21,10 +21,22 @@
 app.post('#/albums/:albumId', function() {
     $("#alerts .edit.alert-success").fadeOut(250);
     $("#alerts .edit.alert-danger").fadeOut(250);
+    var data = _("edit-album-form").serializeArray();
+    var downloadable = false;
+    for (var i = 0 ; i < data.length ; i++) {
+        if (data[i].name == "downloadable") {
+            downloadable = true;
+            break;
+        }
+    }
+    if (!downloadable) {
+        data.push({name: "downloadable", value: false});
+    }
+    
     $.ajax({
         url: "albums/" + this.params["albumId"],
         type : "post",
-        data : _("edit_album form").serializeArray(),
+        data : data,
         success: function(data) {
             data.inEdition = true;
             loadAlbum(data, function(){

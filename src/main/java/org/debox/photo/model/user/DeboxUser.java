@@ -23,7 +23,7 @@ package org.debox.photo.model.user;
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
-public class DeboxUser extends User {
+public class DeboxUser extends IdentifiableUser {
     
     private static final long serialVersionUID = 1L;
     

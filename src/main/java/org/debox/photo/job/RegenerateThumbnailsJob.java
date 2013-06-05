@@ -28,7 +28,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.imaging.ThumbnailGenerator;
 import org.debox.photo.dao.AlbumDao;
@@ -188,7 +187,7 @@ public class RegenerateThumbnailsJob implements FileVisitor<Path>, Runnable {
             String albumsBasePath = ImageUtils.getAlbumsBasePath(SessionUtils.getUserId());
             photo.setRelativePath(StringUtils.substringAfter(path.getParent().toString(), albumsBasePath));
             photo.setFilename(path.getFileName().toString());
-            photo.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
+            photo.setOwnerId(SessionUtils.getUserId());
             ThumbnailGenerator processor = new ThumbnailGenerator(photo, ThumbnailSize.LARGE, ThumbnailSize.SQUARE);
             Future future = threadPool.submit(processor);
             imageProcesses.add(future);

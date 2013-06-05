@@ -31,6 +31,7 @@ import org.debox.photo.dao.CommentDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.comment.Comment;
 import org.debox.photo.model.Media;
+import org.debox.photo.model.user.DeboxPermission;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
@@ -46,7 +47,7 @@ public class CommentService extends DeboxService {
     protected static MediaService mediaService = new MediaService();
     
     protected Comment create(String content) {
-        User user = SessionUtils.getUser(SecurityUtils.getSubject());
+        User user = SessionUtils.getUser();
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setContent(content);
@@ -56,7 +57,15 @@ public class CommentService extends DeboxService {
         return comment;
     }
     
+    protected boolean canAccessMediaComments(String albumId) {
+        return SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "read", albumId)) && !SessionUtils.isAnonymousUser();
+    }
+    
     public Render createAlbumComment(String albumId, String content) throws SQLException {
+        if (!canAccessMediaComments(albumId)) {
+            return renderForbidden();
+        }
+        
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderNotFound();
@@ -71,6 +80,11 @@ public class CommentService extends DeboxService {
         if (media == null) {
             return renderNotFound();
         }
+        
+        if (!canAccessMediaComments(media.getAlbumId())) {
+            return renderForbidden();
+        }
+        
         Comment comment = create(content);
         commentDao.save(media, comment);
         return renderJSON(comment);
@@ -81,6 +95,11 @@ public class CommentService extends DeboxService {
         if (media == null) {
             return renderNotFound();
         }
+        
+        if (!canAccessMediaComments(media.getAlbumId())) {
+            return renderForbidden();
+        }
+        
         return renderJSON("mediaId", mediaId, "comments", commentDao.getByMedia(media));
     }
     

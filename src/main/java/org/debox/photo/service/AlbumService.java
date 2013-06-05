@@ -33,18 +33,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.debox.connector.api.exception.AuthenticationProviderException;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.CommentDao;
-import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.PermissionDao;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.VideoDao;
 import org.debox.photo.job.RegenerateThumbnailsJob;
@@ -57,9 +59,9 @@ import org.debox.photo.model.Photo;
 import org.debox.photo.model.Provider;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.configuration.ThumbnailSize;
-import org.debox.photo.model.Token;
 import org.debox.photo.model.Video;
-import org.debox.photo.model.user.User;
+import org.debox.photo.model.user.AnonymousUser;
+import org.debox.photo.model.user.DeboxPermission;
 import org.debox.photo.server.renderer.ZipDownloadRenderer;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.DatableComparator;
@@ -79,9 +81,10 @@ public class AlbumService extends DeboxService {
     
     protected static AlbumDao albumDao = new AlbumDao();
     protected static CommentDao commentDao = new CommentDao();
-    protected static TokenDao tokenDao = new TokenDao();
     protected static VideoDao videoDao = new VideoDao();
     protected static UserDao userDao = new UserDao();
+    protected static PermissionDao permissionDao = new PermissionDao();
+    
     
     protected RegenerateThumbnailsJob regenerateThumbnailsJob;
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -96,7 +99,7 @@ public class AlbumService extends DeboxService {
         album.setPublic(false);
         album.setPhotosCount(0);
         album.setDownloadable(false);
-        album.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
+        album.setOwnerId(SessionUtils.getUserId());
         
         if (StringUtils.isEmpty(parentId)) {
             album.setRelativePath(File.separatorChar + album.getName());
@@ -143,54 +146,55 @@ public class AlbumService extends DeboxService {
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
     
-    public List<Album> albums(String parentId, String token) throws SQLException {
-        boolean isAdministrator = SessionUtils.isAdministrator(SecurityUtils.getSubject());
+    public Render getAlbums(String parentId, String criteria) throws SQLException {
+        return renderJSON("albums", albums(parentId, criteria));
+    }
+    
+    protected List<Album> albums(String parentId) throws SQLException {
+        return albums(parentId, null);
+    }
+    
+    protected List<Album> albums(String parentId, String criteria) throws SQLException {
         List<Album> albums;
-        if (isAdministrator) {
-            albums = albumDao.getAlbums(parentId);
-        } else if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
-            albums = albumDao.getVisibleAlbumsForLoggedUser(parentId);
+        String userId = SessionUtils.getUserId();
+        if ("all".equals(criteria)) {
+            albums = albumDao.getAllAlbums(userId);
         } else {
-            albums = albumDao.getVisibleAlbums(token, parentId);
+            albums = albumDao.getAlbums(userId, parentId);
         }
         return albums;
     }
 
-    public Render getAlbums(String parentId, String token, String criteria) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        boolean isAdministrator = SessionUtils.isAdministrator(subject);
-        List<Album> albums;
-        if (isAdministrator && "all".equals(criteria)) {
-            albums = albumDao.getAllAlbums();
-        } else {
-            albums = albums(parentId, token);
-        }
-        return renderJSON("albums", albums);
-    }
+    public Render getAlbum(String albumId) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
 
-    public Render getAlbum(String token, String id) throws IOException, SQLException, IllegalArgumentException, IOException, AuthenticationProviderException {
-        Subject subject = SecurityUtils.getSubject();
-        User user = (User) subject.getPrincipal();
-        
-        boolean isAdministrator = SessionUtils.isAdministrator(subject);
-        Album album;
-        boolean isLogged = SessionUtils.isLogged(subject);
-        if (isAdministrator) {
-            album = albumDao.getAlbum(id);
-        } else if (isLogged) {
-            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), id);
-        } else {
-            album = albumDao.getVisibleAlbum(token, id);
-        }
+        Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
-        List<Token> tokens = null;
+        if (!SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "read", albumId)) && !album.isPublicAlbum()) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         List<Contact> contacts = new ArrayList<>();
-        if (isAdministrator) {
-            tokens = tokenDao.getAllTokenWithAccessToAlbum(album);
-            List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(user);
+        List<Contact> tokens = new ArrayList<>();
+        
+        if (SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "write", albumId))) {
+            
+            List<Pair<AnonymousUser, List<Album>>> anonymousUsers = userDao.getAllAnonymousUsersByCreator(SessionUtils.getUserId());
+            List<AnonymousUser> authorizedUsers = userDao.getAllAnonymousUsersWithAccessToAlbum(album);
+            tokens.addAll(convertAnonymousUsers(anonymousUsers));
+            
+            for (Contact anonymousUser : tokens) {
+                for (AnonymousUser authorizedUser : authorizedUsers) {
+                    if (anonymousUser.getId().equals(authorizedUser.getId())) {
+                        anonymousUser.setAuthorized(true);
+                        break;
+                    }
+                }
+            }
+                
+            List<ThirdPartyAccount> accounts = userDao.getThirdPartyAccounts(SessionUtils.getUser());
             for (ThirdPartyAccount account : accounts) {
                 String thirdPartyToken = account.getToken();
                 if (thirdPartyToken != null) {
@@ -200,47 +204,26 @@ public class AlbumService extends DeboxService {
                             Connection<com.restfb.types.User> myFriends = client.fetchConnection("me/friends", com.restfb.types.User.class);
                             contacts.addAll(convert(myFriends.getData()));
                             break;
-                        case "google":
-//                            URL url = new URL("https://www.google.com/m8/feeds/contacts/default/full?access_token=" + thirdPartyToken);
-//                            SyndFeedInput input = new SyndFeedInput();
-//                            
-//                            do {
-//                                SyndFeed feed = input.build(new CustomXMLReader(url).getReader());
-//                                List<SyndLinkImpl> links = feed.getLinks();
-//                                url = null;
-//                                if (links != null) {
-//                                    for (SyndLinkImpl link : links) {
-//                                        if (link.getRel().equals("next")) {
-//                                            url = new URL(link.getHref() + "&access_token=" + thirdPartyToken);
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                
-//                                Iterator<SyndEntry> contactsIterator = feed.getEntries().iterator();
-//                                List<Contact> result = convert(contactsIterator);
-//                                contacts.addAll(result);
-//                                
-//                            } while (url != null);
-//                            break;
                     }
                 }
             }
             Collections.sort(contacts);
             
             List<ThirdPartyAccount> authorized = userDao.getAuthorizedThirdPartyAccounts(album);
+            
             for (Contact contact : contacts) {
                 for (ThirdPartyAccount account : authorized) {
                     if (contact.getProvider().getId().equals(account.getProviderId()) && contact.getId().equals(account.getProviderAccountId())) {
                         contact.setAuthorized(true);
+                        break;
                     }
                 }
             }
         }
         
-        List<Album> subAlbums = this.albums(album.getId(), token);
-        List<Photo> photos = photoDao.getPhotos(id, token);
-        List<Video> videos = videoDao.getVideos(id, token);
+        List<Album> subAlbums = albums(album.getId());
+        List<Photo> photos = photoDao.getPhotos(albumId, SessionUtils.getUserId());
+        List<Video> videos = videoDao.getVideos(albumId, SessionUtils.getUserId());
         List<Datable> medias = new ArrayList<>(photos.size() + videos.size());
         medias.addAll(photos);
         medias.addAll(videos);
@@ -249,43 +232,14 @@ public class AlbumService extends DeboxService {
         
         Album parent = albumDao.getAlbum(album.getParentId());
         List<Comment> comments = null;
-        if (isAdministrator || isLogged) {
+        if (SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "read", albumId)) && !SessionUtils.isAnonymousUser()) {
             comments = commentDao.getByAlbum(album.getId());
         }
         
         return renderJSON("album", album, "albumParent", parent,
                 "subAlbums", subAlbums, "medias", medias,
-                "regeneration", getRegenerationData(), "tokens", tokens, "contacts", contacts, "comments", comments);
+                "regeneration", getRegenerationData(), "contacts", contacts, "comments", comments, "tokens", tokens);
     }
-    
-//    private List<Contact> convert(Iterator<SyndEntry> contactsIterator) {
-//        List<Contact> list = new ArrayList<>();
-//        while (contactsIterator.hasNext()) {
-//            SyndEntry entry = contactsIterator.next();
-//            
-//            Contact contact = new Contact();
-//            contact.setName(entry.getTitle());
-//            contact.setProvider(ServiceUtil.getProvider("google"));
-//            
-//            List<Element> elements = (List<Element>) entry.getForeignMarkup();
-//            for (Element element : elements) {
-//                String prefix = element.getNamespacePrefix();
-//                String name = element.getName();
-//                if ("gd".equals(prefix) && "email".equals(name)) {
-//                    String mail = element.getAttributeValue("address");
-//                    contact.setId(mail);
-//                    if (StringUtils.isEmpty(contact.getName())) {
-//                        contact.setName(mail);
-//                    }
-//                    break;
-//                }
-//            }
-//            if (StringUtils.isNotEmpty(contact.getId())) {
-//                list.add(contact);
-//            }
-//        }
-//        return list;
-//    }
     
     public List<Contact> convert(List<com.restfb.types.User> list) {
         if (list == null) {
@@ -302,7 +256,25 @@ public class AlbumService extends DeboxService {
         return result;
     }
     
+    public List<Contact> convertAnonymousUsers(List<Pair<AnonymousUser, List<Album>>> list) {
+        if (list == null) {
+            return null;
+        }
+        List<Contact> result = new ArrayList<>(list.size());
+        for (Pair<AnonymousUser, List<Album>> info : list) {
+            Contact contact = new Contact();
+            contact.setId(info.getKey().getId());
+            contact.setName(info.getKey().getLabel());
+            result.add(contact);
+        }
+        return result;
+    }
+    
     public Render editAlbum(String albumId, String name, String description, String visibility, String downloadable, List<String> authorizedTokens) throws SQLException, IOException, IllegalArgumentException, AuthenticationProviderException {
+        if (!SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "write", albumId))) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
+        }
+        
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
@@ -322,66 +294,54 @@ public class AlbumService extends DeboxService {
 
         albumDao.save(album);
         
+        Set<String> users = new HashSet<>(); 
         if (authorizedTokens != null) {
-            List<Token> tokens = tokenDao.getAll(album.getOwnerId());
-            for (Token token : tokens) {
-                if (authorizedTokens.contains(token.getId())) {
-                    addParentAlbumsToToken(album, token);
-                } else {
-                    removeChildAlbumToToken(album, token);
-                }
-            }
-            tokenDao.saveAll(tokens);
-            
-            // TODO There is a bug here, the case where we unautorize 
-            // a thirdparty account for a parent album is not handled
-            // (children albums are not unautorized)
-            String currentAlbumId = album.getId();
-            while (currentAlbumId != null) {
-                List<ThirdPartyAccount> accounts = new ArrayList<>();
-                for (String thirdPartyId : authorizedTokens) {
-                    String providerId = StringUtils.substringBefore(thirdPartyId, "-");
-                    Provider provider = ServiceUtil.getProvider(providerId);
-                    if (provider == null) {
-                        continue;
+            // Ensure that each id is corresponding with existing user
+            for (String thirdPartyId : authorizedTokens) {
+                String providerId = StringUtils.substringBefore(thirdPartyId, "-");
+                Provider provider = ServiceUtil.getProvider(providerId);
+                
+                if (provider == null) {
+                    AnonymousUser user = userDao.getAnonymousUser(thirdPartyId);
+                    if (user != null) {
+                        users.add(user.getId());
                     }
-
+                } else {
                     String providerAccountId = StringUtils.substringAfter(thirdPartyId, "-");
-
                     ThirdPartyAccount account = userDao.getUser(provider.getId(), providerAccountId);
                     if (account == null) {
                         account = new ThirdPartyAccount(provider, providerAccountId, null);
-                        userDao.save(account);
+                        
+                        // Create new user (linked to third party provider) in database
+                        userDao.save(account, userDao.getRole("user"));
                     }
-                    accounts.add(account);
+                    users.add(account.getId());
                 }
-                userDao.saveAccess(accounts, currentAlbumId);
-                
-                Album tmp = albumDao.getAlbum(currentAlbumId);
-                currentAlbumId = tmp.getParentId();
             }
+        }
+
+        Set<String> oldAuthorizedUserIdsRef = permissionDao.getAuthorizedUsers(new DeboxPermission("album", "read", album.getId()));
+
+        // Get users which have been unauthorized to read current album 
+        Set<String> toUnauthorizeUsers = new HashSet<>(oldAuthorizedUserIdsRef);
+        toUnauthorizeUsers.removeAll(users);
+
+        // Get new users which have been authorized to read current album 
+        Set<String> toAuthorizeUsers = new HashSet<>(users);
+        toAuthorizeUsers.removeAll(oldAuthorizedUserIdsRef);
+
+        for (String toUnauthorizeUser : toUnauthorizeUsers) {
+            permissionDao.deleteReadPermission(toUnauthorizeUser, album);
+        }
+
+        for (String toAuthorizeUser : toAuthorizeUsers) {
+            permissionDao.saveReadPermission(toAuthorizeUser, album);
         }
         
-        return getAlbum(null, albumId);
+        permissionDao.savePermission(album);
+        return getAlbum(albumId);
     }
     
-    protected void addParentAlbumsToToken(Album album, Token token) throws SQLException {
-        if (album != null && !token.getAlbums().contains(album)) {
-            token.getAlbums().add(album);
-            addParentAlbumsToToken(albumDao.getAlbum(album.getParentId()), token);
-        }
-    }
-    
-    protected void removeChildAlbumToToken(Album album, Token token) throws SQLException {
-        if (album != null && token.getAlbums().contains(album)) {
-            List<Album> children = albumDao.getAlbums(album.getId());
-            for (Album child : children) {
-                removeChildAlbumToToken(child, token);
-            }
-            token.getAlbums().remove(album);
-        }
-    }
-
     public Render setAlbumCover(String albumId, String objectId) throws SQLException, IOException {
         boolean emptyId = StringUtils.isEmpty(objectId);
         boolean isPhoto = !emptyId && photoDao.getPhoto(objectId) != null;
@@ -408,17 +368,17 @@ public class AlbumService extends DeboxService {
     public Render getAlbumCover(String token, String albumId) throws SQLException, IOException {
         albumId = StringUtils.substringBeforeLast(albumId, "-cover.jpg");
         
-        Media media;
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            media = albumDao.getAlbumCover(albumId);
-        } else {
-            media = albumDao.getVisibleAlbumCover(token, albumId);
-        }
-
         Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderError(HttpURLConnection.HTTP_NOT_FOUND, "");
-        } else if (media == null) {
+        }
+        
+        Media media = null;
+        if (SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "read", albumId)) || album.isPublicAlbum()) {
+            media = albumDao.getAlbumCover(albumId);
+        }
+
+        if (media == null) {
             return renderRedirect("/img/default_album.png");
         }
         
@@ -440,24 +400,21 @@ public class AlbumService extends DeboxService {
         return renderStream(fis, "image/jpeg");
     }
 
-    public Render download(String token, String albumId, boolean resized) throws SQLException {
-        Subject subject = SecurityUtils.getSubject();
-        boolean isAdministrator = SessionUtils.isAdministrator(subject);
-        
-        Album album;
-        if (!isAdministrator && SessionUtils.isLogged(subject)) {
-            User user = (User) subject.getPrincipal();
-            album = albumDao.getVisibleAlbumForLoggedUser(user.getId(), albumId);
-        } else if (isAdministrator) {
-            album = albumDao.getAlbum(albumId);
+    public Render download(String albumId, boolean resized) throws SQLException {
+        if (resized) {
+            albumId = StringUtils.substringBefore(albumId, "-min.zip");
         } else {
-            album = albumDao.getVisibleAlbum(token, albumId);
+            albumId = StringUtils.substringBefore(albumId, ".zip");
         }
         
+        Album album = albumDao.getAlbum(albumId);
         if (album == null) {
             return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        }
 
-        } else if (!album.isDownloadable() && !isAdministrator) {
+        boolean userCanDownload = SecurityUtils.getSubject().isPermitted("album:download:" + albumId);
+        boolean isPublicAndDownloadableAlbum = album.isPublicAlbum() && album.isDownloadable();
+        if (!userCanDownload && !isPublicAndDownloadableAlbum) {
             return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
 

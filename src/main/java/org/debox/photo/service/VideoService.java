@@ -28,11 +28,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.model.Album;
-import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.util.FileUtils;
@@ -53,11 +51,9 @@ public class VideoService extends MediaService {
     public Render getVideoStream(String token, String filename) throws IOException, SQLException {
         String videoId = FilenameUtils.removeExtension(filename);
         
-        Video video;
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
+        Video video = null;
+        if (SessionUtils.isAdministrator()) { // TODO check permission here
             video = videoDao.getVideo(videoId);
-        } else {
-            video = videoDao.getVisibleVideo(token, videoId);
         }
         if (video == null) {
             log.warn("Not any video found with id: {} (given filename: {})", videoId, filename);
@@ -85,10 +81,10 @@ public class VideoService extends MediaService {
         return renderStream(new FileInputStream(videoPath.toFile()), FileUtils.getMimeType(extension));
     }
     
-    public Render delete(String id) throws SQLException {
-        Video media = videoDao.getVideo(id);
+    public Render delete(String videoId) throws SQLException {
+        Video media = videoDao.getVideo(videoId);
         if (media == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any video with id: " + id);
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any video with id: " + videoId);
         } else if (!media.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this video");
         }

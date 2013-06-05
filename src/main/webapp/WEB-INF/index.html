@@ -24,6 +24,7 @@
         <link rel="stylesheet" href="static/css/slideshow.css" />
         <!--[if IE 9]><link rel="stylesheet" href="static/css/style.ie9.css" /><![endif]-->
         <!--[if lt IE 9]><link rel="stylesheet" href="static/css/style.ie.css" /><![endif]-->
+        <link rel="stylesheet" href="static/css/style.iphone5.css" />
     </head>
     <body onscroll="onBodyScroll()">
         <div class="navbar navbar-inverse navbar-fixed-top">
@@ -74,7 +75,7 @@
                     loadTemplates(function() {
                     app = Sammy(function() {
                         // Comment this line to enable SammyJS logging
-                        this.log = function() {}
+//                        this.log = function() {}
                     });
                     head.js(
                         "static/js/routes/media-browsing.js" + suffix,

@@ -1,8 +1,10 @@
+package org.debox.photo.filter;
+
 /*
  * #%L
  * debox-photos
  * %%
- * Copyright (C) 2012 Debox
+ * Copyright (C) 2012 - 2013 Debox
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,22 +20,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-package org.debox.photo.dao.thirdparty;
 
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.debox.photo.model.user.ThirdPartyAccount;
+import java.net.HttpURLConnection;
+import org.apache.shiro.SecurityUtils;
+import org.debox.photo.model.user.DeboxPermission;
+import org.debux.webmotion.server.WebMotionFilter;
+import org.debux.webmotion.server.render.Render;
 
-public class GoogleCredentialsMatcher implements CredentialsMatcher {
-
-    @Override
-    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        Object principal = info.getPrincipals().getPrimaryPrincipal();
-        if (principal instanceof ThirdPartyAccount && ((ThirdPartyAccount) principal).getProviderId().equals("google")) {
-            return true;
+/**
+ * @author Corentin Guy <corentin.guy@debox.fr>
+ */
+public class PermissionFilter extends WebMotionFilter {
+    
+    public Render checkAlbumPermission(String permission, String albumId) {
+        if (!SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", permission, albumId))) {
+            return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }
-        return false;
+        doProcess();
+        return null;
     }
     
 }

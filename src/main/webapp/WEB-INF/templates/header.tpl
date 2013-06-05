@@ -12,8 +12,8 @@
     </ul>
     <ul class="nav pull-right about">
         <li>
-            <a href="#/about" data-toggle="tooltip" data-placement="bottom" title="{{i18n.about.tooltip}}">
-                <i class="icon-question-sign"></i>
+            <a href="#/about">
+                <i class="icon-question-sign"></i>&nbsp;{{i18n.about.tooltip}}
             </a>
         </li>
     </ul>
@@ -23,10 +23,10 @@
     </ul>
         <p class="navbar-text pull-right"><i class="icon-user"></i><strong>{{username}}</strong></p>
     {{/username}}
-    {{^username}}
+    {{^username}}{{^isAnonymousUser}}
     <ul class="nav pull-right">
         <li><a href="#/sign-in"><i class="icon-signin"></i>{{i18n.header.connection}}</a></li>
         <li><a href="#/register"><i class="icon-user"></i>&nbsp;{{i18n.header.register}}</a></li>
     </ul>
-    {{/username}}
+    {{/isAnonymousUser}}{{/username}}
 </div>

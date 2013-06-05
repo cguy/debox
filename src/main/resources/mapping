@@ -17,52 +17,47 @@ database.password=
 com.restfb.exception.FacebookOAuthException         ThirdPartyService.handleOAuthException
 org.scribe.exceptions.OAuthException                ThirdPartyService.handleOAuthException
 
+# -----------------------------------------------------------------------------------------------
+# COMMON
 [filters]
-# -----------------------------------------------------------------------------------------------
-# CONFIGURATION CHECKER
-# -----------------------------------------------------------------------------------------------
+*           /*                                      HeaderFilter.setExpireHeader
 *           /*                                      ConfigurationFilter.doFilter
 
 # -----------------------------------------------------------------------------------------------
-# ADMINISTRATION
-# -----------------------------------------------------------------------------------------------
-*           /*                                      HeaderFilter.setExpireHeader
-
-GET,POST    /settings                               AdministrationFilter.checkUserAuthentication
-
-GET,POST    /configuration                          AdministrationFilter.checkUserSession
-GET,POST    /accounts/*                             AdministrationFilter.checkUserAuthentication
-POST        /accounts/*/settings                    AdministrationFilter.checkUserAuthentication
-
-GET         /accounts/*/tokens                      AdministrationFilter.checkUserAuthentication
-PUT,POST    /accounts/*/token                       AdministrationFilter.checkUserAuthentication
-*           /token/*                                AdministrationFilter.checkUserAuthentication
-
-*           /administration/*                       AdministrationFilter.checkUserSession
-
-POST,DELETE /photo/*                                AdministrationFilter.checkUserAuthentication
-GET,POST    /photo/*/comments                       AdministrationFilter.checkUserAuthentication
-
-POST,DELETE /video/*                                AdministrationFilter.checkUserAuthentication
-GET,POST    /video/*/comments                       AdministrationFilter.checkUserAuthentication
-
-POST,DELETE /albums/*                                AdministrationFilter.checkUserSession
-GET,POST    /albums/*/regeneratethumbnails           AdministrationFilter.checkUserSession
-POST        /albums/*/comments                       AdministrationFilter.checkUserAuthentication
-
-*           /comments                               AdministrationFilter.checkUserAuthentication
-
-POST        /uploadThumbnails                       AdministrationFilter.checkUserSession
-GET         /uploadProgress                         AdministrationFilter.checkUserSession
-
-DELETE      /third-party-account/*                  AdministrationFilter.checkUserSession
-
-DELETE      /comment/*                              AdministrationFilter.checkUserAuthentication
+# ALBUMS
+[filters]
+GET,POST    /albums/*/regeneratethumbnails          PermissionFilter.checkAlbumPermission   permission=write
 
 [actions]
+PUT         /albums                                 AlbumService.createAlbum
+GET         /albums                                 AlbumService.getAlbums
+
+GET         /albums/{albumId:.+-min\.zip}           AlbumService.download        resized=true
+GET         /albums/{albumId:.+\.zip}               AlbumService.download        resized=false
+
+GET         /albums/{albumId:.+-cover\.jpg}         AlbumService.getAlbumCover
+POST        /albums/{albumId}/cover                 AlbumService.setAlbumCover
+
+GET         /albums/{albumId}                       AlbumService.getAlbum
+POST        /albums/{albumId}                       AlbumService.editAlbum
+DELETE      /albums/{albumId}                       AlbumService.deleteAlbum
+
+POST        /albums/{albumId}/comments              CommentService.createAlbumComment
+
+POST        /albums/{albumId}/regeneratethumbnails  AlbumService.regenerateThumbnails
+GET         /albums/{albumId}/regeneratethumbnails  AlbumService.getRegenerationProgress
+
+GET         /uploadProgress                         AdministrationService.getUploadProgress
+
 # -----------------------------------------------------------------------------------------------
 # ADMINISTRATION
-# -----------------------------------------------------------------------------------------------
+[filters]
+GET,POST    /configuration                      AdministrationFilter.isAdministrator
+*           /administration/*                   AdministrationFilter.isAdministrator
+POST        /uploadThumbnails                   AdministrationFilter.isAuthenticatedUser
+GET         /uploadProgress                     AdministrationFilter.isAuthenticatedUser
+
+[actions]
 GET         /configuration                      ConfigurationService.getConfiguration
 POST        /configuration                      ConfigurationService.editConfiguration
 POST        /configuration/thirdparty           ConfigurationService.editThirdPartyConfiguration     activated=false
@@ -73,8 +68,16 @@ DELETE      /administration/sync                AdministrationService.cancelSync
 POST        /administration/upload              AdministrationService.upload
 
 # -----------------------------------------------------------------------------------------------
-# ADMINISTRATION - USER
-# -----------------------------------------------------------------------------------------------
+# USER
+[filters]
+DELETE      /third-party-account/*              AdministrationFilter.isAuthenticatedUser
+GET,POST    /accounts/*                         AdministrationFilter.isAuthenticatedUser
+POST        /accounts/*/settings                AdministrationFilter.isAuthenticatedUser
+
+GET         /accounts/*/tokens                  AdministrationFilter.isAuthenticatedUser
+PUT,POST    /accounts/*/token                   AdministrationFilter.isAuthenticatedUser
+
+[actions]
 POST        /register                           AccountService.register
 POST        /authenticate                       AccountService.authenticate
 GET         /account                            AccountService.getLoggedUser
@@ -84,33 +87,29 @@ POST        /accounts/{userId}/credentials      AccountService.editCredentials
 POST        /accounts/{userId}/delete           AccountService.deleteAccount
 POST        /accounts/{userId}                  AccountService.editPersonalData
 GET         /logout                             AccountService.logout
-DELETE      /third-party-account/{id}           AccountService.deleteThirdPartyAccount
+DELETE      /third-party-account/{accountId}    AccountService.deleteThirdPartyAccount
 
 # -----------------------------------------------------------------------------------------------
-# ADMINISTRATION - PHOTOS
-# -----------------------------------------------------------------------------------------------
-POST        /photo/{id}                         MediaService.editMedia
-DELETE      /photo/{id}                         PhotoService.delete
+# PHOTOS
+[actions]
+POST        /photos/{mediaId}                    MediaService.editMedia
+DELETE      /photos/{photoId}                    PhotoService.delete
+GET         /photos/{mediaId:.+\.jpg*}           MediaService.getPictureStream     size=original
 
 # -----------------------------------------------------------------------------------------------
-# ADMINISTRATION - VIDEOS
-# -----------------------------------------------------------------------------------------------
-POST        /video/{id}                         MediaService.editMedia
-DELETE      /video/{id}                         VideoService.delete
+# VIDEOS
+[actions]
+POST        /videos/{mediaId}                    MediaService.editMedia
+DELETE      /videos/{videoId}                    VideoService.delete
+GET         /videos/{mediaId:.+\.jpg*}           MediaService.getPictureStream     size=original
+GET         /videos/{filename}                   VideoService.getVideoStream
 
 # -----------------------------------------------------------------------------------------------
-# ADMINISTRATION - ALBUMS
-# -----------------------------------------------------------------------------------------------
-PUT         /albums                                 AlbumService.createAlbum
-POST        /albums/{albumId}                       AlbumService.editAlbum
-DELETE      /albums/{albumId}                       AlbumService.deleteAlbum
-POST        /albums/{albumId}/regeneratethumbnails  AlbumService.regenerateThumbnails
-GET         /albums/{albumId}/regeneratethumbnails  AlbumService.getRegenerationProgress
-GET         /uploadProgress                         AdministrationService.getUploadProgress
+# TOKENS
+[filters]
+*           /token/*                            AdministrationFilter.isAuthenticatedUser
 
-# -----------------------------------------------------------------------------------------------
-# ADMINISTRATION - TOKENS
-# -----------------------------------------------------------------------------------------------
+[actions]
 GET         /accounts/{userId}/tokens           TokenService.getTokens
 PUT         /token                              TokenService.createToken
 GET         /token/{id}                         TokenService.getToken
@@ -121,56 +120,36 @@ DELETE      /token/{id}                         TokenService.deleteToken
 
 # -----------------------------------------------------------------------------------------------
 # MEDIA - COMMENTS
-# -----------------------------------------------------------------------------------------------
-GET    /comments                                 CommentService.getAll
+[filters]
+*           /comments                           AdministrationFilter.isAuthenticatedUser
+DELETE      /comment/*                          AdministrationFilter.isAuthenticatedUser
 
-POST   /albums/{albumId}/comments                 CommentService.createAlbumComment
+[actions]
+GET    /comments                                CommentService.getAll
 
-POST   /photo/{mediaId}/comments                 CommentService.createMediaComment
-GET    /photo/{mediaId}/comments                 CommentService.getMediaComments
+POST   /photos/{mediaId}/comments               CommentService.createMediaComment
+GET    /photos/{mediaId}/comments               CommentService.getMediaComments
 
-POST   /video/{mediaId}/comments                 CommentService.createMediaComment
-GET    /video/{mediaId}/comments                 CommentService.getMediaComments
+POST   /videos/{mediaId}/comments               CommentService.createMediaComment
+GET    /videos/{mediaId}/comments               CommentService.getMediaComments
 
-DELETE /comments/{commentId}                     CommentService.deleteComment
-
-# -----------------------------------------------------------------------------------------------
-# MEDIA - STREAMS
-# -----------------------------------------------------------------------------------------------
-GET   /albums/{albumId:.+-cover\.jpg}           AlbumService.getAlbumCover
-POST  /albums/{albumId}/cover                   AlbumService.setAlbumCover
-GET   /photo/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
-GET   /video/{mediaId:.+\.jpg*}                 MediaService.getPictureStream     size=original
-GET   /video/{filename}                         VideoService.getVideoStream
-
-# -----------------------------------------------------------------------------------------------
-# MEDIA - DESCRIPTIONS
-# -----------------------------------------------------------------------------------------------
-GET         /albums                             AlbumService.getAlbums
-GET         /albums/{id}                        AlbumService.getAlbum
-
-# -----------------------------------------------------------------------------------------------
-# MEDIA - DOWNLOADS
-# -----------------------------------------------------------------------------------------------
-GET /download/albums/{albumId}/min              AlbumService.download        resized=true
-GET /download/albums/{albumId}                  AlbumService.download        resized=false
+DELETE /comments/{commentId}                    CommentService.deleteComment
 
 # -----------------------------------------------------------------------------------------------
 # FRONTEND TEMPLATES
-# -----------------------------------------------------------------------------------------------
 GET   /tpl                                      HomeService.renderTemplates
 
 # -----------------------------------------------------------------------------------------------
 # THIRD-PARTY CALLBACKS
-# -----------------------------------------------------------------------------------------------
 GET   /facebook                                 AccountService.handleFacebookCallback
-# GET   /google                                   AccountService.handleGoogleCallback
 
 # -----------------------------------------------------------------------------------------------
 # HOME
-# -----------------------------------------------------------------------------------------------
 GET   /{token}                                  view:index.html
 GET   /                                         view:index.html
 
+# -----------------------------------------------------------------------------------------------
+# WEBMOTION EXTENSIONS
+# -----------------------------------------------------------------------------------------------
 [extensions]
 /    install.wm

@@ -1,7 +1,7 @@
-<tr id="{{id}}">
-    <td class="access_label">{{label}}</td>
+<tr id="{{key.id}}">
+    <td class="access_label">{{key.label}}</td>
     <td class="albums">
-        <form action="#/token/{{id}}" method="post" class="album-access-form">
+        <form action="#/token/{{key.id}}" method="post" class="album-access-form">
             <div>
                 <button type="button" class="btn show-tree"><i class="icon icon-list"></i>&nbsp;{{i18n.account.tokens.visible_albums}}</button>
                 <span class="hide">
@@ -15,7 +15,7 @@
         </form>
     </td>
     <td class="access_link actions">
-        <input type="text" class="accessShare" data-original="{{url}}" value="{{url}}" />
+        <input type="text" class="accessShare" data-original="{{key.url}}" value="{{key.url}}" />
         <div class="alert alert-success hide">{{i18n.account.tokens.reinit.success}}</div>
         <span class="btn-group">
             <button class="btn btn-small edit"><i class="icon-pencil icon-white"></i>&nbsp;{{i18n.common.modify}}</button>

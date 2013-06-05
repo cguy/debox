@@ -35,11 +35,6 @@ public class ThirdPartyService extends DeboxService {
     
     public Render handleOAuthException(ErrorData errorData) {
         logger.error(errorData.getCause().getMessage());
-        
-        if (errorData.getCause().getMessage().contains("google")) {
-            return renderJSON("error", "ThirdPartyError", "provider", "google", "url", ServiceUtil.getProvider("google").getUrl());
-        }
-        
         return renderJSON("error", "ThirdPartyError", "provider", "facebook", "url", ServiceUtil.getProvider("facebook").getUrl());
     }
     

@@ -52,7 +52,8 @@ var fr = {
         connection: "Connexion",
         next: "Suivant",
         previous: "Précédent",
-        and: "et"
+        and: "et",
+        on : "sur"
     },
     registration : {
         title: "Créer un compte",
@@ -404,6 +405,10 @@ var fr = {
         }
     },
     slideshow: {
+        download : {
+            photo : "Télécharger cette photo",
+            video : "Télécharger cette vidéo"
+        },
         exit: "Quitter le diaporama"
     },
     install : {

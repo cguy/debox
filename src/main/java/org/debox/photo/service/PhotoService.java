@@ -44,10 +44,10 @@ public class PhotoService extends MediaService {
     
     protected static AlbumDao albumDao = new AlbumDao();
     
-    public Render delete(String id) throws SQLException {
-        Photo photo = photoDao.getPhoto(id);
+    public Render delete(String photoId) throws SQLException {
+        Photo photo = photoDao.getPhoto(photoId);
         if (photo == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + id);
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any photo with id: " + photoId);
         } else if (!photo.getOwnerId().equals(SessionUtils.getUserId()) && !SessionUtils.isAdministrator()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You are not allowed to delete this photo");
         }

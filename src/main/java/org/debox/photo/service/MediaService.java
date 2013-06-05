@@ -28,11 +28,15 @@ import java.sql.SQLException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
+import org.debox.photo.dao.AlbumDao;
 import org.debox.photo.dao.VideoDao;
+import org.debox.photo.model.Album;
 import org.debox.photo.model.Media;
 import org.debox.photo.model.Photo;
 import org.debox.photo.model.Video;
 import org.debox.photo.model.configuration.ThumbnailSize;
+import org.debox.photo.model.user.DeboxPermission;
+import static org.debox.photo.service.DeboxService.photoDao;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.render.Render;
 import org.debux.webmotion.server.render.RenderStatus;
@@ -46,6 +50,7 @@ public class MediaService extends DeboxService {
     
     private static final Logger log = LoggerFactory.getLogger(MediaService.class);
     
+    protected static AlbumDao albumDao = new AlbumDao();
     protected static VideoDao videoDao = new VideoDao();
     
     public Render getPictureStream(String token, String mediaId, String size) throws IOException, SQLException {
@@ -75,31 +80,31 @@ public class MediaService extends DeboxService {
     }
     
     protected Media getMediaById(String mediaId, String token) throws SQLException {
-        Media media;
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-            media = photoDao.getPhoto(mediaId);
-        } else {
-            media = photoDao.getVisiblePhoto(token, mediaId);
+        Media media = photoDao.getPhoto(mediaId);
+        if (media == null) {
+            media = videoDao.getVideo(mediaId);
         }
         if (media == null) {
-            if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
-                media = videoDao.getVideo(mediaId);
-            } else {
-                media = videoDao.getVisibleVideo(token, mediaId);
-            }
+            return null;
+        }
+        
+        Album album = albumDao.getAlbum(media.getAlbumId());
+        boolean isAutorized = album.isPublicAlbum() || SecurityUtils.getSubject().isPermitted(new DeboxPermission("album", "read", media.getAlbumId()));
+        if (!isAutorized) {
+            return null;
         }
         return media;
     }
     
-    public Render editMedia(String id, String title) throws SQLException {
+    public Render editMedia(String mediaId, String title) throws SQLException {
         // This test can't be put in mapping file
-        if (!SessionUtils.isLogged(SecurityUtils.getSubject())) {
+        if (!SessionUtils.isLogged()) {
             return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in.");
         }
         
-        Media media = getMediaById(id, null);
+        Media media = getMediaById(mediaId, null);
         if (media == null) {
-            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any media with id: " + id);
+            return renderError(HttpURLConnection.HTTP_NOT_FOUND, "There is not any media with id: " + mediaId);
         }
         if (StringUtils.isBlank(title)) {
             title = media.getFilename();

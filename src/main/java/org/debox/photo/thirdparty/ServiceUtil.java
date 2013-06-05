@@ -20,19 +20,14 @@
  */
 package org.debox.photo.thirdparty;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.debox.connector.api.exception.AuthenticationProviderException;
-import org.debox.model.OAuth2Token;
 import org.debox.photo.model.Configuration;
 import org.debox.photo.model.Provider;
 import org.debox.photo.server.ApplicationContext;
-import org.debox.util.OAuth2Utils;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.oauth.OAuthService;
-import org.scribe.utils.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,32 +37,6 @@ import org.slf4j.LoggerFactory;
 public class ServiceUtil {
     
     private static final Logger logger = LoggerFactory.getLogger(ServiceUtil.class);
-
-    public static String getAuthenticationUrl() {
-        ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getOverallConfiguration();
-        String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
-        String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
-        String authenticationUrl = "https://accounts.google.com/o/oauth2/auth"
-            + "?client_id=%s"
-            + "&redirect_uri=%s"
-            + "&scope=%s"
-            + "&response_type=code";
-        
-        Preconditions.checkEmptyString(apiKey, "You must provide an api key");
-        Preconditions.checkEmptyString(callback, "You must provide a callback url");
-        
-        return String.format(authenticationUrl, apiKey, callback, "https%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email");
-    }
-
-    public static OAuth2Token getAuthenticationToken(String code) throws IOException, IllegalArgumentException, AuthenticationProviderException {
-        ApplicationContext context = ApplicationContext.getInstance();
-        Configuration configuration = context.getOverallConfiguration();
-        String apiKey = configuration.get(Configuration.Key.GOOGLE_API_KEY);
-        String callback = configuration.get(Configuration.Key.GOOGLE_CALLBACK_URL);
-        String secret = configuration.get(Configuration.Key.GOOGLE_SECRET);
-        return OAuth2Utils.getAccessTokenFromCode("https://accounts.google.com/o/oauth2/token", apiKey, secret, callback, code);
-    }
 
     public static OAuthService getFacebookService() {
         ApplicationContext context = ApplicationContext.getInstance();
@@ -98,18 +67,6 @@ public class ServiceUtil {
                     logger.warn("Facebook is unconfigured, cause: {}", ex.getMessage());
                 }
                 break;
-            case "twitter":
-                result.setName("Twitter");
-                break;
-            case "google":
-                result.setName("Google");
-                try {
-                    result.setUrl(getAuthenticationUrl());
-                    result.setEnabled(true);
-                } catch (IllegalArgumentException ex) {
-                    logger.warn("Google is unconfigured, cause: {}", ex.getMessage());
-                }
-                break;
             default:
                 return null;
         }
@@ -128,8 +85,6 @@ public class ServiceUtil {
         }
         
         result.add(getProvider("facebook"));
-        result.add(getProvider("google"));
-        result.add(getProvider("twitter"));
         return result;
     }
 }

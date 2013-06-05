@@ -34,6 +34,8 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.dao.DeboxJdbcRealm;
+import org.debox.photo.dao.UserDao;
+import org.debox.photo.model.Role;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
@@ -43,6 +45,8 @@ import org.slf4j.LoggerFactory;
 public class FacebookRealm extends DeboxJdbcRealm {
 
     private static final Logger logger = LoggerFactory.getLogger(FacebookRealm.class);
+    
+    protected UserDao userDao = new UserDao();
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -103,8 +107,10 @@ public class FacebookRealm extends DeboxJdbcRealm {
             com.restfb.types.User fbUser = client.fetchObject("me", com.restfb.types.User.class);
 
             ThirdPartyAccount account = userDao.getUser("facebook", fbUser.getId());
+            Role role = null;
             if (account == null) {
                 account = new ThirdPartyAccount(ServiceUtil.getProvider("facebook"), fbUser.getId(), accessToken.getToken());
+                role = userDao.getRole("user"); // Only assign role for new user, don't want to update existing role
             } else {
                 account.setToken(accessToken.getToken());
             }
@@ -114,12 +120,22 @@ public class FacebookRealm extends DeboxJdbcRealm {
             account.setFirstName(fbUser.getFirstName());
             account.setLastName(fbUser.getLastName());
 
-            userDao.save(account);
+            userDao.save(account, role);
             return new SimpleAuthenticationInfo(account, facebookToken.getCode(), this.getName());
 
         } catch (SQLException ex) {
             logger.error("Unable to access database, reason:", ex);
             return null;
+        } catch (Exception ex) {
+            logger.error("Unable to authenticate user, reason:", ex);
+            return null;
         }
+    }
+    
+    protected UserDao getUserDao() {
+        if (userDao == null) {
+            userDao = new UserDao();
+        }
+        return userDao;
     }
 }

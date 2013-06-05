@@ -23,11 +23,13 @@ var templatesLoaded = false;
 var templates = {};
 function loadTemplates(callback) {
     $.ajax({
-        url: "tpl",
+        url: computeUrl("tpl"),
         success: function(data) {
             templates = {};
             $.each(data.templates, function (name, template) {
-                templates[name] = Hogan.compile(template);
+                if (template) {
+                    templates[name] = Hogan.compile(template);
+                }
             });
             
             _config = data.config;
@@ -78,7 +80,8 @@ function loadTemplate(templateId, data, selector, callback) {
     data.i18n = lang;
     
     if (!templates[templateId]) {
-        throw "Template \""+templateId+"\" doesn't exist.";
+        templateId = "404";
+        callback = null;
     }
     
     var _defaultSelector = "body > .container-fluid";
@@ -336,7 +339,7 @@ function albumLoaded(mode) {
                 
         hideAlbumChoose();
         if (mode == "edition") {
-            $("#edit_album").addClass("visible");
+            _("edit_album").addClass("visible");
             $(".edit-album").addClass("hide");
             $(".edit-album-cancel").removeClass("hide");
                     
@@ -344,7 +347,7 @@ function albumLoaded(mode) {
             $("#photos").addClass("hide");
                     
         } else {
-            $("#edit_album").removeClass("visible");
+            _("edit_album").removeClass("visible");
             $(".edit-album").removeClass("hide");
             $(".edit-album-cancel").addClass("hide");
                     
@@ -383,9 +386,9 @@ function albumLoaded(mode) {
     $(".delete-media").click(function() {
         var mediaId = $(this).parents("div").attr("data-id");
         var isVideo = !!$(this).parents("div").attr("data-video");
-        var path = "photo";
+        var path = "photos";
         if (isVideo) {
-            path = "video";
+            path = "videos";
         }
         $("#delete-media").attr("action", "#/" + path + "/"+mediaId);
         $("#delete-media").modal();
@@ -397,9 +400,9 @@ function albumLoaded(mode) {
     $(".edit-media").click(function() {
         var mediaId = $(this).parents("div").attr("data-id");
         var isVideo = !!$(this).parents("div").attr("data-video");
-        var path = "photo";
+        var path = "photos";
         if (isVideo) {
-            path = "video";
+            path = "videos";
         }
         $("#edit-media").attr("action", "#/" + path + "/"+mediaId);
                 
@@ -509,11 +512,11 @@ function prepareDynatree(allAlbums, accessibleAlbumsWithCurrentToken, targetData
             key: allAlbums[i].id, 
             isFolder: true,
             select: found,
-            hideCheckbox: allAlbums[i]['public'],
+            hideCheckbox: allAlbums[i]['publicAlbum'],
             isLazy : !!allAlbums[i]['subAlbumsCount']
         };
         
-        if (allAlbums[i]['public']) {
+        if (allAlbums[i]['publicAlbum']) {
             p.addClass = "public";
             p.title += lang.account.tokens.public_album;
         }
@@ -561,9 +564,9 @@ function initDynatree(id, children) {
                         for (var tokenIndex = 0 ; tokenIndex < allTokens.length ; tokenIndex++) {
                             var currentToken = allTokens[tokenIndex];
                             var tokenId = $(node.li).parents("tr").attr("id");
-                            if (currentToken.id == tokenId) {
-                                for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < currentToken.albums.length ; tokenAlbumsIndex++) {
-                                    if (currentToken.albums[tokenAlbumsIndex].id == currentAlbum.id) {
+                            if (currentToken.left.id == tokenId) {
+                                for (var tokenAlbumsIndex = 0 ; tokenAlbumsIndex < currentToken.right.length ; tokenAlbumsIndex++) {
+                                    if (currentToken.right[tokenAlbumsIndex].id == currentAlbum.id) {
                                         found = true;
                                         break;
                                     }
@@ -577,7 +580,7 @@ function initDynatree(id, children) {
                             key: currentAlbum.id, 
                             isFolder: true,
                             select: found,
-                            hideCheckbox: currentAlbum['public'],
+                            hideCheckbox: currentAlbum['publicAlbum'],
                             isLazy : !!currentAlbum['subAlbumsCount']
                         };
                         
@@ -653,7 +656,7 @@ function preprocessTabLoading(id, data) {
         }
     } else if (id == "tokens") {
         for (i = 0 ; i < data.tokens.length ; i++) {
-            data.tokens[i].url = window.location.protocol + "//" + window.location.host + window.location.pathname + data.tokens[i].id;
+            data.tokens[i].key.url = window.location.protocol + "//" + window.location.host + window.location.pathname + data.tokens[i].key.id;
         }
     }
 }
@@ -718,13 +721,13 @@ function afterTabLoading(id, data) {
     } else if (id == "tokens") {
         allAlbums = data.albums;
         allTokens = data.tokens;
-                        
+        
         // Generates trees for tokens management
         var tokens = data.tokens;
         for (var tokenIndex = 0 ; tokenIndex < tokens.length ; tokenIndex++) {
             var treeChildren = [];
-            prepareDynatree(data.albums, tokens[tokenIndex].albums, treeChildren, null);
-            initDynatree(tokens[tokenIndex].id, treeChildren);
+            prepareDynatree(data.albums, tokens[tokenIndex].value, treeChildren, null);
+            initDynatree(tokens[tokenIndex].key.id, treeChildren);
         }
         
         $("a.delete-third-party-account").click(function() {
@@ -972,8 +975,10 @@ function loadTokensTabFunctions() {
                 $("#edit_token #label").val(data.token.label);
                 $("#edit_token #albums option").removeAttr("selected");
 
-                for (var i = 0 ; i < data.token.albums.length ; i++) {
-                    $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+                if (data.token.albums) {
+                    for (var i = 0 ; i < data.token.albums.length ; i++) {
+                        $("#edit_token #albums option[value=" + data.token.albums[i].id + "]").attr("selected", "selected");
+                    }
                 }
 
                 $("#edit_token").modal();
@@ -1041,10 +1046,10 @@ function handleAdmin() {
     
 function manageSync(data) {
     if (data.sync) {
-        _("#sync-progress").show().removeClass("alert-success alert-danger").addClass("alert-info");
+        _("sync-progress").show().removeClass("alert-success alert-danger").addClass("alert-info");
         _("cancel-sync").show();
         $("#sync-progress .progress").removeClass("progress-success progress-danger").addClass("progress-info active");
-        $("#progress-label").text("Synchronisation en cours...");
+        _("progress-label").text("Synchronisation en cours...");
         $("#synchronization input").attr("disabled", "disabled");
             
         var refreshProgressBar = function(data) {
@@ -1056,8 +1061,8 @@ function manageSync(data) {
                 clearTimeout(syncTimeout);
                 syncTimeout = null;
                 $("#synchronization input").removeAttr("disabled");
-                $("#sync-progress").removeClass("alert-info");
-                $("#progress-label").text("Synchronisation terminée");
+                _("sync-progress").removeClass("alert-info");
+                _("progress-label").text("Synchronisation terminée");
                 $("#sync-progress .progress").removeClass("progress-info active").addClass("progress-success");
                 _("sync-progress").addClass("alert-success");
                 _("cancel-sync").hide();

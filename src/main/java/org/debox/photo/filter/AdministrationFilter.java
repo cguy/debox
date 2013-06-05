@@ -21,8 +21,6 @@
 package org.debox.photo.filter;
 
 import java.net.HttpURLConnection;
-import org.apache.shiro.SecurityUtils;
-import org.debox.photo.model.user.User;
 import org.debox.photo.util.SessionUtils;
 import org.debux.webmotion.server.WebMotionFilter;
 import org.debux.webmotion.server.render.Render;
@@ -36,18 +34,16 @@ public class AdministrationFilter extends WebMotionFilter {
     
     protected static final Logger log = LoggerFactory.getLogger(AdministrationFilter.class);
 
-    public Render checkUserSession() {
-        if (SessionUtils.isAdministrator(SecurityUtils.getSubject())) {
+    public Render isAdministrator() {
+        if (SessionUtils.isAdministrator()) {
             doProcess();
             return null;
         }
-        User user = SessionUtils.getUser(SecurityUtils.getSubject());
-        log.error("User {} ({}) is not an administrator", user.getFirstName(), user.getId());
-        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You must be logged-in."); 
+        return renderError(HttpURLConnection.HTTP_FORBIDDEN, "You don't have enough rights."); 
     }
 
-    public Render checkUserAuthentication() {
-        if (SessionUtils.isLogged(SecurityUtils.getSubject())) {
+    public Render isAuthenticatedUser() {
+        if (SessionUtils.isLogged()) {
             doProcess();
             return null;
         }

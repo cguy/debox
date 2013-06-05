@@ -8,6 +8,7 @@
            data-date="{{date}}"
            data-title="{{title}}"
            data-thumbnailUrl="{{thumbnailUrl}}"
+           data-filename="{{filename}}"
 
         {{#photo}}
            data-photo="true"

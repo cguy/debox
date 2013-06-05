@@ -35,6 +35,11 @@ body.fixed #fullscreenContainer {
     display:block;
 }
 
+#fullscreenContainer.drawer .commentsCount {
+    margin-top: 10px;
+    margin-left: 0px;
+}
+
 /* ************************************************************************** */
 /* ** SLIDESHOW ************************************************************* */
 /* ************************************************************************** */
@@ -66,11 +71,11 @@ body.fixed #fullscreenContainer {
     max-height: 88%;
     max-width: 80%;
     border: 5px solid #fafafa;
-    -webkit-transition: all .5s ease;
-    -moz-transition: all .5s ease;
-    -ms-transition: all .5s ease;
-    -o-transition: all .5s ease;
-    transition: all .5s ease;
+/*    -webkit-transition: all .125s ease;
+    -moz-transition: all .125s ease;
+    -ms-transition: all .125s ease;
+    -o-transition: all .125s ease;
+    transition: all .125s ease;*/
 }
 
 #fullscreenContainer_photos > video {
@@ -146,11 +151,11 @@ body.fixed #fullscreenContainer {
     padding: 10px 20px;
     font-size: 12px;
     line-height: 15px;
-    -webkit-transition: bottom .25s ease, right .5s ease;
+/*    -webkit-transition: bottom .25s ease, right .5s ease;
     -moz-transition: bottom .25s ease, right .5s ease;
     -ms-transition: bottom .25s ease, right .5s ease;
     -o-transition: bottom .25s ease, right .5s ease;
-    transition: bottom .25s ease, right .5s ease;
+    transition: bottom .25s ease, right .5s ease;*/
     background-color: #000;
     background-color: rgba(0,0,0,.8);
 }

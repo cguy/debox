@@ -20,10 +20,7 @@
  */
 package org.debox.photo.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import org.apache.shiro.SecurityUtils;
@@ -32,8 +29,6 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.debox.connector.api.exception.ProviderException;
-import org.debox.model.OAuth2Token;
 import org.debox.photo.dao.UserDao;
 import org.debox.photo.dao.thirdparty.ThirdPartyTokenWrapper;
 import org.debox.photo.model.user.DeboxUser;
@@ -43,7 +38,6 @@ import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.StringUtils;
-import org.debox.util.HttpUtils;
 import org.debux.webmotion.server.render.Render;
 import org.scribe.model.Token;
 import org.scribe.model.Verifier;
@@ -129,46 +123,13 @@ public class AccountService extends DeboxService {
         thirdPartyAccount.setFirstName(fbUser.getFirstName());
         thirdPartyAccount.setLastName(fbUser.getLastName());
         
-        userDao.save(thirdPartyAccount);
-
-        user.addThirdPartyAccount(thirdPartyAccount);
+        userDao.save(thirdPartyAccount, null); // null value means we keep old role
         return renderRedirect("/#/account/tokens");
     }
     
-    /**
-     * TODO This method is currently unused. It will be used when debox will handle Google connection.
-     */
-    public Render handleGoogleCallback(String code) throws SQLException, ProviderException, IOException {
-        Verifier verifier = new Verifier(code);
-        ThirdPartyTokenWrapper tokenWrapper = new ThirdPartyTokenWrapper(verifier);
-        Subject subject = SecurityUtils.getSubject();
-
-        if (!subject.hasRole("administrator")) {
-            subject.login(tokenWrapper);
-            return renderRedirect("/");
-        }
-        
-        OAuth2Token token = ServiceUtil.getAuthenticationToken(code);
-        String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.getAccessToken());
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(response);
-        
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-
-        ThirdPartyAccount thirdPartyAccount = new ThirdPartyAccount(ServiceUtil.getProvider("google"), node.get("email").asText(), token.getAccessToken());
-        thirdPartyAccount.setId(user.getId());
-        thirdPartyAccount.setUsername(node.get("name").asText());
-        thirdPartyAccount.setAccountUrl(node.get("link").asText());
-
-        userDao.save(thirdPartyAccount);
-
-        user.addThirdPartyAccount(thirdPartyAccount);
-        return renderRedirect("/#/account/tokens");
-    }
-    
-    public Render deleteThirdPartyAccount(String id) throws SQLException {
-        String providerId = StringUtils.substringBefore(id, "-");
-        String providerAccountId = StringUtils.substringAfter(id, "-");
+    public Render deleteThirdPartyAccount(String accountId) throws SQLException {
+        String providerId = StringUtils.substringBefore(accountId, "-");
+        String providerAccountId = StringUtils.substringAfter(accountId, "-");
         
         Provider provider = ServiceUtil.getProvider(providerId);
         if (provider == null) {
@@ -181,10 +142,6 @@ public class AccountService extends DeboxService {
         }
         
         userDao.delete(account);
-        
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        user.removeThirdPartyAccount(account);
-        
         return renderStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 

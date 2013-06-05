@@ -23,30 +23,30 @@
         <div class="control-group">
             <label class="control-label" for="name">{{i18n.album.admin.edit.album_name}}</label>
             <div class="controls">
-                <input type="text" required class="span4" id="name" name="name" value="{{album.name}}" />
+                <input type="text" required class="span5" id="name" name="name" value="{{album.name}}" />
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="name">{{i18n.album.admin.edit.album_description}}</label>
             <div class="controls">
-                <textarea class="span4" id="description" name="description">{{album.description}}</textarea>
+                <textarea class="span5" id="description" name="description">{{album.description}}</textarea>
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="visibility">{{i18n.album.admin.edit.album_visibility}}</label>
             <div class="controls">
-                <select name="visibility" id="visibility" class="span4">
-                    <option value="true" {{#album.public}}selected{{/album.public}}>{{i18n.common.public}}</option>
-                    <option value="false" {{^album.public}}selected{{/album.public}}>{{i18n.common.private}}</option>
+                <select name="visibility" id="visibility" class="span5">
+                    <option value="true" {{#album.publicAlbum}}selected{{/album.publicAlbum}}>{{i18n.common.public}}</option>
+                    <option value="false" {{^album.publicAlbum}}selected{{/album.publicAlbum}}>{{i18n.common.private}}</option>
                 </select>
             </div>
         </div>
-        <div class="control-group{{#album.public}} hide{{/album.public}}" id="authorizedTokensGroup">
+        <div class="control-group{{#album.publicAlbum}} hide{{/album.publicAlbum}}" id="authorizedTokensGroup">
             <label class="control-label" for="authorizedTokens">{{i18n.album.admin.edit.album_authorized_tokens}}</label>
             <div class="controls">
                 <select name="authorizedTokens" id="authorizedTokens" 
                         data-placeholder="{{i18n.album.admin.edit.album_authorized_tokens_placeholder}}"
-                        class="chzn-select span4" multiple>
+                        class="chzn-select span5" multiple>
                     <optgroup label="Contacts sociaux">
                         {{#contacts}}
                         <option value="{{provider.id}}-{{id}}" {{#authorized}}selected{{/authorized}}>{{name}} - {{provider.name}}</option>
@@ -54,7 +54,7 @@
                     </optgroup>
                     <optgroup label="Accès utilisateur">
                         {{#tokens}}
-                        <option value="{{id}}" {{#albums}}selected{{/albums}}>{{label}}</option>
+                        <option value="{{id}}" {{#authorized}}selected{{/authorized}}>{{name}}</option>
                         {{/tokens}}
                     </optgroup>
                 </select>

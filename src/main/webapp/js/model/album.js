@@ -54,8 +54,8 @@ function createAlbum(album) {
         album.isInterval = !beginDate.isSame(endDate);
     }
                     
-    album.minDownloadUrl = computeUrl("download/albums/" + album.id + "/min");
-    album.downloadUrl = computeUrl("download/albums/" + album.id);
+    album.minDownloadUrl = computeUrl("albums/" + album.id + "-min.zip");
+    album.downloadUrl = computeUrl("albums/" + album.id + ".zip");
     
     return album;
 }

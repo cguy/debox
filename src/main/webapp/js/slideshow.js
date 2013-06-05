@@ -115,10 +115,10 @@ function exitFullscreen() {
     document.body.removeChild(document.getElementById("fullscreenContainer"));
 }
 
-function fullscreen(index, data, mode) {
+function fullscreen(index, data, mode, canDownloadMedia) {
     s = new Slideshow();
-    s.setItems(data);
-    s.setIndex(index);
+    s.canDownloadMedia = !!canDownloadMedia;
+    s.setItems(data, index);
     s._loadComments();
     s.show();
     s.setMode(mode);
@@ -166,23 +166,10 @@ function Slideshow() {
     this.setIndex = function(index) {
         this.index = index;
         
-        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
+        $("#slideshow-options .comments .commentsCount").attr("data-id", this.items[this.index].id);
 
-        var prevIndex = this.getPreviousIndex();
-        var nextIndex = this.getNextIndex();
-
-        this.getMedias()[prevIndex].className = "previous";
-        this.getMedias()[this.index].className = "";
-        this.getMedias()[nextIndex].className = "next";
-
-        for (var i = 0; i < prevIndex && prevIndex != this.getMedias().length - 1; i++) {
-            this.getMedias()[i].className = "undisplayed previous";
-        }
-        for (i = nextIndex + 1; i < this.getMedias().length - 1; i++) {
-            this.getMedias()[i].className = "undisplayed next";
-        }
-        _("slideshow-label").text(this.items[this.index].name);
-        this.refreshLinks();
+        this.setLabel();
+//        this.refreshLinks();
     };
     
     this.getAlbumId = function() {
@@ -194,7 +181,7 @@ function Slideshow() {
     };
     
     this.getBasePath = function() {
-        return "#/albums/" + this.getAlbumId() + "/" + this.items[this.index].id; 
+        return "#/albums/" + this.getAlbumId() + "/" + this.getCurrentId(); 
     };
 
     this.refreshLinks = function() {
@@ -208,7 +195,7 @@ function Slideshow() {
         $("#slideshow-options .comments").attr("href", path);
         
         var currentItem = this.items[this.index];
-        var isVideo = currentItem.video;
+        var isVideo = !!currentItem.video;
         var path = "photos";
         if (isVideo) {
             path = "videos";
@@ -227,6 +214,7 @@ function Slideshow() {
             }
             _("slideshow-options").addClass("show");
             _("slideshow-help-label").text(title);
+            
         }).mouseout(function() {
             _("slideshow-options").removeClass("show");
         });
@@ -241,18 +229,47 @@ function Slideshow() {
     };
     
     this.setLabel = function() {
-        _("slideshow-label").text(this.items[this.index].name);
-        _("slideshow-label").get(0).className = "";
+        var dl = fr.slideshow.download.photo;
+        var url = this.items[this.index].url;
+        if (this.items[this.index].video) {
+            dl = fr.slideshow.download.video;
+            url = this.items[this.index].h264url;
+        }
+        var suffix = "";
+        if (this.canDownloadMedia) {
+            console.log(this.items[this.index]);
+            suffix = ' - <a href="' + url + '" download="'+this.items[this.index].filename+'">' + dl + '</a>';
+        }
+        _("slideshow-label").html(this.items[this.index].title + " - " + (this.index+1) + " " + lang.common.on + " " + this.items.length + suffix);
     };
 
-    this.setItems = function(items) {
+    this.setItems = function(items, index) {
         this.items = this.convert(items);
+        this.setIndex(index);
         
         var html = templates["slideshow"].render({data:this.items, i18n: fr, config: _config}, templates);
         $(document.body).append(html);
         
-        var self = this;
-        addTransitionListener(_("slideshow-label").get(0), function() {self.setLabel();});
+        var prevIndex = this.getPreviousIndex();
+        var nextIndex = this.getNextIndex();
+
+        var currentMedia = this.items[this.index];
+        var previousMedia = this.items[prevIndex];
+        var nextMedia = this.items[nextIndex];
+        
+        var node = this.createNode(currentMedia);
+        node.className = "current";
+        
+        if (previousMedia && previousMedia.id != currentMedia.id) {
+            node = this.createNode(previousMedia);
+            node.className = "previous";
+        }
+        if (nextMedia && nextMedia.id != currentMedia.id) {
+            node = this.createNode(nextMedia);
+            node.className = "next";
+        }
+        
+        this.setLabel();
     };
 
     this.setSize = function(id, w, h) {
@@ -298,11 +315,11 @@ function Slideshow() {
         if (!_config.authenticated) {
             return;
         }
-        var id = this.items[this.index].id;
-        var isVideo = this.items[this.index].video;
-        var path = "photo";
+        var id = this.getCurrentId();
+        var isVideo = !!this.items[this.index].video;
+        var path = "photos";
         if (isVideo) {
-            path = "video";
+            path = "videos";
         }
         ajax({
             url: computeUrl(path + "/" + id + "/comments"),
@@ -319,11 +336,11 @@ function Slideshow() {
                 }
                 if (data.comments.length == 0) {
                     $("#slideshow-comments .no-comments").removeClass("hide");
-                    $("#slideshow-options .comments .badge").addClass("hide");
+                    $("#slideshow-options .comments .commentsCount").addClass("hide");
                 } else {
                     $("#slideshow-comments .no-comments").addClass("hide");
                     $("#slideshow-comments").mCustomScrollbar("update");
-                    $("#slideshow-options .comments .badge").removeClass("hide").text(data.comments.length);
+                    $("#slideshow-options .comments .commentsCount").removeClass("hide").text(data.comments.length);
                 }
                 bindPhotoCommentDeletion();
             },
@@ -342,19 +359,16 @@ function Slideshow() {
     this._hideDrawer = function() {
         _("slideshow-drawer").addClass("hide");
         _("fullscreenContainer").removeClass("drawer");
-        this.getMedias()[this.index].style.right = "34%";
-        this.getMedias()[this.index].style.maxWidth = "90%";
+        this.getCurrentNode().style.right = "34%";
+        this.getCurrentNode().style.maxWidth = "90%";
         this.refreshLinks();
     };
     
     this._resetMargin = function() {
-        var prevIndex = this.getPreviousIndex();
-        var nextIndex = this.getNextIndex();
-        
-        this.getMedias()[this.index].style.right = (this.getMediasNode().clientWidth * .34 + this.DRAWER_MARGIN)+"px";
-        this.getMedias()[this.index].style.maxWidth = (this.getMediasNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
-        this.getMedias()[prevIndex].style.right = null;
-        this.getMedias()[nextIndex].style.right = null;
+        this.getCurrentNode().style.right = (this.getMediasNode().clientWidth * .34 + this.DRAWER_MARGIN)+"px";
+        this.getCurrentNode().style.maxWidth = (this.getMediasNode().clientWidth / 3 - this.DRAWER_MARGIN) * .8+"px";
+        this.getPreviousNode().style.right = null;
+        this.getNextNode().style.right = null;
     };
 
     this.hide = function() {
@@ -365,60 +379,125 @@ function Slideshow() {
         return _("fullscreenContainer_photos").get(0);
     };
     
-    this.getMedias = function() {
-        return $("#fullscreenContainer_photos > *");
+    this.getPreviousNode = function(item) {
+        if (!item) {
+            item = this.items[this.getPreviousIndex()];
+        }
+        var node = $("#fullscreenContainer_photos > .previous")[0];
+        node = this._getCompatibleNode(node, item);
+        node.className = "previous";
+        return node;
     };
+    
+    this.getNextNode = function(item) {
+        if (!item) {
+            item = this.items[this.getNextIndex()];
+        }
+        var node = $("#fullscreenContainer_photos > .next")[0];
+        node = this._getCompatibleNode(node, item);
+        node.className = "next";
+        return node;
+    };
+    
+    this.getCurrentNode = function(item) {
+        if (!item) {
+            item = this.items[this.index];
+        }
+        var node = $("#fullscreenContainer_photos > .current")[0];
+        node = this._getCompatibleNode(node, item);
+        node.className = "current";
+        return node;
+    };
+    
+    this._getCompatibleNode = function(node, item) {
+        if (!node) {
+            return this.createNode(item);
+            
+        } else if (node.id == item.id) {
+            return node;
+            
+        } else if (node instanceof HTMLImageElement && item.photo) {
+            node.id = item.id;
+            node.src = item.thumbnailurl;
+            
+        } else if (node instanceof HTMLVideoElement && item.video) {
+            node.id = item.id;
+            node.poster = item.thumbnailurl;
+            
+            node.innerHTML = "";
+            if (item.oggurl) {
+                node.append('<source src="' + item.oggurl + '" type="video/ogg"/>');
+            }
+            if (item.webmurl) {
+                node.append('<source src="' + item.webmurl + '" type="video/webm"/>');
+            }
+            if (item.h264url) {
+                node.append('<source src="' + item.h264url + '" type="video/mp4"/>');
+            }
+            
+        } else {
+            node.remove();
+            node = this.createNode(item);
+        }
 
+        return node;
+    };
+    
+    this.createNode = function(item) {
+        var container = _("fullscreenContainer_photos");
+        var template = templates["slideshow.photo"];
+        if (item.video) {
+            template = templates["slideshow.video"];
+        }
+        var html = template.render(item);
+        container.append(html);
+        return _(item.id)[0];
+    };
+    
     this.previous = function() {
         var prevIndex = this.getPreviousIndex();
-        var nextIndex = this.getNextIndex();
-        var newPreviousIndex = this.getPreviousIndex(prevIndex);
 
-        var currentMedia = this.getMedias()[this.index];
-        var previousMedia = this.getMedias()[prevIndex];
-        var nextMedia = this.getMedias()[nextIndex];
-        var newPreviousMedia = this.getMedias()[newPreviousIndex];
-
-        nextMedia.className = "next undisplayed";
-        currentMedia.className = "next";
-        previousMedia.className = "";
-        newPreviousMedia.className = "previous";
+        var previous = $("#fullscreenContainer_photos > .previous")[0];
+        var current = $("#fullscreenContainer_photos > .current")[0];
+        $("#fullscreenContainer_photos > .next").remove();
         
-        if (!Modernizr.csstransitions) {
-            this.setLabel();
-        } else {
-            _("slideshow-label").get(0).className = "hide";
+        if (current instanceof HTMLVideoElement) {
+            current.pause();
         }
         
+        previous.className = "current";
+        current.className = "next";
+        
+        this.getPreviousNode(this.items[this.getPreviousIndex(prevIndex)]);
+        
         this.index = prevIndex;
-        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
+        
+        this.setLabel();
+        $("#slideshow-options .comments .commentsCount").attr("data-id", this.items[this.index].id);
         this._resetMargin();
         this.refreshLinks();
     };
 
     this.next = function() {
-        var prevIndex = this.getPreviousIndex();
         var nextIndex = this.getNextIndex();
-        var newNextIndex = this.getNextIndex(nextIndex);
 
-        var currentMedia = this.getMedias()[this.index];
-        var previousMedia = this.getMedias()[prevIndex];
-        var nextMedia = this.getMedias()[nextIndex];
-        var newNextMedia = this.getMedias()[newNextIndex];
+        var next = $("#fullscreenContainer_photos > .next")[0];
+        var current = $("#fullscreenContainer_photos > .current")[0];
+        $("#fullscreenContainer_photos > .previous").remove();
         
-        previousMedia.className = "previous undisplayed";
-        currentMedia.className = "previous";
-        nextMedia.className = "";
-        newNextMedia.className = "next";
-        
-        if (!Modernizr.csstransitions) {
-            this.setLabel();
-        } else {
-            _("slideshow-label").get(0).className = "hide";
+        if (current instanceof HTMLVideoElement) {
+            current.pause();
         }
-
+        
+        next.className = "current";
+        current.className = "previous";
+        
+        this.getNextNode(this.items[this.getNextIndex(nextIndex)]);
+        
         this.index = nextIndex;
-        $("#slideshow-options .comments .badge").attr("data-id", this.items[this.index].id);
+        
+        this.setLabel();
+        $("#slideshow-options .comments .commentsCount").attr("data-id", this.items[this.index].id);
         this._resetMargin();
         this.refreshLinks();
     };
@@ -439,22 +518,22 @@ function Slideshow() {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index == this.getMedias().length - 1 ? 0 : index + 1
+        return index == this.items.length - 1 ? 0 : index + 1
     };
 
     this.getPreviousIndex = function(index) {
         if (typeof index == "undefined") {
             index = this.index;
         }
-        return index != 0 ? index - 1 : this.getMedias().length - 1;
+        return index > 0 ? index - 1 : this.items.length - 1;
     };
 
     this.isNextIndex = function(index) {
-        return (this.index == this.getMedias().length - 1 && index == 0) || (this.index != this.getMedias().length - 1 && index == this.index + 1);
+        return (this.index == this.items.length - 1 && index == 0) || (this.index != this.items.length - 1 && index == this.index + 1);
     };
 
     this.isPreviousIndex = function(index) {
-        return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.getMedias().length - 1);
+        return (this.index != 0 && index == this.index - 1) || (this.index == 0 && index == this.items.length - 1);
     };
 
     this.getItemIndex = function(itemId) {

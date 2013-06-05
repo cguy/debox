@@ -35,7 +35,6 @@ import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.PhotoDao;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Media;
-import org.debox.photo.model.Photo;
 import org.debox.photo.model.configuration.ThumbnailSize;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debux.webmotion.server.WebMotionController;
@@ -59,6 +58,10 @@ public class DeboxService extends WebMotionController {
     
     public Render renderNotFound() {
         return renderStatus(HttpURLConnection.HTTP_NOT_FOUND);
+    }
+    
+    public Render renderForbidden() {
+        return renderStatus(HttpURLConnection.HTTP_FORBIDDEN);
     }
     
     @Override

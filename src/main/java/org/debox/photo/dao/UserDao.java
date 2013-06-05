@@ -20,8 +20,6 @@
  */
 package org.debox.photo.dao;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,11 +30,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -45,13 +46,13 @@ import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.user.DeboxUser;
 import org.debox.photo.model.Role;
+import org.debox.photo.model.user.AnonymousUser;
+import org.debox.photo.model.user.DeboxPermission;
 import org.debox.photo.model.user.ThirdPartyAccount;
 import org.debox.photo.model.user.User;
 import org.debox.photo.thirdparty.ServiceUtil;
 import org.debox.photo.util.DatabaseUtils;
 import org.debox.photo.util.StringUtils;
-import org.debox.util.HttpUtils;
-import org.scribe.exceptions.OAuthException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,16 @@ public class UserDao {
     
     protected static String SQL_GET_USER_ACCESSES = "SELECT thirdparty_account_id id, thirdparty_name provider, token FROM thirdparty_accounts WHERE user_id = ?";
     protected static String SQL_GET_USER_ACCESSES_COUNT = "SELECT count(thirdparty_account_id) count FROM thirdparty_accounts WHERE user_id = ?";
-    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = "SELECT aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token FROM thirdparty_accounts ta INNER JOIN accounts_accesses aa ON aa.user_id = ta.user_id WHERE album_id = ?";
+    
+    protected static String SQL_GET_AUTHORIZED_ACCOUNTS = ""
+            + "SELECT"
+            + "    aa.user_id user_id, thirdparty_name provider, thirdparty_account_id id, token "
+            + "FROM"
+            + "    thirdparty_accounts ta "
+            + "    INNER JOIN users_albums_permissions aa ON aa.user_id = ta.user_id "
+            + "WHERE "
+            + "    aa.instance = ? AND (aa.actions LIKE '%read%' OR actions = '*')";
+    
     protected static String SQL_CREATE_ROLE = "INSERT INTO roles VALUES (?, ?)";
     protected static String SQL_CREATE_USER_ROLE = "INSERT INTO users_roles VALUES (?, ?)";
     protected static String GET_USER_BY_THIRD_PARTY_ACCOUNT = ""
@@ -89,12 +99,44 @@ public class UserDao {
             + "WHERE thirdparty_name = ? AND thirdparty_account_id = ?";
     private static String SQL_DELETE_THIRD_PARTY_ACCOUNT = "DELETE FROM thirdparty_accounts WHERE user_id = ? AND thirdparty_name = ? AND thirdparty_account_id = ?";
     
-    private static String SQL_CREATE_THIRD_PARTY_ACCESS = "INSERT INTO accounts_accesses VALUES (?, ?)";
-    private static String SQL_DELETE_THIRD_PARTY_ACCESS = "DELETE FROM accounts_accesses WHERE album_id = ?";
-    
     private static String GET_USER = "SELECT id, lastname, firstname, avatar FROM users u WHERE u.id = ?";
     private static String GET_ROLE = "SELECT id, name FROM roles WHERE name = ?";
     private static String DELETE_USER = "DELETE FROM users WHERE id = ?";
+    
+    /* ANONYMOUS USER */
+    
+    protected static String SQL_GET_ANONYMOUS_USERS_BY_ALBUM_ACCESS = ""
+            + "SELECT "
+            + "    ua.id id, ua.label label, ua.creator creator "
+            + "FROM "
+            + "    users_anonymous ua "
+            + "    LEFT JOIN users u ON u.id = ua.id "
+            + "    LEFT JOIN users_albums_permissions uap ON u.id = uap.user_id "
+            + "WHERE uap.instance = ?";
+    
+    protected static String SQL_GET_ANONYMOUS_USERS_BY_CREATOR = "SELECT au.id id, au.label label, au.creator creator FROM users_anonymous au WHERE creator = ?";
+    
+    protected static String SQL_CREATE = "INSERT INTO users_anonymous VALUES (?, ?, ?)";
+    protected static String SQL_UPDATE = "UPDATE users_anonymous SET id = ?, label = ? WHERE id = ?";
+    
+    protected static String SQL_DELETE_BY_USER = "DELETE FROM tokens where owner_id = ?";
+    protected static String SQL_DELETE = "DELETE FROM tokens WHERE id = ?";
+    
+    protected static String SQL_GET_ALL_WITHOUT_ALBUMS = ""
+            + "SELECT * FROM tokens "
+            + "ORDER BY label, tokens.id";
+    
+    protected static String SQL_GET_BY_ALBUM_ID = ""
+            + "SELECT tokens.id id FROM tokens "
+            + "LEFT JOIN albums_tokens ON id = token_id "
+            + "WHERE album_id = ?";
+    
+    protected static String SQL_GET_BY_ID = ""
+            + "SELECT id, label, creator FROM users_anonymous "
+            + "WHERE id = ? ";
+    
+    protected PermissionDao permissionDao = new PermissionDao();
+    protected AlbumDao albumDao = new AlbumDao();
 
     public ThirdPartyAccount getUser(String provider, String providerAccountId) throws SQLException {
         ThirdPartyAccount result = null;
@@ -152,8 +194,23 @@ public class UserDao {
             JdbcUtils.closeConnection(connection);
         }
     }
+    
+    public void save(AnonymousUser user) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner();
+        try (Connection connection = DatabaseUtils.getConnection()) {
+            connection.setAutoCommit(false);
+            queryRunner.update(connection, SQL_CREATE_USER, user.getId(), null, null);
+            queryRunner.update(connection, SQL_CREATE, user.getId(), user.getLabel(), user.getOwnerId());
+            DbUtils.commitAndCloseQuietly(connection);
+        }
+    }
+    
+    public void save(AnonymousUser user, String oldId) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(SQL_UPDATE, user.getId(), user.getLabel(), oldId);
+    }
 
-    public void save(ThirdPartyAccount user) throws SQLException {
+    public void save(ThirdPartyAccount user, Role role) throws SQLException {
         Connection connection = DatabaseUtils.getConnection();
         connection.setAutoCommit(false);
 
@@ -172,7 +229,6 @@ public class UserDao {
                 userStatement.setString(1, user.getId());
                 userStatement.executeUpdate();
 
-                Role role = user.getRole();
                 if (role != null) {
                     roleStatement = connection.prepareStatement(SQL_CREATE_USER_ROLE);
                     roleStatement.setString(1, user.getId());
@@ -184,7 +240,7 @@ public class UserDao {
             updateAccountStatement = connection.prepareStatement(SQL_UPDATE_USER_THIRD_PARTY);
             updateAccountStatement.setString(1, user.getToken());
             updateAccountStatement.setString(2, user.getId());
-            updateAccountStatement.setString(3, user.getProviderAccountId());
+            updateAccountStatement.setString(3, user.getProviderId());
             int changedRows = updateAccountStatement.executeUpdate();
             
             if (changedRows == 0) {
@@ -192,7 +248,7 @@ public class UserDao {
                 accountStatement.setString(1, user.getId());
                 accountStatement.setString(2, user.getProviderAccountId());
                 accountStatement.setString(3, user.getProviderId());
-                accountStatement.setString(5, user.getToken());
+                accountStatement.setString(4, user.getToken());
                 accountStatement.executeUpdate();
 
                 accountsCountStatement = connection.prepareStatement(SQL_GET_USER_ACCESSES_COUNT);
@@ -295,7 +351,7 @@ public class UserDao {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         queryRunner.update(SQL_UPDATE_CREDENTIALS, user.getUsername(), hashedPassword, salt.toBase64(), user.getId());
     }
-
+    
     public List<ThirdPartyAccount> getThirdPartyAccounts(User user) throws SQLException, IOException {
         Connection connection = DatabaseUtils.getConnection();
         List<ThirdPartyAccount> result = new ArrayList<>();
@@ -323,6 +379,87 @@ public class UserDao {
         }
         return result;
     }
+    
+    public AnonymousUser getAnonymousUser(String userId) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        AnonymousUser result = queryRunner.query(SQL_GET_BY_ID, new ResultSetHandler<AnonymousUser>() {
+            @Override
+            public AnonymousUser handle(ResultSet rs) throws SQLException {
+                AnonymousUser user = null;
+                if (rs.next()) {
+                    String id = rs.getString("id");
+                    String label = rs.getString("label");
+                    String creator = rs.getString("creator");
+
+                    user = new AnonymousUser();
+                    user.setId(id);
+                    user.setLabel(label);
+                    user.setOwnerId(creator);
+                }
+                return user;
+            }
+        }, userId);
+        return result;
+    }
+    
+    public List<AnonymousUser> getAllAnonymousUsersWithAccessToAlbum(Album album) throws SQLException {
+        if (album == null) {
+            return null;
+        }
+        
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        List<AnonymousUser> result = queryRunner.query(SQL_GET_ANONYMOUS_USERS_BY_ALBUM_ACCESS, new ResultSetHandler<List<AnonymousUser>>() {
+            @Override
+            public List<AnonymousUser> handle(ResultSet rs) throws SQLException {
+                List<AnonymousUser> result = new ArrayList<>();
+                while (rs.next()) {
+                    String id = rs.getString("id");
+                    String label = rs.getString("label");
+                    String creator = rs.getString("creator");
+
+                    AnonymousUser user = new AnonymousUser();
+                    user.setId(id);
+                    user.setLabel(label);
+                    user.setOwnerId(creator);
+                    
+                    result.add(user);
+                }
+                return result;
+            }
+        }, album.getId());
+        
+        return result;
+    }
+    
+    public List<Pair<AnonymousUser, List<Album>>> getAllAnonymousUsersByCreator(String ownerId) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        List<AnonymousUser> users = queryRunner.query(SQL_GET_ANONYMOUS_USERS_BY_CREATOR, new ResultSetHandler<List<AnonymousUser>>() {
+            @Override
+            public List<AnonymousUser> handle(ResultSet rs) throws SQLException {
+                List<AnonymousUser> result = new ArrayList<>();
+                while (rs.next()) {
+                    String id = rs.getString("id");
+                    String label = rs.getString("label");
+                    String creator = rs.getString("creator");
+
+                    AnonymousUser user = new AnonymousUser();
+                    user.setId(id);
+                    user.setLabel(label);
+                    user.setOwnerId(creator);
+                    
+                    result.add(user);
+                }
+                return result;
+            }
+        }, ownerId);
+        
+        List<Pair<AnonymousUser, List<Album>>> result = new ArrayList<>(users.size());
+        for (AnonymousUser user : users) {
+            result.add(Pair.of(user, albumDao.getAllAlbums(user.getId())));
+        }
+        
+        return result;
+    }
 
     protected ThirdPartyAccount convert(String userId, ResultSet rs) throws SQLException, IOException {
         ThirdPartyAccount access = new ThirdPartyAccount(
@@ -341,21 +478,6 @@ public class UserDao {
                     access.setFirstName(fbUser.getFirstName());
                     access.setLastName(fbUser.getLastName());
                     break;
-                case "google":
-                    String response = HttpUtils.getResponse("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + access.getToken());
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode node = mapper.readTree(response);
-                    if (node.get("error") != null && node.get("error").get("code") != null) {
-                        if (node.get("error").get("code").asInt() == 401) {
-                            throw new OAuthException("google");
-                        }
-                        return null;
-                    }
-                    access.setUsername(node.get("name").asText());
-                    access.setAccountUrl(node.get("link").asText());
-                    access.setFirstName(node.get("given_name").asText());
-                    access.setLastName(node.get("family_name").asText());
-                    break;
                 default:
                     return null;
             }
@@ -363,20 +485,24 @@ public class UserDao {
 
         return access;
     }
-
-    public void saveAccess(List<ThirdPartyAccount> accounts, String albumId) throws SQLException {
+    
+    public void saveAnonymousViewersForAlbum(Album album, List<String> users) throws SQLException {
         try (Connection connection = DatabaseUtils.getConnection()) {
             connection.setAutoCommit(false);
-            
-            QueryRunner queryRunner = new QueryRunner();
-            queryRunner.update(connection, SQL_DELETE_THIRD_PARTY_ACCESS, albumId);
-            
-            for (ThirdPartyAccount account : accounts) {
-                queryRunner.update(connection, SQL_CREATE_THIRD_PARTY_ACCESS, account.getId(), albumId);
+            for (String user : users) {
+                saveAnonymousViewerForAlbum(connection, album, user);
             }
-            DbUtils.commitAndCloseQuietly(connection);
+            connection.commit();
         }
     }
+    
+    public void saveAnonymousViewerForAlbum(Connection connection, Album album, String userId) throws SQLException {
+        DeboxPermission existing = permissionDao.getPermission(connection, userId, "album", album.getId());
+        if (existing == null) {
+            permissionDao.save(connection, userId, new DeboxPermission("album", "read", album.getId()));
+        }
+    }
+
 
     public List<ThirdPartyAccount> getAuthorizedThirdPartyAccounts(Album album) throws SQLException, IOException {
         List<ThirdPartyAccount> result = new ArrayList<>();
@@ -422,6 +548,11 @@ public class UserDao {
     }
 
     public void deleteUser(DeboxUser user) throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
+        queryRunner.update(DELETE_USER, user.getId());
+    }
+
+    public void delete(AnonymousUser user) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         queryRunner.update(DELETE_USER, user.getId());
     }

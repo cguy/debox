@@ -21,7 +21,7 @@
 package org.debox.photo.util;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+import org.debox.photo.model.user.AnonymousUser;
 import org.debox.photo.model.user.User;
 
 /**
@@ -31,30 +31,24 @@ public class SessionUtils {
     
     public static final String ADMIN_ROLE = "administrator";
     
-    public static User getUser(Subject subject) {
-        return (User) subject.getPrincipal();
-    }
-    
     public static User getUser() {
         return (User) SecurityUtils.getSubject().getPrincipal();
     }
     
     public static String getUserId() {
-        return ((User) SecurityUtils.getSubject().getPrincipal()).getId();
+        User user = getUser();
+        if (user == null) {
+            return null;
+        }
+        return user.getId();
     }
 
-    public static boolean isLogged(Subject subject) {
-        if (subject == null) {
-            return false;
-        }
-        return subject.isAuthenticated() || subject.isRemembered();
+    public static boolean isLogged() {
+        return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
     }
 
-    public static boolean isAdministrator(Subject subject) {
-        if (subject == null) {
-            return false;
-        }
-        return subject.hasRole(ADMIN_ROLE);
+    public static boolean isAnonymousUser() {
+        return getUser() != null && getUser() instanceof AnonymousUser;
     }
 
     public static boolean isAdministrator() {

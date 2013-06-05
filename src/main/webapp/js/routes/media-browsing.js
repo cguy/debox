@@ -48,20 +48,23 @@ app.post('#/albums/:album/comments', function() {
     var albumId = this.params['album'];
     ajax({
         url: computeUrl("albums/" + albumId + "/comments"),
-        data: $("#new-album-comment").serializeArray(),
+        data: _("new-album-comment").serializeArray(),
         type: "post",
         success: function(data) {
             if ($(".no-comments").length > 0) {
                 $(".no-comments").addClass("hide");
             }
-            $(".page-header .comments .badge").removeClass("hide");
-            $(".page-header .comments .badge").text(parseInt($(".page-header .comments .badge").text(), 10) + 1);
+            $(".page-header .comments .commentsCount").removeClass("hide");
+            $(".page-header .comments .commentsCount").text(parseInt($(".page-header .comments .commentsCount").text(), 10) + 1);
             data = loadComment(data);
             
             var html = templates["comment"].render(data);
             $(html).insertBefore("#album-comments form");
             $("#album-comments form textarea").val("");
             bindAlbumCommentDeletion();
+        },
+        error : function() {
+            alert("Error");
         }
     });
 });
@@ -108,7 +111,7 @@ function loadSlideshow(context, mode) {
                 loadAlbum(data, function() {
                     albumLoaded();
                     var index = $(".photos a.thumbnail").index($("*[data-id=" + photoId + "]"));
-                    fullscreen(index, data.medias, mode);
+                    fullscreen(index, data.medias, mode, data.album.downloadable);
                 });
             }
         });
@@ -119,7 +122,7 @@ function loadSlideshow(context, mode) {
             var photo = $(photos[i]);
             slideshowData.push(photo.data());
         }
-        fullscreen(index, slideshowData, mode);
+        fullscreen(index, slideshowData, mode, $(".albumDownload").length);
                 
     } else {
         s.gotoItem(photoId);
@@ -137,7 +140,7 @@ app.get('#/albums/([a-zA-Z0-9-_]*)/([a-zA-Z0-9-_]*)/comments', function() {
 
 // Photo / video comment
 app.post(/#\/(photos|videos)\/([a-zA-Z0-9-_]*)\/comments/, function() {
-    var type = this.params['splat'][0].slice(0, -1);
+    var type = this.params['splat'][0];
     var mediaId = this.params['splat'][1];
     ajax({
         url: computeUrl(type + "/" + mediaId + "/comments"),
@@ -145,8 +148,8 @@ app.post(/#\/(photos|videos)\/([a-zA-Z0-9-_]*)\/comments/, function() {
         type: "post",
         success: function(data) {
             $("#slideshow-comments .no-comments").addClass("hide");
-            $("#slideshow-options .comments .badge[data-id=" + mediaId + "]").removeClass("hide");
-            $("#slideshow-options .comments .badge[data-id=" + mediaId + "]").text(parseInt($("#slideshow-options .comments .badge").text(), 10) + 1);
+            $("#slideshow-options .comments .commentsCount[data-id=" + mediaId + "]").removeClass("hide");
+            $("#slideshow-options .comments .commentsCount[data-id=" + mediaId + "]").text(parseInt($("#slideshow-options .comments .commentsCount").text(), 10) + 1);
             data = loadComment(data);
             var html = templates["comment"].render(data);
             $(html).insertBefore("#slideshow-comments form");
@@ -201,7 +204,7 @@ function deleteComment(id, badgeNode, emptyNode, modalNode) {
 }
 
 app.del('#/albums/([a-zA-Z0-9-_]*)/comments/([a-zA-Z0-9-_]*)', function() {
-    deleteComment(this.params['splat'][1], $(".page-header .comments .badge"), $("#album-comments .no-comments"), $("#remove-comment"));
+    deleteComment(this.params['splat'][1], $(".page-header .comments .commentsCount"), $("#album-comments .no-comments"), $("#remove-comment"));
 });
 
 // Album loading (grid)

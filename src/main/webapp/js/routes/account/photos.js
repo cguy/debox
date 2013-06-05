@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-app.post(/^#\/(photo|video)\/(.*)/, function() {
+app.post(/^#\/(photos|videos)\/(.*)/, function() {
     $("#edit-media .alert").hide();
     var type = this.params['splat'][0];
     var id = this.params['splat'][1];
@@ -27,6 +27,7 @@ app.post(/^#\/(photo|video)\/(.*)/, function() {
         type : "post",
         data : _("edit-media").serializeArray(),
         success: function() {
+            $("div[data-id=" + id + "] .title").text($("#edit-media input[name=title]").val());
             _("edit-media").modal("hide");
         },
         error : function() {
@@ -36,7 +37,7 @@ app.post(/^#\/(photo|video)\/(.*)/, function() {
     return false;
 });
 
-app.del(/^#\/(photo|video)\/(.*)/, function() {
+app.del(/^#\/(photos|videos)\/(.*)/, function() {
     $("#delete-media .alert").hide();
     var type = this.params['splat'][0];
     var id = this.params['splat'][1];

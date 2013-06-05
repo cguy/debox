@@ -32,13 +32,11 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.shiro.SecurityUtils;
 import org.debox.imaging.ImageUtils;
 import org.debox.photo.dao.AlbumDao;
-import org.debox.photo.dao.TokenDao;
+import org.debox.photo.dao.UserDao;
 import org.debox.photo.job.SyncJob;
 import org.debox.photo.model.*;
-import org.debox.photo.model.user.User;
 import org.debox.photo.server.ApplicationContext;
 import org.debox.photo.server.renderer.JacksonRenderJsonImpl;
 import org.debox.photo.util.FileUtils;
@@ -58,7 +56,7 @@ public class AdministrationService extends DeboxService {
     private static final Logger logger = LoggerFactory.getLogger(AdministrationService.class);
     protected SyncJob syncJob;
     protected static AlbumDao albumDao = new AlbumDao();
-    protected static TokenDao tokenDao = new TokenDao();
+    protected static UserDao userDao = new UserDao();
     protected ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     public Render getSyncProgress() throws SQLException {
@@ -144,7 +142,7 @@ public class AdministrationService extends DeboxService {
             return renderError(HttpURLConnection.HTTP_INTERNAL_ERROR, "Unable to handle mode: " + mode);
         }
 
-        String ownerId = SessionUtils.getUser(SecurityUtils.getSubject()).getId();
+        String ownerId = SessionUtils.getUserId();
         String strSource = ImageUtils.getAlbumsBasePath(ownerId);
         String strTarget = ImageUtils.getThumbnailsBasePath(ownerId);
         if (StringUtils.isEmpty(strSource) || StringUtils.isEmpty(strTarget)) {
@@ -159,7 +157,7 @@ public class AdministrationService extends DeboxService {
         } else {
             if (syncJob == null) {
                 syncJob = new SyncJob(source, target, syncMode, forceCheckDates);
-                syncJob.setOwnerId(SessionUtils.getUser(SecurityUtils.getSubject()).getId());
+                syncJob.setOwnerId(ownerId);
 
             } else if (!syncJob.getSource().equals(source) || !syncJob.getTarget().equals(target)) {
                 logger.warn("Aborting sync between {} and {}", syncJob.getSource(), syncJob.getTarget());
@@ -190,23 +188,23 @@ public class AdministrationService extends DeboxService {
 
     public Render getData() throws SQLException {
         String username = HomeService.getUsername();
-        User user = SessionUtils.getUser(SecurityUtils.getSubject());
+        String userId = SessionUtils.getUserId();
         
         if (syncJob != null && !syncJob.isTerminated()) {
             Map<String, Long> sync = getSyncData();
             return renderJSON(
                     "username", username,
                     "configuration", ApplicationContext.getInstance().getOverallConfiguration().get(),
-                    "albums", albumDao.getAllAlbums(),
-                    "tokens", tokenDao.getAll(user.getId()),
+                    "albums", albumDao.getAllAlbums(userId),
+                    "tokens", userDao.getAllAnonymousUsersByCreator(userId),
                     "sync", sync);
         }
 
         return renderJSON(
                 "username", username,
                 "configuration", ApplicationContext.getInstance().getOverallConfiguration().get(),
-                "albums", albumDao.getAllAlbums(),
-                "tokens", tokenDao.getAll(user.getId()));
+                "albums", albumDao.getAllAlbums(userId),
+                "tokens", userDao.getAllAnonymousUsersByCreator(userId));
     }
 
     public Render getUploadProgress(FileProgressListener listener) {

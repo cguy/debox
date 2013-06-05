@@ -51,7 +51,8 @@ var fr = {
         connection: "Login",
         next: "Next",
         previous: "Previous",
-        and: "and"
+        and: "and",
+        on: "on"
     },
     registration : {
         title: "Register",
@@ -348,6 +349,10 @@ var fr = {
         }
     },
     slideshow: {
+        download : {
+            photo : "Download this photo",
+            video : "Download this video"
+        },
         exit: "Exit the slideshow"
     },
     install : {

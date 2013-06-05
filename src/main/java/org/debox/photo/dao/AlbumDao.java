@@ -33,12 +33,13 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.JdbcUtils;
 import org.debox.photo.model.Album;
 import org.debox.photo.model.Media;
+import org.debox.photo.model.user.DeboxPermission;
 import org.debox.photo.model.user.User;
 import org.debox.photo.util.DatabaseUtils;
+import org.debox.photo.util.SessionUtils;
 import org.debox.photo.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,62 +52,43 @@ public class AlbumDao {
     private static final Logger logger = LoggerFactory.getLogger(AlbumDao.class);
     
     protected static final PhotoDao PHOTO_DAO = new PhotoDao();
+    protected static final PermissionDao PERMISSION_DAO = new PermissionDao();
     
     protected static String SQL_CREATE_ALBUM = "INSERT INTO albums VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)";
     protected static String SQL_UPDATE_ALBUM = "UPDATE albums SET name = ?, description = ?, public = ?, photos_count = ?, videos_count = ?, downloadable = ?, begin_date = ?, end_date = ? WHERE id = ?";
     
     protected static String SQL_DELETE_ALBUM = "DELETE FROM albums WHERE id = ?";
 
-    protected static String SQL_GET_ALBUMS = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a ORDER BY begin_date";
-    
-    protected static String SQL_GET_ROOT_ALBUMS_FOR_ADMIN = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE parent_id is null ORDER BY begin_date";
-    
-    protected static String SQL_GET_ROOT_VISIBLE_ALBUMS = ""
-            + "SELECT DISTINCT"
-            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
+    protected static String SQL_GET_ALBUMS = ""
+            + "SELECT "
+            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, "
+            + "    (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
             + "FROM"
-            + "    albums a INNER JOIN albums_tokens ON id = album_id "
-            + "WHERE"
-            + "    parent_id is null "
-            + "    AND ("
-            + "        token_id = ?"
-            + "        OR public = 1"
-            + "    )"
-            + "ORDER BY begin_date";
+            + "    albums a INNER JOIN users_albums_permissions aa ON aa.instance = a.id "
+            + "WHERE aa.user_id = ? ORDER BY begin_date";
     
-    protected static String SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED = ""
+    protected static String SQL_GET_ROOT_ALBUMS = ""
             + "SELECT"
-            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
-            + "FROM"
-            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
-            + "WHERE aa.user_id = ? AND a.parent_id IS NULL "
+            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, "
+            + "    (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
+            + "FROM "
+            + "    albums a INNER JOIN users_albums_permissions aa ON aa.instance = a.id "
+            + "WHERE "
+            + "    parent_id is null "
+            + "    AND (aa.user_id = ? "
+            + "    OR a.public = 1) "
             + "ORDER BY begin_date";
     
-    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE parent_id = ? ORDER BY begin_date";
-    
-    protected static String SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE parent_id = ?  ORDER BY begin_date";
-    
-    protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID = ""
-            + "SELECT DISTINCT"
-            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
-            + "FROM"
-            + "    albums a INNER JOIN albums_tokens ON id = album_id "
-            + "WHERE"
+    protected static String SQL_GET_ALBUMS_BY_PARENT_ID = ""
+            + "SELECT "
+            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, "
+            + "    (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
+            + "FROM "
+            + "    albums a INNER JOIN users_albums_permissions aa ON aa.instance = a.id "
+            + "WHERE "
             + "    parent_id = ? "
-            + "    AND ("
-            + "        token_id = ?"
-            + "        OR public = 1"
-            + "    )"
-            + "ORDER BY begin_date";
-    
-    protected static String SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED = ""
-            + "SELECT DISTINCT"
-            + "    id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id "
-            + "FROM"
-            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
-            + "WHERE"
-            + "    parent_id = ? AND (aa.user_id = ? "
-            + "    OR public = 1) "
+            + "    AND (aa.user_id = ? "
+            + "    OR a.public = 1) "
             + "ORDER BY begin_date";
     
     protected static String SQL_GET_PHOTOS_COUNT_BY_PARENT_ID_FOR_LOGGED = ""
@@ -135,7 +117,7 @@ public class AlbumDao {
     protected static String SQL_GET_VIDEOS_COUNT_BY_PARENT_ID_FOR_LOGGED = ""
             + "SELECT count(*) "
             + "FROM"
-            + "    albums a INNER JOIN accounts_accesses aa ON a.id = aa.album_id "
+            + "    albums a INNER JOIN users_albums_permissions aa ON aa.instance = a.id "
             + "    INNER JOIN videos p ON a.id = p.album_id "
             + "WHERE"
             + "    a.id = ? AND (aa.user_id = ? "
@@ -159,7 +141,7 @@ public class AlbumDao {
     protected static String SQL_GET_VISIBLE_ALBUM_BY_ID = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a LEFT JOIN albums_tokens ON id = album_id WHERE id = ? AND ("
             + "        token_id = ? OR public = 1"
             + "    )";
-    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a LEFT JOIN accounts_accesses aa ON a.id = aa.album_id "
+    protected static String SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a LEFT JOIN users_albums_permissions aa ON aa.instance = a.id"
             + "WHERE id = ? AND aa.user_id = ?";
     
     protected static String SQL_GET_ALBUM_BY_RELATIVE_PATH = "SELECT id, name, description, begin_date, end_date, photos_count, videos_count, downloadable, relative_path, parent_id, public, (select count(id) from albums where parent_id = a.id) subAlbumsCount, owner_id FROM albums a WHERE relative_path = ?";
@@ -176,32 +158,9 @@ public class AlbumDao {
     protected static String SQL_GET_ALBUM_COVER = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM photos p INNER JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     protected static String SQL_GET_ALBUM_COVER_VIDEO = "SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id FROM videos p INNER JOIN albums a ON a.cover = p.id WHERE a.id = ?";
     
-    protected static String SQL_GET_VISIBLE_ALBUM_COVER = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM photos p "
-            + "INNER JOIN albums a ON a.cover = p.id "
-            + "INNER JOIN albums_tokens at ON at.album_id = a.id "
-            + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM photos p "
-            + "INNER JOIN albums a ON a.cover = p.id "
-            + "INNER JOIN accounts_accesses aa ON aa.album_id = a.id "
-            + "WHERE a.id = ?)";
-    
-    protected static String SQL_GET_VISIBLE_ALBUM_COVER_VIDEO = ""
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM videos p "
-            + "INNER JOIN albums a ON a.cover = p.id "
-            + "INNER JOIN albums_tokens at ON at.album_id = a.id "
-            + "WHERE a.id = ? AND (at.token_id = ? OR a.public = 1)) UNION DISTINCT "
-            + "(SELECT p.id, p.filename, p.title, p.date, p.relative_path, p.album_id, a.owner_id owner_id "
-            + "FROM videos p "
-            + "INNER JOIN albums a ON a.cover = p.id "
-            + "INNER JOIN accounts_accesses aa ON aa.album_id = a.id "
-            + "WHERE a.id = ?)";
-    
     protected static final Map<String, String> columnsMapping = new HashMap<>(12);
     static {
+        // This map uses setter names (not directy the object properties names)
         columnsMapping.put("id", "id");
         columnsMapping.put("name", "name");
         columnsMapping.put("description", "description");
@@ -216,15 +175,15 @@ public class AlbumDao {
         columnsMapping.put("subAlbumsCount", "subAlbumsCount");
     }
     
-    protected int getAllPhotosCount(String albumId) throws SQLException {
+    protected int getPhotosCount(String albumId, String viewerId) throws SQLException {
         int result;
         try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getAllPhotosCount(albumId, connection);
+            result = this.getPhotosCount(albumId, viewerId, connection);
         }
         return result;
     }
     
-    protected int getAllPhotosCount(String albumId, Connection c) throws SQLException {
+    protected int getPhotosCount(String albumId, String viewerId, Connection c) throws SQLException {
         int result = 0;
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -242,10 +201,11 @@ public class AlbumDao {
             
             statement = c.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID);
             statement.setString(1, albumId);
+            statement.setString(2, viewerId);
 
             rs = statement.executeQuery();
             while (rs.next()) {
-                result += getAllPhotosCount(rs.getString("id"), c);
+                result += getPhotosCount(rs.getString("id"), viewerId, c);
             }
             
         } finally {
@@ -255,97 +215,15 @@ public class AlbumDao {
         return result;
     }
     
-    protected int getPhotosCountForLoggedUser(String albumId, String userId) throws SQLException {
+    protected int getVideosCount(String albumId, String viewerId) throws SQLException {
         int result;
         try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getPhotosCountForLoggedUser(albumId, userId, connection);
+            result = this.getVideosCount(albumId, viewerId, connection);
         }
         return result;
     }
     
-    protected int getPhotosCountForLoggedUser(String albumId, String userId, Connection c) throws SQLException {
-        int result = 0;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-
-        try {
-            statement = c.prepareStatement(SQL_GET_PHOTOS_COUNT_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, albumId);
-            statement.setString(2, userId);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += rs.getInt(1);
-            }
-            
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            
-            statement = c.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, albumId);
-            statement.setString(2, userId);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += getPhotosCountForLoggedUser(rs.getString("id"), userId, c);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
-    }
-    
-    protected int getVisiblePhotosCount(String albumId, String token) throws SQLException {
-        int result;
-        try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getVisiblePhotosCount(albumId, token, connection);
-        }
-        return result;
-    }
-    
-    protected int getVisiblePhotosCount(String albumId, String token, Connection c) throws SQLException {
-        int result = 0;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-
-        try {
-            statement = c.prepareStatement(SQL_GET_VISIBLE_PHOTOS_COUNT_BY_ALBUM_ID);
-            statement.setString(1, albumId);
-            statement.setString(2, token);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += rs.getInt(1);
-            }
-            
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            
-            statement = c.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
-            statement.setString(1, albumId);
-            statement.setString(2, token);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += getVisiblePhotosCount(rs.getString("id"), token, c);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
-    }
-    
-    protected int getAllVideosCount(String albumId) throws SQLException {
-        int result;
-        try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getAllVideosCount(albumId, connection);
-        }
-        return result;
-    }
-    
-    protected int getAllVideosCount(String albumId, Connection c) throws SQLException {
+    protected int getVideosCount(String albumId, String viewerId, Connection c) throws SQLException {
         int result = 0;
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -363,97 +241,16 @@ public class AlbumDao {
             
             statement = c.prepareStatement(SQL_GET_ALBUMS_BY_PARENT_ID);
             statement.setString(1, albumId);
+            statement.setString(2, viewerId);
 
             rs = statement.executeQuery();
             while (rs.next()) {
-                result += getAllVideosCount(rs.getString("id"), c);
+                result += getVideosCount(rs.getString("id"), viewerId, c);
             }
             
         } finally {
             DbUtils.closeQuietly(rs);
             DbUtils.closeQuietly(statement);
-        }
-        return result;
-    }
-    
-    protected int getVideosCountForLoggedUser(String albumId, String userId) throws SQLException {
-        int result;
-        try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getVideosCountForLoggedUser(albumId, userId, connection);
-        }
-        return result;
-    }
-    
-    protected int getVideosCountForLoggedUser(String albumId, String userId, Connection c) throws SQLException {
-        int result = 0;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-
-        try {
-            statement = c.prepareStatement(SQL_GET_VIDEOS_COUNT_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, albumId);
-            statement.setString(2, userId);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += rs.getInt(1);
-            }
-            
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            
-            statement = c.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED);
-            statement.setString(1, albumId);
-            statement.setString(2, userId);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += getVideosCountForLoggedUser(rs.getString("id"), userId, c);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-        }
-        return result;
-    }
-    
-    protected int getVisibleVideosCount(String albumId, String token) throws SQLException {
-        int result;
-        try (Connection connection = DatabaseUtils.getConnection()) {
-            result = this.getVisibleVideosCount(albumId, token, connection);
-        }
-        return result;
-    }
-    
-    protected int getVisibleVideosCount(String albumId, String token, Connection c) throws SQLException {
-        int result = 0;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-
-        try {
-            statement = c.prepareStatement(SQL_GET_VISIBLE_VIDEOS_COUNT_BY_ALBUM_ID);
-            statement.setString(1, albumId);
-            statement.setString(2, token);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += rs.getInt(1);
-            }
-            
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
-            
-            statement = c.prepareStatement(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID);
-            statement.setString(1, albumId);
-            statement.setString(2, token);
-
-            rs = statement.executeQuery();
-            while (rs.next()) {
-                result += getVisibleVideosCount(rs.getString("id"), token, c);
-            }
-        } finally {
-            JdbcUtils.closeResultSet(rs);
-            JdbcUtils.closeStatement(statement);
         }
         return result;
     }
@@ -502,6 +299,7 @@ public class AlbumDao {
                             album.getParentId(),
                             album.isPublicAlbum(),
                             album.getOwnerId());
+                    PERMISSION_DAO.save(connection, album.getOwnerId(), new DeboxPermission(DeboxPermission.DOMAIN_ALBUM, DeboxPermission.ACTION_ALL, album.getId()));
                 }
             }
             DbUtils.commitAndCloseQuietly(connection);
@@ -519,82 +317,39 @@ public class AlbumDao {
         queryRunner.update(SQL_DELETE_ALBUM, album.getId());
     }
     
-    public Album getVisibleAlbumForLoggedUser(String userId, String albumId) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID_LOGGED, getBeanHandler(userId, false), albumId, userId);
-        return result;
-    }
-    
-    public Album getVisibleAlbum(String token, String albumId) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Album result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_BY_ID, getBeanHandler(token, true), albumId, token);
-        return result;
-    }
-    
     public Album getAlbum(String albumId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Album result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(null, false), albumId);
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_ID, getBeanHandler(null), albumId);
         return result;
     }
     
     public Album getAlbumByPath(String path) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Album result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(null, false), path);
+        Album result = queryRunner.query(SQL_GET_ALBUM_BY_RELATIVE_PATH, getBeanHandler(null), path);
         return result;
     }
    
-    public List<Album> getAllAlbums() throws SQLException {
+    public List<Album> getAllAlbums(String viewerId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(null, false));
+        List<Album> result = queryRunner.query(SQL_GET_ALBUMS, getBeanListHandler(), viewerId);
         for (Album album : result) {
-            this.fillPhotosCount(album, null, false);
-            this.fillVideosCount(album, null, false);
+            this.fillPhotosCount(album, viewerId);
+            this.fillVideosCount(album, viewerId);
         }
         return result;
     }
     
-    public List<Album> getAlbums(String parentId) throws SQLException {
+    public List<Album> getAlbums(String viewerId, String parentId) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
         List<Album> result;
         if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_ALBUMS_FOR_ADMIN, getBeanListHandler(null, false));
+            result = queryRunner.query(SQL_GET_ROOT_ALBUMS, getBeanListHandler(), viewerId);
         } else {
-            result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID_FOR_ADMINISTRATOR, getBeanListHandler(null, false), parentId);
+            result = queryRunner.query(SQL_GET_ALBUMS_BY_PARENT_ID, getBeanListHandler(), parentId, viewerId);
         }
         for (Album album : result) {
-            this.fillPhotosCount(album, null, false);
-            this.fillVideosCount(album, null, false);
-        }
-        return result;
-    }
-
-    public List<Album> getVisibleAlbums(String token, String parentId) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        List<Album> result;
-        if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS, getBeanListHandler(token, true), token);
-        } else {
-            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID, getBeanListHandler(token, true), parentId, token);
-        }
-        for (Album album : result) {
-            this.fillPhotosCount(album, token, true);
-            this.fillVideosCount(album, token, true);
-        }
-        return result;
-    }
-
-    public List<Album> getVisibleAlbumsForLoggedUser(String parentId) throws SQLException {
-        String id = ((User) SecurityUtils.getSubject().getPrincipal()).getId();
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        List<Album> result;
-        if (parentId == null) {
-            result = queryRunner.query(SQL_GET_ROOT_VISIBLE_ALBUMS_FOR_LOGGED, getBeanListHandler(id, false), id);
-        } else {
-            result = queryRunner.query(SQL_GET_VISIBLE_ALBUMS_BY_PARENT_ID_FOR_LOGGED, getBeanListHandler(id, false), parentId, id);
-        }
-        for (Album album : result) {
-            this.fillPhotosCount(album, id, false);
-            this.fillVideosCount(album, id, false);
+            this.fillPhotosCount(album, viewerId);
+            this.fillVideosCount(album, viewerId);
         }
         return result;
     }
@@ -681,10 +436,15 @@ public class AlbumDao {
     }
 
     public Media getAlbumCover(String albumId) throws SQLException {
+        String token = null;
+        User user = SessionUtils.getUser();
+        if (user != null) {
+            token = user.getToken();
+        }
         QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Media result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(null), albumId);
+        Media result = queryRunner.query(SQL_GET_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId);
         if (result == null) {
-            result = queryRunner.query(SQL_GET_ALBUM_COVER_VIDEO, VideoDao.getBeanHandler(null), albumId);
+            result = queryRunner.query(SQL_GET_ALBUM_COVER_VIDEO, VideoDao.getBeanHandler(token), albumId);
             if (result == null) {
                 Album album = getAlbum(albumId);
                 if (album.getPhotosCount() == 0 && album.getVideosCount() == 0) {
@@ -698,77 +458,57 @@ public class AlbumDao {
         return result;
     }
     
-    public Media getVisibleAlbumCover(String token, String albumId) throws SQLException {
-        QueryRunner queryRunner = new QueryRunner(DatabaseUtils.getDataSource());
-        Media result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER, PhotoDao.getBeanHandler(token), albumId, token, albumId);
-        if (result == null) {
-            result = queryRunner.query(SQL_GET_VISIBLE_ALBUM_COVER_VIDEO, VideoDao.getBeanHandler(token), albumId, token, albumId);
-        }
-        return result;
-    }
-    
-    protected void fillPhotosCount(Album album, String identifier, boolean isToken) throws SQLException {
-        int count;
-        if (isToken) {
-            count = getVisiblePhotosCount(album.getId(), identifier);
-        } else if (identifier != null) {
-            count = getPhotosCountForLoggedUser(album.getId(), identifier);
-        } else {
-            count = getAllPhotosCount(album.getId());
-        }
+    protected void fillPhotosCount(Album album, String viewerId) throws SQLException {
+        int count = getPhotosCount(album.getId(), viewerId);
         album.setTotalPhotosCount(count);
     }
     
-    protected void fillVideosCount(Album album, String identifier, boolean isToken) throws SQLException {
-        int count;
-        if (isToken) {
-            count = getVisibleVideosCount(album.getId(), identifier);
-        } else if (identifier != null) {
-            count = getVideosCountForLoggedUser(album.getId(), identifier);
-        } else {
-            count = getAllVideosCount(album.getId());
-        }
+    protected void fillVideosCount(Album album, String viewerId) throws SQLException {
+        int count = getVideosCount(album.getId(), viewerId);
         album.setTotalVideosCount(count);
     }
 
-    protected void fillAlbumCoverUrl(Album album, String identifier, boolean isToken) {
+    protected void fillAlbumCoverUrl(Album album) {
+        String token = null;
+        User user = SessionUtils.getUser();
+        if (user != null) {
+            token = user.getToken();
+        }
         String url = "albums/" + album.getId() + "-cover.jpg";
-        if (identifier != null && isToken) {
-            url += "?token=" + identifier;
+        if (token != null) {
+            url += "?token=" + token;
         }
         album.setCoverUrl(url);
     }
     
-    protected BeanHandler<Album> getBeanHandler(String identifier, boolean isToken) {
-        return new BeanHandler<>(Album.class, getRowProcessor(identifier, isToken));
+    protected BeanHandler<Album> getBeanHandler(String viewerId) {
+        return new BeanHandler<>(Album.class, getRowProcessor(viewerId));
     }
     
-    protected RowProcessor getRowProcessor(String identifier, boolean isToken) {
-        return new BeanRowProcessor(identifier, isToken);
+    protected RowProcessor getRowProcessor(String viewerId) {
+        return new BeanRowProcessor(viewerId);
     }
     
-    protected BeanListHandler<Album> getBeanListHandler(String identifier, boolean isToken) {
-        return new BeanListHandler<>(Album.class, new BeanListRowProcessor(identifier, isToken));
+    protected BeanListHandler<Album> getBeanListHandler() {
+        return new BeanListHandler<>(Album.class, new BeanListRowProcessor());
     }
     
     protected class BeanRowProcessor extends BasicRowProcessor {
         
-        protected String identifier;
-        protected boolean isToken;
+        protected String viewerId;
         
-        public BeanRowProcessor(String identifier, boolean isToken) {
+        public BeanRowProcessor(String viewerId) {
             super(new BeanProcessor(columnsMapping));
-            this.identifier = identifier;
-            this.isToken = isToken;
+            this.viewerId = viewerId;
         }
         
         @Override
         public <T> T toBean(ResultSet rs, Class<T> type) throws SQLException {
             T result = super.toBean(rs, type);
             if (result instanceof Album) {
-                fillAlbumCoverUrl((Album) result, identifier, isToken);
-                fillPhotosCount((Album) result, identifier, isToken);
-                fillVideosCount((Album) result, identifier, isToken);
+                fillAlbumCoverUrl((Album) result);
+                fillPhotosCount((Album) result, viewerId);
+                fillVideosCount((Album) result, viewerId);
             }
             return result;
         }
@@ -777,15 +517,15 @@ public class AlbumDao {
     
     protected class BeanListRowProcessor extends BeanRowProcessor {
 
-        public BeanListRowProcessor(String identifier, boolean isToken) {
-            super(identifier, isToken);
+        public BeanListRowProcessor() {
+            super(null);
         }
         
         @Override
         public <T> List<T> toBeanList(ResultSet rs, Class<T> type) throws SQLException {
             List<T> result = super.toBeanList(rs, type);
             for (T current : result) {
-                fillAlbumCoverUrl((Album) current, identifier, isToken);
+                fillAlbumCoverUrl((Album) current);
             }
             return result;
         }

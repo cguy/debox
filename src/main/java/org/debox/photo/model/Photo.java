@@ -33,7 +33,7 @@ public class Photo extends Media {
     protected String url;
     
     public void computeAccessUrl(String token) {
-        String baseUrl = "photo/" + this.getId() + ".jpg";
+        String baseUrl = "photos/" + this.getId() + ".jpg";
         char separator = '?'; 
         if (token != null) {
             baseUrl += "?token=" + token;
