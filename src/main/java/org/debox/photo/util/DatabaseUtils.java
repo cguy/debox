@@ -68,6 +68,7 @@ public class DatabaseUtils {
     }
 
     public static boolean hasConfiguration() {
+
         return properties != null && !StringUtils.atLeastOneIsEmpty(
             properties.getString(PROPERTY_DATABASE_TYPE),
             properties.getString(PROPERTY_JDBC_URL),
@@ -124,8 +125,8 @@ public class DatabaseUtils {
                     comboPooledDataSource.setDriverClass(driverClass);
 
                     String url = "jdbc:" + properties.getString(PROPERTY_JDBC_URL);
-                    String user = properties.getString(PROPERTY_DATABASE_USERNAME);
-                    String password = properties.getString(PROPERTY_DATABASE_PASSWORD);
+                    String user = properties.getString(PROPERTY_DATABASE_USERNAME, "");
+                    String password = properties.getString(PROPERTY_DATABASE_PASSWORD, "");
 
                     comboPooledDataSource.setJdbcUrl(url);
                     comboPooledDataSource.setUser(user);

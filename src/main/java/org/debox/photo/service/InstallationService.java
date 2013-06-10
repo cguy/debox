@@ -59,6 +59,12 @@ public class InstallationService extends DeboxService {
     
     protected UserDao userDao = new UserDao();
     
+    public Render displayFirstPage() {
+        DatabaseUtils.setDataSourceConfiguration(null);
+        PropertiesUtils.deleteFile();
+        return renderView("install.html");
+    }
+    
     public Render getAvailableDatabaseDrivers() {
         Map<String, Boolean> map = new HashMap<>(DatabaseUtils.getDriverClasses().size());
         for (Entry<String, String> entry : DatabaseUtils.getDriverClasses().entrySet()) {

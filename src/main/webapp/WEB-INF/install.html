@@ -46,7 +46,7 @@
                             $(".step .next").click(function() {
                                 $(this).parents(".step").addClass("hide").next().removeClass("hide");
                             })
-                            _("jdbc").val(_("database-type option[selected]").attr("data-jdbc"));
+                            _("jdbc").val($("#database-type option[value=mysql]").attr("data-jdbc"));
                             _("database-type").change(function() {
                                 _("jdbc").val($(this).find("option[value=" + $(this).val() + "]").attr("data-jdbc"));
                             });
@@ -65,7 +65,7 @@
                                 });
                                 return false;
                             });
-                            $("_workingDirectory").submit(function(event) {
+                            _("workingDirectory").submit(function(event) {
                                 var context = $(this);
                                 $.ajax({
                                     url: "working-directory",

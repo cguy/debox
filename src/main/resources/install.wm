@@ -7,7 +7,7 @@ package.views=WEB-INF/
 # -----------------------------------------------------------------------------------------------
 # INSTALL
 # -----------------------------------------------------------------------------------------------
-GET         /install                            view:install.html
+GET         /install                            InstallationService.displayFirstPage
 POST        /datasource                         InstallationService.setDataSource
 POST        /working-directory                  InstallationService.setWorkingDirectory
 POST        /register-administrator             InstallationService.createUserAndRoles

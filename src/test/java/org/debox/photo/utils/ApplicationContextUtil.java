@@ -27,7 +27,8 @@ package org.debox.photo.utils;
 public class ApplicationContextUtil {
     
     public static String getBaseUrl() {
-        return "http://localhost:8080";
+        String port = System.getProperty("jetty.port", "8080");
+        return "http://localhost:" + port;
     }
     
 }

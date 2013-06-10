@@ -22,26 +22,35 @@ package org.debox.photo.util;
  */
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.debux.webmotion.server.WebMotionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Corentin Guy <corentin.guy@debox.fr>
  */
 public class PropertiesUtils {
     
+    private static final Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
+    
     protected static final Object lock = new Object();
     protected static PropertiesConfiguration configuration = null;
     
     public static String getSecretKey() throws ConfigurationException {
-        return getConfiguration().getString("application.secret");
-    }
-    
-    public static String getCryptographyIV() throws ConfigurationException {
-        return getConfiguration().getString("application.secret.iv");
+        String secret = getConfiguration().getString("application.secret");
+        if (secret == null) {
+            secret = RandomStringUtils.random(32, true, true);
+            getConfiguration().addProperty("application.secret", secret);
+            save();
+        }
+        return secret;
     }
     
     public static Path getConfigurationFilePath() {
@@ -74,6 +83,14 @@ public class PropertiesUtils {
     
     public static void save() throws ConfigurationException {
         configuration.save(getConfigurationFilePath().toFile());
+    }
+
+    public static void deleteFile() {
+        try {
+            Files.delete(getConfigurationFilePath());
+        } catch (IOException ex) {
+            log.error("Unable to delete configuration file", ex);
+        }
     }
     
 }

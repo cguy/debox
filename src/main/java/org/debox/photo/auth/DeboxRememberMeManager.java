@@ -21,21 +21,9 @@ package org.debox.photo.auth;
  * #L%
  */
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -45,7 +33,6 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
-import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.subject.WebSubjectContext;
 import org.apache.shiro.web.util.WebUtils;
 import org.debox.photo.dao.UserDao;
@@ -70,17 +57,9 @@ public class DeboxRememberMeManager extends CookieRememberMeManager implements R
     
     protected UserDao userDao = new UserDao();
     
-    protected SecretKeySpec secretKeySpec;
-    protected IvParameterSpec spec;
-    
     protected ServerContext context = new ServerContext();
     
     public DeboxRememberMeManager() throws Exception {
-        String secretKey = PropertiesUtils.getSecretKey();
-        String iv = PropertiesUtils.getCryptographyIV();
-        secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
-        spec = new IvParameterSpec(iv.getBytes("UTF-8"));
-        
         context.setSecret(PropertiesUtils.getSecretKey());
     }
 
