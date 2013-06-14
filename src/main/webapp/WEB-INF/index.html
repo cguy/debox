@@ -19,6 +19,7 @@
         <link rel="stylesheet" href="static/js/lib/select2/select2.css" />
         <link rel="stylesheet" href="static/js/lib/datatables/jquery.dataTables.css" />
         
+        <link href='http://fonts.googleapis.com/css?family=Merriweather+Sans&subset=latin' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="static/css/style.css" />
         <link rel="stylesheet" href="static/css/thumbnails.css" />
         <link rel="stylesheet" href="static/css/slideshow.css" />
@@ -27,17 +28,16 @@
         <link rel="stylesheet" href="static/css/style.iphone5.css" />
     </head>
     <body onscroll="onBodyScroll()">
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                    <!-- Fill in with loadTemplate("header", ...); call -->
-                </div>
+        <div id="container">
+            <div id="menu">
+                <!-- Fill in with loadTemplate("header", ...); call -->
             </div>
+            <div id="content">
+                <!-- Fill in with loadTemplate(...); call -->
+            </div>
+            <i id="menu-link" class="icon-reorder"></i>
+            <div id="loading"></div>
         </div>
-        <div class="container-fluid">
-            <!-- Fill in with loadTemplate(...); call -->
-        </div>
-        <div id="loading"></div>
         
         <script src="static/js/lib/head.load-0.96.min.js"></script>
         <script type="text/javascript">
@@ -45,6 +45,7 @@
             head.js(
                 "static/js/lib/modernizr.custom.77358.js",
                 "static/js/lib/jquery-1.9.1.min.js",
+                "static/js/lib/jquery.cookie-1.3.1.js",
                 "static/js/lib/jquery-ui-1.8.23.custom.min.js",
                 "static/js/lib/jquery.dynatree.min.js",
                 "static/js/lib/CSSPlugin.min.js",
@@ -72,26 +73,30 @@
                     lang = fr;
                     // Load templates before enable application routing
                     _("loading").text(lang.common.loading);
+                    
+                    if ($.cookie('menu.hide') == "true") {
+                        _("container").addClass("hideMenu");
+                    }
                     loadTemplates(function() {
-                    app = Sammy(function() {
-                        // Comment this line to enable SammyJS logging
-//                        this.log = function() {}
-                    });
-                    head.js(
-                        "static/js/routes/media-browsing.js" + suffix,
-                        "static/js/routes/administration.js" + suffix,
-                        "static/js/routes/account.js" + suffix,
-                        "static/js/routes/administration/configuration.js" + suffix,
-                        "static/js/routes/administration/synchronization.js" + suffix,
-                        "static/js/routes/account/albums.js" + suffix,
-                        "static/js/routes/account/photos-upload.js" + suffix,
-                        "static/js/routes/account/photos.js" + suffix,
-                        "static/js/routes/account/administrator-account.js" + suffix,
-                        "static/js/routes/account/visitors-accesses.js" + suffix,
-                        function() {
-                            app.run("#/");
-                        }
-                    );
+                        app = Sammy(function() {
+                            // Comment this line to enable SammyJS logging
+    //                        this.log = function() {}
+                        });
+                        head.js(
+                            "static/js/routes/media-browsing.js" + suffix,
+                            "static/js/routes/administration.js" + suffix,
+                            "static/js/routes/account.js" + suffix,
+                            "static/js/routes/administration/configuration.js" + suffix,
+                            "static/js/routes/administration/synchronization.js" + suffix,
+                            "static/js/routes/account/albums.js" + suffix,
+                            "static/js/routes/account/photos-upload.js" + suffix,
+                            "static/js/routes/account/photos.js" + suffix,
+                            "static/js/routes/account/administrator-account.js" + suffix,
+                            "static/js/routes/account/visitors-accesses.js" + suffix,
+                            function() {
+                                app.run("#/");
+                            }
+                        );
                     });
                 }
             );

@@ -369,20 +369,25 @@ var fr = {
         steps: [
             {
                 title: "Step 1 / 3 : Database configuration",
+                text: "The debox photo galery needs a MySQL database to store albums, photos, users data. The database you will specified <strong>must</strong> exist to allow installation process to configure it.",
                 form: {
                     type : {
                         label: "Database server type:"
                     },
-                    jdbc : {
-                        label: "JDBC URL:"
+                    host : {
+                        label: "Server host and port:",
+                        default: "127.0.0.1:3306"
+                    },
+                    database : {
+                        label: "Database name:",
+                        default: "debox"
                     },
                     username: {
                         label : "Database username:",
-                        default : "Default value: root"
+                        default : "root"
                     },
                     password: {
-                        label : "Database password:",
-                        default : "Default value: <empty>"
+                        label : "Database password:"
                     },
                     next: "Check database connection"
                 }

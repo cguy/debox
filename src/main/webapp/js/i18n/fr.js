@@ -169,7 +169,7 @@ var fr = {
         },
         sync: {
             title: "Synchroniser les répertoires",
-            tab: "Synchronisation des répertoires",
+            tab: "Synchronisation",
             in_progress: "Synchronisation en cours",
             cancel: "Annuler la synchronisation",
             choice_mode: "Veuillez choisir le mode de synchronisation et confirmer la demande ",
@@ -185,7 +185,7 @@ var fr = {
         },
         tokens: {
             title: "Gestion des accès visiteurs",
-            tab: "Gestion des accès visiteurs",
+            tab:   "Configuration de partage",
             
             thirdparty : {
                 title: "Ajouter des comptes tiers pour gérer les accès de vos contacts",
@@ -234,8 +234,8 @@ var fr = {
             }
         },
         personaldata: {
-            tab: "Mes informations personnelles",
             title: "Mes informations personnelles",
+            tab: "Informations personnelles",
             edit: "Modifier mon identité",
             username: "Nom d'utilisateur :",
             firstname: "Prénom :",
@@ -425,20 +425,25 @@ var fr = {
         steps: [
             {
                 title: "Étape n°1 / 3 : Configuration de la base de données",
+                text: "La galerie photos debox nécessite une base de données MySQL pour enregistrer les différentes informations liés aux albums, aux photos, aux utilisateurs, etc. La base de données que vous allez renseigner ci-dessous doit être créee au préalable afin que le processus d'installation puisse la configurer.",
                 form: {
                     type : {
                         label: "Type de base de données :"
                     },
-                    jdbc : {
-                        label: "URL JDBC :"
+                    host : {
+                        label: "Adresse et port du serveur MySQL :",
+                        default: "127.0.0.1:3306"
+                    },
+                    database : {
+                        label: "Nom de la base de données :",
+                        default: "debox"
                     },
                     username: {
-                        label : "Nom de l'utilisateur :",
-                        default : "Valeur par défaut : root"
+                        label : "Nom de l'utilisateur MySQL :",
+                        default : "root"
                     },
                     password: {
-                        label : "Mot de passe de l'utilisateur :",
-                        default : "Valeur par défaut : Pas de mot de passe"
+                        label : "Mot de passe de l'utilisateur MySQL :"
                     },
                     next: "Valider la connexion à la base de données"
                 }

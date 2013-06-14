@@ -372,7 +372,7 @@ h2 + .thumbnails.albums {
 .thumbnails.albums > li > .thumbnail .title span {
     color: #222;
     font-weight: normal;
-    font-family: 'Source Sans Pro', 'Helvetica Neue',Helvetica,Arial,sans-serif;;
+    font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica,Arial,sans-serif;
     font-size: 16px;
     max-height: 40px;
     overflow: hidden;

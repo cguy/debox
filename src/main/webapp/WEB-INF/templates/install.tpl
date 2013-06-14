@@ -18,33 +18,30 @@
 <div class="step hide">
     <h2 class="subtitle">{{i18n.install.steps.0.title}}</h2>
     <div class="block">
+        <p>{{i18n.install.steps.0.text}}</p>
         <form id="datasource" class="form-horizontal" action="datasource" method="post">
             <div class="control-group">
-                <label class="control-label large" for="host">{{i18n.install.steps.0.form.type.label}}</label>
-                <div class="controls">
-                    <select name="type" id="database-type">
-                        <option value="mysql" data-jdbc="mysql://127.0.0.1:3306/debox" selected>MySQL</option>
-                        <option value="h2" data-jdbc="h2:file:~/.debox/database">H2</option>
-                        <option value="postgresql" data-jdbc="postgresql://127.0.0.1:5432/debox">PostgreSQL</option>
-                    </select>
+                <label class="control-label large" for="jdbc">{{i18n.install.steps.0.form.host.label}}</label>
+                <div class="input-prepend">
+                    <input type="text" id="host" name="host" class="span4" value="{{i18n.install.steps.0.form.host.default}}" >
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label large" for="jdbc">{{i18n.install.steps.0.form.jdbc.label}}</label>
+                <label class="control-label large" for="jdbc">{{i18n.install.steps.0.form.database.label}}</label>
                 <div class="input-prepend">
-                    <span class="add-on">jdbc:</span><input type="text" id="jdbc" name="url" class="span4" placeholder="{{i18n.install.steps.0.form.host.default}}" value="127.0.0.1" >
+                    <input type="text" id="database" name="database" class="span4" value="{{i18n.install.steps.0.form.database.default}}" >
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label large" for="username">{{i18n.install.steps.0.form.username.label}}</label>
                 <div class="controls">
-                    <input type="text" id="username" name="username" class="span4" placeholder="{{i18n.install.steps.0.form.username.default}}" value="root">
+                    <input type="text" id="username" name="username" class="span4" value="{{i18n.install.steps.0.form.username.default}}">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label large" for="password">{{i18n.install.steps.0.form.password.label}}</label>
                 <div class="controls">
-                    <input type="password" id="password" name="password" class="span4" placeholder="{{i18n.install.steps.0.form.password.default}}">
+                    <input type="password" id="password" name="password" class="span4">
                 </div>
             </div>
             <div class="form-actions">
@@ -60,9 +57,9 @@
         <p class="alert">{{i18n.install.steps.1.note}}</p>
         <form id="workingDirectory" class="form-horizontal" action="datasource" method="post">
             <div class="control-group">
-                <label class="control-label large" for="path">{{i18n.install.steps.1.path.label}}</label>
+                <label class="control-label" for="path">{{i18n.install.steps.1.path.label}}</label>
                 <div class="controls">
-                    <input type="text" id="path" name="path" class="span6" >
+                    <input type="text" id="path" name="path" class="span5" >
                 </div>
             </div>
             <div class="form-actions">

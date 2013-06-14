@@ -29,10 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.dbutils.QueryRunner;
@@ -65,19 +62,6 @@ public class InstallationService extends DeboxService {
         return renderView("install.html");
     }
     
-    public Render getAvailableDatabaseDrivers() {
-        Map<String, Boolean> map = new HashMap<>(DatabaseUtils.getDriverClasses().size());
-        for (Entry<String, String> entry : DatabaseUtils.getDriverClasses().entrySet()) {
-            try {
-                Class.forName(entry.getValue());
-                map.put(entry.getKey(),  Boolean.TRUE);
-            } catch (ClassNotFoundException ex) {
-                map.put(entry.getKey(),  Boolean.FALSE);
-            }
-        }
-        return renderJSON(map);
-    }
-    
     public Render setWorkingDirectory(String path) {
         Path workingPath = Paths.get(path);
         File workingDirectory = workingPath.toFile();
@@ -91,12 +75,16 @@ public class InstallationService extends DeboxService {
         return renderSuccess();
     }
     
-    public Render setDataSource(String type, String url, String username, String password) {
+    public Render setDataSource(String host, String database, String username, String password) {
+        if (StringUtils.atLeastOneIsEmpty(host, database, username)) {
+            return renderError(HttpURLConnection.HTTP_BAD_REQUEST, "message", "Server host, database name and MySQL username are mandatory.");
+        }
+        
         CompositeConfiguration configuration = new CompositeConfiguration();
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_TYPE, type);
-        configuration.addProperty(DatabaseUtils.PROPERTY_JDBC_URL, url);
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_USERNAME, username);
-        configuration.addProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
+        configuration.setProperty(DatabaseUtils.PROPERTY_DATABASE_HOST, host);
+        configuration.setProperty(DatabaseUtils.PROPERTY_DATABASE_NAME, database);
+        configuration.setProperty(DatabaseUtils.PROPERTY_DATABASE_USERNAME, username);
+        configuration.setProperty(DatabaseUtils.PROPERTY_DATABASE_PASSWORD, password);
         DatabaseUtils.setDataSourceConfiguration((CompositeConfiguration) configuration.clone());
         
         boolean connectionTest = DatabaseUtils.testConnection();

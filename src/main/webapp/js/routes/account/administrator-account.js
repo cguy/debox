@@ -30,8 +30,8 @@ app.post('#/accounts/:accountId', function() {
         success: function(data) {
             loadTemplate("header", {
                 "username" : data.username,
-                "title" : $("a.brand").text()
-            }, ".navbar .container-fluid");
+                "title" : $("#menu > a.brand").text()
+            }, "#menu");
 
             msgNode.text("Vos informations personnelles ont été modifiées avec succès !").removeClass("hide").addClass("alert alert-success");
             submitButton.button('reset');

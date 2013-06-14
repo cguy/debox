@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     password VARCHAR(255),
     password_salt varchar(255)
 );
-ALTER TABLE accounts ADD UNIQUE (username);
+CREATE UNIQUE INDEX accounts_username_unique ON accounts (username);
 
 CREATE TABLE IF NOT EXISTS users_anonymous (
     id VARCHAR(32) PRIMARY KEY,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS roles (
     id VARCHAR(32) PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
-ALTER TABLE roles ADD UNIQUE (name);
+CREATE UNIQUE INDEX roles_name_unique ON roles (name);
 
 CREATE TABLE IF NOT EXISTS users_roles (
     user_id VARCHAR(32) NOT NULL,

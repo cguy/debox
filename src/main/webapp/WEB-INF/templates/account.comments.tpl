@@ -1,4 +1,4 @@
-<h2 class="subtitle">{{i18n.account.comments.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.comments.title}}</h1></div>
 
 <div class="block">
     <h3>{{i18n.common.summary}}</h3>

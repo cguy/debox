@@ -1,4 +1,5 @@
-<h2 class="subtitle">{{i18n.account.upload.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.upload.title}}</h1></div>
+
 <div class="block">
     <h3>{{i18n.account.upload.album}}</h3>
     <div class="alert alert-danger mandatory hide"><span class="label label-important">{{i18n.common.mandatory}}</span> {{i18n.account.upload.mandatory}}</div>

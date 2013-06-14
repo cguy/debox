@@ -84,7 +84,7 @@ function loadTemplate(templateId, data, selector, callback) {
         callback = null;
     }
     
-    var _defaultSelector = "body > .container-fluid";
+    var _defaultSelector = "body > #container > #content";
     var html = templates[templateId].render(data, templates);
     if (!selector) {
         selector = _defaultSelector;
@@ -97,7 +97,7 @@ function loadTemplate(templateId, data, selector, callback) {
     
     var tooltipNodes = null;
     if (selector == _defaultSelector) {
-        tooltipNodes = $("body > .container-fluid *[data-toggle=tooltip]");
+        tooltipNodes = $("body > #container > #content *[data-toggle=tooltip]");
     } else if (templateId == "header") {
         tooltipNodes = $(".navbar a[data-toggle=tooltip]");
     }
@@ -113,6 +113,12 @@ function loadTemplate(templateId, data, selector, callback) {
     if (templateId != "header") {
         setTimeout('_("loading").addClass("hide");', 100);
     }
+    
+    _("menu-link").unbind("click");
+    _("menu-link").click(function() {
+        _("container").toggleClass("hideMenu");
+        $.cookie('menu.hide', _("container").hasClass("hideMenu"), {expires: 3650});
+    });
 }
 
 function ajax(object) {
@@ -133,7 +139,7 @@ function ajax(object) {
                     loadTemplate("header", {
                         "username" : null,
                         "title" : $("a.brand").html()
-                    }, ".navbar .container-fluid");
+                    }, "#menu");
                 }
             } else {
                 console.log(xhr.status, xhr.responseText);
@@ -170,7 +176,7 @@ function editTitle(title) {
 
 function initHeader(data) {
     editTitle(data.title + " - Accueil");
-    loadTemplate("header", data, ".navbar .container-fluid");
+    loadTemplate("header", data, "#menu");
 }
 
 function hideModal() {

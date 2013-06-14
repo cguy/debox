@@ -1,4 +1,4 @@
-<h2 class="subtitle">{{i18n.account.tokens.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.tokens.title}}</h1></div>
 
 {{#providers.length}}
 <div class="block">

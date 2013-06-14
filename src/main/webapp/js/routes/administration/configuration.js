@@ -60,11 +60,11 @@ app.post('#/administration/configuration', function() {
         success: function(data) {
             targetBtn.button("reset");
             loadTemplate("header", {
-                "username" : $(".navbar-text.pull-right strong").html(), 
+                "username" : $("#menu .username strong").html(), 
                 "title" : data.title,
                 "authenticated" : _config.authenticated,
                 "administrator" : _config.administrator
-            }, ".navbar .container-fluid");
+            }, "#menu");
 
             if (force) {
                 $("#synchronization input[type=checkbox]").attr("checked", "checked");

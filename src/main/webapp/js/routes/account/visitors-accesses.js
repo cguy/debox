@@ -39,14 +39,18 @@ app.put('#/token', function() {
         type : "put",
         success: function(data) {
             _("administration_tokens").removeClass("hide");
-            $("#tokens p.alert-warning").addClass("hide");
+            $(".tokens p.alert-warning").addClass("hide");
 
             var treeChildren = [];
             prepareDynatree(allAlbums, [], treeChildren, null);
 
             data.i18n = lang;
             data.url = window.location.protocol + "//" + window.location.host + window.location.pathname + data.id;
-            var html = templates["account.tokens.row"].render(data, templates);
+            var tplData = {
+                i18n : lang,
+                key : data
+            };
+            var html = templates["account.tokens.row"].render(tplData, templates);
             $("#administration_tokens tbody").append(html);
 
             initDynatree(data.id, treeChildren);

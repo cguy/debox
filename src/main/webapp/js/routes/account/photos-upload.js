@@ -45,7 +45,7 @@ app.put('#/albums', function() {
     }, true);
 
     $.ajax({
-        url: "album?" + params,
+        url: "albums?" + params,
         type: "put",
         success: function(data) {
 

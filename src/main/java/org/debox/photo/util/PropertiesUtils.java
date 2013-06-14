@@ -47,7 +47,7 @@ public class PropertiesUtils {
         String secret = getConfiguration().getString("application.secret");
         if (secret == null) {
             secret = RandomStringUtils.random(32, true, true);
-            getConfiguration().addProperty("application.secret", secret);
+            getConfiguration().setProperty("application.secret", secret);
             save();
         }
         return secret;

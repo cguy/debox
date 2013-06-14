@@ -1,4 +1,4 @@
-<h2 class="subtitle">{{i18n.account.settings.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.settings.title}}</h1></div>
 
 <div class="block">
     <h3>{{i18n.account.settings.hosting.title}}</h3>

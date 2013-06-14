@@ -1,4 +1,4 @@
-<h2 class="subtitle">{{i18n.account.albums.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.albums.title}}</h1></div>
 
 {{#albums.length}}
 <ul class="thumbnails settings">

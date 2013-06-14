@@ -52,9 +52,9 @@ public class DeboxJdbcRealm extends JdbcRealm {
     protected static final String USER_ROLES_QUERY = "select r.name as role_name from users_roles ur INNER JOIN roles r ON ur.role_id = r.id where ur.user_id = ?";
     
     protected static final String PERMISSIONS_QUERY = ""
-            + "(select 'album', actions, instance from users_albums_permissions where user_id = ?) UNION "
-            + "(select 'photo', actions, instance from users_photos_permissions where user_id = ?) UNION "
-            + "(select 'video', actions, instance from users_videos_permissions where user_id = ?)";
+            + "select 'album', actions, instance from users_albums_permissions where user_id = ? UNION "
+            + "select 'photo', actions, instance from users_photos_permissions where user_id = ? UNION "
+            + "select 'video', actions, instance from users_videos_permissions where user_id = ?";
     
     public DeboxJdbcRealm() {
         this.setAuthenticationQuery(SALTED_AUTHENTICATION_QUERY);

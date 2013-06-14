@@ -26,8 +26,6 @@ import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.shiro.SecurityUtils;
@@ -43,8 +41,8 @@ import org.slf4j.LoggerFactory;
 public class DatabaseUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(DeboxJdbcRealm.class);
-    public static final String PROPERTY_DATABASE_TYPE = "database.type";
-    public static final String PROPERTY_JDBC_URL = "database.jdbc.url";
+    public static final String PROPERTY_DATABASE_HOST = "database.host";
+    public static final String PROPERTY_DATABASE_NAME = "database.name";
     public static final String PROPERTY_DATABASE_USERNAME = "database.username";
     public static final String PROPERTY_DATABASE_PASSWORD = "database.password";
     public static final String TEST_QUERY = "SELECT 1";
@@ -52,13 +50,6 @@ public class DatabaseUtils {
     protected static Configuration properties = null;
     protected static final Object lock = new Object();
     
-    protected static final Map<String, String> driverClasses = new HashMap<>(3);
-    static {
-        driverClasses.put("mysql", "com.mysql.jdbc.Driver");
-        driverClasses.put("h2", "org.h2.Driver");
-        driverClasses.put("postgresql", "org.postgresql.Driver");
-    }
-
     public static Configuration getConfiguration() {
         return properties;
     }
@@ -68,21 +59,12 @@ public class DatabaseUtils {
     }
 
     public static boolean hasConfiguration() {
-
         return properties != null && !StringUtils.atLeastOneIsEmpty(
-            properties.getString(PROPERTY_DATABASE_TYPE),
-            properties.getString(PROPERTY_JDBC_URL),
+            properties.getString(PROPERTY_DATABASE_HOST),
+            properties.getString(PROPERTY_DATABASE_NAME),
             properties.getString(PROPERTY_DATABASE_USERNAME));
     }
     
-    public static String getDriverClass(String type) {
-        return driverClasses.get(type);
-    }
-    
-    public static Map<String, String> getDriverClasses() {
-        return driverClasses;
-    }
-
     public static boolean testConnection() {
         boolean result = true;
         try (
@@ -118,15 +100,14 @@ public class DatabaseUtils {
 
                 Connection connection = null;
                 try {
-                    String type = properties.getString(PROPERTY_DATABASE_TYPE);
-                    String driverClass = getDriverClass(type);
-
                     comboPooledDataSource = new ComboPooledDataSource();
-                    comboPooledDataSource.setDriverClass(driverClass);
+                    comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
 
-                    String url = "jdbc:" + properties.getString(PROPERTY_JDBC_URL);
-                    String user = properties.getString(PROPERTY_DATABASE_USERNAME, "");
+                    String user = properties.getString(PROPERTY_DATABASE_USERNAME);
                     String password = properties.getString(PROPERTY_DATABASE_PASSWORD, "");
+                    String host = properties.getString(PROPERTY_DATABASE_HOST);
+                    String databaseName = properties.getString(PROPERTY_DATABASE_NAME);
+                    String url = "jdbc:mysql://" + host + "/" + databaseName;
 
                     comboPooledDataSource.setJdbcUrl(url);
                     comboPooledDataSource.setUser(user);
@@ -136,6 +117,7 @@ public class DatabaseUtils {
                     comboPooledDataSource.setMinPoolSize(5);
                     comboPooledDataSource.setMaxPoolSize(20);
                     comboPooledDataSource.setInitialPoolSize(10);
+                    comboPooledDataSource.setCheckoutTimeout(5000);
 
                     connection = comboPooledDataSource.getConnection();
 

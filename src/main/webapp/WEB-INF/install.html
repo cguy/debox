@@ -46,11 +46,7 @@
                             $(".step .next").click(function() {
                                 $(this).parents(".step").addClass("hide").next().removeClass("hide");
                             })
-                            _("jdbc").val($("#database-type option[value=mysql]").attr("data-jdbc"));
-                            _("database-type").change(function() {
-                                _("jdbc").val($(this).find("option[value=" + $(this).val() + "]").attr("data-jdbc"));
-                            });
-                            _("datasource").submit(function(event) {
+                            _("datasource").submit(function() {
                                 var context = $(this);
                                 $.ajax({
                                     url: "datasource",
@@ -60,7 +56,7 @@
                                         context.parents(".step").addClass("hide").next().removeClass("hide")
                                     },
                                     error : function(data) {
-                                        console.log("error", data);
+                                        alert(JSON.stringify(data));
                                     }
                                 });
                                 return false;
@@ -75,7 +71,7 @@
                                         context.parents(".step").addClass("hide").next().removeClass("hide");
                                     },
                                     error : function(data) {
-                                        console.log("error", data);
+                                        alert(JSON.stringify(data));
                                     }
                                 });
                                 return false;
@@ -92,7 +88,7 @@
                                         $("#authenticate input[name=password]").val($("#account input[name=password]").val());
                                     },
                                     error : function(data) {
-                                        console.log("error", data);
+                                        alert(JSON.stringify(data));
                                     }
                                 });
                                 return false;

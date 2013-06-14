@@ -1,4 +1,4 @@
-<h2 class="subtitle">{{i18n.account.sync.title}}</h2>
+<div class="page-header"><h1>{{i18n.account.sync.title}}</h1></div>
 
 <form id="synchronization" class="form-vertical block" action="#/administration/sync" method="post">
     <div id="sync-progress" class="alert alert-info hide">
